@@ -21,8 +21,8 @@ source: {audit_mode: default, root_reasoning_cadence: default, worker_reasoning_
 | `audit_mode` | `economy`、`balanced`、`full` | `balanced` | 选择 Root 可见副本预设。 |
 | `root_reasoning_cadence` | `full`、`milestone_only`、`off` | `milestone_only` | 选择 Root 可选摘要频率。 |
 | `worker_reasoning_cadence` | `full`、`milestone_only`、`off` | `full` | 独立选择 Worker 可选摘要频率。 |
-| `source.<field>` | 每个可选字段分别为 `explicit`、`default` | `default` | `explicit` 表示用户选择了该字段；`default` 表示由策略提供。 |
-Root 父级可随时接受用户显式偏好。未提供值时立即应用缺省值；不得将提问、计时器或回复设为 Coding 工作的前置条件。
+| `source.<field>` | 每个偏好字段分别为 `explicit`、`default` | `default` | `explicit` 表示用户选择了该字段；`default` 表示由策略提供。 |
+首次 Coding 启动必须先确认模式/预算，再收集审计可见性。已给出的有效字段不重复问；缺失字段通过“使用默认”预设或定制菜单确认。默认预设只给未提供字段填入表中默认值并标记 `default`；显式逐字段值标记 `explicit`。取消、未回复、无效答案不代表接受默认，答案未齐不创建 Workflow、不执行工具。非 UI 必须显式提交答案或清晰阻断。确认结果在同一 Session 跨任务完成、树导航、reload/resume 保留；fork/new Session 重新收集，不继承预算。volatile 不 appendEntry，只在当前进程内保留，状态丢失须新 Session，不能声称从日志恢复。这是启动流程前置，不改变授权或独立验证，也不证明完整日志可访问。
 
 任务记录结构由[委派状态记录](../delegation/delegation-state-record.md)定义。适用工作流检查点记录生效值及其显式/缺省来源。
 

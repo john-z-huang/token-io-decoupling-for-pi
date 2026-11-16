@@ -23,7 +23,7 @@ factory({ on: name => events.push(name), registerFlag: name => flags.push(name),
 assert.deepEqual(tools.map(t => t.name), ['coding_checkpoint', 'coding_slice', 'coding_run', 'coding_delegate']);
 assert.ok(events.includes('agent_before_settle') && events.includes('context') && events.includes('tool_call'));
 assert.ok(!events.includes('session_switch') && !events.includes('session_fork'));
-assert.equal(commands[0], 'coding'); assert.equal(flags.length, 3);
+assert.equal(commands[0], 'coding'); assert.equal(flags.length, 7);
 const valueModule = await import(pathToFileURL(requireHost.resolve('typebox/value')).href);
 const check = valueModule.Value?.Check ?? valueModule.Check;
 assert.equal(typeof check, 'function');

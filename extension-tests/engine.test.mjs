@@ -6,6 +6,7 @@ import { MAX_CONTEXT, renderContext } from '../extensions/coding-workflow/runtim
 const catalog = loadCatalog();
 export function fresh(mode = 'single', count = mode === 'single' ? 0 : 1) {
   const w = new Workflow(catalog, makeState(catalog, 'session-test', process.cwd(), mode, count, '合成测试任务；用户明确禁止持久化计划'));
+  w.state.audit = { audit_mode: 'balanced', root_reasoning_cadence: 'milestone_only', worker_reasoning_cadence: 'full', source: { audit_mode: 'default', root_reasoning_cadence: 'default', worker_reasoning_cadence: 'default' } };
   w.observe('user-1', '/coding', 'user', true); return w;
 }
 export function report(w, overrides = {}) {

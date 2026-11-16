@@ -115,7 +115,7 @@ function markdownFiles(root: string): string[] {
 export function loadCatalog(root = SKILL_ROOT): Catalog {
   const modules: Record<string, Module> = {};
   const hash = createHash("sha256");
-  for (const file of ["catalog.ts", "engine.ts", "runtime.ts", "index.ts", "model-selection.ts"]) hash.update(file).update(readFileSync(new URL(file, import.meta.url)));
+  for (const file of ["catalog.ts", "engine.ts", "runtime.ts", "index.ts", "model-selection.ts", "startup.ts"]) hash.update(file).update(readFileSync(new URL(file, import.meta.url)));
   for (const name of MODULES) {
     const path = `references/coding/layer-04-workflows/modules/${name}.md`;
     const text = readFileSync(join(root, path), "utf8");

@@ -1,6 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { currentModule, PHASES, SIGNALS, type Catalog, type Mode, type Phase, type SemanticSignal } from "./catalog.ts";
 
+import { validateAnswers, type Audit } from "./startup.ts";
+
 export type Dimension = "content" | "documentation" | "git";
 export type Effect = "read" | "check" | "content" | "documentation" | "git" | "memory";
 export const ROLES = ["Primary Output", "Change Verification", "Context Bootstrap/Refresh", "Documentation/Comments & Git Operations"] as const;
@@ -12,6 +14,7 @@ export interface CheckReport { checkpoint: string; outcome: "complete" | "not_ap
 export interface Allocation { id: string; role: Role; callId: string; status: "running" | "completed" | "failed" | "uncertain" }
 export interface State {
   version: 1; sessionId: string; cwd: string; catalogHash: string; runId: string; mode: Mode; childCount: number;
+  audit?: Audit;
   task: string; phase: Phase; step: number; revision: number; progress: number;
   status: "active" | "paused" | "blocked" | "complete"; reason: string; pauseRevision?: number;
   epoch: Epoch; verified?: Epoch; returnTo?: { phase: Phase; step: number };
@@ -200,6 +203,7 @@ export class Workflow {
 export function restoreState(catalog: Catalog, data: unknown, sessionId: string, cwd: string): State {
   const s = data as State;
   if (!s || s.version !== 1 || s.sessionId !== sessionId || s.cwd !== cwd || s.catalogHash !== catalog.digest) throw new Error("工作流状态版本、Session、目录或规则 Hash 不匹配；须人工重核，不能套用旧状态");
+  validateAnswers({ mode: s.mode, count: s.childCount, audit: s.audit });
   const integers = [s.childCount, s.step, s.revision, s.progress, s.autoTurns];
   if (integers.some(n => !Number.isSafeInteger(n) || n < 0) || !PHASES.includes(s.phase) || !["single", "multi"].includes(s.mode) || !["active", "paused", "blocked", "complete"].includes(s.status) || !nonempty(s.task, 8000)) throw new Error("工作流快照结构无效");
   if ((s.mode === "single" ? s.childCount !== 0 : s.childCount < 1) || !s.epoch || Object.values(s.epoch).length !== 3 || !["content", "documentation", "git"].every(k => Number.isSafeInteger(s.epoch[k as Dimension]) && s.epoch[k as Dimension] >= 0)) throw new Error("数量或 epoch 无效");

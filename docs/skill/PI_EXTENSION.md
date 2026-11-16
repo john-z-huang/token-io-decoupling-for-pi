@@ -25,6 +25,7 @@ pi install /absolute/path/to/token-io-decoupling-for-pi --local
 默认不接管会话，不按自然语言关键词猜测模式。显式开始：
 
 ```text
+/coding start 实现某项已明确的改动
 /coding single 实现某项已明确的改动
 /coding multi 实现某项已明确的改动
 /coding multi 2 执行两类已授权且职责不同的任务
@@ -33,6 +34,10 @@ pi install /absolute/path/to/token-io-decoupling-for-pi --local
 /coding resume
 /coding off
 ```
+
+启动入口共用 `startup.ts` 单一固定顺序问题注册表：**模式/预算 → 审计可见性**。有效显式字段不重问。审计菜单可选择使用默认或定制三个字段；默认值为 `audit_mode=balanced`、`root_reasoning_cadence=milestone_only`、`worker_reasoning_cadence=full`，逐字段记录 `explicit/default` 来源。默认预设只填缺失字段。取消、未回复或无效值不隐式默认；答案未齐不创建 Workflow、不执行工具。`/coding cancel` 取消正在收集的启动，Session/树导航使迟到答案失效，并发启动拒绝而不重复创建。
+
+同一 Session 已确认答案跨完成后新任务、树导航、reload/resume 保留，不重复提问或回收预算；fork/new Session 重新收集。审计偏好进入状态、context、status 和子任务 bundle，只控制安全摘要策略，不证明完整日志访问、不披露私有思维链、不改变权限或独立验证。
 
 - `single` 对应 `child_count=0`；`multi` 未填数量时为1。选择模式、预算或 task 不代表授权写入、Memory、联网或实际创建代理。
 - 同 Session 锁定模式/数量；此版不提供会话内切换模式。新模式使用新 Session，不通过重启任务重置名额。
@@ -43,10 +48,10 @@ pi install /absolute/path/to/token-io-decoupling-for-pi --local
 
 ```bash
 pi -e /absolute/path/to/token-io-decoupling-for-pi \
-  --coding-mode single -p '在授权范围内完成任务，先核验约束'
+  --coding-mode single --coding-audit-defaults -p '在授权范围内完成任务，先核验约束'
 ```
 
-`--coding-count 2` 用于 multi。`--coding-volatile` 不额外追加扩展状态，但 Pi 自身会话日志需另用其 `--no-session` 等设置管理；volatile 无跨进程恢复保证，不得将丢失状态当作空预算继续。默认状态只追加到实际 Pi Session，不另建数据库、不写 Serena Memory。
+非 UI 必须显式提交模式及审计答案，缺失时清晰阻断；不能让模型代选。`--coding-count 2` 用于 multi。审计显式 flags 为 `--coding-audit-mode economy|balanced|full`、`--coding-root-cadence full|milestone_only|off`、`--coding-worker-cadence full|milestone_only|off`；`--coding-audit-defaults` 明确接受未提供字段的默认值。命令入口在任务前使用去掉 `coding-` 前缀的参数，例如 `/coding multi 2 --audit-mode full --audit-defaults 任务` 或 `/coding start --mode single --audit-defaults 任务`。任务以 `--` 开头时用独立 `--` 分隔。`--coding-volatile` 不额外追加扩展状态，但 Pi 自身会话日志需另用其 `--no-session` 等设置管理；volatile 仅保留当前进程内答案/预算，扩展重载或跨进程 resume 无恢复证据时须新 Session，不依赖日志伪称可恢复，不得将丢失状态当作空预算继续。默认状态只追加到实际 Pi Session，不另建数据库、不写 Serena Memory。
 
 ## 固定流程与工具
 

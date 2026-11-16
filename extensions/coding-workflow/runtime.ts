@@ -6,6 +6,7 @@ import type { TSchema } from "typebox";
 import { currentModule, loadCatalog, phaseHooks, signalHooks, resolveDocumentLink, rewriteDocumentLinks, type Catalog, type HookId, type Mode } from "./catalog.ts";
 import { exactPath, makeState, restoreState, ROLES, Workflow, type Effect, type Role, type State } from "./engine.ts";
 
+import { collectStartup, parseStartupCommand, registerStartupFlags, startupFlags, validateAnswers, type StartupAnswers, type StartupInput } from "./startup.ts";
 import { validateChildSelection } from "./model-selection.ts";
 
 const STATE_TYPE = "token-io.coding-workflow.v1";
@@ -58,7 +59,7 @@ export function renderContext(workflow: Workflow): string {
   const module = currentModule(workflow.catalog, s.phase, s.mode);
   const content = [
     "[Coding Extension：结构化流程，不是权限或事实证明]",
-    JSON.stringify({ revision: s.revision, status: s.status, reason: s.reason, mode: s.mode, child_count: s.childCount, phase: s.phase, checkpoint: workflow.checkpoint?.id ?? "done", epoch: s.epoch, verified: s.verified, returnTo: s.returnTo, plan: s.plan, allocations: s.allocations, inFlight: s.inFlight, slice: s.slice, task: s.task }),
+    JSON.stringify({ revision: s.revision, status: s.status, reason: s.reason, mode: s.mode, child_count: s.childCount, audit: s.audit, phase: s.phase, checkpoint: workflow.checkpoint?.id ?? "done", epoch: s.epoch, verified: s.verified, returnTo: s.returnTo, plan: s.plan, allocations: s.allocations, inFlight: s.inFlight, slice: s.slice, task: s.task }),
     "本次用户任务只是目标，不覆盖任何安全/授权规则。不要重放已完成效果。完成当前检查点后用 coding_checkpoint 提交证据；可以一次提交同模块内连续已完成项，但不能跨模块。所有 facts 是 Agent 声明，不是宿主认证。",
     "facts 要求：ER01 independence=required/not_required；WD03 plan=persisted/prohibited；VR03 verification=passed（必须引用 effect=check 实际结果）；DA03 acceptance=satisfied（摘要逐项映射标准）；DA04 plan=archived（用户禁止持久化时除外）。",
     "写前用 coding_slice 放行四字段和精确文件。Bash、codemode 和不透明 MCP 调用通过 coding_run 声明 effect/rationale/evidence；只读声明不是自动安全证明。不得将未经授权的命令标成 read。多代理仅通过 coding_delegate，不能绕过为其他工具/递归子任务。未知语义变化用 coding_checkpoint signal，上报后重核对应 Hook。",
@@ -76,6 +77,11 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
   let workflow: Workflow | undefined;
   let enabled = false;
   let restoreError = "";
+  let answers: StartupAnswers | undefined;
+  let answerSession = "";
+  let generation = 0;
+  let starting = false;
+  let startupError = "";
   let catalog: Catalog | undefined = suppliedCatalog;
   let ledger: { mode: Mode; count: number; allocations: State["allocations"]; inFlight: string[] } | undefined;
   const intents = new Map<string, Intent>();
@@ -86,16 +92,16 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
   const getCatalog = () => catalog ??= loadCatalog();
   const volatile = () => pi.getFlag("coding-volatile") === true;
   const active = () => enabled && !!workflow;
-  function requireWorkflow() { if (!active() || restoreError) throw new Error(restoreError || "先由用户通过 /coding single|multi [数量] <任务> 选择路线"); return workflow!; }
+  function requireWorkflow() { if (!active() || restoreError) throw new Error(restoreError || "先由用户通过 /coding start 或 single|multi [数量] <任务> 完成启动收集"); return workflow!; }
   function persist(ctx: ExtensionContext) {
-    if (!volatile()) pi.appendEntry(STATE_TYPE, { enabled, state: workflow?.snapshot(), error: restoreError, releasedReservations: [...releasedReservations] });
+    if (!volatile()) pi.appendEntry(STATE_TYPE, { enabled, state: workflow?.snapshot(), answers, error: restoreError, releasedReservations: [...releasedReservations] });
     if (ctx.hasUI) ctx.ui.setStatus("coding-workflow", active() ? `Coding ${workflow!.state.mode} · ${workflow!.state.phase}/${workflow!.checkpoint?.id ?? "done"} · ${workflow!.state.status}` : restoreError ? "Coding: 状态需人工恢复" : undefined);
   }
   function reply(ctx: ExtensionContext, message: string) { if (ctx.hasUI) ctx.ui.notify(message, "info"); else pi.sendMessage({ customType: CONTEXT_TYPE + ".notice", content: message, display: true }); }
   function output(offset?: number) {
     const s = workflow!.state;
     offset ??= Math.max(0, s.observations.length - 24);
-    return { runId: s.runId, revision: s.revision, status: s.status, reason: s.reason, mode: s.mode, childCount: s.childCount,
+    return { runId: s.runId, revision: s.revision, status: s.status, reason: s.reason, mode: s.mode, childCount: s.childCount, audit: s.audit,
       phase: s.phase, step: s.step, next: workflow!.checkpoint?.id ?? "done", epoch: s.epoch, verified: s.verified, returnTo: s.returnTo,
       plan: s.plan, allocations: s.allocations, inFlight: s.inFlight, slice: s.slice,
       observationCount: s.observations.length, observationsOffset: offset, nextObservationsOffset: offset + 24 < s.observations.length ? offset + 24 : null,
@@ -112,6 +118,7 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
     const slots = new Map<string, State["allocations"][number]>();
     const runs = new Map<string, State>();
     for (const state of snapshots) {
+      restoreState(getCatalog(), state, ctx.sessionManager.getSessionId(), realpathSync(ctx.cwd));
       if (!Array.isArray(state.allocations) || !Array.isArray(state.inFlight) || !Number.isSafeInteger(state.childCount)) throw new Error("会话级预算历史损坏，不能重置");
       for (const slot of state.allocations) if (!releasedReservations.has(slot.id)) slots.set(slot.id, structuredClone(slot));
       runs.set(state.runId, state);
@@ -121,8 +128,8 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
   }
   function start(ctx: ExtensionContext, mode: Mode, count: number, task: string) {
     if (restoreError) throw new Error(restoreError);
-    if (volatile() && !workflow && ctx.sessionManager.getEntries().some(e => e.type === "custom_message" && e.customType.startsWith(CONTEXT_TYPE))) throw new Error("volatile 历史存在但当前进程状态不可恢复；请使用新 Session，不能假设预算清空");
-    ledger = scanLedger(ctx) ?? ledger;
+    if (volatile() && !workflow && ctx.sessionManager.getEntries().some(e => e.type === "custom_message" && e.customType === CONTEXT_TYPE + ".start" && (e.details as { sessionId?: string } | undefined)?.sessionId === ctx.sessionManager.getSessionId())) throw new Error("volatile 历史存在但当前进程状态不可恢复；请使用新 Session，不能假设预算清空");
+    ledger = volatile() ? ledger : scanLedger(ctx) ?? ledger;
     if (ledger && (ledger.mode !== mode || ledger.count !== count || ledger.inFlight.length)) throw new Error("整个 Session 的模式/预算仍锁定或有未知效果；树导航不是重置授权，请恢复原任务或新建 Session");
     if (workflow && workflow.state.sessionId === ctx.sessionManager.getSessionId()) {
       if (workflow.state.status !== "complete") throw new Error("已有任务；使用 status / pause / resume，不能重建状态绕过预算或重复效果");
@@ -131,9 +138,29 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
     const previous = workflow;
     workflow = new Workflow(getCatalog(), makeState(getCatalog(), ctx.sessionManager.getSessionId(), realpathSync(ctx.cwd), mode, count, task));
     if (previous || ledger) workflow.state.allocations = structuredClone(previous?.state.allocations ?? ledger!.allocations);
+    workflow.state.audit = structuredClone(answers!.audit);
     enabled = true;
     workflow.observe(`command:${randomUUID()}`, "/coding", "user", true);
     intents.clear(); allowedDelegates.clear(); observedEffects.clear(); pendingResults.clear(); persist(ctx);
+  }
+  async function requestStart(ctx: ExtensionContext, input: StartupInput, task: string) {
+    if (starting) throw new Error("已有启动提问进行中；不能并发或重复启动");
+    if (restoreError) throw new Error(restoreError);
+    if (workflow && workflow.state.status !== "complete") throw new Error("已有任务；不能重建状态");
+    const token = ++generation;
+    const session = ctx.sessionManager.getSessionId();
+    starting = true; startupError = "启动答案未完成；禁止执行工具";
+    try {
+      const current = () => { if (token !== generation || ctx.sessionManager.getSessionId() !== session) throw new Error("启动已取消：Session/树导航发生变化"); };
+      const collected = await collectStartup(ctx, input, answers, current);
+      current();
+      const previous = answers;
+      answers = collected;
+      try { start(ctx, collected.mode, collected.count, task); }
+      catch (error) { answers = previous; throw error; }
+      answerSession = session; startupError = "";
+    } catch (error) { if (token === generation) startupError = String(error); throw error; }
+    finally { if (token === generation) starting = false; }
   }
   function nearestIntent(id?: string): Intent | undefined {
     while (id) { const intent = intents.get(id); if (intent) return intent; const next = id.lastIndexOf("/"); if (next < 0) break; id = id.slice(0, next); }
@@ -143,6 +170,7 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
   function readOnly(name: string) { return READ_TOOLS.has(name); }
   function targetAvailable(ctx: ExtensionToolContext, name: string) { return ctx.tools.some(t => t.name === name); }
   function guard(event: ToolCallEvent, ctx: ExtensionContext): string | undefined {
+    if (starting || startupError) return startupError || "启动进行中；禁止执行工具";
     if (!enabled) return undefined;
     if (restoreError) return INTERNAL.has(event.toolName) || readOnly(event.toolName) ? undefined : restoreError;
     const w = workflow!;
@@ -171,21 +199,22 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
     return block;
   }
 
-  pi.registerFlag("coding-mode", { description: "显式启用 single 或 multi；用于非交互/RPC/print", type: "string" });
-  pi.registerFlag("coding-count", { description: "multi 的正整数子代理预算，默认1", type: "string", default: "1" });
+  registerStartupFlags(pi);
   pi.registerFlag("coding-volatile", { description: "不额外 appendEntry；状态仅存当前进程，Pi 自身日志需另用 --no-session 管理", type: "boolean", default: false });
   pi.registerCommand("coding", {
-    description: "Coding single <任务> | multi [数量] <任务> | status | pause | resume | off | add-slot <完整职责名>",
+    description: "Coding start <任务> | single <任务> | multi [数量] <任务> | status | pause | resume | off | add-slot <完整职责名>",
     handler: async (args, ctx) => {
       try {
         const input = args.trim();
-        const match = /^(single|multi)(?:\s+(\d+))?\s+([\s\S]+)$/.exec(input);
-        if (match) {
-          if (match[1] === "single" && match[2]) throw new Error("single 不接受子代理数量");
-          start(ctx, match[1] as Mode, match[1] === "single" ? 0 : Number(match[2] ?? String(workflow?.state.childCount ?? ledger?.count ?? 1)), match[3]);
-          pi.sendMessage({ customType: CONTEXT_TYPE + ".start", content: "用户已通过 /coding 明确选择路线与目标。按当前 Coding Hooks 开始，先核验 Contract/能力；模式选择不授权写入、Memory 或子任务。", display: true }, { triggerTurn: true }); return;
+        let request;
+        try { request = parseStartupCommand(input); }
+        catch (error) { if (!workflow && !starting) startupError = String(error); throw error; }
+        if (request) {
+          await requestStart(ctx, request.input, request.task);
+          pi.sendMessage({ customType: CONTEXT_TYPE + ".start", details: { sessionId: ctx.sessionManager.getSessionId() }, content: "用户已通过 /coding 明确选择路线与目标。按当前 Coding Hooks 开始，先核验 Contract/能力；模式选择不授权写入、Memory 或子任务。", display: true }, { triggerTurn: true }); return;
         }
-        if (input === "status" || !input) { reply(ctx, workflow ? JSON.stringify(output(), null, 2) : restoreError || "未启用。/coding single <任务> 或 /coding multi [数量] <任务>"); return; }
+        if (input === "status" || !input) { reply(ctx, workflow ? JSON.stringify(output(), null, 2) : restoreError || startupError || "未启用。/coding start <任务> 或 single|multi [数量] <任务>"); return; }
+        if (input === "cancel" && starting) { generation++; starting = false; startupError = "启动已取消；没有创建 Workflow"; return; }
         if (!workflow || restoreError) throw new Error(restoreError || "没有可恢复的任务");
         if (input === "pause" || input === "off") {
           workflow.pause(input === "off" ? "用户停用扩展；恢复前须读取实际状态" : "用户暂停");
@@ -199,8 +228,8 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
           persist(ctx);
           pi.sendMessage({ customType: CONTEXT_TYPE + ".resume", content: "用户要求恢复。先读回原暂停点、已完成效果及当前状态；用 coding_checkpoint resume/resolve_effect，勿重放命令。", display: true }, { triggerTurn: true }); return;
         }
-        if (input.startsWith("add-slot ")) { workflow.addSlot(input.slice(9) as Role); workflow.observe(`command:${randomUUID()}`, "/coding add-slot", "user", true); persist(ctx); return; }
-        throw new Error("未知命令；/coding status 查看状态。支持 single、multi、pause、resume、off、add-slot。");
+        if (input.startsWith("add-slot ")) { workflow.addSlot(input.slice(9) as Role); if (answers) answers.count = workflow.state.childCount; workflow.observe(`command:${randomUUID()}`, "/coding add-slot", "user", true); persist(ctx); return; }
+        throw new Error("未知命令；/coding status 查看状态。支持 start、single、multi、cancel、pause、resume、off、add-slot。");
       } catch (error) { reply(ctx, String(error)); }
     },
   });
@@ -288,7 +317,7 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
         const epochAtDispatch = structuredClone(w.state.epoch);
         const results = await Promise.allSettled(p.jobs.map(async (job: any, i: number) => {
           const scope = job.paths.length ? `仅获准写入这些精确路径：${job.paths.join(", ")}。` : "此任务只读，不准写项目文件。";
-          const task = `父级逻辑 allocation=${allocations[i].id}；职责=${job.role}；这是一次性真实任务，不是可恢复会话。${scope}\n禁止创建/派发其他代理，禁止 Computer Use；未授权 Git/Memory/网络或扩大范围。工具/路径限制是任务合同，不是OS沙箱。先读必要上下文，只返回有界实际结果、证据、失败与未决项；不得只给状态词。\n${job.task}`;
+          const task = `会话审计偏好及每字段来源：${JSON.stringify(w.state.audit)}。仅安全摘要策略，不代表完整日志访问或私有思维链披露；不改变权限或独立验证。\n父级逻辑 allocation=${allocations[i].id}；职责=${job.role}；这是一次性真实任务，不是可恢复会话。${scope}\n禁止创建/派发其他代理，禁止 Computer Use；未授权 Git/Memory/网络或扩大范围。工具/路径限制是任务合同，不是OS沙箱。先读必要上下文，只返回有界实际结果、证据、失败与未决项；不得只给状态词。\n${job.task}`;
           const outcome = await ctx.executeTool(p.tool, { agent: job.agent, task, cwd: ctx.cwd, ...(job.model !== undefined ? { model: job.model } : {}) }, { signal });
           const slot = w.state.allocations.find(a => a.id === allocations[i].id)!;
           const notRun = outcome.isError && outcome.durationMs === undefined;
@@ -314,13 +343,30 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
   });
 
   const restore = (ctx: ExtensionContext, navigation = false) => {
+    if (volatile() && workflow?.state.sessionId === ctx.sessionManager.getSessionId()) {
+      generation++; starting = false; startupError = "";
+      workflow.state.verified = undefined; workflow.pause("volatile 仅保留当前进程状态，须读回实际效果"); persist(ctx); return;
+    }
+    generation++; starting = false; startupError = "";
+    if (answerSession !== ctx.sessionManager.getSessionId()) { answers = undefined; ledger = undefined; }
+    answerSession = ctx.sessionManager.getSessionId();
     workflow = undefined; enabled = false; restoreError = ""; releasedReservations = new Set(); intents.clear(); allowedDelegates.clear(); observedEffects.clear(); pendingResults.clear();
-    try { ledger = volatile() ? undefined : scanLedger(ctx); } catch (error) { enabled = true; restoreError = String(error); return; }
+    try { ledger = volatile() ? ledger : scanLedger(ctx); } catch (error) { enabled = true; restoreError = String(error); return; }
     if (!volatile()) {
+      try {
+        const latest = [...ctx.sessionManager.getEntries()].reverse().find(e => e.type === "custom" && e.customType === STATE_TYPE && (e.data as { state?: State })?.state?.sessionId === answerSession);
+        if (latest?.type === "custom") {
+          const data = latest.data as { answers?: StartupAnswers; state: State };
+          answers = validateAnswers(data.answers);
+          if (answers.mode !== data.state.mode || answers.count !== data.state.childCount || JSON.stringify(answers.audit) !== JSON.stringify(data.state.audit)) throw new Error("会话启动答案与工作流快照冲突");
+          if (ledger) answers.count = ledger.count;
+        }
+      } catch (error) { enabled = true; restoreError = String(error); return; }
       const entry = [...ctx.sessionManager.getBranch()].reverse().find(e => e.type === "custom" && e.customType === STATE_TYPE);
       if (entry?.type === "custom") {
         const envelope = entry.data as { state?: State; enabled?: boolean; error?: string };
-        if (envelope?.state?.sessionId === ctx.sessionManager.getSessionId()) {
+        if (!envelope?.state?.sessionId) { enabled = true; restoreError = "工作流快照缺少 Session 身份，不能隐式重置"; return; }
+        if (envelope.state.sessionId === ctx.sessionManager.getSessionId()) {
           try {
             if (envelope.error) throw new Error(envelope.error);
             workflow = new Workflow(getCatalog(), restoreState(getCatalog(), envelope.state, ctx.sessionManager.getSessionId(), realpathSync(ctx.cwd)));
@@ -340,9 +386,16 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
     }
     if (ctx.hasUI) ctx.ui.setStatus("coding-workflow", restoreError ? "Coding: 状态需人工恢复" : active() ? "Coding: 等待读回恢复" : undefined);
   };
-  pi.on("session_start", (event, ctx) => restore(ctx, ["new", "resume", "fork"].includes(event.reason)));
+  pi.on("session_start", (event, ctx) => {
+    if (volatile() && !workflow && ["reload", "resume"].includes(event.reason) && (pi.getFlag("coding-mode") || ctx.sessionManager.getEntries().some(e => e.type === "custom_message" && e.customType === CONTEXT_TYPE + ".start" && (e.details as { sessionId?: string } | undefined)?.sessionId === ctx.sessionManager.getSessionId()))) {
+      generation++; starting = false; enabled = true;
+      restoreError = "volatile 无跨进程/扩展重载恢复证据；请新建 Session，不能把丢失状态当空预算"; return;
+    }
+    restore(ctx, ["new", "resume", "fork"].includes(event.reason));
+  });
   pi.on("session_tree", (_event, ctx) => {
     if (volatile() && workflow?.state.sessionId === ctx.sessionManager.getSessionId()) {
+      generation++; starting = false; startupError = "";
       workflow.state.verified = undefined; workflow.pause("volatile 不回放历史流程；保留当前预算/效果，须读回后原位处理"); persist(ctx);
     } else restore(ctx, true);
   });
@@ -354,15 +407,16 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
       if (workflow!.state.status !== "complete") workflow!.pause("收到新用户输入：先判断 Contract/授权是否变化，未变则原位恢复；变化须结构化上报"); persist(ctx);
     }
   });
-  pi.on("before_agent_start", (event, ctx) => {
+  pi.on("before_agent_start", async (event, ctx) => {
     if (!workflow && !restoreError && pi.getFlag("coding-mode") && event.messageType === "user") {
-      try { const mode = pi.getFlag("coding-mode"); if (mode !== "single" && mode !== "multi") throw new Error("--coding-mode 只接受 single/multi"); start(ctx, mode, mode === "single" ? 0 : Number(pi.getFlag("coding-count") ?? "1"), event.prompt); }
-      catch (error) { enabled = true; restoreError = String(error); }
+      try { await requestStart(ctx, startupFlags(pi), event.prompt); }
+      catch (error) { reply(ctx, String(error)); }
     }
-    if (enabled) event.systemPromptOptions.sections.coding_workflow = "Coding 扩展已启用：消费每次上下文中的最新 Coding Hooks/检查点。授权、身份、验收为语义判断；扩展状态不授予任何权限，不代替真实工具结果。";
+    if (enabled || starting || startupError) event.systemPromptOptions.sections.coding_workflow = "Coding 扩展已启用：消费每次上下文中的最新 Coding Hooks/检查点。授权、身份、验收为语义判断；扩展状态不授予任何权限，不代替真实工具结果。";
   });
   pi.on("context", event => {
     const messages = event.messages.filter(m => !("customType" in m && m.customType === CONTEXT_TYPE));
+    if (starting || startupError) return { messages: [...messages, { role: "custom" as const, customType: CONTEXT_TYPE, content: `[Coding 启动阻断] ${startupError || "正在提问"}。不得执行工具，不得伪造用户答案。`, display: false, timestamp: Date.now() }] };
     if (!enabled) return { messages };
     let content: string;
     try { content = restoreError ? `[Coding 状态阻断] ${restoreError}。保留旧记录，停止依赖写入；不要通过重启任务绕过。` : renderContext(workflow!); }

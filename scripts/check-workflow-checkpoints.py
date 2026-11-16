@@ -36,7 +36,7 @@ OWNER_TERMS = {
     },
     "session-audit-resolution": {
         "en": ("balanced/milestone_only", "full", "apply the defaults immediately", "do not ask a mandatory first-use question", "do not start a timer"),
-        "zh": ("balanced/milestone_only", "full", "立即应用缺省值", "不得强制首次提问", "不得启动计时器"),
+        "zh": ("balanced/milestone_only", "full", "首次启动固定先确认", "缺失字段必须由用户选择", "逐字段记录", "答案未齐不创建 Workflow", "不重问、不回收预算", "不得启动计时器"),
     },
     "session-state-resolution": {
         "en": ("canonical parent-controlled workflow record", "current Session facts", "read back", "does not grant authority", "does not establish cross-call sequencing"),

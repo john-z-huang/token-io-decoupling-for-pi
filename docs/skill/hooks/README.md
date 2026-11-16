@@ -4,6 +4,8 @@
 
 用户启动与安装见 [Extension 使用说明](../PI_EXTENSION.md)。不启用 Extension 时，Skill 仍通过 [Coding selector](../workflows/coding.md) 定向消费原 owner。
 
+扩展默认被动；`/coding start`、single/multi 快捷和 CLI flag 共用 `startup.ts` 固定顺序启动注册表：先模式/预算，后审计可见性。显式有效字段不重问；缺失审计字段由用户确认默认或定制；取消/未回复不隐式默认，未完成不创建 Workflow、不执行工具。非 UI 必须显式提交或清晰阻断。已确认答案在同一 Session 跨任务/树导航/reload/resume 保留，fork/new Session 重问；volatile 仅当前进程状态，不 appendEntry、不伪称日志恢复。审计偏好与逐字段来源进入状态、context、status 和子任务 bundle，但不代表日志能力、权限或独立验证。
+
 ## 合同与明确触发
 
 | Hook | 触发条件 | 执行内容 |

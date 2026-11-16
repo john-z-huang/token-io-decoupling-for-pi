@@ -14,12 +14,13 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi
 然后由用户明确选择：
 
 ```text
+/coding start 任务描述
 /coding single 任务描述
 /coding multi 任务描述
 /coding multi 2 任务描述
 ```
 
-默认不接管会话，也不创建子代理。模式/预算选择不授予写入、Memory、网络或 Git 权限。安装、四个协调工具、真实事件/语义信号、离线验证及适配器限制见 [Pi Extension 使用说明](docs/skill/PI_EXTENSION.md) 和 [Hooks 目录](docs/skill/hooks/README.md)。本轮没有自动安装到用户/项目配置，也没有真实客户端/API/后端端到端验收。未启用 Extension 时从 [Skill 入口](docs/skill/SKILL.md) 走原有 owner 回退路线。
+默认不接管会话，也不创建子代理。启动固定先模式/预算后审计可见性；显式有效字段不重问，缺失字段须选择默认或定制，取消/未回复不隐式默认，未完成不创建 Workflow、不执行工具。非 UI 可用 `--coding-mode single --coding-audit-defaults` 明确提交；缺答案时阻断。答案与逐字段来源在同 Session 跨任务、树导航和 reload/resume 保留，fork/new Session 重新收集；volatile 仅进程内、不追加扩展记录、不假称可从日志恢复。模式/预算或审计偏好不证明完整日志能力，也不披露私有思维链。模式/预算选择不授予写入、Memory、网络或 Git 权限。安装、四个协调工具、真实事件/语义信号、离线验证及适配器限制见 [Pi Extension 使用说明](docs/skill/PI_EXTENSION.md) 和 [Hooks 目录](docs/skill/hooks/README.md)。本轮没有自动安装到用户/项目配置，也没有真实客户端/API/后端端到端验收。未启用 Extension 时从 [Skill 入口](docs/skill/SKILL.md) 走原有 owner 回退路线。
 
 ## 现有Pi子代理描述与Root选型
 
