@@ -1,7 +1,7 @@
 # 工作流架构
 
 
-本文档区分新增的 **Pi 宿主侧有状态流程引擎** 与既有 **MCP 无状态规则/工作流服务**。两者都不取代 Markdown owner 的策略权威，也不决定授权。
+本文档区分 **Pi 宿主侧有状态流程引擎** 与 **MCP 通用工具服务中的无状态规则接口**。两者都不取代 Markdown owner 的策略权威，也不决定授权。
 
 ## Pi 宿主侧 Extension 与 Hooks
 
@@ -15,11 +15,11 @@ Extension 状态使用实际 Pi Session 的 custom entry，不是 Memory 后端�
 
 当前指令已面向 Pi Coding Agent 改写，但 MCP Server、调用方身份、注册表和服务端结构校验尚未同步迁移。以下是既有实现的边界说明，不构成 Pi 接入完成证明。指令侧 `scripts/check-layer-01-sections.py` 独立检查“通用规范 → Pi Coding Agent 优化指令 → 相关概念”；它不改变服务端校验契约，不能据此声称候选预检、片段提取或打包安装已经兼容新结构。尚未验证的服务功能不得默认调用；依据直接 owner 执行获准路径，或在必需能力缺失处暂停。
 
-## MCP 工作流与规则
+## MCP 规则与通用工具
 
-工作流 server 提供对当前规则上下文的有界访问、规则导航，以及对调用方所供事实的结构检查。规则文档仍具权威性。工具结果、Hash 和调用方声明不能认证调用方、证明权限或来源、判定语义真实性、通过检查点、建立跨调用顺序或验收工作。调用方必须阅读当前 owner、独立解释证据，并在对话上下文中保留父级控制任务记录。
+MCP 中的规则工具提供当前规则上下文的有界读取、规则导航，以及对调用方所供事实的结构检查；它们是无状态辅助能力，不是宿主工作流引擎。规则文档仍具权威性。工具结果、Hash 和调用方声明不能认证调用方、证明权限或来源、判定语义真实性、通过检查点、建立跨调用顺序或验收工作。调用方必须阅读当前 owner、独立解释证据，并在对话上下文中保留父级控制任务记录。
 
-无状态规则与工作流路径无需 SQLite 数据库、API 凭据或网络请求。可选语义建议可以依据开发指南中的独立 API 授权和凭据规则，发送显式配置的 API 请求；其结果仍仅供建议，不能授权工作。MCP 仅保留 `token-io-decoupling-tools`；其支持的客户端及工具清单见[MCP 开发指南](../../mcp/DEVELOPMENT.md)。
+规则读取与结构检查路径无需 SQLite 数据库、API 凭据或网络请求。可选语义建议可以依据开发指南中的独立 API 授权和凭据规则，发送显式配置的 API 请求；其结果仍仅供建议，不能授权工作。MCP 仅保留 `token-io-decoupling-tools`；其支持的客户端及工具清单见[MCP 开发指南](../../mcp/DEVELOPMENT.md)。
 
 ## 受保护的输出物化
 
@@ -27,21 +27,21 @@ Extension 状态使用实际 Pi Session 的 custom entry，不是 Memory 后端�
 
 ## 实现包
 
-MCP workspace 包含独立构建的 `core`、`transport` 和 `tools` 分发包。Core 负责稳定契约、清单、只读规则和打包资源；transport 负责 MCP 注册、请求范围和 schema；tools 提供通用工具及可选物化服务。根分发包仅提供 `token-io-decoupling-tools`，兼具 stdio 与 Skill 安装更新命令；workflow 专属调度、评估、决策和 task-plan 实现已移除。[开发指南](../../mcp/DEVELOPMENT.md)负责当前工具数量、包命令、构建和验证流程。
+MCP workspace 包含独立构建的 `core`、`transport` 和 `tools` 分发包。Core 负责稳定契约、清单、只读规则和打包资源；transport 负责 MCP 注册、请求范围和 schema；tools 提供通用工具及可选物化服务。根分发包仅提供一个 `token-io-decoupling-tools` CLI，兼具 stdio 与 Skill 安装更新命令；workflow 专属调度、评估、决策和 task-plan 实现已移除。[开发指南](../../mcp/DEVELOPMENT.md)负责当前工具数量、包命令、构建和验证流程。
 
 ```mermaid
 flowchart TD
-    Root[CLI 和两个可执行入口] --> Transport[Transport]
-    Root --> Workflow[Workflow]
-    Root --> Core[Core 契约和规则资源]
-    Transport --> Workflow
+    Root[根 CLI 与服务组装] --> Core[Core 契约和规则资源]
+    Root --> Transport[Transport MCP 注册]
+    Root --> Tools[通用工具与输出物化]
     Transport --> Core
-    Workflow --> Core
+    Tools --> Transport
+    Tools --> Core
 ```
 
 ## API 与数据边界
 
-每个可选 OpenAI API 请求都必须使用开发指南指定的必需进程环境值和固定模型。配置缺失时必须在发出请求前失败。MCP 的无状态工作流工具不持久化 Session 状态，也不执行 Git、文件、Agent 创建或派发操作；不要与上面的宿主侧协调器混同。输出物化是范围明确的例外；缺少可信启动配置时仍不可用。
+每个可选 OpenAI API 请求都必须使用开发指南指定的必需进程环境值和固定模型。配置缺失时必须在发出请求前失败。规则读取、导航和结构预检工具不持久化 Session/工作流状态，也不创建或派发 Agent；MCP 同一 CLI 还注册通用 Git、仓库及托管平台工具，它们可能执行受各自守卫约束的 Git 或远端操作，不应把规则工具的无状态边界套用到全部工具。输出物化是另一项独立的受保护能力；缺少可信启动配置时仍不可用。
 
 规则注册表和片段索引是与当前 Markdown owner 绑定的导航数据。源码和打包资源必须来自同一来源、同一语言。上下文 Hash 仅标识返回文本，不证明任务事实或授权。结构评估只检查声明的输入结构和规则兼容性，返回的审阅状态仍须由 Agent 对照 owner 和证据解释。
 
