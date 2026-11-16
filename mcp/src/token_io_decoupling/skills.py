@@ -89,7 +89,7 @@ def install_skill(*, name: str = DEFAULT_NAME, update: bool = False) -> Path:
                     dest = staged / path
                     dest.parent.mkdir(parents=True, exist_ok=True)
                     data = archive.read(entry)
-                    if path.name in ("SKILL.md", "SKILL_zh_cn.md") and len(path.parts) == 1:
+                    if path.name in ("SKILL.md",) and len(path.parts) == 1:
                         data = re.sub(
                             rb"(?m)^name: token-io-decoupling(?:-skill)?$",
                             b"name: " + name.encode(),

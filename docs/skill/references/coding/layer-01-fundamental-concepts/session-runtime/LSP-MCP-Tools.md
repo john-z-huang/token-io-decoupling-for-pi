@@ -1,88 +1,46 @@
-# Serena LSP and MCP Tools
-
-[English](LSP-MCP-Tools.md) | [简体中文](LSP-MCP-Tools_zh_cn.md)
-
-This owner defines how a Coding Agent uses Serena MCP to navigate code through the active language server and to read or write durable, reusable Agent-facing project knowledge. It does not define authoritative repository-documentation storage or live parent mode/count/allocation/epoch state; Worker memos and Context Exchange records use project Memory under their respective owners.
-
-## General rules
-
-### Activate the project and inspect code structurally
-
-Activate Serena with the exact project root before querying code. The root must be the directory Serena should treat as the project, not an arbitrary nested source folder. Confirm that the intended project is active and that its language server for the relevant language is available. A worktree or a monorepo subproject may require activating its own root.
-
-When first exploring an unfamiliar code file, call `get_symbols_overview` first. Then use the narrowest relevant symbol operation:
-
-- `find_symbol` to locate a class, function, method, or other code entity; request its body only when the implementation is needed.
-- `find_declaration` to resolve a declaration from a known use site.
-- `find_referencing_symbols` to find callers or other references to a symbol.
-- `find_implementations` to locate implementations of an interface or abstract symbol.
-
-Limit each query to the known file or directory when possible, bound result size and match count, and preserve exact paths and symbol names as source pointers. Use `search_for_pattern` only to discover candidate files or text matches; verify code relationships and candidate symbols with the language server before treating them as structural evidence. A text match alone does not establish a declaration, reference, implementation, or call relationship.
-
-If Serena, the relevant language server, or a required LSP operation is unavailable or does not support the needed semantics, state that limitation and fall back to targeted text search and small, path-bounded reads. Do not describe fallback findings as LSP evidence. Keep reads within the authorized project and task scope.
-
-### Read and write durable project memories
-
-For reusable Agent-facing project knowledge, use a name already provided or present in current context; call `list_memories` only when name discovery is needed. Read a relevant Memory when its contents are needed and are not already present and current in context. Refresh when required information is missing, stale or invalidated, an external update is known, a writer handoff or evidence of concurrent change occurs, a conflict or uncertain result must be resolved, or an explicit content check requires it. A merely possible external change is not by itself a reason to reread. Follow the effective memory-maintenance name Serena supplies when available. Use `write_memory` for stable, non-obvious project knowledge that will help future tasks, and for cross-session notes the user explicitly asks to preserve. Keep memories concise, factual, and linked to authoritative source paths where useful. Follow the specific lifecycle owner for task plans, Worker memos, capsules, indexes, and handoffs.
-
-After a normal successful `write_memory` or `edit_memory`, do not immediately read the complete entry solely to confirm execution. Perform a stored-content check when explicitly requested, required for actual content acceptance, or triggered by an error, uncertain outcome, conflict, invalidated baseline, or suspected concurrent change; do not repeat the same check without a new trigger. Discover names only within the relevant topic. Respect ignored, read-only, and other access rules; never use ordinary file access to bypass Memory visibility or authorization. Keep durable general project knowledge distinct from task plans, Worker memos, capsules, indexes, and handoffs, and do not copy the same finding into multiple records without an owner-defined need.
-
-Serena's default project data directory is `.serena`; project memories are stored under `.serena/memories/`. A memory name such as `architecture/services` maps to `.serena/memories/architecture/services.md`: slash-separated segments create topic subdirectories and Serena supplies the `.md` extension. If project configuration changes the data directory, follow that configured location. Use the `global/` name prefix only when the user explicitly requests a cross-project memory. When preserving an existing Skill's document names and subdirectory intent as memories, use the corresponding basename and slash-separated directory segments as the memory name.
-
-Run onboarding only when Serena indicates that it has not been completed. Before invoking the onboarding tool, ask the user whether to proceed; if they do not authorize it, continue without onboarding. When authorized, follow its returned instructions and read the effective memory-maintenance name it supplies with `read_memory` before writing any onboarding notes. Serena's `ensure_memory_maintenance_memory` may select `global/memory_maintenance` as a configured override; otherwise it uses or creates the project `memory_maintenance` entry. Reading that configured guidance does not authorize writing cross-project memories: write under `global/` only when the user explicitly requests it. Then inspect only the project material needed and write the resulting durable notes with `write_memory`.
-
-Memories are reusable Agent context, not authoritative copies of repository documentation. Do not move README files, normative specifications, or other source-of-truth documents into Memory as their replacement. Do not store secrets, full transcripts, private reasoning, or live parent mode/count/allocation/epoch state. Persist Worker execution memos and Context Exchange capsules/indexes/handoffs as project Memories under [Worker Content Memo](../context-exchange/content-memo.md), [Coding Context Exchange](../context-exchange/context-exchange.md), [Coding Context Exchange Workspace Boundary](../context-exchange/context-exchange-workspace-boundary.md), [Coding Context Exchange Handoff](../context-exchange/context-exchange-handoff.md), and [Session Context Firewall](session-context-firewall.md) when that owner authorizes a durable context record. A memory name expresses logical ownership only; Serena/tool visibility does not enforce Worker-level access isolation, read-only ACLs, or OS/RW/RO/DENY boundaries. Source code and authoritative repository files remain subject to their separately approved access boundaries.
-
-## Codex CLI / ChatGPT Desktop optimizations
-
-### Codex Serena MCP calls
-
-In a Codex Session, invoke Serena only through the Serena MCP tools actually exposed to and authorized for that Session. The table lists the 24 Serena tools exposed in the current Codex Session; it is an observation, not a guarantee for other Sessions, and tool presence does not grant permission to call it. Call a tool by its exposed name and required arguments. If an LSP query operation is absent, report the limitation and use only an authorized bounded text-search/read fallback, without claiming LSP evidence. If `list_memories`, `read_memory`, or `write_memory` is absent for a required record, report the unavailable Memory capability and block dependent work; never fall back to file storage.
+# Serena LSP 与 MCP 工具
 
 
-| Tool | Category | What it does |
-| --- | --- | --- |
-| `mcp__serena__activate_project` | Project and LSP query | Activates the selected project context. |
-| `mcp__serena__delete_memory` | Memory change | Deletes a named Memory; call only with explicit task instruction and authorization. |
-| `mcp__serena__edit_memory` | Memory change | Edits an existing named Memory. |
-| `mcp__serena__find_declaration` | Code/LSP query | Finds a declaration from a known use site. |
-| `mcp__serena__find_implementations` | Code/LSP query | Finds implementations of a symbol or interface. |
-| `mcp__serena__find_referencing_symbols` | Code/LSP query | Finds symbols that reference the selected symbol. |
-| `mcp__serena__find_symbol` | Code/LSP query | Locates a symbol and, when requested, its body. |
-| `mcp__serena__get_current_config` | Runtime/workflow | Reports the current Serena configuration. |
-| `mcp__serena__get_diagnostics_for_file` | Code/LSP query | Retrieves language-server diagnostics for a file. |
-| `mcp__serena__get_symbols_overview` | Code/LSP query | Summarizes symbols in a code file. |
-| `mcp__serena__initial_instructions` | Runtime/workflow | Provides Serena's initial usage instructions. |
-| `mcp__serena__insert_after_symbol` | Source modification | Inserts content after a selected symbol. |
-| `mcp__serena__insert_before_symbol` | Source modification | Inserts content before a selected symbol. |
-| `mcp__serena__list_memories` | Memory read | Lists available Memory names. |
-| `mcp__serena__onboarding` | Runtime/workflow | Runs project onboarding when it is incomplete and the user has authorized it. |
-| `mcp__serena__open_dashboard` | Runtime/workflow | Opens the Serena Web dashboard. |
-| `mcp__serena__read_memory` | Memory read | Reads the named Memory. |
-| `mcp__serena__rename_memory` | Memory change | Renames a named Memory. |
-| `mcp__serena__rename_symbol` | Source modification | Renames a code symbol. |
-| `mcp__serena__replace_in_files` | Source modification | Replaces text in files and supports dry-run. |
-| `mcp__serena__replace_symbol_body` | Source modification | Replaces the body of a symbol whose body has already been retrieved and understood. |
-| `mcp__serena__safe_delete_symbol` | Source modification | Deletes a symbol if it has no references; otherwise returns the references. |
-| `mcp__serena__search_for_pattern` | Code/text discovery | Searches for candidate text or files; verify structural claims with LSP queries. |
-| `mcp__serena__write_memory` | Memory change | Creates or writes the named Memory. |
+本文档定义 Coding Agent 如何通过 Serena MCP 使用当前语言服务器结构化浏览代码，以及如何读写可复用的 Agent 项目知识。它不定义权威仓库文档的存储或父级实时 mode/count/allocation/epoch 状态；Worker memo 与上下文交换记录按各自 owner 使用项目 Memory。
 
-Source and Memory changes must remain within the task's authorized scope; tool exposure is not authorization. In particular, use `delete_memory` only with explicit instruction and authorization. This table describes available tool roles, not a blanket approval to mutate project files or memories.
-`activate_project` confirms project activation and may report available language servers and project memory names. This output helps discover capabilities; it does not prove that every LSP operation or memory is available. Serena tool availability also does not override the Session's filesystem permissions or the task's read/write scope.
+## 通用规范
 
-### Memory use in Codex
+### 激活项目并结构化浏览代码
 
-Use the exposed Serena Memory tools for project memories; Codex-local memory and chat compaction do not substitute for an authorized Serena record. In the current Codex schema observation, `read_memory` accepts only `memory_name` and returns the complete named Memory; do not invent range or pagination arguments. `max_chars` limits write content, not read output. A normal successful `write_memory` or `edit_memory` result is a short execution receipt, not proof of semantic correctness, stored-content equality, or concurrency control. `write_memory` replaces the complete named entry. For an authorized bounded change, prefer `edit_memory` with literal matching and protection against unintended multiple matches; do not replace a record from an unknown or incomplete baseline. If a required stored-content check is triggered, use the actual available read operation and compare the necessary complete content. If onboarding is incomplete, ask the user before invoking `mcp__serena__onboarding`. Memory state is project-scoped by Serena configuration and is not implicitly shared across Codex Sessions, child Agents, or other runtimes.
+查询代码前，使用准确的项目根目录激活 Serena。该根目录应是 Serena 需要识别的项目目录，而不是随意选择的嵌套源码目录。确认目标项目已激活，且相关语言的语言服务器可用。Worktree 或 monorepo 子项目可能需要单独激活其自身根目录。
 
-## Claude Code CLI / Claude Desktop optimizations
+首次浏览不熟悉的代码文件时，先调用 `get_symbols_overview`。随后按需使用范围最小的符号操作：
 
-Claude Code supports MCP servers, and its MCP Tool Search can discover tool definitions on demand; configurations may also preload them. When Serena is needed, discover and verify the actual Serena server, tools, and schemas in the current Session before relying on them. Then use only the exposed and authorized Serena tools, following the same project-root, query-bounding, memory, and onboarding rules above. Read only when required information is absent or stale; a successful write result confirms execution, not content, semantic, or concurrency verification. Do not assume Codex's tool prefix, arguments, read granularity, or connections. Claude Code Code Intelligence can separately provide language-server navigation and diagnostics when its language plugin is installed; this is distinct from Serena MCP and does not imply Serena's tools or memories are present. Claude Desktop Agents may use Serena only when the relevant MCP tools are actually exposed to that Agent Session. Neither runtime should assume that Serena memories are shared with another Session or product.
+- 使用 `find_symbol` 定位类、函数、方法或其他代码实体；只有需要理解实现时才请求其 body。
+- 已知调用位置时，使用 `find_declaration` 查找声明。
+- 使用 `find_referencing_symbols` 查找某个符号的调用者或其他引用。
+- 使用 `find_implementations` 查找接口或抽象符号的实现。
+
+尽可能把每次查询限制在已知文件或目录，限制结果大小和匹配数量，并保留准确路径与符号名作为来源指针。`search_for_pattern` 仅用于发现候选文件或文本匹配；把代码关系或候选符号作为结构证据前，先用语言服务器核实。单独的文本匹配不能证明声明、引用、实现或调用关系。
+
+Serena、相关语言服务器或所需 LSP 操作不可用，或无法提供所需语义支持时，说明限制，并回退到定向文本搜索和路径范围较小的文件读取。不得把回退结果称为 LSP 证据。读取范围须保持在获准的项目与任务边界内。
+
+### 读取和写入可复用项目 Memory
+
+需要可复用的 Agent 项目知识时，优先使用已提供或当前上下文中已有的名称；只有需要发现名称时才调用 `list_memories`。仅在需要相关 Memory 内容且当前上下文中没有有效内容时调用 `read_memory`。所需信息缺失、过期或失效、已知发生外部更新、出现写者交接或并发变化迹象、需要解决冲突或结果不明，或明确内容检查要求时，才刷新内容。仅有外部变化的理论可能性，不构成重复读取理由。Serena 提供有效的 memory-maintenance 名称时，遵循对应指引。使用 `write_memory` 保存稳定且不显而易见、能帮助后续任务的项目知识，以及用户明确要求跨会话保留的笔记。Memory 应简洁、基于事实，并在适当时链接到权威来源路径。任务计划、Worker memo、capsule、index 和 handoff 遵守各自生命周期 owner。
+
+普通成功的 `write_memory` 或 `edit_memory` 后，不得仅为确认操作执行就立即读取条目全文。用户明确要求、实际内容验收需要，或错误、结果不明、冲突、基线失效、疑似并发变化触发时，才检查存储内容；没有新触发条件时不重复同一检查。发现名称时只搜索相关 topic。遵守 ignored、只读及其他访问规则；不得用普通文件访问绕过 Memory 可见性或授权。一般长期项目知识与任务计划、Worker memo、capsule、index、handoff 分别归类；没有 owner 定义的需要时，不要把同一发现复制到多份记录。
+
+Serena 项目数据目录默认为 `.serena`；项目 Memory 位于 `.serena/memories/` 下。Memory 名称 `architecture/services` 会映射到 `.serena/memories/architecture/services.md`：斜杠分段会创建主题子目录，Serena 会自动添加 `.md` 扩展名。项目配置更改数据目录时，遵循配置值。只有用户明确要求跨项目 Memory 时才使用 `global/` 名称前缀。若要将现有 Skill 的文档名称和子目录意图保留为 Memory，就用对应文件名去掉 `.md` 后作为名称，并以斜杠表示子目录层级。
+
+只有 Serena 表示 onboarding 尚未完成时才执行 onboarding。调用 onboarding 工具前，先询问用户是否继续；用户未授权时，不执行 onboarding，继续其他工作。获得授权后，遵循工具返回的指引，并在写入 onboarding 笔记前用 `read_memory` 读取其提供的有效 memory-maintenance 名称。Serena 的 `ensure_memory_maintenance_memory` 可能优先选择已配置的 `global/memory_maintenance`；否则使用或创建项目级 `memory_maintenance`。读取该配置的指引不等于获准写入跨项目 Memory：只有用户明确要求时才写入 `global/`。之后只检查生成持久笔记所需的项目材料，并通过 `write_memory` 写入。
+
+Memory 保存可复用的 Agent 上下文，不能替代权威仓库文档。不得把 README、规范性规范或其他事实来源文档迁入 Memory 作为替代品。不得在 Memory 中保存秘密、完整 transcript、私有推理或父级实时 mode/count/allocation/epoch 状态。Worker execution memo、Context Exchange capsule/index/handoff 等 Agent-facing 记录按 [Worker Content Memo](../context-exchange/content-memo.md)、[Coding Context Exchange](../context-exchange/context-exchange.md)、[Coding Context Exchange Workspace Boundary](../context-exchange/context-exchange-workspace-boundary.md)、[Coding Context Exchange Handoff](../context-exchange/context-exchange-handoff.md) 及在授权持久化上下文记录时的 [Session Context Firewall](session-context-firewall.md) owner 规则持久化为项目 Memory。Memory 名称仅表达逻辑归属；Serena/工具可见性不强制 Worker 级访问隔离、只读 ACL 或 OS/RW/RO/DENY 边界。源码和权威仓库文件仍遵守其单独批准的访问边界。
+
+## Pi Coding Agent 优化指令
+
+Serena 是实际连接的外部 MCP，不是 Pi 内置工具。通过 searchTools / describeTool / describeNamespace 核对名称和 Schema，先确认项目绑定与语言服务器。独立只读查询可批处理并检查 isError；语言服务不可用按通用规范降级为定向文本读取。Memory 不得经文件工具绕过访问限制。
 
 
-## Related concepts
+## 相关概念
 
-- [Runtime and Model Provider Support](runtime-provider-support.md) — locate runtime and model capability bindings.
-- [Session Context Firewall](session-context-firewall.md) — locate bounded project-state ingress rules.
-- [Worker Content Memo](../context-exchange/content-memo.md) — locate Worker execution-state ownership.
-- [Coding Context Exchange](../context-exchange/context-exchange.md) — locate capsule and authoritative-source rules.
-- [Coding Context Exchange Workspace Boundary](../context-exchange/context-exchange-workspace-boundary.md) — locate logical memory naming and authorization.
+- [运行环境与模型厂商支持](runtime-provider-support.md) — 定位运行环境和模型能力绑定。
+- [Session Context Firewall](session-context-firewall.md) — 定位有界项目状态输入规则。
+- [Worker Content Memo](../context-exchange/content-memo.md) — 定位 Worker 执行状态的归属。
+- [Coding Context Exchange](../context-exchange/context-exchange.md) — 定位 capsule 和权威来源规则。
+- [Coding Context Exchange Workspace Boundary](../context-exchange/context-exchange-workspace-boundary.md) — 定位 Memory 逻辑命名与授权。

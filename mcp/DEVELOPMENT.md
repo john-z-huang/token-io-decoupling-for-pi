@@ -1,14 +1,13 @@
-# MCP workspace development guide
+# MCP workspace 开发指南
 
-[English](DEVELOPMENT.md) | [简体中文](DEVELOPMENT_zh_cn.md)
 
-This guide owns development, artifact checks, uv tool installation, and Codex setup for the Python workspace. The [architecture contract](../docs/skill/WORKFLOW_ARCHITECTURE.md#implementation-packages) owns package responsibilities and dependency direction; the [Skill entry](../docs/skill/SKILL.md) and its linked owners remain the workflow authority.
+本指南负责 Python workspace 的开发、构建产物检查、uv tool 安装与 Codex setup。[架构契约](../docs/skill/WORKFLOW_ARCHITECTURE.md#实现包)负责包职责与依赖方向；[Skill 入口](../docs/skill/SKILL.md)及其链接的 owner 仍是工作流权威。
 
-The MCP Server targets a locally available Codex CLI, including the local Codex CLI/app-server path used by local Work. Cloud ChatGPT conversations, remote Work, and other Code Agents are not direct clients. If another Agent runs in its own environment with Codex CLI installed and configures the server by following this repository's instructions, only that environment's local Codex CLI path is supported; no other Agent or cloud-surface adapter is maintained. The server does not add a runtime-environment selection step. Follow the [directory instructions](AGENTS.md). This fixed client scope does not establish a verified host integration; actual capabilities, trusted identity, guards, and permissions remain checked by the existing operations.
+MCP Server 面向本地可用的 Codex CLI，包括本地 Work 使用的本地 Codex CLI/app-server 路径。云端 ChatGPT 对话、远端 Work 和其他 Code Agent 不是直接客户端。如果其他 Agent 在自己的环境安装 Codex CLI，并按本仓库说明配置 Server，则仅支持该环境中的本地 Codex CLI 路径；不维护其他 Agent 或云端界面适配器。Server 不增加运行环境选择步骤。遵循[目录指令](AGENTS.md)。固定客户端范围不等于宿主集成已经验证；各操作仍按现有流程检查实际能力、可信身份、守卫和权限。
 
-## Environment and checks
+## 环境与检查
 
-The workspace contains the root distribution and three independently buildable member distributions (`core`, `transport`, and `workflow`), plus one shared `uv.lock`. The root distribution, `token-io-decoupling`, exports the administrative `token-io-decoupling` command and the two MCP executables `token-io-decoupling-workflow` and `token-io-decoupling-tools`. Run these commands from `mcp/` using managed Python and locked dependencies:
+Workspace 包含根分发包和三个可独立构建的成员分发包（`core`、`transport`、`workflow`），共同使用一份 `uv.lock`。根分发包 `token-io-decoupling` 导出管理命令 `token-io-decoupling`，以及两个 MCP 可执行程序 `token-io-decoupling-workflow` 和 `token-io-decoupling-tools`。从 `mcp/` 使用托管 Python 和锁定依赖运行：
 
 ```sh
 uv sync --managed-python --locked --all-packages --group dev
@@ -18,215 +17,213 @@ uv run --managed-python --locked -- ruff format --check .
 uv run --managed-python --locked -- ty check
 ```
 
-`ty` covers root sources, tests, library packages, and the core build hook. Set `UV_PROJECT_ENVIRONMENT` to an absolute temporary directory to keep the environment outside the checkout. The default suite is local and offline; live API tests require explicit opt-in. Run the documentation checks required by [repository instructions](../AGENTS.md) from the repository root.
+`ty` 覆盖根源码、测试、各库包及 core 构建 Hook。如需将环境放在 checkout 外，设置 `UV_PROJECT_ENVIRONMENT` 为临时目录的绝对路径。默认测试集仅在本地运行且不联网；真实 API 测试必须显式启用。从仓库根目录运行仓库指令（以当前会话实际授权与测试约束为准）要求的文档检查。
 
-### Test organization
+### 测试组织
 
-Classify every new or changed test by its actual dependencies and behavior:
+每个新增或修改的测试均按实际依赖与行为分类：
 
-| Directory | Responsibility |
+| 目录 | 职责 |
 | --- | --- |
-| `tests/mock_api_tests/` | Tests that replace collaborators, host bindings, API clients or HTTP transport with mocks, fakes or stubs. |
-| `tests/unit_tests/` | Deterministic local unit tests that exercise the real tested code without mocked collaborators or live API calls. |
-| `tests/real_api_tests/` | Explicitly opted-in tests and smoke scripts that send real Decisions or Responses requests. |
+| `tests/mock_api_tests/` | 使用 mock、fake 或 stub 替代协作者、宿主绑定、API client 或 HTTP transport 的测试。 |
+| `tests/unit_tests/` | 不模拟协作者、不请求真实 API，执行实际被测代码的确定性本地单元测试。 |
+| `tests/real_api_tests/` | 必须显式启用、实际发送 Decisions 或 Responses 请求的测试及 smoke 脚本。 |
 
-Split mixed modules by test case; a marker or filename does not replace correct placement. Shared fixtures and subprocess helpers may live outside these three case directories, but must not become an unclassified home for test cases. Preserve assertions, parametrization and collection coverage when moving tests, and update imports, repository-root discovery and CI/script references together. Ordinary pytest must collect and skip live cases without reading credentials or sending requests. The same placement rules apply to future tests.
+混合模块按测试用例拆分，marker 或文件名不能替代正确的目录归属。共享 fixture 和子进程辅助程序可以放在这三个用例目录之外，但不得成为未分类测试用例的存放处。迁移时保留断言、参数化与收集覆盖，同步更新导入、仓库根路径定位及 CI/脚本引用。普通 pytest 必须收集并跳过真实请求用例，且跳过前不读取凭据、不发送请求。后续新增测试同样遵守这些目录规则。
 
-## Separate MCP executables
+## 独立 MCP 可执行程序
 
-The MCP runtime consists of two installed executables. Each starts its own stdio server without startup arguments. The `token-io-decoupling` executable is an administrative CLI for setup, Skill installation, and environment-forwarding repair. It is not an MCP runtime and has no bare-server default.
+MCP 运行时由两个分别安装的可执行程序组成。每个程序都不需要启动参数，即可启动 stdio server。`token-io-decoupling` 是用于 setup、Skill 安装和环境变量转发修复的管理 CLI，不是 MCP 运行时，也没有直接启动 MCP server 的默认行为。
 
-| MCP executable / Codex registration | Tools |
+| MCP 可执行程序 / Codex 注册名 | 工具 |
 | --- | --- |
-| `token-io-decoupling-workflow` | 17 stateless workflow capability, rule, planning, routing, and evaluation tools. |
-| `token-io-decoupling-tools` | 34 tools: 33 development workflow tools and `materialize_decoupled_output`; see [Two MCP executables and Codex registration](TOOLS_REGISTRATION.md). |
+| `token-io-decoupling-workflow` | 17 个无状态工作流能力、规则、规划、路由和评估工具。 |
+| `token-io-decoupling-tools` | 共 34 个工具：33 个开发工作流工具和 `materialize_decoupled_output`；见[两个 MCP 程序与 Codex 注册](TOOLS_REGISTRATION.md)。 |
 
-The one-call registration command adds both executables:
+使用一次 setup 命令注册两个可执行程序：
 
 ```sh
 token-io-decoupling setup codex
 ```
 
-To register them separately, use the executable paths from the installed tool bin directory:
+也可从已安装的 tool bin 目录取得可执行文件绝对路径，分别注册：
 
 ```sh
 codex mcp add token-io-decoupling-workflow -- /absolute/path/to/token-io-decoupling-workflow
 codex mcp add token-io-decoupling-tools -- /absolute/path/to/token-io-decoupling-tools
 ```
 
-The bounded request, route selection, hash, and result contract for `decide_decoupling_workflow` is documented in [Decoupling workflow routing](WORKFLOW_ROUTING.md).
+`decide_decoupling_workflow` 的有界请求、路由选择、哈希和结果契约见[Decoupling 工作流路由](WORKFLOW_ROUTING.md)。
 
-The read-only `validate_decoupling_compliance` tool checks a bounded candidate overlay against an operator-configured checkout. Its request, result, startup factory, and explicit limits are documented in [Candidate compliance preflight](CANDIDATE_COMPLIANCE.md). It does not authorize or apply writes and does not replace repository checks or final acceptance.
+只读工具 `validate_decoupling_compliance` 按操作员配置的 checkout 检查有界候选覆盖层。其请求、结果、启动 factory 和明确限制见[候选内容合规预检](CANDIDATE_COMPLIANCE.md)。它不授权或应用写入，也不替代仓库检查或最终验收。
 
-The Worker-only `materialize_decoupled_output` tool prepares and inspects bounded output artifacts, then applies them through an independently granted operator service. Its request, templates, grant and preflight requirements, startup option `--output-materializer-factory MODULE:CALLABLE`, result, and recovery boundaries are documented in [Worker output materialization](OUTPUT_MATERIALIZATION.md). The trusted factory returns `OutputMaterializerConfig`; absent configuration leaves the tool unavailable without probing default paths.
+仅供 Worker 使用的 `materialize_decoupled_output` 工具准备并检查有界输出产物，再通过独立授权的操作员服务应用产物。其请求、模板、授权与预检要求、启动选项 `--output-materializer-factory MODULE:CALLABLE`、结果和恢复边界见[Worker 输出材料化](OUTPUT_MATERIALIZATION.md)。可信 factory 返回 `OutputMaterializerConfig`；缺少配置时工具保持不可用，且不探测默认路径。
 
-Each executable has a fixed discovery inventory; discovery does not grant authority. The rule/workflow path is stateless and does not require a database or host binding. `workflow_evaluate` and `evaluate_control_checkpoint` check only the supplied typed facts and declared input structure; their results do not authenticate, authorize, pass a checkpoint, persist state, or sequence later calls. Output materialization remains unavailable without its trusted startup-injected authorization provider and separate grant.
+每个可执行程序都有固定发现清单；工具发现不授予权限。规则/工作流路径是无状态的，不需要数据库或宿主绑定。`workflow_evaluate` 和 `evaluate_control_checkpoint` 只检查调用方提供的类型化事实及声明的输入结构；其结果不会认证、授权、通过检查点、持久化状态或安排后续调用。若没有可信的启动时注入授权 provider 和单独授权，输出材料化仍不可用。
 
-The three task-plan tools use a separately configured, checkout-bound Serena MemoryManager backend. Its capability result reports `project_root`, `storage_scope`, `repository_id`, `namespace`, and `archive_namespace`; the default project scope can be configured as global storage so linked worktrees share plans while independent repositories remain separate. The tools remain `unavailable` unless a trusted startup factory explicitly injects the service. Their payloads, configuration, identity/path mapping, deterministic checks, tests, and protection limits are owned by [Task plan lifecycle tools](TASK_PLAN_TOOLS.md). No automatic Serena configuration loading or model request is involved.
+三个任务计划工具使用单独配置且绑定 checkout 的 Serena MemoryManager 后端。其能力结果报告 `project_root`、`storage_scope`、`repository_id`、`namespace` 和 `archive_namespace`；默认项目范围可配置为全局存储，让 linked worktrees 共享规划、独立仓库保持隔离。只有受信任的启动 factory 显式注入服务后，工具才可用。其 payload、配置、身份/路径映射、确定性检查、测试和保护限制由[任务计划生命周期工具](TASK_PLAN_TOOLS.md)负责。不会自动加载 Serena 配置或发起模型请求。
 
-Canonical Python implementations use the independent package names shown in the architecture contract. The two MCP executables remain separately installed and expose their fixed manifests.
+Canonical Python 实现使用架构契约列出的独立包名。两个 MCP 可执行程序分别安装并暴露固定清单。
 
-The [Memory tools guide](SERENA_MEMORY_TOOLS.md) owns direct tail-read/write-check arguments, local path resolution, bounded-read results and matching limits. These tools read the current project's `.serena/memories/` files with Python's standard library; they do not use the separately configured task-plan backend.
+[Memory 工具指南](SERENA_MEMORY_TOOLS.md)负责直接尾读/写入检查参数、本地路径解析、有界读取结果及匹配限制。这些工具用 Python 标准库读取当前项目 `.serena/memories/` 中的文件，不使用单独配置的任务计划后端。
 
-## Capability report diagnostics
+## 能力报告诊断
 
-`workflow_capabilities({})` is public and takes no arguments. `capability_details.schema_version=3` reports static support and configured dependencies without probing API readiness. The top-level `trusted_binding` is `unverified` for the standard executable and reflects the injected provider for embedded use. `capability_details.runtime.server_mode` reports `public_only` or `embedded`; `binding_transport` is `unavailable` without an injected provider and `unverified` when embedded. These diagnostics do not authenticate callers or authorize operations. Configuration details separately report plan backend, Memory paths, compliance reader, API and materialization conditions; unprobed dependencies are not readiness evidence.
+`workflow_capabilities({})` 是无参数公共工具；`capability_details.schema_version=3` 报告静态支持与已配置依赖，不探测 API 就绪情况。顶层 `trusted_binding` 在标准可执行程序中为 `unverified`，嵌入使用时反映已注入 provider。`capability_details.runtime.server_mode` 报告 `public_only` 或 `embedded`；没有注入 provider 时 `binding_transport` 为 `unavailable`，嵌入时为 `unverified`。这些诊断不认证调用方，也不授权操作。配置详情分别报告计划后端、Memory 路径、合规 reader、API 和物化条件；未探测的依赖不得视为已就绪。
 
-### Installed client runtime checks
+### 已安装客户端运行时检查
 
-The `real_client` cases in `tests/unit_tests/test_real_clients.py` run the actual installed Codex CLI and the Codex executable shipped inside ChatGPT Desktop. They exercise each executable's app-server MCP interface without mocked client transport or host identity. This covers the MCP host-runtime boundary, not Desktop GUI interaction, an already-running daemon, or independent host authentication.
+`tests/unit_tests/test_real_clients.py` 中的 `real_client` 用例运行真实安装的 Codex CLI，以及 ChatGPT Desktop 随附的 Codex 可执行文件。它们通过各自可执行文件的 app-server MCP 接口测试，不模拟客户端传输或宿主身份。覆盖范围是 MCP 宿主运行时边界，不包含 Desktop GUI 操作、已运行的 daemon，或独立的宿主身份认证。
 
-After authorization for temporary test threads and processes, run from `mcp/`:
+获得创建临时测试线程和进程的授权后，从 `mcp/` 执行：
 
 ```sh
 TOKEN_IO_RUN_REAL_CLIENTS=1 uv run --managed-python --locked -- pytest -q -s tests/unit_tests/test_real_clients.py
 ```
 
-The CLI defaults to `codex` on `PATH`; Desktop defaults to `/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex`. `TOKEN_IO_CODEX_CLI_PATH` and `TOKEN_IO_DESKTOP_CODEX_PATH` may point to other actual installations. Overrides are caller-supplied paths, not proof of client identity. Evidence includes the resolved executable path, actual version, executable SHA-256, tested source fingerprints, and successful checks; changing the JSON-RPC client name does not establish client coverage.
+CLI 默认使用 `PATH` 中的 `codex`；Desktop 默认使用 `/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex`。可通过 `TOKEN_IO_CODEX_CLI_PATH` 和 `TOKEN_IO_DESKTOP_CODEX_PATH` 指向其他真实安装位置。覆盖值是调用方提供的路径，不构成客户端身份证明。证据包含解析后的可执行文件路径、实际版本、可执行文件 SHA-256、被测源码指纹和通过的检查；修改 JSON-RPC 客户端名称不能证明客户端覆盖。
 
-Each case starts a separate real app-server with a process-local `mcp_servers` override that disables inherited configured servers using safe placeholders and enables the current workspace's workflow server. Only configured server names and transport types are read; URLs, arguments, environment values, and credentials are not copied. It asserts that inherited configured servers expose no tools; clients may retain built-in platform services, which the test never invokes. It verifies the target's no-argument schema and new description, calls `workflow_capabilities` and checks structured diagnostics, and confirms that `workflow_evaluate` rejects the missing trusted binding. It uses one ephemeral thread, starts no model turn, and terminates its owned process group to release the memory-only thread and MCP subprocess. No user configuration or installed MCP package is changed, and no model API request is needed for this capability check. The operating environment must permit launching and cleaning up these processes.
+每个用例启动独立的真实 app-server，通过进程内 `mcp_servers` 覆盖值，用安全占位条目禁用继承的已配置 server，并启用当前 workspace 的 workflow server。仅读取已配置 server 名称和传输类型，不复制 URL、参数、环境变量值或凭据。它断言继承的已配置 server 不暴露工具；客户端可保留内置平台服务，测试不调用这些服务。它验证目标的无参 schema 和新版描述，调用 `workflow_capabilities` 并检查结构化诊断，确认 `workflow_evaluate` 拒绝缺少可信绑定的调用。每项使用一个 ephemeral 线程，不启动模型 turn，并通过终止自己创建的进程组释放仅驻内存的线程及 MCP 子进程。不修改用户配置或已安装 MCP 包，此能力检查不需要模型 API 请求。运行环境必须允许启动和清理这些进程。
 
-Ordinary pytest skips both cases without probing installed clients. Explicit opt-in makes missing clients, permission failures, protocol errors, or old capability responses fail rather than skip or fall back to a fake. Existing SDK, Mock, and installed-stdio checks retain their narrower scope. A passing runtime check does not prove an existing client session has reloaded an updated MCP installation; that session still needs its own installation/reload verification.
+普通 pytest 跳过两项，不探测已安装客户端。显式启用后，客户端缺失、权限失败、协议错误或旧能力响应都会使测试失败，不跳过，也不回退到模拟客户端。已有 SDK、Mock 和安装版 stdio 检查继续保持各自较窄的证明范围。运行时检查通过不证明既有客户端会话已经重载更新后的 MCP 安装；该会话仍需单独验证安装和重载。
 
-### Codex SDK final inspection
+### Codex SDK 最终查看
 
-The official Python Codex SDK (`openai-codex`) is pinned in the separate `codex-test` dependency group and excluded from production dependencies and wheels. Follow the repository's [final-test boundary](../AGENTS.md#codex-sdk-final-test-boundary). From `mcp/`, install the test environment and run the ordered final check:
+官方 Python Codex SDK（`openai-codex`）固定版本放在独立的 `codex-test` 依赖组中，不进入生产依赖或 wheel。遵守仓库的最终测试边界（以当前会话实际授权与测试约束为准）。在 `mcp/` 安装测试环境并运行有序最终检查：
 
 ```sh
 uv sync --locked --managed-python --group dev --group codex-test
 uv run --no-sync python tests/support/final_codex_check.py
 ```
 
-The coordinator first runs the complete default MCP test suite, lint, formatting, type checks, documentation regressions, all documentation validators, and whitespace checks. Any failure stops the sequence. It then builds the current wheels and installs them with `uv tool` in temporary tool/bin directories before launching a new Codex CLI via SDK. This tests the current installed build without replacing the user's installation. Ordinary pytest runs only fake-based SDK policy tests; it cannot start the final inspection. Optional real-API/client tests retain their explicit opt-ins; enable any applicable opt-ins before running the coordinator, and report remaining skips.
+协调器先运行完整默认 MCP 测试集、lint、格式检查、类型检查、文档回归、全部文档校验器及空白检查。任一失败都会停止序列。随后构建本次 wheel，在临时 tool/bin 目录中通过 `uv tool` 安装，再通过 SDK 启动全新 Codex CLI，从而测试当前已安装构建，不替换用户的安装。普通 pytest 仅运行使用 fake 的 SDK 策略测试，不能启动最终查看。可选真实 API／客户端测试保留显式开关；在运行协调器前启用适用开关，并报告仍跳过的测试。
 
-Every SDK launch requires and explicitly reuses nonblank process `OPENAI_API_KEY` and `OPENAI_BASE_URL`, fixes model `gpt-6-luna` and reasoning effort `medium`, and verifies effective configuration and thread settings. Missing or conflicting settings fail, with no saved-login, credential, endpoint, model, or effort fallback. The key travels only through the child environment; credential values and raw SDK diagnostics are never printed or persisted in auth files.
+每次 SDK 启动都要求并显式复用进程中非空的 `OPENAI_API_KEY` 和 `OPENAI_BASE_URL`，固定模型为 `gpt-6-luna`、推理强度为 `medium`，并核验实际配置及线程设置。配置缺失或冲突时失败，不回退到已保存登录或其他凭据、端点、模型、推理强度。Key 仅通过子进程环境传递；不得输出凭据值或 SDK 原始诊断，也不得写入认证文件。
 
-The adapter selects the installed `codex` on `PATH`, or the absolute executable specified by `TOKEN_IO_CODEX_CLI_PATH`, instead of the SDK's bundled CLI. Temporary `HOME`/`CODEX_HOME` isolates configuration. The fresh instance loads the two separately installed MCP executables with no startup arguments, checks each executable's version through read-only `command/exec`, discovers both inventories, and calls `workflow_capabilities` plus bilingual `rules_get_context`. It performs no model turn, mutation, arbitrary shell command, or complex task. This compensates for the current session's inability to dynamically reload the updated MCP Server; it does not prove that an existing session has reloaded it. CI installs the test dependency group for policy, static, and type checks without launching this final SDK inspection.
+适配器选择 `PATH` 中已安装的 `codex`，或 `TOKEN_IO_CODEX_CLI_PATH` 指定的绝对可执行路径，不使用 SDK 自带 CLI。临时 `HOME`／`CODEX_HOME` 隔离配置。全新实例加载刚安装的 MCP 命令及两个默认注册，执行只读 `command/exec` 查看版本、发现两个工具清单，并调用 `workflow_capabilities` 及中文 `rules_get_context`。禁止模型回合、mutation、任意 Shell 命令及复杂任务。这用于弥补当前会话无法动态重载更新后 MCP Server 的问题，不证明既有会话已重载。CI 安装测试依赖组以执行策略、静态和类型检查，不启动该 SDK 最终查看。
 
 
-## API and tool recovery guidance
+## API 与工具恢复提示
 
-The child-effort, decision-context, and delegation selectors make one API request per invocation; the SDK has automatic retries disabled. Their result models add nullable `recovery` guidance, serialized as `null` when no guidance is present. `retry_eligible` is only a candidate signal; for explicit transient transport, 5xx, or confirmed rate-limit failures, `total_attempt_limit` is 3 calls per caller-tracked recovery process, including the first call. The server does not track attempts or retry automatically. Callers recheck task authorization, request hashes, current policy, and any result/effect before optionally invoking again.
+child-effort、decision-context 和 delegation selector 每次调用只发出一个 API 请求；SDK 自动重试已关闭。其结果模型新增可空 `recovery` 提示，无提示时序列化为 `null`。`retry_eligible` 只表示候选；对于明确的瞬时传输、5xx 或已确认限流，`total_attempt_limit` 表示调用方跟踪的每个恢复过程最多三次调用（含首次调用）。服务不跟踪跨调用次数，也不自动重试。调用方在考虑重调前，须复核任务授权、请求 hash、当前 policy 以及任何结果/副作用。
 
-Authentication, authorization, configuration, quota, unknown errors, refusal, malformed/incomplete responses, and insufficient evidence are not retry candidates. Resolve the cause, refresh and re-hash stale facts/policy, or stop. Recovery guidance never changes the existing result status, reason, hash, fallback, or authority. Only a successful `available` selector result can be considered for later work after the usual gates pass.
+认证、授权、配置、配额、未知错误、拒绝、格式错误/不完整响应和证据不足都不是重试候选。应解决原因、刷新并重新计算过期事实/policy 的 hash，或停止。恢复提示不会改变现有结果 status、reason、hash、fallback 或 authority。只有成功的 `available` selector 结果才可在通常门禁通过后用于后续工作。
 
-Optional advice is a separate stateless API operation; structural checkpoint evaluations neither call Decisions nor persist an advice result. Recovery metadata applies to the API operation that returned it and never changes that operation's result status, reason, hash, fallback, or authority. Retry only a qualifying transient failure within the caller-tracked attempt limit, after rechecking current authorization and input. No state-changing replay or stored-result behavior is part of checkpoint evaluation.
+可选建议是独立的无状态 API 操作；结构检查点评估既不调用 Decisions，也不持久化建议结果。恢复 metadata 适用于返回该信息的 API 操作，不会改变其结果 status、reason、hash、fallback 或 authority。仅在符合条件的瞬时失败且未超出调用方跟踪的尝试上限时重试，并先复核当前授权和输入。检查点评估不包含状态变更重放或已存结果行为。
 
-## uv tool installation and Codex setup
+## uv tool 安装与 Codex setup
 
-### Install the executable with uv tool
+### 使用 uv tool 安装可执行程序
 
-Keep the source checkout in a normal development directory, outside `~/.agents/skills/`. With `uv` available, install the root package from its `mcp/` workspace directory; the absolute source path allows this command to run from any working directory:
+将源码仓库放在普通开发目录中，不要放进 `~/.agents/skills/`。准备好 `uv` 后，从仓库的 `mcp/` workspace 目录安装根包；使用源码绝对路径即可在任意工作目录执行：
 
 ```sh
 uv tool install --force --reinstall --managed-python --python 3.14 /absolute/path/to/token-io-decoupling/mcp
 ```
 
-uv builds and installs the executable and its declared local workspace dependencies in an isolated tool environment. `--reinstall` refreshes dependencies and bundled document snapshots as well as the launcher. This step installs the program; it does not register MCP servers or install Skill instructions. To install a built wheel instead, supply the root wheel and the directory containing the other workspace wheels (see [artifact checks](#build-rule-resources-and-installed-checks)):
+uv 会在隔离的工具环境中构建并安装可执行程序及声明的本地 workspace 依赖。`--reinstall` 同时更新依赖、打包的文档快照及入口程序。这一步只安装程序，不注册 MCP Server，也不安装 Skill 指令。若安装已构建的 wheel，请提供根 wheel 以及其余 workspace wheel 所在目录（参见[构建产物检查](#构建规则资源与安装检查)）：
 
 ```sh
 uv tool install --force --reinstall --managed-python --python 3.14 --find-links /absolute/path/to/wheels /absolute/path/to/wheels/token_io_decoupling-0.1.0-py3-none-any.whl
 ```
 
-Use the actual artifact version in the filename. Subsequent examples assume uv's tool bin directory is on `PATH`. If it is not, locate it with `uv tool dir --bin` and invoke the executable by its absolute path; no virtual-environment activation is needed. For example:
+文件名中的版本请使用实际构建版本。以下示例假定 uv 工具的 bin 目录已位于 `PATH`。若未加入，可通过 `uv tool dir --bin` 定位并以可执行文件绝对路径调用，无须激活虚拟环境。例如：
 
 ```sh
 "$(uv tool dir --bin)/token-io-decoupling" --version
 ```
 
-### Standard installation availability
+### 标准安装可用范围
 
-Standard installation exposes bounded, stateless rule navigation and supplied-fact structural checks over local stdio, alongside the separately configured task-plan service and other tools with their documented dependencies. These public rule/navigation operations do not require thread metadata, Root/Worker registration, or persisted workflow state. Read-only Memory helpers are scoped to the startup project's existing `.serena/memories/` files. The output materializer remains unavailable unless its trusted provider and independent per-call authorization are configured. API tools require both nonblank API environment variables and per-call outbound authorization. Discovery is neither configuration nor permission.
+标准安装通过本地 stdio 提供有界、无状态的规则导航及对调用方事实的结构校验，另提供单独配置的任务计划服务和具有各自文档化依赖的其他工具。这些公共规则/导航操作不需要线程 metadata、Root/Worker 登记或持久化工作流状态。只读 Memory 辅助工具仅限启动项目已有的 `.serena/memories/` 文件。除非配置可信 provider 和独立逐调用授权，否则输出 materializer 不可用。API 工具需要两个非空白 API 环境变量及逐调用出站授权。发现不代表已配置或已授权。
 
-With the Codex CLI available on `PATH`, register both MCP executables in one operation:
+确保 Codex CLI 位于 `PATH` 后，一次注册两个 MCP 可执行程序：
 
 ```sh
 token-io-decoupling setup codex
 ```
 
-Setup resolves and verifies the current workflow and tools executables, then registers those two targets with empty argument lists. It preserves other settings in either target table and leaves unrelated configuration untouched. It does not inspect, classify, remove, or migrate other registrations. `--dry-run` reads the configuration and preflights only the two current target sections, but starts no MCP subprocess and writes nothing. Reload the affected MCP servers after registration or tool updates. Forwarding declarations contain variable names only; they do not supply values or establish a local session context.
+Setup 会解析并核验当前 workflow 和 tools 可执行程序，然后使用空参数列表注册这两个目标。它保留任一目标表中的其他设置，并保持无关配置不变。它不会检查、分类、删除或迁移其他注册。`--dry-run` 会读取配置并仅预检当前两个目标表，但不启动 MCP 子进程，也不写入。注册或更新工具后重新加载受影响的 MCP Server。环境转发仅保存变量名，不提供变量值，也不建立本地会话上下文。
 
-The Memory tools need no additional installation options or Serena packages. Start Codex from the target project root; the MCP uses its startup working directory as the project root and reads only files under `.serena/memories/`. It does not search parent or sibling projects. The Memory directory and requested file must already exist; missing paths return a non-success result without creating anything. The local file operations use Python's standard library. See [Memory tools](SERENA_MEMORY_TOOLS.md).
+Memory 工具不需要额外安装选项或 Serena 包。从目标项目根目录启动 Codex；MCP 使用启动工作目录作为项目根，只读取 `.serena/memories/` 中的文件。它不搜索父级或兄弟项目。Memory 目录和所请求的文件必须已存在；缺失时返回非成功结果，不创建任何内容。文件操作使用 Python 标准库。详见[Memory 工具](SERENA_MEMORY_TOOLS.md)。
 
-### Install and update local Skill instructions
+### 安装与更新本地 Skill 指令
 
-After the `uv tool` installation succeeds, run the installed program from any directory:
+`uv tool` 安装成功后，在任意目录调用已安装的程序：
 
 ```sh
 token-io-decoupling skills install
 ```
 
-This installs the packaged bilingual Skill snapshot to `~/.agents/skills/token-io-decoupling-skill`, including `SKILL.md`, workflows, references, and supporting resources. It reads the installed package, without reading or cloning the source checkout. The Skill's name is `token-io-decoupling-skill`; use that name when requesting it. If the command is not on `PATH`, use the absolute executable path here too:
+该命令将包内中文 Skill 快照安装到 `~/.agents/skills/token-io-decoupling-skill`，包含 `SKILL.md`、工作流、引用及支持资源。它读取已安装的包，不读取或克隆源码仓库。Skill 名称为 `token-io-decoupling-skill`，请求使用时请采用该名称。若命令不在 `PATH`，此处同样使用可执行文件绝对路径：
 
 ```sh
 "$(uv tool dir --bin)/token-io-decoupling" skills install
 ```
 
-For another name, use `skills install --name my-coding-skill`, then use the same `--name my-coding-skill` with updates. Names must use lower-case letters/numbers separated by hyphens. The old name and directory `~/.agents/skills/token-io-decoupling` are protected: installation refuses that name, symlink installation paths, and existing unknown destinations. It never overwrites or deletes the old project. `skills install` also refuses an existing managed installation; update it explicitly instead.
+需要其他名称时，可运行 `skills install --name my-coding-skill`，更新时也传入相同的 `--name my-coding-skill`。名称仅允许小写字母、数字以及分隔它们的连字符。旧名称及目录 `~/.agents/skills/token-io-decoupling` 受到保护：安装会拒绝该名称、安装路径中的符号链接和已有未知目标，绝不覆盖或删除旧项目。`skills install` 也会拒绝已有的受管理安装，应显式更新。
 
-After changing source instructions, repeat the `uv tool install --force --reinstall ...` command above (or install the rebuilt wheel set), then update the installed Skill snapshot:
+修改源码指令后，先重新执行上面的 `uv tool install --force --reinstall ...`（或安装重新构建的 wheel 集），再更新已安装的 Skill 快照：
 
 ```sh
 token-io-decoupling skills update
 ```
 
-Updating only the executable leaves the previously installed Skill unchanged. `skills update` requires an existing managed installation and refuses locally modified files; preserve your edits separately before updating. If no Skill is installed yet, use `skills install`. Tool installation, MCP registration, and Skill installation are separate operations; neither `setup codex` nor the helper script below installs the Skill automatically. Start a fresh Agent session after installing or updating Skill instructions. If an old checkout is still discovered as a Skill, preserve it and manually disable its old discovery entry as described in the [legacy coexistence guidance](../README.md#install-the-skill-separately); the installer does not automatically resolve duplicate discovery.
+仅更新可执行程序不会改变此前安装的 Skill。`skills update` 要求目标为已有受管理安装，并拒绝含本地修改的文件；请先另行保留修改。尚未安装 Skill 时使用 `skills install`。工具安装、MCP 注册和 Skill 安装是三个独立操作；`setup codex` 和下面的辅助脚本都不会自动安装 Skill。安装或更新 Skill 指令后请启动新的 Agent 会话。若旧源码仓库仍被发现为 Skill，请保留它并按[旧安装共存说明](../README.md#独立安装-skill)人工停用旧发现入口；安装器不自动处理重复发现。
 
-### Optional combined installation and registration script
+### 可选的一体化安装与注册脚本
 
-As an alternative to the separate tool-install and `setup codex` commands, use the [installation script](../scripts/install-codex-mcp.sh) to install or update the package and configure Codex in one invocation. From this repository's root, run:
+也可用[安装脚本](../scripts/install-codex-mcp.sh)替代单独的工具安装及 `setup codex` 命令，一次完成包安装或更新及 Codex 配置。从本仓库根目录运行：
 
 ```sh
 bash scripts/install-codex-mcp.sh
 ```
 
-Installation does not select or save a Memory project. Start Codex from the target project root; the MCP uses its startup working directory as the project root and reads only `.serena/memories/`. It does not search parent or sibling projects, and does not create missing directories or files. To run this installer outside the repository root, use its absolute script path, replacing the placeholder with the actual location:
+安装时不选择或保存 Memory 项目。从目标项目根目录启动 Codex；MCP 使用启动工作目录作为项目根，只读取 `.serena/memories/`，不搜索父级或兄弟项目，也不会创建缺失目录或文件。从本仓库根目录之外运行安装器时，使用绝对脚本路径并将占位替换为实际位置：
 
 ```sh
 bash /absolute/path/to/token-io-decoupling/scripts/install-codex-mcp.sh
 ```
 
-Run `skills install` or `skills update` afterward as described above.
+之后仍按上述方法执行 `skills install` 或 `skills update`。
 
-Prerequisites are Bash 3.2 or later (including macOS `/bin/bash`), `uv`, and the Codex CLI; `uv` and `codex` must be on `PATH`. The script locates `mcp/` relative to itself, runs `uv tool install --force --reinstall --managed-python --python 3.14` against that source, obtains the bin directory with `uv tool dir --bin`, then calls the absolute installed administrative executable's `setup codex`. uv resolves the declared dependencies; `--reinstall` refreshes them even when only their source or packaged rules changed. The tool bin directory need not be on `PATH`, and virtual-environment activation or a separate setup command is not required. Repeating the command refreshes this tool from the current checkout.
+前置条件为 Bash 3.2 或更新版本（包括 macOS 的 `/bin/bash`）、`uv` 和 Codex CLI；`uv` 与 `codex` 必须位于 `PATH`。脚本相对自身定位 `mcp/`，针对该源码执行 `uv tool install --force --reinstall --managed-python --python 3.14`，通过 `uv tool dir --bin` 获取 bin 目录，再以绝对路径调用安装后的管理命令 `setup codex`。uv 会解析已声明的依赖；即使只修改了依赖的源码或打包规则，`--reinstall` 也会更新它们。工具 bin 目录无需位于 `PATH`，无需激活虚拟环境或另行执行 setup。重复运行会从当前 checkout 更新此工具。
 
-Each operation is a single script call. The installer runs `setup codex` to register both MCP executables. Append the relevant options to the command above:
+每项操作只需调用脚本一次，在上述命令后追加相应选项即可：
 
-| Option | Operation |
+| 选项 | 操作 |
 | --- | --- |
-| `--dry-run` | Print the installer plan without installing or invoking setup. The future tool bin path is symbolic until a real run. Direct `setup codex --dry-run` reads configuration and preflights only the two target sections; it starts no MCP subprocess and writes nothing. |
-| `--python VERSION` | Choose the uv-managed Python version instead of the default `3.14`. |
-| `--help` | Show usage without installing or configuring anything. |
+| `--dry-run` | 安装器只输出安装计划，不安装或调用 setup；真实运行前，未来的工具 bin 路径以符号占位表示。直接运行 `setup codex --dry-run` 时会读取配置并仅预检两个目标表；不启动 MCP 子进程，也不写入。 |
+| `--python VERSION` | 指定 uv 托管的 Python 版本，替代默认的 `3.14`。 |
+| `--help` | 显示用法，不安装或修改配置。 |
 
-The script validates arguments and required commands before installation. A failed stage stops subsequent stages and returns a nonzero status. Installation and registration are separate effects: if setup fails after installation, the refreshed tool remains installed; inspect setup's partial-state report before rerunning. Existing registration-preservation and forwarding checks remain in the setup helper. Reload the affected servers after success; the script does not restart the client or supply credential values.
+脚本在安装前验证参数及必需命令。某阶段失败后停止后续阶段并返回非零状态。安装和注册是不同副作用：若安装后 setup 失败，更新后的工具仍保留安装状态；重新运行前先检查 setup 的部分状态报告。注册设置保留和转发检查仍由现有 setup helper 负责。成功后重新加载受影响的服务；脚本不会重启客户端或提供凭据值。
 
-Setup registers both executable names above with verified absolute executable paths and empty argument lists. It merges the required API and optional proxy environment-variable names; the tools executable also forwards `OPENAI_TIMEOUT_MAX_RETRIES`. It updates only these two target tables, preserving their other settings and unrelated configuration. It does not inspect or migrate other registrations. See [Two MCP executables and Codex registration](TOOLS_REGISTRATION.md). Users who prefer separate registration can use the two direct commands above.
+Setup 使用两个经过核验的可执行文件绝对路径和空启动参数注册两个 MCP 命令。它合并必需 API 变量和可选代理变量的名称；tools 可执行程序还转发 `OPENAI_TIMEOUT_MAX_RETRIES`。它仅更新这两个目标表，保留其其他设置及无关配置，不会检查或迁移其他注册。见[两个 MCP 程序与 Codex 注册](TOOLS_REGISTRATION.md)。需要分别注册时，可使用上文两个直接 Codex 命令。
 
-The administrative command resolves its own path from the running installation's scripts directory and exact distribution entry-point metadata. Each MCP executable uses its startup working directory as the project root; this does not establish host identity.
+管理命令从当前安装环境的 scripts 目录及精确的分发包入口元数据解析自身路径。每个 MCP 可执行程序使用服务启动工作目录作为项目根；这不建立宿主身份。
 
-The installed command's `setup codex --dry-run` reports the planned paths and empty argument lists for the two target registrations without writing configuration. Real setup resolves the current installed executables, verifies their `tools/list` inventories, and atomically upserts only their two target tables. It preserves other settings in those tables and unrelated configuration. The update preserves file mode, rejects unsupported TOML layouts, and checks that the input file has not changed before replacement. Avoid concurrent configuration writers; this check is not a global lock. Captured configuration and subprocess output are not printed.
+安装后的 `setup codex --dry-run` 会输出两个目标注册的计划路径和空参数，不写入配置。真实 setup 会解析当前已安装的可执行程序，核验其 `tools/list` 清单，并以原子方式 upsert 仅有的两个目标表。它保留这些表中的其他设置和无关配置。更新保留文件权限模式，拒绝不支持的 TOML 布局，并在替换前检查输入文件是否已改变。避免并发配置写入：此检查不是全局锁。不会打印配置值或子进程输出。
 
-If both target tables already match, setup is a no-op. It does not rewrite unrelated entries or manage other server registrations. It never prints configuration values or subprocess output.
+若两个目标表都已正确，setup 不执行写入。它不会重写无关条目或管理其他服务注册。
 
-The protocol target remains `2026-07-28`. SDK subprocess tests verify negotiation and calls; actual trusted host integration remains separate evidence.
+协议目标仍为 `2026-07-28`。SDK 子进程测试核验协商与调用；实际可信宿主集成仍需独立证据。
 
-### Codex stdio environment forwarding
+### Codex stdio 环境变量转发
 
-The installer already handles forwarding through setup. For a forwarding-only repair of the two executable registrations, run the [standalone repair script](../scripts/configure-codex-mcp-env.py) once from any working directory:
+安装脚本已通过 setup 自动处理转发。若仅修复已有注册的转发，从任意工作目录调用一次[独立修复脚本](../scripts/configure-codex-mcp-env.py)：
 
 ```sh
 uv run --managed-python -- /absolute/path/to/skill/scripts/configure-codex-mcp-env.py --server token-io-decoupling-tools
 ```
 
-Repeat `--server token-io-decoupling-workflow` to update the workflow registration in the same file operation.
+追加 `--dry-run` 可改为只预览而不写入。已有安装也可用 `token-io-decoupling setup codex-env --server NAME` 完成相同操作；两者是替代入口，无须连续执行。重复 `--server NAME` 可在一次文件操作中更新多个已有 stdio 注册项。默认合并 `OPENAI_API_KEY`、`OPENAI_BASE_URL`、`HTTP_PROXY`、`HTTPS_PROXY`、`ALL_PROXY`、`NO_PROXY` 及四个代理变量的小写形式；重复 `--env-var NAME` 可改用自定义变量名列表。`--config /absolute/path/config.toml` 显式选择文件，否则目标为 `$CODEX_HOME/config.toml`，未设置 `CODEX_HOME` 时使用 `~/.codex/config.toml`。脚本通过 PEP 723 元数据让 uv 准备 TOML Kit，并从当前 checkout 导入 helper，因此不依赖已安装的 MCP 包或 Codex CLI。安装后的命令使用相同 helper。
 
-Add `--dry-run` to preview instead of writing. Alternatively, an existing installation offers the same operation as `token-io-decoupling setup codex-env --server NAME`; these are alternatives, not sequential steps. Repeat `--server NAME` to update multiple existing stdio registrations in one file operation. The default names to merge are `OPENAI_API_KEY`, `OPENAI_BASE_URL`, `HTTP_PROXY`, `HTTPS_PROXY`, `ALL_PROXY`, `NO_PROXY` and the four lowercase proxy forms; repeat `--env-var NAME` to supply a custom name list instead. `--config /absolute/path/config.toml` selects a file explicitly; otherwise the target is `$CODEX_HOME/config.toml`, or `~/.codex/config.toml` when `CODEX_HOME` is unset. The script uses PEP 723 metadata to obtain TOML Kit through uv and imports the helper from this checkout, so it does not require an installed MCP package or Codex CLI. The installed command uses the same helper.
+Helper 只合并所选 `env_vars`，保留其他变量名、注释、设置和文件权限。没有缺失变量名时，重复成功运行不改变文件字节或修改时间。写入通过同目录临时文件完成，并在替换前检测输入是否发生变化；应避免其他进程同时写配置，因为这不是跨客户端事务。文件或服务条目不存在、非 stdio 服务、TOML 或字段类型无效、目标为符号链接、所需变量存在冲突的远端来源、写入失败时，均返回安全错误。它不会创建服务条目、打印配置值或发起 API 请求。此修复命令的 `--dry-run` 会读取并验证所选文件，但不写入；上文的 setup dry-run 会读取配置并仅预检两个目标表，不启动 MCP 子进程，也不写入。
 
-The helper merges only selected `env_vars`, preserving other names, comments, settings, and file mode. Repeated successful runs with no missing names leave file bytes and modification time unchanged. It writes through a temporary file in the same directory and detects changes to its input before replacement; avoid concurrent configuration writers, since this is not a cross-client transaction. Missing files or server entries, non-stdio servers, invalid TOML/field types, symlink targets, conflicting remote sources for requested variables, and write failures return safe errors. It creates no server entries, prints no configuration values, and makes no API request. `--dry-run` for this repair reads and validates the selected file but writes nothing; the setup dry-run above reads configuration and preflights only the two target sections, without starting an MCP subprocess or writing.
+TOML Kit 文档说明了一项格式保留例外：扩展数组表的乱序子表在重新序列化时会被重新排列，锁定版本也存在这一行为。计划写入修复前，helper 会检查原文档未经修改时能否逐字节往返还原；不支持的排版会被拒绝且不写入，避免静默移动无关内容。注册 setup 会在单次原子配置更新前执行相同检查。若独立修复命令发现转发已经完整，即使存在这种排版也仍保持无改动。
 
-TOML Kit documents a formatting exception for out-of-order subtables that extend an array of tables. The locked version also normalizes that layout. Before a planned repair write, the helper checks that the unmodified document round-trips byte-for-byte; unsupported layouts are rejected without writing, rather than silently moving unrelated content. Registration setup applies the same check before its atomic configuration update. An already-complete standalone repair remains a no-op even on such a layout.
-
-The following partial example illustrates the two default registrations. Preserve existing `command`, `args`, approvals and additional forwarded names when editing manually; the `tools` entry also needs its `OPENAI_TIMEOUT_MAX_RETRIES` forwarding declaration:
+下面是不完整的默认注册结果示例。手动编辑时须保留已有 `command`、`args`、审批设置及其他转发变量名；`tools` 项还应保留其 `OPENAI_TIMEOUT_MAX_RETRIES` 转发声明：
 
 ```toml
 [mcp_servers.token-io-decoupling-workflow]
@@ -245,44 +242,44 @@ env_vars = [
 ]
 ```
 
-Codex must itself have both nonblank API variables and any desired proxy variables in its environment. `env_vars` allows and forwards the corresponding values to each separately launched MCP process; it neither loads Shell configuration or `.env` files nor copies another terminal's environment. Store no actual values in repository files, setup arguments, logs, or examples. See the [Codex MCP configuration reference](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).
+Codex 自身的环境中必须持有这两个非空白 API 变量，以及需要使用的代理变量。`env_vars` 允许将对应变量值转发给各自单独启动的 MCP 进程；它不会读取 Shell 配置或 `.env` 文件，也不会复制其他终端的环境。不要将真实值写入仓库文件、setup 参数、日志或示例。字段含义见 [Codex MCP 配置参考](https://learn.chatgpt.com/docs/extend/mcp?surface=cli)。
 
-Both MCP registrations receive the forwarding merge during setup. The installation script includes setup automatically; a bare `uv tool install` still does not register servers or supply credentials. Reload the affected MCP servers after configuration changes; if the client has no reload mechanism, quit and reopen it so new service processes are created. Running processes do not automatically receive changed configuration.
+两个 MCP 注册都会在 setup 时合并转发声明。安装脚本已自动包含 setup；单独执行 `uv tool install` 仍不会注册服务或提供凭据。修改配置后重新加载受影响的 MCP 服务；若客户端没有重载机制，退出后重新打开客户端以创建新服务进程。运行中的进程不会自动获得修改后的配置。
 
-When a terminal invocation works but an MCP request reports missing configuration, check the client process environment, each registration's forwarding names, and whether the service was recreated. Record only variable presence/nonblank status. The current Decisions advisor returns `fallback` with reason `missing_credentials` before creating the SDK client when either required value is absent or blank; do not assume another service's `missing_api_key` error name applies here. Forwarding does not enable API requests, grant outbound-data authorization, or establish a local session context; the separate requirements below still apply.
+终端调用成功而 MCP 请求报告缺配置时，检查客户端进程环境、各注册项的转发变量名，以及服务是否已重新创建。只记录变量存在性及是否非空白。当前 Decisions advisor 在任一必需值缺失或为空白时，在创建 SDK client 之前返回 `fallback`，原因为 `missing_credentials`；不要套用其他服务的 `missing_api_key` 错误名称。转发不会启用 API 请求、授予出站数据权限或建立本地会话上下文；下文的独立要求仍须满足。
 
 
 
-## Local stdio workflow navigation
+## 本地 stdio 工作流导航
 
-The standard local stdio tools provide bounded, stateless workflow-rule navigation and structural checks over caller-supplied facts. They do not maintain thread, project, Root, Worker, allocation, or checkpoint state between calls. The startup working directory scopes project-local read-only Memory helpers; it does not establish caller identity or authorization.
+标准本地 stdio 工具提供有界、无状态的工作流规则导航，以及对调用方提供事实的结构校验。它们不会在调用之间维护线程、项目、Root、Worker、allocation 或检查点状态。启动工作目录限定项目本地只读 Memory 辅助工具的范围；它不建立调用方身份或授权。
 
-The separate output materializer is unavailable by default and requires trusted startup context, an independent operator grant, and matching per-call binding. See [Output materialization](../docs/skill/references/coding/layer-01-fundamental-concepts/execution-planning/output-materialization.md) and [caller context](CODEX_CALLER_CONTEXT.md) for the actual guard boundaries. Installed-package checks verify stdio discovery and bounded behavior; the final SDK inspection remains limited to version, discovery, capabilities, and rules, with no model turns or mutations.
+单独的输出 materializer 默认不可用，须具备可信启动上下文、独立操作员授权及匹配的逐次调用绑定。实际 guard 边界见[输出物化](../docs/skill/references/coding/layer-01-fundamental-concepts/execution-planning/output-materialization.md)和[调用方上下文](CODEX_CALLER_CONTEXT.md)。安装包检查验证 stdio 发现及有界行为；SDK 最终检查仍限版本、发现、能力和规则读取，不执行模型轮次或变更。
 
-## Required configuration for real API requests
+## 真实 API 请求的必需配置
 
-All six OpenAI client construction paths use the shared HTTPX2 client builder with explicit `trust_env=True`, preserving the SDK's connection limits and redirect defaults, each operation's timeout, and `max_retries=0`. It reads `HTTP_PROXY`, `HTTPS_PROXY`, `ALL_PROXY` and `NO_PROXY`, including their lowercase forms, from the MCP process environment when creating a client. [HTTPX2 environment rules](https://pydantic.dev/docs/httpx2/api/environment_variables/) determine proxy selection and bypasses. `NO_PROXY` can allow a direct route; without proxy configuration, normal direct routing remains available. Invalid or unreachable proxies follow the existing safe API failure results; the server does not retry them through a direct route. Closing the SDK client also closes its HTTPX2 client, and an SDK construction failure closes the newly created HTTP client.
+六处 OpenAI 客户端构造路径均使用共享 HTTPX2 客户端构建函数，显式设置 `trust_env=True`，保留 SDK 的连接数限制及重定向默认值、各操作的 timeout 和 `max_retries=0`。每次创建客户端时，从 MCP 进程环境读取 `HTTP_PROXY`、`HTTPS_PROXY`、`ALL_PROXY` 和 `NO_PROXY`，包括对应的小写形式。代理选择和绕过行为遵循 [HTTPX2 环境变量规则](https://pydantic.dev/docs/httpx2/api/environment_variables/)。`NO_PROXY` 可允许直连；未配置代理时仍可使用正常的直连路径。代理无效或不可达时沿用现有的安全 API 失败结果，服务不会改为直连重试。关闭 SDK 客户端时一并关闭 HTTPX2 客户端；SDK 构造失败时也会关闭刚创建的 HTTP 客户端。
 
-For an existing installation, update the tool, run `token-io-decoupling setup codex` to register/update both MCP executables and merge their forwarding names, then reload the MCP servers. Proxy variables must be present in the launching Codex process, not just an unrelated terminal. Setup persists names only and requires no proxy values as arguments. No system proxy or user configuration is changed merely by calling an API tool.
+已有安装应更新工具、运行 `token-io-decoupling setup codex` 合并新增的转发变量名，再重新加载 MCP 服务。代理变量必须存在于启动服务的 Codex 进程环境中，只在其他终端设置并不生效。Setup 仅保存变量名，不需要通过参数提供代理值。单独调用 API 工具不会修改系统代理或用户配置。
 
-Root and every delegated Agent must follow this constraint in both project functionality and test/smoke code: immediately before any real API request, read both `OPENAI_API_KEY` and `OPENAI_BASE_URL` from the local process environment. Both values must be present and nonempty; whitespace-only values are invalid too. If either is missing or invalid, do not create the SDK client or send a real request; return to the documented fallback instead.
+Root 和每个受委派的 Agent 都必须在项目功能代码及测试/smoke 代码中遵守此限制：每次真实 API 请求前，从本地进程环境读取 `OPENAI_API_KEY` 和 `OPENAI_BASE_URL`。两项都必须存在且非空，仅含空白字符也视为无效。缺少任一项或任一项无效时，不得创建 SDK client 或发送真实请求，改走文档规定的回退路径。
 
-Do not substitute a hardcoded key or endpoint, caller-supplied replacement, or the SDK's default endpoint. Read the two local values at invocation time and pass them explicitly to the SDK. Never print or persist their values. Synthetic configuration is permitted only for mocks that send no network requests.
+不得使用硬编码密钥或端点、调用方提供的替代值或 SDK 的默认端点。必须在实际调用时读取这两项本地值，并显式传给 SDK；不得打印或持久化其值。合成配置仅可用于不发送网络请求的 Mock。
 
-Optional checkpoint advice remains disabled by default. Its real requests additionally require explicit enablement and authorization for outbound data; this document alone grants neither. The ordinary test suite uses mocks, while a real smoke test requires a separate explicit opt-in and must obey the same two-variable requirement.
+可选检查点建议仍默认关闭。其真实请求还必须具备显式启用及出站数据授权；本文档本身不授予这些权限。普通测试套件使用 Mock，真实 smoke 测试需要单独显式 opt-in，并遵守相同的双环境变量要求。
 
-The checkpoint tools perform deterministic structural checks on bounded, caller-supplied facts. Optional decision advice is a separate operation and is not embedded in, or persisted by, those evaluations. Any advice request requires explicit outbound-data authorization and current-input review; advice cannot select or confirm a Gate branch. The structural result is returned independently of any separately requested advice, and neither result replaces document judgment.
+检查点工具对有界的调用方事实执行确定性的结构校验。可选决策建议是独立操作，不嵌入或持久化于这些评估中。任何建议请求都需要显式出站数据授权并审阅当前输入；建议不能选择或确认 Gate 分支。结构结果独立于任何单独请求的建议返回，两者都不能取代文档判断。
 
-`workflow_generate_decision_context` is a stateless public operation that turns caller-assembled material into one question or context paragraph for a later Decisions request. It uses the [Responses API with Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs), fixed `gpt-6-luna` with `medium` reasoning, `store=False`, no tools, and no automatic downstream call. It requires no persisted workflow state or optional-advice enablement. The Code Agent collects the user requirements, current Git diff, relevant LSP results, and other necessary verified observations, labels their origins and verification limits, then combines them into `raw_content`. The service never reads a repository, executes commands, or treats supplied source labels as proof.
+`workflow_generate_decision_context` 是无状态公共操作，将调用方组合的材料生成供后续 Decisions 请求使用的一段问题或上下文描述。它使用[支持 Structured Outputs 的 Responses API](https://developers.openai.com/api/docs/guides/structured-outputs)，固定为 `gpt-6-luna`、`medium` 推理强度、`store=False`，不附带工具，也不自动调用下游接口。它不要求持久化工作流状态或启用可选建议。Code Agent 收集用户需求、当前 Git diff、相关 LSP 结果及其他必要的已核实观测，标注来源和验证边界，再组合为 `raw_content`。服务不读取仓库、不执行命令，也不把所供来源标签当作证明。
 
-Send `payload.request` with required `raw_content` (nonblank strict string, at most 60,000 characters), `decision_goal` (nonblank strict string, at most 1,200 characters describing the actual downstream decision), `output_kind` (`decision_question` or `decision_context`), and `outbound_data_permitted` (strict boolean). Oversized inputs are rejected without truncation; do not omit material constraints merely to fit the limit. The permission assertion authorizes neither collection nor disclosure by itself. Both local API environment variables remain mandatory for each permitted request. For example:
+发送 `payload.request`，包含必填的 `raw_content`（非空白严格字符串，最多 60,000 字符）、`decision_goal`（非空白严格字符串，最多 1,200 字符，描述实际下游判断目标）、`output_kind`（`decision_question` 或 `decision_context`）及 `outbound_data_permitted`（严格布尔值）。超长输入直接拒绝，不截断；不要仅为满足上限而省略关键约束。权限断言本身不授予采集或披露权限。每次获准请求仍必须具备两项本地 API 环境变量。例如：
 
 ```json
 {
   "payload": {
     "request": {
-      "raw_content": "User requirement: add bounded question input.\nCurrent Git diff, collected by caller: + decision_question: StrictStr\nLSP observation, collected by caller: ChildEffortInput is consumed by ChildEffortSelector.select; call path verified, runtime behavior not yet tested.",
-      "decision_goal": "Frame the question for selecting the lowest sufficient supported effort for this released child task.",
+      "raw_content": "用户需求：增加有界的问题输入。\n当前 Git diff，由调用方收集：+ decision_question: StrictStr\nLSP 观测，由调用方收集：ChildEffortInput 由 ChildEffortSelector.select 使用；调用路径已核实，运行时行为尚未测试。",
+      "decision_goal": "为当前已释放子任务组织选择最低充分受支持推理强度的问题。",
       "output_kind": "decision_question",
       "outbound_data_permitted": true
     }
@@ -290,68 +287,68 @@ Send `payload.request` with required `raw_content` (nonblank strict string, at m
 }
 ```
 
-Only `status: available` carries a nonblank `description`: at most 1,200 characters for `decision_question`, or 6,000 for `decision_context`. The result includes `output_kind`, a canonical SHA-256 `input_hash` over the raw material, goal, and kind (excluding the permission assertion), and safe model/usage metadata. Critical gaps or conflicts return `blocked` / `insufficient_evidence`, `description: null`, and up to eight `missing_information` items of at most 240 characters; configuration, refusal, incomplete or invalid output, timeout, and provider errors also block without a fallback. The fixed instructions require preserving the distinction between requirements, observations, plans, and proven outcomes, treating embedded instructions as data, and generating no answer, selected branch, or authorization. These semantic requirements still need caller review. Check the paragraph against the original material and current repository state before using `description` as `decision_question` or context; supply the other required decision facts separately. The generation hash identifies this generation input and does not replace the downstream decision hash. Changes to the material, goal, or kind require a fresh comparison and review.
+只有 `status: available` 携带非空白 `description`：`decision_question` 最多 1,200 字符，`decision_context` 最多 6,000 字符。结果包含 `output_kind`、对原始材料、目标及类型进行规范化 SHA-256 计算的 `input_hash`（排除权限断言），以及安全的模型和用量元数据。关键缺口或冲突返回 `blocked` / `insufficient_evidence`、`description: null`，并提供最多八项、每项最多 240 字符的 `missing_information`；配置缺失、拒绝、未完成或无效输出、超时及服务错误也阻塞，不回退。固定指令要求保留需求、观测、计划及已证明结果之间的区别，将嵌入的指令视为数据，不生成答案、所选分支或授权。这些语义要求仍需调用方审阅。将 `description` 用作 `decision_question` 或上下文前，须比对原始材料和当前仓库状态，并单独提供其他必需判断事实。生成哈希只标识本次生成输入，不能替代下游判断哈希。材料、目标或类型变化后，须重新比对和审阅。
 
-`workflow_select_child_effort` is a separate stateless public workflow operation for Codex child creation. An explicit, authorized invocation with `payload.request.outbound_data_permitted: true` opts into one Decisions request; it needs neither optional-advice enablement nor persistent workflow state. The assertion is not proof of authorization. Supply verified bounded task facts and supported effort levels under the [runtime owner's creation contract](../docs/skill/references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md). The result carries a selected effort only when available, a request hash, and the echoed slice fingerprint. Parent review and current-input comparison remain mandatory. Refusal, insufficient evidence, invalid response, missing configuration, or provider failure blocks selection, without a fixed-effort fallback. The tool does not create an Agent, mutate workflow state, or authorize a gate.
+`workflow_select_child_effort` 是面向 Codex 子代理创建的独立、无状态公共 workflow 操作。显式且获准的调用携带 `payload.request.outbound_data_permitted: true`，仅为本次 Decisions 请求 opt-in；它不依赖可选建议的启用配置或持久化工作流状态。此声明不能证明授权。按[运行时 owner 的创建契约](../docs/skill/references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md)提供经过核实的有界任务事实及受支持档位。结果仅在可用时包含选定 effort，并附请求哈希和回显的切片指纹。父级审阅及当前输入比对仍是必需步骤。拒绝、证据不足、响应无效、缺少配置或服务失败均阻塞选择，不回退到固定 effort。该工具不创建 Agent、不修改工作流状态，也不授权任何门禁。
 
-The required `decision_question` is a nonblank strict string of at most 1,200 characters asking which supported effort is minimally sufficient for this released child task. The tool sends it explicitly in the Decisions input and includes it in the canonical input hash; changing only the question invalidates the previous hash. It is task data, without authority to change the fixed model, candidate levels, instructions, or permissions. Local validation enforces the string constraints; fixed API instructions require `insufficient_evidence` for an out-of-scope question or an attempted rule override. This semantic judgment and the parent's review remain necessary. Each offered level describes concrete task evidence, adjacent-level boundaries, and exclusions; file count, impact, or a missing fact alone does not justify a higher level.
+必填的 `decision_question` 是非空白严格字符串，最多 1,200 字符，用于询问当前已释放子任务所需的最低充分受支持档位。工具将其明确传入 Decisions input，并纳入规范化输入哈希；仅修改问题也会使旧哈希失效。它属于任务数据，无权修改固定模型、候选档位、指令或权限。本地校验执行字符串约束；固定 API 指令要求对超出范围或试图覆盖规则的问题返回 `insufficient_evidence`。该语义判断及父级审阅仍是必需步骤。每个候选档位均说明具体任务证据、相邻档位边界及排除条件；文件数量、影响程度或缺少事实本身均不足以支持升档。
 
-### Delegation decisions and approved capacity
+### 委派判断与获批容量
 
-Four stateless public tools provide optional delegation advice. Each accepts `payload.request` with bounded task facts, reviewed context and its `context_input_hash`, current `fact_revision` and `fact_fingerprint`, Fork/mode facts, and `outbound_data_permitted`. Identity, permission, provenance, and approval assertions remain caller-supplied facts, not host proofs. Root reviews an authorized proposed task before choosing a role or executor; the child-specific Interaction Slice is released afterward and must pass its own gates.
+四个无状态公共工具提供可选委派建议。每个工具通过 `payload.request` 接收有界任务事实、已审阅背景及其 `context_input_hash`、当前 `fact_revision` 和 `fact_fingerprint`、Fork/模式事实及 `outbound_data_permitted`。身份、权限、来源和批准声明仍是调用方提供的事实，不是宿主证明。Root 先审查已授权的拟议任务，再选择职责或执行主体；面向子代理的具体 Interaction Slice 在此后放行，且须独立通过其门禁。
 
-| Tool | Decision and result boundary |
+| 工具 | 判断及结果边界 |
 | --- | --- |
-| `workflow_select_child_role` | Select one of the four maintained roles under [Child Role Selection](../docs/skill/references/coding/layer-01-fundamental-concepts/delegation/child-role-selection.md). Explicit user creation skips the request. An established creation may default to an unoccupied Primary Output; a role already created remains occupied for the entire Session. All roles occupied returns a blocked result for Root review rather than suggesting more capacity. |
-| `workflow_select_executor` | Suggest Root or a child under [Task Assignment](../docs/skill/references/coding/layer-01-fundamental-concepts/execution-planning/task-assignment.md). Explicit executor instructions skip advice; an explicit child under locked Single-Agent mode blocks instead of becoming Root. Failure never defaults to Root. A child decision with unused approved capacity and no actual child can continue through the normal role and creation gates. |
-| `workflow_select_child` | Select among eligible current-session children. Explicit or unique candidates can bypass advice; busy selections wait. Multiple idle candidates use Decisions, preferring a suitable idle Primary and otherwise task-relevant context. Failure may use only a suitable Primary fallback, subject to availability; inherited foreign-session children are excluded. |
-| `workflow_assess_output_tokens` | Independently assess direct Root output under [Output Token Routing](../docs/skill/references/coding/layer-01-fundamental-concepts/execution-planning/output-token-routing.md). Explicit execution instructions skip advice. `no` permits Root subject to other gates; `yes` prevents immediate Root output and requires an idle suitable child or hold/wait. Independently authorized creation can still follow its normal gates; output advice alone does not authorize it. |
+| `workflow_select_child_role` | 按[子代理职责选择](../docs/skill/references/coding/layer-01-fundamental-concepts/delegation/child-role-selection.md)选择四种维护职责之一。用户明确要求创建时跳过请求。已确认创建时，可默认使用未占用的 Primary Output；已创建职责在整个 Session 内持续占用。全部职责占用时阻塞复核，不建议增加容量。 |
+| `workflow_select_executor` | 按[任务分配](../docs/skill/references/coding/layer-01-fundamental-concepts/execution-planning/task-assignment.md)建议 Root 或子代理。明确执行主体时跳过建议；已锁定 Single-Agent 模式下明确要求子代理时阻塞，不改成 Root。失败不默认 Root。判定交子代理且仍有获批未用容量、尚无实际子代理时，可进入正常职责与创建门禁。 |
+| `workflow_select_child` | 在合格的当前会话子代理中选择。明确指定或唯一候选可跳过建议；忙碌候选须等待。多个空闲候选调用 Decisions，优先合适的空闲 Primary，否则比较任务相关上下文。失败仅可由合适的 Primary 兜底，仍须检查可用性；排除继承的外部会话子代理。 |
+| `workflow_assess_output_tokens` | 按[Output Token 路由](../docs/skill/references/coding/layer-01-fundamental-concepts/execution-planning/output-token-routing.md)独立评估 Root 直接输出。明确执行指令时跳过建议。`no` 允许 Root 通过其他门禁后执行；`yes` 禁止 Root 立即输出，须用适任空闲子代理或挂起等待。有独立授权的创建仍可走正常门禁；输出建议本身不授权创建。 |
 
-Permitted API calls explicitly read both nonblank `OPENAI_API_KEY` and `OPENAI_BASE_URL` at invocation time, use exactly `gpt-6-luna`, and make no automatic retries or fallback-model requests. Tool inputs cannot override the model or endpoint. The common [Decision Context Generation](../docs/skill/references/coding/layer-01-fundamental-concepts/execution-planning/decision-context-generation.md) operation reuses Responses for the reviewed background; generating a question is optional. Its instructions now come from that current owner's General rules. Its `source_policy_hash` identifies the loaded rules, and a change during a successful request blocks reuse with `stale_policy`.
+获准的 API 请求在每次调用时明确读取非空白的 `OPENAI_API_KEY` 与 `OPENAI_BASE_URL`，只用 `gpt-6-luna`，不自动重试或请求后备模型。工具输入不能覆盖模型或端点。公共[判断背景生成](../docs/skill/references/coding/layer-01-fundamental-concepts/execution-planning/decision-context-generation.md)操作复用 Responses 生成供审阅的背景；问题生成可选。其指令现来自当前 owner 的通用规范；`source_policy_hash` 标识加载的规则，成功请求期间规则发生变化时以 `stale_policy` 阻止复用。
 
-The selectors load their current owner instructions and concrete choice descriptions through `RuleLoader`. Results distinguish `available`, `skipped`, `fallback`, `blocked`, and `stale`, with request/context/fact and source-policy hashes. Root must recheck them against current evidence before any effect. Missing configuration or required policy blocks before a request; stale rules require refresh rather than fallback. No selector creates a child, dispatches work, changes a budget, or establishes trusted binding. These tools accept one already bounded task; they do not decompose an instruction into multiple tasks.
+选择器通过 `RuleLoader` 加载当前 owner 指令和具体候选描述。结果区分 `available`、`skipped`、`fallback`、`blocked` 和 `stale`，带有请求/背景/事实及来源策略哈希。实际效果前，Root 必须与当前证据重新核对。缺少配置或必要策略时在请求前阻塞；过期规则必须刷新，不能转为兜底。选择器不会创建子代理、派发工作、修改预算或建立可信绑定。这些工具只接收一个已界定任务，不会将指令分解成多个任务。
 
-### Component optimization measurement
+### 组件优化测量
 
-The [optimization benchmark](OPTIMIZATION_BENCHMARK.md) owns the fixed-case measurement protocol, raw-result links, provenance, and observed token/call/latency/repair/failure results. It compares direct service components through real reference-caller API requests, separately from MCP transport, the current Agent's usage, and fresh-CLI inspection. Its archived first protocol and single corrected run remain available; consult that guide for the measured limits and reproduction authorization.
+[优化基准](OPTIMIZATION_BENCHMARK.md)负责固定案例测量协议、原始结果链接、来源证据，以及 token、调用、延迟、修复和失败的实测结果。它通过真实参考调用方 API 请求比较直接服务组件，与 MCP 传输、当前 Agent 用量及 fresh CLI 检查分开。首版协议归档和唯一一次修正补测均保留；测量边界和复现授权请查该指南。
 
-### Real API integration tests
+### 真实 API 集成测试
 
-The `real_api` cases under `tests/real_api_tests/` exercise real Responses context generation, child-effort Decisions, the negotiated in-process MCP generation-to-effort chain, and the four delegation decisions: new-child role, Root/child executor, existing-child selection, and output-token routing. They use synthetic requirements, diff text, Session facts and LSP observations rather than collecting repository or host data. Delegation cases generate and review context before requesting a decision, then check the expected result, input hash and current policy hashes. These checks establish live API and MCP-handler behavior; they do not prove a trusted desktop-host binding or stable semantic rankings.
+`tests/real_api_tests/` 下的 `real_api` 用例覆盖真实 Responses 背景生成、子代理 effort Decisions、经协商的进程内 MCP 生成到强度选择链路，以及四类委派判断：新子代理角色、Root/子代理执行主体、已有子代理选择和 Output Token 路由。它们使用合成的需求、diff 文本、Session 事实与 LSP 观测，不采集仓库或宿主数据。委派用例先生成并审核背景，再请求判断，随后核对预期结果、输入哈希及当前策略哈希。这些检查证明真实 API 和 MCP handler 行为，不证明可信桌面宿主绑定或稳定的语义排序。
 
-Ordinary pytest runs collect and skip these cases before credentials or clients are accessed, even when credentials exist. Only the exact opt-in `TOKEN_IO_RUN_REAL_API=1` enables them. Once enabled, a missing or blank `OPENAI_API_KEY` or `OPENAI_BASE_URL` fails the tests instead of skipping them or using mocks. Requests use the configured endpoint and fixed `gpt-6-luna`; there is no endpoint/model fallback or automatic retry. The test scope suppresses SDK/HTTP logging and reports safe status/reason data without credentials, endpoint values, or raw provider errors. After explicit authorization, run from `mcp/`:
+普通 pytest 运行会收集并跳过这些用例，在访问凭据或创建客户端前结束，即使已有凭据也不会启用。只有精确的 `TOKEN_IO_RUN_REAL_API=1` 才启用它们。启用后，`OPENAI_API_KEY` 或 `OPENAI_BASE_URL` 缺失或空白会使测试失败，不跳过，也不替换为 Mock。请求使用已配置的端点和固定 `gpt-6-luna`；不回退到其他端点或模型，也不自动重试。测试作用域抑制 SDK/HTTP 日志，只报告安全的状态和原因，不输出凭据、端点值或原始服务错误。获得显式授权后，从 `mcp/` 运行：
 
 ```sh
 TOKEN_IO_RUN_REAL_API=1 uv run --managed-python --locked -- pytest -m real_api tests/real_api_tests/ -q
 ```
 
-The separate [official HTTPX2 smoke test](tests/real_api_tests/test_official_httpx2.py) uses `OPENAI_API_KEY_OFFICAL` and `OPENAI_BASE_URL_OFFICAL` (the `OFFICAL` spelling is intentional) under its own `TOKEN_IO_RUN_OFFICIAL_API=1` opt-in. This test-only configuration choice does not change the production tools' required variable names. It calls the shared HTTPX2 builder and sends one short Responses request to fixed `gpt-6-luna`, with a 60-second timeout, no retries and `store=False`. It validates completed nonempty text and reports only safe status and whether the configured transport selected a proxy; it prints no credentials, URLs, response body or raw provider error. A false proxy flag means the configured route was direct, including a possible `NO_PROXY` bypass. Without its opt-in it skips before reading the two variables. After authorizing this real request, load the variables and run from `mcp/` in Zsh:
+独立的[官方 HTTPX2 smoke 测试](tests/real_api_tests/test_official_httpx2.py) 使用 `OPENAI_API_KEY_OFFICAL` 和 `OPENAI_BASE_URL_OFFICAL`（有意保留 `OFFICAL` 拼写），由单独的 `TOKEN_IO_RUN_OFFICIAL_API=1` 开关启用。该测试专用配置不改变生产工具的必需变量名。它调用共享 HTTPX2 构建函数，向固定的 `gpt-6-luna` 发出一次简短 Responses 请求，超时为 60 秒、不重试且 `store=False`。测试验证响应完成并有非空文本，只报告安全状态及配置的 transport 是否选择代理，不输出凭据、URL、响应正文或原始服务错误。代理标志为 false 表示实际配置选择直连，包括可能的 `NO_PROXY` 绕过。未启用开关时，在读取这两项变量之前跳过。取得该真实请求的授权后，从 `mcp/` 在 Zsh 中加载变量并运行：
 
 ```sh
 source ~/.zshrc
 TOKEN_IO_RUN_OFFICIAL_API=1 uv run --managed-python --locked -- pytest tests/real_api_tests/test_official_httpx2.py -q -s --tb=no
 ```
 
-## Build, rule resources, and installed checks
+## 构建、规则资源与安装检查
 
-Build all eight wheels and source distributions from `mcp/`:
+从 `mcp/` 构建八个 wheel 与源码分发包：
 
 ```sh
 uv build --all-packages --managed-python --python 3.14 --out-dir /tmp/token-io-dist
 ```
 
-The core package owns rule resources and its custom build hook. The canonical registry remains `mcp/rule-registry.json`; build output contains bounded excerpts from its English/Chinese owner headings. The independent version 1 fragment index and its fragment resources are built from authoritative owner sections with a shared fence-aware parser and normalization. Source and packaged resources therefore produce the same fragment text and hashes; the build does not hard-code a Skill installation path or borrow a neighboring checkout. Core sdists carry their own `rule_sources`. The default `token_io_decoupling_core.rules.RuleLoader` reads packaged snapshots; source development must explicitly supply the repository root. Editing Markdown does not update an installed wheel: rebuild and reinstall it.
+规则资源及自定义构建 Hook 由 core 包负责。维护的源文档只有无语言后缀的中文版本。为避免此次文档迁移同时破坏既有工具协议，`language: en`、`owner_mirrors.zh_cn`、`section_en` 与旧资源语言键暂保留为兼容字段；它们与中文键读取同一份中文源文件和标题，不代表另一个权威版本，也不要求开发者维护英文正文。Canonical 注册表仍为 `mcp/rule-registry.json`；构建产物包含其中文 owner 标题的有界摘录。独立的片段索引 v1 及其片段资源使用共享的 fence-aware parser 和规范化，从权威 owner 章节构建。因此源码与打包资源会产生相同的片段正文和 Hash；构建不会硬编码 Skill 安装路径，也不会借用相邻 checkout。Core sdist 携带自己的 `rule_sources`。默认 `token_io_decoupling_core.rules.RuleLoader` 读取打包快照；源码开发必须明确提供仓库根目录。修改 Markdown 不会更新已安装的 wheel，需要重新构建和安装。
 
-Rule loading trims leading/trailing whitespace before returning text and calculating context or policy hashes; internal whitespace is preserved. Source and packaged loaders therefore agree for the same registry and rule content even when a text resource has a final newline. This corrects older package hashes that included packaging whitespace. The existing `rules_get_context` call and output/hash remain unchanged when `context_version` is omitted. Any fragment-bundle extension such as `fragment_ids` or `max_chars` requires explicit `context_version=1`; unversioned extensions are rejected. Version 1 `max_chars` counts Unicode characters in fragment text (not tokens), defaults to 12,000, and is limited to 256–60,000; fragments are not truncated, and missing required content or insufficient budget is returned as incomplete. Bundle completion covers only the requested index dependency closure, not all task rules or linked owners. After upgrading, read current rule contexts and policy hashes again and re-evaluate affected stale results; do not rewrite historical records or reuse cached pre-upgrade hashes.
+规则加载会在返回文本及计算上下文或策略哈希之前去除首尾空白，保留正文内部空白。因此，当注册表和规则内容相同时，即使资源文件带有末尾换行，源码与打包加载器的结果仍一致。这修正了旧安装包将打包空白计入哈希的行为。未提供 `context_version` 时，现有 `rules_get_context` 调用及其输出/Hash 保持不变。`fragment_ids` 或 `max_chars` 等片段 bundle 扩展必须显式带 `context_version=1`；无版本的扩展会被拒绝。版本 1 的 `max_chars` 按片段正文的 Unicode 字符计数（不是 token），默认 12,000，范围为 256–60,000；片段不会被截断，必需内容缺失或预算不足时会返回不完整状态。bundle 完整仅覆盖请求的索引依赖闭包，不代表已读取全部任务规则或链接 owner。升级后应重新读取当前规则上下文和策略哈希，重新评估受影响的过期结果；不要改写历史记录或复用升级前缓存的哈希。
 
-The local Skill directory and the MCP tool environment are separate snapshots. `skills install/update` writes only the selected `~/.agents/skills/` installation; it does not change the MCP executable, packaged rules, or Codex registrations. The MCP does not import the installed Skill or its `_project/` supporting attachments. `rules_get_context.owner_path` identifies the canonical repository source under `docs/skill/`, not a path to resolve against the local Skill directory. `_project/` manifests and CI files are reference copies, not live server configuration. To keep instructions and server rules aligned, reinstall the same tool build, run `skills update`, reload the MCP servers, and start a fresh Agent session; separate updates can otherwise leave different snapshots active.
+本地 Skill 目录与 MCP 工具环境是独立快照。`skills install/update` 仅写入选定的 `~/.agents/skills/` 安装，不修改 MCP 可执行程序、打包规则或 Codex 注册项。MCP 不导入已安装 Skill 或其 `_project/` 支持附件。`rules_get_context.owner_path` 标识 `docs/skill/` 下的 canonical 仓库源文件，不应拼接到本地 Skill 目录来定位文件。`_project/` 中的清单及 CI 文件仅为参考副本，不是 Server 的实际配置。要让指令与 Server 规则同步，应重新安装同一构建版本的工具、执行 `skills update`、重新加载 MCP Server 并启动新的 Agent 会话；分别更新可能使不同快照同时生效。
 
-The build also packages General rules in both languages for eight allowlisted owners: `child-role-selection`, `task-assignment`, `output-token-routing`, `session-role-ownership`, `decision-context-generation`, `workflow-routing-advice`, `candidate-compliance`, and `output-materialization`. The original five remain the delegation-policy allowlist. The three new owners supply optional version 1 fragments: `decision.workflow_routing_advice`, `implementation.candidate_compliance`, and `implementation.output_materialization`; the last depends on candidate compliance. The 17 Core checkpoint IDs and their default fragment roots remain unchanged. `tests/unit_tests/test_build_artifacts.py` verifies detached sdist-to-wheel builds and bilingual source/packaged text and hash parity.
+构建还打包八个允许列表 owner 的英中通用规范：`child-role-selection`、`task-assignment`、`output-token-routing`、`session-role-ownership`、`decision-context-generation`、`workflow-routing-advice`、`candidate-compliance` 和 `output-materialization`。原有五个仍是委派策略允许列表。新增三个 owner 提供可选的版本 1 片段：`decision.workflow_routing_advice`、`implementation.candidate_compliance` 和 `implementation.output_materialization`，最后一项依赖候选合规预检。17 个 Core 检查点 ID 及其默认片段根保持不变。`tests/unit_tests/test_build_artifacts.py` 验证脱离仓库的 sdist 到 wheel 构建，以及英中源码/打包正文与哈希一致性。
 
-The launcher build regenerates its Skill snapshot zip when the Skill source markers and canonical compliance helper are present, so a matching old helper cannot hide changed documentation. A detached build without those sources requires a bundled snapshot with unique safe entry paths, valid CRCs, and all six required Skill/metadata/helper/loader/checker text entries containing non-whitespace UTF-8. It also checks helper parity when the canonical helper is available. This validates those required entries, not every document's semantics or completeness. Missing or invalid snapshots fail the build. Regression tests exercise fresh-source rebuilding, valid detached fallback, and CRC-valid snapshots with empty required entries.
+Skill 源码标记与 canonical 合规 helper 均存在时，launcher 构建会重新生成 Skill 快照 zip，避免相同的旧 helper 掩盖文档变化。缺少这些源码的脱离仓库构建必须具有内含快照：条目路径安全且唯一、CRC 有效，六个必需的 Skill/元数据/helper/loader/checker 文本条目均为含有非空白内容的 UTF-8。canonical helper 可用时还核对其字节一致性。这些检查验证上述必需条目，不证明每份文档的语义或完整性。快照缺失或无效会使构建失败。回归测试覆盖当前源码重建、有效的脱离源码回退，以及 CRC 有效但必需条目为空的快照。
 
-The [MCP CI workflow](../.github/workflows/mcp.yml) runs locked checks on managed Python 3.11 and 3.14 and a separate installed-wheel job. Export third-party build/runtime constraints with `uv export --no-emit-workspace` (plus `--all-groups` for builds or `--no-dev` for runtime). Workspace members are supplied by the local artifacts, not editable requirements. To install from the detached wheel set, use its directory as `--find-links` and install the root `token_io_decoupling-0.1.0-py3-none-any.whl`; retain the configured index for locked third-party dependencies. See CI for the complete commands.
+[MCP CI 工作流](https://github.com/john-z-huang/token-io-decoupling/blob/main/.github/workflows/mcp.yml)在托管 Python 3.11 和 3.14 上执行锁定检查，并有独立的安装版 wheel job。用 `uv export --no-emit-workspace` 导出第三方构建/运行时约束，构建再加 `--all-groups`，运行时再加 `--no-dev`。Workspace 成员由本地产物提供，不作为 editable requirements 导出。从脱离仓库的 wheel 集安装时，以产物目录作为 `--find-links`，安装根包 `token_io_decoupling-0.1.0-py3-none-any.whl`；保留已配置的索引以解析锁定的第三方依赖。完整命令见 CI。
 
-For temporary installation, set command-local `UV_TOOL_DIR` and `UV_TOOL_BIN_DIR` to absolute temporary directories. Run `tests/support/installed_stdio_smoke.py --cli /absolute/temporary/bin/token-io-decoupling` with the locked workspace interpreter. It starts the two separate MCP executables outside the checkout with an empty `PYTHONPATH`, verifies their exact inventories and binding rejection, checks both rule languages, and runs setup dry-run with an empty `PATH`. Source-root tool installation is checked separately. These results prove packaging and stdio behavior, not actual host binding or a GitHub Actions run.
+临时安装使用命令局部的 `UV_TOOL_DIR` 和 `UV_TOOL_BIN_DIR`，均指向临时绝对目录。用锁定的 workspace 解释器运行 `tests/support/installed_stdio_smoke.py --cli /absolute/temporary/bin/token-io-decoupling`。脚本在 checkout 外、空 `PYTHONPATH` 下启动两个独立 MCP 可执行程序，核验各自的精确清单与绑定拒绝，检查两种语言规则，并在空 `PATH` 下运行 setup dry-run。源码根项目的 tool 安装另行检查。这些结果证明包与 stdio 行为，不证明实际宿主绑定或 GitHub Actions 已运行。
 
-The [documentation workflow](../.github/workflows/multilingual-docs.yml) retains multilingual/link/route validators and scanner regressions; it prunes generated resources and environments while checking authored workspace documentation.
+[文档工作流](https://github.com/john-z-huang/token-io-decoupling/blob/main/.github/workflows/multilingual-docs.yml)保留多语言、链接、路线验证器及扫描器回归；遍历时剪枝生成资源与环境，同时检查手写的 workspace 文档。

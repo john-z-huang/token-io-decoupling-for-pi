@@ -1,47 +1,43 @@
-# Coding Workflow Module Contract
+# Coding 工作流模块契约
 
-[English](workflow-module-contract.md) | [简体中文](workflow-module-contract_zh_cn.md)
 
-This owner defines the reusable contract for invoking and resuming one bounded workflow module. It does not select a route, schedule other modules, grant authorization, or define module-specific policy.
+本 owner 定义调用和恢复一个有界工作流模块的可复用契约。它不选择路线、不调度其他模块、不授予授权，也不定义模块专属政策。
 
-## General rules
+## 通用规范
 
-### Module declaration
+### 模块声明
 
-Before invocation, a module declares its purpose and scope, applicable mode, required authorization and current Session facts, prerequisite evidence and freshness/epoch requirements, permitted effects, and the ordered Layer-01 through Layer-03 owners it consumes. It identifies its own output and the conditions that make each result valid. A module must not depend on route coordinates or invoke another module.
+调用前，模块必须声明其目的和范围、适用模式、所需授权及当前 Session 事实、前置证据和新鲜度/epoch 要求、允许的效果，以及按序消费的 Layer-01 至 Layer-03 owners。模块还必须说明自己的输出，以及各结果成立的条件。模块不得依赖路线坐标或调用其他模块。
 
-The caller provides the task Contract, current route/mode decision when applicable, authorized scope, current Session identity/state, evidence and epochs, and known effects. The caller may be the top-level route or the direct caller invoking one module; direct entry does not require a pre-existing route. On a first direct invocation, the caller establishes a continuation record in its available context before an effect or suspension, including the module/substep, authorized scope, known evidence, and effect status. The module checks only the facts its declaration requires. It may obtain a missing fact through an authorized read-only operation when the source is current and available. A write that establishes a prerequisite requires its own existing authorization; module entry does not supply it.
+调用方提供任务 Contract、适用时的当前路线/模式决策、授权范围、当前 Session 身份/状态、证据与 epoch，以及已知效果。调用方可以是顶层路线，也可以是直接调用单个模块的调用者；直接入口不要求已有路线。首次直接调用时，调用方须在产生效果或暂停前，在其可用上下文中建立 continuation 记录，包括模块/子步骤、授权范围、已知证据和效果状态。模块只检查其声明要求的事实。当事实来源当前且可用时，模块可通过已授权的只读操作取得缺失事实。建立前置条件所需的写操作仍必须具备已有的独立授权；模块入口本身不提供该授权。
 
-### Results and resume evidence
+### 结果与恢复证据
 
-Return exactly one semantic result:
+返回且仅返回一种语义结果：
 
-- `complete`: this module's declared work is complete and every required owner result has passed its current condition. Include the evidence, effects, and epochs produced or confirmed. A pending prompt, pending audit, unresolved prerequisite, or incomplete owner result is not `complete`. This does not grant authority or mean the complete route is accepted.
-- `not_applicable`: a declared conditional trigger is absent. Include the observed evidence and reason; do not silently skip the condition.
-- `needs_prerequisite`: identify each missing prerequisite by its semantic owner and evidence requirement, and record the suspended module/substep for the caller.
-- `blocked`: explain the unresolved conflict, unavailable required evidence/capability, unsafe state, or other blocking condition.
+- `complete`：本模块声明的工作已完成，且每个必需 owner 结果都满足其当前通过条件。附上产生或确认的证据、效果和 epoch。待处理的提问、待处理的审计、未解决的前置条件或未完成的 owner 结果都不属于 `complete`。这不授予权限，也不表示完整路线已验收。
+- `not_applicable`：声明的条件触发器不存在。附上观察到的证据与原因；不得静默跳过条件。
+- `needs_prerequisite`：按语义 owner 和证据要求逐项标出缺失的前置条件，并向调用方记录暂停的模块/子步骤。
+- `blocked`：说明未解决的冲突、不可用的必需证据/能力、不安全状态或其他阻塞条件。
 
-For resumable work, the caller preserves the pending module and substep, completed evidence with source/currentness/epoch, and the status of effects already attempted or completed. Resume from that recorded position after the caller supplies the required evidence. Recheck affected epochs and effect state before continuing; do not repeat a completed prompt, creation, write, or Git operation automatically. A pending owner operation remains pending until its owner-defined completion evidence is confirmed. A first invocation without prior continuation history is not a failure: the direct caller establishes the record. If a prior effect is uncertain, use an already authorized readback to resolve its status before retrying; block only if the caller cannot preserve or recover the position, cannot determine the effect status, or cannot resume safely.
+对于可恢复工作，调用方保留待处理的模块和子步骤、带来源/当前性/epoch 的已完成证据，以及已尝试或已完成效果的状态。调用方补齐必需证据后，从记录的位置恢复。继续前重新核验受影响的 epoch 和效果状态；不得自动重复已完成的提问、创建、写入或 Git 操作。owner 操作仍处于 pending 时，只有按其 owner 定义确认完成证据后才算完成。首次调用没有先前 continuation 历史不构成失败：由直接调用方建立记录。若先前效果状态不确定，应先通过已有授权的读回操作确认，再决定是否重试；只有无法保留或找回恢复位置、无法确认效果状态或无法安全恢复时才阻塞。
 
-### Caller boundary
+### 调用方边界
 
-The caller maps `needs_prerequisite` to the relevant prerequisite owner and resumes the pending module after that evidence is available. The direct caller can perform this continuation itself; a top-level route is not required. It must not restart unrelated completed gates or repeat Mode selection. A repeated prerequisite resolution with no new evidence, relevant epoch progress, or valid owner-state change is a loop; legitimate owner-directed repair and re-verification may continue when their evidence/epochs advance. If a required continuation position cannot be preserved or recovered, caller state is contradictory, or an attempted effect cannot be resolved by authorized readback, return `blocked`; do not guess or replay. Modules report their own result to the caller and never route to sibling modules or claim route-level completion.
+调用方将 `needs_prerequisite` 映射到相应前置 owner，并在证据就绪后恢复待处理模块。直接调用方可以自行完成此恢复；不要求存在顶层路线。不得重新启动无关的已完成门禁或重复 Mode 选择。重复解析前置条件且没有新证据、相关 epoch 进展或有效 owner 状态变化，才构成循环；有证据/epoch 推进的合法 owner 修复与重新验证可继续。若必需恢复位置无法保留或找回、调用方状态矛盾，或通过已授权读回仍无法确认已尝试效果的状态，则返回 `blocked`；不得猜测或重放。模块只向调用方报告自身结果，不得路由到兄弟模块或声称路线级完成。
 
-### Shared task-plan dependency
+### 共享任务计划依赖
 
-Every current or future Coding route, and a standalone module that performs task work, consumes [Task Plan Memory Lifecycle](task-plan-memory-lifecycle.md). Establish a concrete shared plan after necessary fact/decision analysis and before implementation or dependent dispatch; carry its exact project/name, current plan evidence, persistence confirmation, and any owner-required verification evidence between modules. Follow that owner's update and contribution boundaries, including verification and requirement changes; ordinary reporting or module transitions do not independently trigger a write or full readback. Record and analyze facts affecting authorization, scope, acceptance, direction, or dependent actions before those actions. Preserve an explicit persistence restriction as that owner's documented exception; absent optional planning intent never waives this dependency. A missing required plan/access, failed persistence, or failed required verification blocks dependent effects without replaying completed module effects.
+所有现有或未来 Coding 路线，以及执行任务工作的独立模块，都消费[任务计划 Memory 生命周期](task-plan-memory-lifecycle.md)。必要事实/决策分析后、实施或依赖派发前建立具体共享计划；模块之间传递准确项目/名称、当前计划证据、持久化确认及 owner 要求的核验证据。遵循该 owner 的更新和贡献边界，包括验证和需求变化；普通汇报或模块切换不单独触发写入或全文读回。影响授权、范围、验收、方向或依赖动作的事实，仍须在受影响动作前记录并分析。明确持久化限制按该 owner 记录例外；没有可选规划意图绝不豁免此依赖。缺少必需计划/访问、持久化失败或必需核验失败时阻塞依赖效果，不重放已完成模块效果。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-There are currently no Codex CLI or ChatGPT Desktop-specific optimizations for this concept. Follow the general rules.
+在父级当前上下文保留模块/子步骤 continuation、实际效果及 epoch。同步工具可能一次返回最终结果，异步扩展才需要后续收集；恢复时核对真实证据，不重放创建或写入。模块间共享精简指针，不递归加载全部目录。
 
-## Claude Code CLI / Claude Desktop optimizations
 
-There are currently no Claude Code CLI or Claude Desktop-specific optimizations for this concept. Follow the general rules.
+## 相关概念
 
-## Related concepts
-
-- [Coding Execution Planning](execution-planning.md)
-- [Coding Execution Decision Gate](execution-decision-gate.md)
-- [Coding Execution Control](../execution-control/execution-control.md)
-- [Coding Delegation State Record](../delegation/delegation-state-record.md)
+- [Coding 执行规划](execution-planning.md)
+- [Coding 执行决策门禁](execution-decision-gate.md)
+- [Coding 执行控制](../execution-control/execution-control.md)
+- [Coding 委派状态记录](../delegation/delegation-state-record.md)

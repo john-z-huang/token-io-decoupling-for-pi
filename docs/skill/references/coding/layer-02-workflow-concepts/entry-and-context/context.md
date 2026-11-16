@@ -1,30 +1,29 @@
-# Context Checkpoint
+# 上下文检查点
 
-[English](context.md) | [简体中文](context_zh_cn.md)
 
-## Actions
+## 动作
 
-1. Define the smallest question the next slice must answer.
-2. Read only the files, metadata, history, or generated evidence needed for that question.
-3. Before reusing cached or file-backed context, check its scope, owner, source paths, freshness, and final-state epoch.
-4. Treat stale, incomplete, or conflicting context as unusable. Refresh only the affected context and record what changed.
-5. Keep context factual and routing-oriented; do not use it as a replacement for the Contract, source documents, or verification.
-6. For a rule lookup selected by the applicable workflow decision node, apply [Workflow Rule Context](../../layer-01-fundamental-concepts/workflow-navigation/rule-context.md): verify the requested node, owner, language, and source/hash, then read any necessary direct owner that the excerpt does not include. Keep the returned context bounded and confirm required owner content before relying on it.
-7. When a released Worker must persist a memo or exchange record, require the named persistent-memory capability and confirm its availability; memo and cross-Worker exchange remain independent triggers. Apply the linked Layer-01 owner for logical ownership. If the capability is unavailable, report it and block dependent work; do not fall back to file storage.
-8. When a released task requires reusable Agent project knowledge from prior work, use the [project-memory and code-structure capability](../../layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.md) to access authorized Memory and check its source pointers and freshness against authoritative project files. Report unavailable capability; return to approved authoritative project files and pause only when an essential fact cannot be confirmed another approved way. A memory does not replace an authoritative project file in the approved paths.
+1. 明确下一切片必须回答的最小问题。
+2. 只读取回答该问题所需的文件、元数据、历史或生成证据。
+3. 复用缓存或文件上下文前，检查其范围、所有者、来源路径、新鲜度和最终状态 epoch。
+4. 将过期、不完整或互相冲突的上下文视为不可用。只刷新受影响的上下文，并记录发生了什么变化。
+5. 保持上下文以事实和路由信息为主；不能用它替代 Contract、源文档或验证。
+6. 对适用工作流决策节点选择的规则查询，应用[工作流规则上下文](../../layer-01-fundamental-concepts/workflow-navigation/rule-context.md)：核对请求节点、owner、语言和来源/Hash，并单独读取摘录未包含的必需直接 owner。保持返回上下文有界，并在依赖前确认必需 owner 内容。
+7. 已放行 Worker 需要持久化 memo 或交换记录时，必须确认具名持久 Memory 能力可用；memo 与跨 Worker 交换仍是独立触发条件。逻辑归属遵循所链接的 Layer-01 owner。能力不可用时报告并阻塞依赖工作；不得回退为文件存储。
+8. 已放行任务要求复用先前 Agent 项目知识时，使用[项目 Memory 与代码结构能力](../../layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.md)访问获准 Memory，并对照权威项目文件核验来源指针和新鲜度。能力不可用时报告限制并返回获准的权威项目文件；仅当必需事实无法从其他获准方式确认时才暂停。Memory 不能替代获准路径中的权威项目文件。
 
-9. Apply [Task Plan Memory Lifecycle](../../layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md): use the matching shared plan when its contents are current in context; otherwise read it when needed, and qualify it against current authoritative sources. Record updates at owner-defined boundaries; facts affecting authorization, scope, acceptance, direction, or dependent actions must be recorded before those actions. Required access, persistence, or owner-required verification failure blocks dependent work; a documented persistence restriction follows the owner's exception.
+9. 应用[任务计划 Memory 生命周期](../../layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md)：计划内容在当前上下文中有效时直接复用；否则按需读取，并对照当前权威来源核验。在 owner 规定的边界记录更新；影响授权、范围、验收、方向或依赖动作的事实仍须在该动作前记录。必需访问、持久化或 owner 要求的核验失败时阻塞依赖工作；已记录的持久化限制按 owner 的例外处理。
 
-## Pass condition
+## 通过条件
 
-The next slice has bounded, current context, or the exact missing context is recorded and the slice is paused.
+下一切片拥有有界且当前有效的上下文，或已记录具体缺失的上下文并暂停该切片。
 
-## Boundary
+## 边界
 
-This checkpoint gathers and qualifies context. It does not make material decisions, authorize implementation, or declare verification complete.
+本检查点只收集和判断上下文，不作实质性决策，不授权实现，也不宣布验证完成。
 
-## Related concepts
+## 相关概念
 
-- [Coding Context Exchange](../../layer-01-fundamental-concepts/context-exchange/context-exchange.md) — locate Memory capsule and freshness ownership.
-- [Coding Session Context Firewall](../../layer-01-fundamental-concepts/session-runtime/session-context-firewall.md) — locate raw-state ingress and fact-return ownership.
-- [Project-memory and code-structure capability](../../layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.md) — locate reusable project knowledge and structured code navigation.
+- [Coding Context Exchange](../../layer-01-fundamental-concepts/context-exchange/context-exchange.md) — 定位 Memory capsule 和新鲜度归属。
+- [Coding Session Context Firewall](../../layer-01-fundamental-concepts/session-runtime/session-context-firewall.md) — 定位原始状态进入和事实返回归属。
+- [项目 Memory 与代码结构能力](../../layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.md) — 定位可复用项目知识和结构化代码浏览。

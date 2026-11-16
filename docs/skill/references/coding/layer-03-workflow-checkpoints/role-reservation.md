@@ -1,25 +1,24 @@
-# Role reservation
+# 角色预留
 
-[English](role-reservation.md) | [简体中文](role-reservation_zh_cn.md)
 
-This checkpoint owns role-reservation decisions for an authorized Multi-Agent task. [Child Role Selection](../layer-01-fundamental-concepts/delegation/child-role-selection.md), the [Count Gate](../layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.md), the [State Record](../layer-01-fundamental-concepts/delegation/delegation-state-record.md), and [Child Role Allocation](../layer-01-fundamental-concepts/delegation/delegation-child-role-allocation.md) remain authoritative for role choice, capacity, identity/state, and reservation.
+本检查点负责已授权 Multi-Agent 任务的职责预留决策。[Child Role Selection](../layer-01-fundamental-concepts/delegation/child-role-selection.md)、[Count Gate](../layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.md)、[State Record](../layer-01-fundamental-concepts/delegation/delegation-state-record.md)和[Child Role Allocation](../layer-01-fundamental-concepts/delegation/delegation-child-role-allocation.md)分别是角色选择、容量、身份/状态及预留政策的权威 owner。
 
-## Trigger and inputs
+## 触发与输入
 
-Run only after Executor Selection returns `new-executor-needed` for an authorized proposed task and Output Route Selection has independently dispositioned direct Root output. Read the four linked L1 owners and current Session role/allocation/capacity facts.
+仅当 Executor Selection 针对获授权拟议任务返回 `new-executor-needed`，且 Output Route Selection 已独立处置 Root 直接输出后运行。读取四个已链接的 L1 owner 及当前 Session 角色/allocation/容量事实。
 
-## Decision and result
+## 决策与结果
 
-1. Apply Child Role Selection to match the actual authorized proposed task to one maintained role. Honor explicit user role direction; use its conditional Primary fallback only when the owner’s trigger is met. Suggestions or a Primary preference do not authorize creation.
-2. Read the entire current-Session role ledger from the State Record and Role Allocation owner. Any role already reserved or created by any Session member is occupied. Do not count inherited agents from another Session.
-3. If a different unoccupied role fits, record its unique reservation in the current allocation within locked capacity. If capacity alone is insufficient, and only if that role remains unoccupied, request explicit approval for exactly `+1` through the Count Gate. Never increase automatically.
-4. If all four roles are occupied, block without requesting more capacity. Return the reservation, `Not applicable` with evidence/reason, or block to the caller for task orchestration. Slice release and child creation remain later, separate gates.
+1. 应用 Child Role Selection，将实际获授权拟议任务匹配到一种受维护角色。遵循用户明确的角色指令；仅当 owner 触发条件满足时使用其有条件的 Primary 回退。建议或 Primary 偏好不授权创建。
+2. 从 State Record 和 Role Allocation owner 读取完整的当前 Session 角色台账。任一 Session 成员已预留或创建的角色均视为占用。不得将其他 Session 的继承子代理计入。
+3. 若存在匹配的其他未占用角色，在锁定容量内将其唯一预留记录到当前 allocation。若仅容量不足，且该角色仍未占用，则经 Count Gate 请求明确批准恰好 `+1`。不得自动扩额。
+4. 若四种角色都已占用，阻塞且不申请更多容量。向调用方返回预留、有证据/理由的 `Not applicable` 或阻塞，供其编排任务。Slice 放行和子代理创建仍是后续独立门禁。
 
-## Failure boundary
+## 失败边界
 
-Missing authorized task, stale or uncertain Session state, role conflict, unavailable role, insufficient capacity without exact approval, or unresolved role fit blocks Slice release. This checkpoint does not release a Slice, create, or dispatch.
+缺少获授权任务、Session 状态过期或不确定、角色冲突、角色不可用、容量不足且无精确批准，或角色适配未决时，阻塞 Slice 释放。本检查点不释放 Slice、不创建或派发。
 
-## Related concepts
+## 相关概念
 
 - [Child Role Selection](../layer-01-fundamental-concepts/delegation/child-role-selection.md)
 - [Delegation Count Gate](../layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.md)

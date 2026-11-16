@@ -1,30 +1,29 @@
-# Coding Delegation State Record
+# Coding 委派状态记录
 
-[English](delegation-state-record.md) | [简体中文](delegation-state-record_zh_cn.md)
 
-This module owns the task-control record used by Coding delegation. It defines the record's canonical location, ownership, shape, field constraints, and staged presence semantics. It does not decide the mode, define Worker read/write boundaries, create children, allocate roles, or define lifecycle transitions. Session audit configuration is owned by [session audit visibility](../session-runtime/session-audit-visibility.md).
+本文档负责 Coding 委派使用的任务控制记录，定义记录的规范位置、ownership、结构、字段约束和分阶段字段存在语义。不决定模式，不定义 Worker 读写边界，不创建子 Agent，不分配职责，也不定义生命周期转换。Session 审计配置由[会话审计可见性](../session-runtime/session-audit-visibility.md)负责。
 
-## General rules
+## 通用规范
 
 ### Ownership
 
-The root parent owns one host-Session-level mode/count decision and updates task-specific slices and lifecycle in the same record. The record is task state, kept in the parent's canonical conversation context; it is not stored in a database or by editing a policy file. Read the current structured record back before each route release; a transient child-status result is not canonical. Preserve field ownership and never overwrite a valid current record with a stale summary.
+根父级负责一份完整宿主 Session 生命周期的模式/数量选择记录，并在同一记录中更新任务专属切片和生命周期。记录是任务状态，保存在父级规范对话上下文中；不存入数据库，也不通过编辑 policy 文件保存。每次路线放行前回读当前结构化记录；短暂子代理状态不是规范记录。保留字段归属，绝不能用过时摘要覆盖有效当前记录。
 
-### Record shape
+### 记录结构
 
-Before route release, maintain this canonical record:
+路线放行前维护以下规范状态记录：
 
 ```text
-owner: <root-parent identity>
-run_id: unset | <stable identifier for this Multi-Agent delegation run>
+owner: <根父级身份>
+run_id: unset | <本次 Multi-Agent 委派运行的稳定标识>
 gate_status: awaiting-mode | awaiting-count | released | blocked
-mode_source: unset | explicit | default | timeout-default (legacy only)
+mode_source: unset | explicit | default | timeout-default（仅兼容旧记录）
 mode: unset | Single-Agent Coding | Multi-Agent Coding
-child_count: unset | 0 | <locked positive integer>
-source: <SemanticRef for the current mode/count decision>
-semantic_references: [<retained SemanticRefs, including prior count sources>]
-allocations: [{allocation_id: <stable child allocation identifier>,
-               agent: unbound | <created-agent-identity>, role: unassigned | <role>,
+child_count: unset | 0 | <已锁定正整数>
+source: <当前模式/数量决策的 SemanticRef>
+semantic_references: [<保留的 SemanticRef，包括先前数量来源>]
+allocations: [{allocation_id: <稳定的子代理 allocation 标识>,
+               agent: unbound | <真实宿主身份或绑定真实调用证据的逻辑任务身份>, role: unassigned | <职责>,
                slice_status: pending | released, interaction_slice, scope, mutations,
                return_conditions, lifecycle, write_content_memo}]
 session_audit: {audit_mode, root_reasoning_cadence, worker_reasoning_cadence,
@@ -33,47 +32,40 @@ session_audit: {audit_mode, root_reasoning_cadence, worker_reasoning_cadence,
                 worker_log_visibility: available | unverified | unavailable | Not applicable,
                 worker_log_evidence}
 lifecycle: pending | running | completed | interrupted
-unavailable_capabilities: [<capability names>]
-block_reason: <required only when gate_status is blocked>
+unavailable_capabilities: [<能力名称>]
+block_reason: <仅 blocked 时必需>
 ```
 
-The selected workflow route records explicit preference values or the documented defaults; preserve mode/count, allocations, task scope, and lifecycle as task state.
+所选工作流路线记录用户显式偏好或规定的缺省值；该记录继续保留模式/数量、allocations、任务范围和生命周期状态。
 
-| `gate_status` | Mode and count | Allocations and lifecycle | Additional requirement |
+| `gate_status` | 模式与数量 | Allocation 和 lifecycle | 其他要求 |
 | --- | --- | --- | --- |
-| `awaiting-mode` | Unset | `[]`; top-level lifecycle `pending` | Initialize before recording the first explicit choice or default. |
-| `awaiting-count` | Multi-Agent; count unset | `[]`; top-level lifecycle `pending` | Only an invalid explicit count enters this state; an omitted count defaults to one. |
-| `released` — Single-Agent | Single-Agent; count `0` | `[]`; top-level lifecycle required | Releases the single route, not an independent Session. `timeout-default` is accepted only as a legacy source for readback. |
-| `released` — Multi-Agent | Multi-Agent; locked positive count | Exactly `child_count` reserved allocations; `run_id` is set; each has a unique stable `allocation_id` and starts `agent: unbound`, `role: unassigned`, `slice_status: pending`, `lifecycle: pending` | Releases the route and count budget, **not** each child or Interaction Slice. |
-| `blocked` | Preserve confirmed values | Preserve existing allocations/lifecycle | `unavailable_capabilities` and `block_reason` required; cannot enter a dependent route. |
+| `awaiting-mode` | 未设置 | `[]`；顶层 `pending` | 记录首次明确选择或默认值前先初始化。 |
+| `awaiting-count` | Multi-Agent；数量未设置 | `[]`；顶层 `pending` | 仅明确给出无效数量时进入；省略数量时默认 1。 |
+| `released` — Single-Agent | Single-Agent；数量 `0` | `[]`；顶层 lifecycle 必需 | 放行单代理路线，不授予独立 Session。`timeout-default` 仅作为旧记录来源接受并读回。 |
+| `released` — Multi-Agent | Multi-Agent；已锁定正整数 | 恰好 `child_count` 个预留 allocation；`run_id` 已设置；每个 allocation 有唯一且稳定的 `allocation_id`，并初始为 `agent: unbound`、`role: unassigned`、`slice_status: pending`、`lifecycle: pending` | 只放行路线与数量预算，**不**放行具体子代理或 Interaction Slice。 |
+| `blocked` | 保留已确认值 | 保留现有 allocation/lifecycle | `unavailable_capabilities` 与 `block_reason` 必需；不得进入依赖路线。 |
 
-An initial count reserves exactly that many unassigned slots; reservation does not select a role. A one-slot budget does not automatically assign Primary Output. After task context and Decision are reviewed, the role-selection owner supplies a role suggestion or Root decides directly; the selected unique role is then recorded on one unassigned slot. A concrete `slice_status: released` requires `role`, `interaction_slice`, `scope`, `mutations`, `return_conditions`, and an explicit boolean `write_content_memo`; pending slices may leave these fields unset. Before serializing each released Worker bundle, include `write_content_memo: true` or `false`; the Worker never infers a default. Child Creation may bind `agent` and lifecycle only after the target role and slice are released. A later slice may be prepared on the **same** created child without creating or recycling a slot.
+初始数量只预留恰好对应数量的未分配名额；预留本身不选择职责。一个名额的预算不会自动分配 Primary Output。审阅任务上下文和 Decision 后，由职责选择 owner 提供职责建议，或由 Root 直接判断；然后将选定的唯一职责记录到一个未分配名额。具体 `slice_status: released` 必须具备已分配 `role`、`interaction_slice`、`scope`、`mutations`、`return_conditions` 和显式布尔 `write_content_memo`；pending Slice 可以暂不设置这些字段。序列化每个已放行 Worker bundle 前，必须显式写入 `write_content_memo: true` 或 `false`，Worker 不得推断默认值。Child Creation 只能在相应职责和 Slice 已放行后绑定 `agent` 与 lifecycle。仅在扩展支持稳定身份与续接时，后续 Slice 才可在**同一个**已创建子代理上准备；一次性返回不提供复用能力，不创建或回收名额。
 
-`mode_source` and `source` record the current mode/count decision. The mode remains fixed within a conversation. A Count Gate-approved one-slot increase is the only same-conversation count change: set `mode_source: explicit` and `source` to the actual approval reference, and retain the previous source in `semantic_references`. The guarded reservation receipt records the old and approved counts and the reviewed approval reference. Do not infer approval from a suggestion or modify count without this transaction. New conversations never write `timeout-default`; accept that value only to read back legacy conversations created under the former rule. A legacy `timeout-default` record must remain Single-Agent with `child_count: 0` and `allocations: []`; never reinterpret or migrate it during readback. Allocation lifecycle may differ from top-level task lifecycle. Blocking preserves all confirmed values; later directives use the Re-entry owner for Fork or other re-entry and the Count Gate for the sole approved increase.
+`mode_source` 和 `source` 记录当前模式/数量决策。本次会话中的模式保持固定。同会话唯一允许的数量变更，是按数量门禁获批增加一个名额：将 `mode_source` 设为 `explicit`，将 `source` 设为实际批准引用，并在 `semantic_references` 中保留先前来源。父级协调记录新旧数量及经 Root 审阅的批准引用，不冒充服务端事务回执。不得把建议推断成批准，也不得绕过用户批准修改数量。新会话不再写入 `timeout-default`；仅为读回按旧规则创建的会话而接受该来源。旧 `timeout-default` 记录必须保持 Single-Agent、`child_count: 0` 和 `allocations: []`；读回时不得重新解释或迁移。各 allocation 的 lifecycle 可不同于顶层任务的 lifecycle。阻塞保留已确认值；后续指令中，Fork 或其他重入遵循 Re-entry owner，唯一获批扩展遵循数量门禁。
 
-An unchanged initial record with `mode_source: default` must be Multi-Agent, `child_count: 1`, and exactly one reserved allocation; its reservation does not initialize a child. After a user-approved increase, the record's source becomes explicit. In every released Multi-Agent record, `child_count` equals the number of allocated slots. Each role and bound child identity is unique within the Session even after completion, failure, interruption, cancellation, or unavailability; lifecycle changes never release a role. Native import or recovery must reject duplicate roles or child identities. A Fork creates a new record only after fresh mode/count re-entry and never imports the source Session's child identities as current allocations. Actual child creation remains governed by the output-type and slice gates.
+未经修改的初始 `mode_source: default` 记录必须是 Multi-Agent、`child_count: 1` 且恰好有一个预留 allocation；此预留不会初始化子代理。用户批准增加名额后，记录来源变为 explicit。所有已放行 Multi-Agent 记录都必须满足 `child_count` 等于 allocation 名额数量。当前会话中的每项职责和已绑定子代理身份都唯一；即使子代理已完成、失败、中断、取消或不可用也一样，生命周期变化不会释放职责。Native 导入或恢复必须拒绝重复职责或子代理身份。Fork 只有在重新通过模式/数量门禁后才能创建新记录，不得把来源 Session 的子代理身份导入为当前 allocation。实际子代理创建仍受输出类型和 Slice 门禁约束。
 
-`session_audit` follows the field definitions in [session audit visibility](../session-runtime/session-audit-visibility.md). The root parent alone writes effective preference values and their per-field sources. When no explicit preference exists, use the documented defaults immediately. Update Worker-log evidence only when first needed or when new actual capability/access evidence or failure occurs, never per message. This state never changes `mode`, `child_count`, authorization, allocations, or Slice release. Do not copy the complete Root audit record into policy files or Worker-controlled state.
+`session_audit` 遵循[会话审计可见性](../session-runtime/session-audit-visibility.md)定义的字段。仅根父级写入生效偏好及各字段来源。未提供显式偏好时，立即采用规定的缺省值。Worker 日志证据仅在首次需要或出现新的实际能力/访问证据或失败时更新，不逐消息更新。此状态不得改变 `mode`、`child_count`、授权、allocation 或 Slice 放行。不得将完整 Root 审计记录复制到策略文件或 Worker 可控状态中。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-In Codex, `AGENTS.md` is an instruction source, not a writable live mode/count record; hook events such as `SessionStart` and `SubagentStart` can refresh approved context only when configured and supported. Read back the actual parent record, allocated identities and epoch before route release; runtime status and hook events are not the canonical record. [OpenAI: hooks](https://learn.chatgpt.com/docs/hooks), [OpenAI: AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md).
+规范调度记录留在父级获授权对话中；可在压缩前保留精简完整状态，但不写入仓库政策或 Memory。逻辑 allocation_id 不是宿主 Session ID。未返回持久身份的一次性任务，以可追溯的真实调用证据绑定逻辑任务身份；不得写成可复用 Session。按当前事实记录批准与状态，不冒充 MCP 受保护事务。
 
-Codex `/agent` and `/status`, when exposed to the active Agent Session, provide runtime observations; `AGENTS.md`, optional local memories and `/compact` serve different purposes: project instructions, recall and chat condensation. None is the authoritative live mode/count/allocation/epoch record. After a Session resume, compact, or tool-mediated thread transfer, read the retained parent record before any new route release; `SessionStart` on `compact` can add approved context if an enabled/trusted hook actually runs but does not re-lock a count. [OpenAI: subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents), [OpenAI: AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md), [OpenAI: memories](https://learn.chatgpt.com/docs/customization/memories), [OpenAI: hooks](https://learn.chatgpt.com/docs/hooks).
 
-## Claude Code CLI / Claude Desktop optimizations
+## 相关概念
 
-Maintain the structured mode, count, and slice record in the parent context and read it back before route release. `/tasks` output is only a temporary subagent status signal, not the canonical record.
-
-Claude Code's `/tasks` lists observable current/background subagent work, whereas `/context` inspects loaded instruction/memory files. Neither is the canonical mode/count/allocation record, and `CLAUDE.md` and auto memory are **instruction or learning context**, not a place to rewrite the live task record. If the parent resumes a conversation after compaction or restart, read back its retained task record and validate the locked gate and current epoch before releasing a new slice. A configured `SessionStart` hook may provide approved initial context, but its output alone cannot create an allocation or overwrite the locked count. [Anthropic: memory](https://code.claude.com/docs/en/memory), [Anthropic: hooks](https://code.claude.com/docs/en/hooks), [Anthropic: subagent status](https://code.claude.com/docs/en/sub-agents).
-
-## Related concepts
-
-- [Coding Delegation State Record Worker Boundary](delegation-worker-boundary.md) — locate Worker snapshot and record access boundaries.
-- [Coding Delegation Mode Confirmation](delegation-mode-confirmation.md) — locate root mode confirmation ownership.
-- [Coding Delegation Count Gate](delegation-mode-count-gate.md) — locate child-count gate ownership.
-- [Coding Delegation Re-entry](delegation-mode-reentry.md) — locate mode/count re-entry ownership.
-- [Coding Child Role Selection](child-role-selection.md) — locate the role-selection boundary before reservation.
-- [Coding Execution Control](../execution-control/execution-control.md) — locate Interaction Slice field ownership.
-- [Coding Child Lifecycle](delegation-child-lifecycle.md) — locate child lifecycle field ownership.
-- [Coding Session Audit Visibility](../session-runtime/session-audit-visibility.md) — locate session audit configuration ownership.
+- [Coding Delegation State Record Worker Boundary](delegation-worker-boundary.md) — 定位 Worker 快照和记录访问边界。
+- [Coding Delegation Mode Confirmation](delegation-mode-confirmation.md) — 定位根模式确认归属。
+- [Coding Delegation Count Gate](delegation-mode-count-gate.md) — 定位子 Agent 数量门禁归属。
+- [Coding Delegation Re-entry](delegation-mode-reentry.md) — 定位模式/数量重新进入归属。
+- [Coding Child Role Selection](child-role-selection.md) — 定位预留前的职责选择边界。
+- [Coding Execution Control](../execution-control/execution-control.md) — 定位 Interaction Slice 字段归属。
+- [Coding Child Lifecycle](delegation-child-lifecycle.md) — 定位子 Agent 生命周期字段归属。
+- [Coding Session 审计可见性](../session-runtime/session-audit-visibility.md) — 定位会话审计配置归属。

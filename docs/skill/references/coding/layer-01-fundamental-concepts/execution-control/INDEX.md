@@ -1,8 +1,7 @@
-# Execution Control Index
+# Execution Control 索引
 
-[English](INDEX.md) | [简体中文](INDEX_zh_cn.md)
 
-## Owners
+## 所有者
 
 - [execution-control](execution-control.md)
 - [execution-stage-feedback](execution-stage-feedback.md)

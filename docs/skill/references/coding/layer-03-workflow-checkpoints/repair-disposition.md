@@ -1,25 +1,24 @@
-# Repair disposition
-
-[English](repair-disposition.md) | [简体中文](repair-disposition_zh_cn.md)
-
-This checkpoint owns route-level recovery and re-verification routing after failure or a material decision change.
+# 修复处置
 
 
-## Trigger and inputs
+本检查点负责失败或实质性决策变化后的路线级恢复和重新验证路由。
 
-After a failed current Verification or a material decision change, use this checkpoint to route recovery. Apply [Repair](../layer-02-workflow-concepts/verification-and-repair/repair.md), [Repair Scope Gate](../layer-02-workflow-concepts/verification-and-repair/repair-scope-gate.md), [Repair Execution](../layer-02-workflow-concepts/verification-and-repair/repair-execution.md), and [Repair Verification Handoff](../layer-02-workflow-concepts/verification-and-repair/repair-verification-handoff.md).
 
-## Decision and result
+## 触发与输入
 
-1. Require concrete failing evidence, affected paths, and the smallest repair candidate. A semantic change without a concrete failure is not a Repair; route it as a material decision change.
-2. Apply the Repair scope gate against the current Contract and Decision. Release only the authorized narrow repair and its focused checks.
-3. Capture the repair handoff, new fingerprint, and affected epochs; send current evidence to Verification and re-run every required check for changed epochs before dependent work.
-4. A material decision change returns its changed Contract/Decision facts and evidence to the caller for renewed Contract and Decision review and route scheduling. Without a concrete failure, return Repair `Not applicable` and its evidence basis. If an accepted epoch changes, require current Verification evidence before dependent work proceeds.
+当前 Verification 失败或决策发生重大变化后，使用本检查点路由恢复流程。应用[Repair](../layer-02-workflow-concepts/verification-and-repair/repair.md)、[Repair Scope Gate](../layer-02-workflow-concepts/verification-and-repair/repair-scope-gate.md)、[Repair Execution](../layer-02-workflow-concepts/verification-and-repair/repair-execution.md)和[Repair Verification Handoff](../layer-02-workflow-concepts/verification-and-repair/repair-verification-handoff.md)。
 
-## Failure boundary
+## 决策与结果
 
-Missing diagnosis, authorization, bounded scope, handoff evidence, or changed-epoch re-verification blocks the dependent route. Do not treat repair intent as authorization or reuse stale pass evidence.
+1. 必须提供具体失败证据、受影响路径和最小修复候选。没有具体失败的语义变更不能算作 Repair；应作为重大决策变化路由。
+2. 用当前 Contract 和 Decision 应用 Repair 范围门禁。只释放获授权的窄范围修复及其定向检查。
+3. 记录修复交接、新指纹和受影响 epoch；将当前证据交给 Verification，并在依赖工作前重跑所有变更 epoch 所需检查。
+4. 重大决策变化应向调用方返回变更后的 Contract/Decision 事实和证据，以便重新审查 Contract 与 Decision 并调度路线。无具体失败时，返回 Repair `Not applicable` 及证据依据。若已验收的 epoch 发生变化，依赖工作继续前必须取得当前 Verification 证据。
 
-## Related concepts
+## 失败边界
+
+诊断、授权、有界范围、handoff 证据或变更 epoch 后重新验证缺失时，阻塞依赖路线。修复意图不构成授权，也不得复用过期通过证据。
+
+## 相关概念
 
 - [Repair Scope Gate](../layer-02-workflow-concepts/verification-and-repair/repair-scope-gate.md)

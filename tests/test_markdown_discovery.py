@@ -1,181 +1,87 @@
-"""Regression coverage for bounded maintained-Markdown discovery and scanners."""
-
-from __future__ import annotations
-
+"""中文唯一文档发现、布局与本地链接验证。"""
+import contextlib
 import importlib.util
+import io
 import sys
 import tempfile
 import unittest
-from contextlib import redirect_stderr, redirect_stdout
-from io import StringIO
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
-SCRIPTS = ROOT / "scripts"
-sys.path.insert(0, str(SCRIPTS))
+REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO / "scripts"))
+from markdown_discovery import discover_markdown
 
 
-def load_script(name: str, filename: str):
-    spec = importlib.util.spec_from_file_location(name, SCRIPTS / filename)
+def load(name):
+    spec = importlib.util.spec_from_file_location(name, REPO / "scripts" / name)
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
 
 
-discovery = load_script("markdown_discovery", "markdown_discovery.py")
-multilingual = load_script("multilingual_docs_validator", "check-multilingual-docs.py")
-layer_links = load_script("doc_layer_links_validator", "check-doc-layer-links.py")
+language = load("check-multilingual-docs.py")
+links = load("check-doc-layer-links.py")
 
 
 class MarkdownDiscoveryTests(unittest.TestCase):
-    def setUp(self) -> None:
-        self.tempdir = tempfile.TemporaryDirectory()
-        self.root = Path(self.tempdir.name)
-        self._write("docs/skill/agents/openai.yaml", 'short_description: "English | 中文"\n')
-        self._write("AGENTS.md", "Read MULTI_LINGUAL.md.\n")
-        self._write("AGENTS_zh_cn.md", "Read MULTI_LINGUAL_zh_cn.md.\n")
-        self._write("docs/skill/SKILL.md", "---\ntitle: fixture\n---\n\n[English](SKILL.md)\n")
-        self._write("docs/skill/SKILL_zh_cn.md", "[简体中文](SKILL_zh_cn.md)\n")
-        self._write("docs/index.md", "[English](index.md)\n")
-        self._write("docs/zh-cn/index.md", "[简体中文](index.md)\n")
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.write("docs/skill/SKILL.md", "---\nname: example\ndescription: 中文说明\n---\n# 中文指令\n")
+        self.write("README.md", "# 中文说明\n[技能](docs/skill/SKILL.md)\n")
+        self.write("mcp/TOOLS.md", "# 中文工具\n")
 
-        pairs = [path.as_posix() for path in multilingual.PAIR_ROOTS]
-        pairs.extend(path.as_posix() for path in multilingual.CORE_DOCS)
-        for english in pairs:
-            path = Path(english)
-            title = path.stem.replace("_", " ")
-            self._write(
-                english,
-                f"# {title}\n\n[English]({path.name}) | [简体中文]({path.stem}_zh_cn.md)\n",
-            )
-            self._write(
-                path.with_name(f"{path.stem}_zh_cn.md").as_posix(),
-                f"# {title}\n\n[English]({path.name}) | [简体中文]({path.stem}_zh_cn.md)\n",
-            )
-
-        self._write("AGENTS.md", "Read MULTI_LINGUAL.md.\n")
-        self._write("AGENTS_zh_cn.md", "Read MULTI_LINGUAL_zh_cn.md.\n")
-        self._write("docs/skill/SKILL.md", "---\ntitle: fixture\n---\n\n[English](SKILL.md)\n")
-
-        self._write("mcp/custom-env/pyvenv.cfg", "home = /usr/bin\n")
-        self._write("mcp/custom-env/Lib/noise.md", "generated\n")
-
-        for core in multilingual.CORE_DOCS:
-            content = (self.root / core).read_text(encoding="utf-8")
-            self.assertNotIn("Codex", content)
-
-    def tearDown(self) -> None:
-        self.tempdir.cleanup()
-
-    def _write(self, relative: str, content: str) -> Path:
-        path = self.root / relative
+    def write(self, name, text):
+        path = self.root / name
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(content, encoding="utf-8")
+        path.write_text(text)
         return path
 
-    def _run(self, module) -> tuple[int, str]:
-        stdout, stderr = StringIO(), StringIO()
-        with redirect_stdout(stdout), redirect_stderr(stderr):
-            result = module.main(self.root)
-        return result, stdout.getvalue() + stderr.getvalue()
+    def run_check(self, module):
+        with contextlib.redirect_stderr(io.StringIO()), contextlib.redirect_stdout(io.StringIO()):
+            return module.main(self.root)
 
-    def test_valid_authored_fixture_passes_both_scanners(self) -> None:
-        self.assertEqual(self._run(multilingual)[0], 0)
-        self.assertEqual(self._run(layer_links)[0], 0)
+    def test_chinese_fixture_needs_no_english_mirror(self):
+        self.assertEqual(self.run_check(language), 0)
+        self.assertEqual(self.run_check(links), 0)
 
-    def test_authored_mcp_document_missing_mirror_fails(self) -> None:
-        (self.root / "mcp/DEVELOPMENT_zh_cn.md").unlink()
-        result, output = self._run(multilingual)
-        self.assertEqual(result, 1)
-        self.assertIn("mcp/DEVELOPMENT_zh_cn.md", output)
+    def test_generated_and_operational_noise_is_pruned(self):
+        for folder in (".git", ".serena", ".venv", "node_modules", "build", "dist", "vendor", "__pycache__"):
+            self.write(f"{folder}/noise.md", "English noise")
+        self.write("AGENTS_NOT_USE_.md", "English inactive backup")
+        self.write("AGENTS_zh_cn_NOT_USE_.md", "中文停用备份")
+        names = {p.relative_to(self.root).as_posix() for p in discover_markdown(self.root)}
+        self.assertEqual(names, {"README.md", "docs/skill/SKILL.md", "mcp/TOOLS.md"})
 
-    def test_cross_language_dependency_fails(self) -> None:
-        authored_architecture = "docs/skill/WORKFLOW_ARCHITECTURE.md"
-        self._write(
-            authored_architecture,
-            "[English](WORKFLOW_ARCHITECTURE.md) | "
-            "[简体中文](WORKFLOW_ARCHITECTURE_zh_cn.md)\n\n"
-            "This ordinary dependency crosses languages: "
-            "[Chinese MCP guide](../../mcp/DEVELOPMENT_zh_cn.md).\n",
-        )
-        discovered_paths = {
-            path.relative_to(self.root).as_posix() for path in discovery.discover_markdown(self.root)
-        }
-        self.assertIn(authored_architecture, discovered_paths)
-        result, output = self._run(multilingual)
-        self.assertEqual(result, 1)
-        self.assertIn("cross-language Markdown link", output)
-        result, output = self._run(layer_links)
-        self.assertEqual(result, 1)
-        self.assertIn("cross-language dependency", output)
+    def test_directory_and_markdown_symlinks_are_not_scanned(self):
+        with tempfile.TemporaryDirectory() as external:
+            source = Path(external) / "source.md"
+            source.write_text("English noise")
+            (self.root / "external").symlink_to(external, target_is_directory=True)
+            (self.root / "external.md").symlink_to(source)
+            self.assertEqual(len(discover_markdown(self.root)), 3)
 
-    def test_bad_local_target_fails_layer_link_validation(self) -> None:
-        self._write("mcp/DEVELOPMENT.md", "[missing](missing-owner.md)\n")
-        result, output = self._run(layer_links)
-        self.assertEqual(result, 1)
-        self.assertIn("missing local target", output)
+    def test_nonstandard_virtual_environment_is_pruned(self):
+        self.write("custom-env/pyvenv.cfg", "home = /example")
+        self.write("custom-env/noise.md", "English noise")
+        self.assertEqual(len(discover_markdown(self.root)), 3)
 
-    def test_generated_and_operational_noise_is_pruned_but_mcp_docs_remain(
-        self,
-    ) -> None:
-        noise = [
-            "mcp/.venv/lib/python/site-packages/noise.md",
-            "mcp/.pytest_cache/noise.md",
-            "mcp/__pycache__/noise.md",
-            "mcp/dist/noise.md",
-            "mcp/rule_sources/references/noise.md",
-            "mcp/src/token_io_mcp/_resources/rules/noise.md",
-            "mcp/custom-env/Lib/noise.md",
-            ".serena/cache/noise.md",
-            "vendor/package/noise.md",
-        ]
-        for path in noise:
-            self._write(path, "sed: --: No such file or directory\n[bad](missing.md)\n")
+    def test_old_suffix_switch_and_english_only_prose_fail(self):
+        for name, text in (("extra_zh_cn.md", "# 中文"), ("extra.md", "[English](extra.md) | [简体中文](extra.md)\n中文"), ("extra.md", "# English only"), ("extra.md", "中文[链接](old_zh_cn.md)")):
+            with self.subTest(name=name, text=text):
+                path = self.write(name, text)
+                self.assertEqual(self.run_check(language), 1)
+                path.unlink()
 
-        discovered = {
-            path.relative_to(self.root).as_posix()
-            for path in discovery.discover_markdown(self.root)
-        }
-        self.assertIn("mcp/DEVELOPMENT.md", discovered)
-        self.assertIn("mcp/DEVELOPMENT_zh_cn.md", discovered)
-        for path in noise:
-            self.assertNotIn(path, discovered)
-        self.assertEqual(self._run(multilingual)[0], 0)
-        self.assertEqual(self._run(layer_links)[0], 0)
+    def test_missing_local_target_fails(self):
+        self.write("mcp/TOOLS.md", "# 中文\n[丢失目标](missing.md)")
+        self.assertEqual(self.run_check(links), 1)
 
-    def test_directory_symlink_is_not_traversed(self) -> None:
-        outside = Path(self.tempdir.name).parent / f"{self.root.name}-outside"
-        outside.mkdir()
-        (outside / "foreign.md").write_text("foreign\n", encoding="utf-8")
-        link = self.root / "mcp/linked-docs"
-        link.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            link.symlink_to(outside, target_is_directory=True)
-        except OSError as exc:
-            self.skipTest(f"directory symlinks are unavailable: {exc}")
-        try:
-            self.assertNotIn(link / "foreign.md", discovery.discover_markdown(self.root))
-        finally:
-            link.unlink()
-            (outside / "foreign.md").unlink()
-            outside.rmdir()
-
-    def test_markdown_file_symlink_is_not_scanned(self) -> None:
-        outside = Path(self.tempdir.name).parent / f"{self.root.name}-outside.md"
-        outside.write_text("outside root\n", encoding="utf-8")
-        link = self.root / "mcp/linked.md"
-        link.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            link.symlink_to(outside)
-        except OSError as exc:
-            outside.unlink()
-            self.skipTest(f"file symlinks are unavailable: {exc}")
-        try:
-            self.assertNotIn(link, discovery.discover_markdown(self.root))
-        finally:
-            link.unlink()
-            outside.unlink()
+    def test_missing_frontmatter_fails(self):
+        self.write("docs/skill/SKILL.md", "# 中文技能")
+        self.assertEqual(self.run_check(language), 1)
 
 
 if __name__ == "__main__":

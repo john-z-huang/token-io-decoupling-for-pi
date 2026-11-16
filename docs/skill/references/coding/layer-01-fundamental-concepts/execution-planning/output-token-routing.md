@@ -1,56 +1,52 @@
-# Coding Output Token Routing
+# Coding Output Token 路由
 
-[English](output-token-routing.md) | [简体中文](output-token-routing_zh_cn.md)
 
-This module owns the independent decision about whether Root's direct output would be large in Output Token terms and the resulting Root-versus-child execution boundary. It does not select the executor or a specific child.
+本文档负责独立判断 Root 直接输出是否会产生大量 Output Token，以及由此产生的 Root/子代理执行边界。不选择执行主体或具体子代理。
 
-## General rules
+## 通用规范
 
-### Independent output-size decision
+### 独立的大输出判断
 
-Assess the requested output itself from the task, deliverable shape, and expected output volume. Do not use unrelated transcript size, an arbitrary numeric threshold, or a claim about measured token use. When evidence does not support a yes/no choice, stop for Root review.
+根据任务、交付形态和预期输出量评估请求本身。不得使用无关 transcript 大小、任意数值阈值或未经测量的 Token 使用量结论。证据不足以支持是/否判断时，暂停并交 Root 审阅。
 
-An explicit user instruction about who should produce the output or whether it should be produced takes precedence over advice and skips the corresponding request. Use this independent assessment immediately before Root would produce each direct output whose shape or volume could be large, only when the user's instruction has not settled that output route. The assessment does not require a prior executor choice or an already available child; it evaluates the direct output itself. A `no` permits Root to produce the requested output subject to every other gate. A `yes` in an unresolved route means Root must not immediately materialize the large output: in Multi-Agent mode, select an already existing, idle, suitable current-session child; if none is idle, wait or hold until one is. This assessment never creates a child. In Single-Agent mode, do not invent a child or task-reframing route; hold and report that the requested output cannot proceed under the available Session topology.
+用户明确指定谁生成输出或是否生成输出时，应优先遵循用户指令，并跳过相应建议请求。只有用户指令尚未决定该输出路由时，才在 Root 即将直接生成形态或体量可能较大的每项输出前进行此独立评估。评估不要求先选出执行主体或已有可用子代理；它只判断这项直接输出。`no` 允许 Root 在满足其他所有门禁后生成所请求输出。在路由未由用户决定时，`yes` 表示 Root 不得立即物化大输出：Multi-Agent 模式下选择当前会话中已经存在、空闲且合适的子代理；没有空闲者时，等待或挂起，直至有合适者空闲。此评估绝不创建子代理。Single-Agent 模式下不得臆造子代理或任务重构流程；应挂起并报告当前 Session 拓扑无法执行该输出。
 
-When no explicit user instruction settles the route, the yes/no assessment is separate from executor selection. If a downstream advice request depends on a generated decision context that is missing or unusable, do not fabricate one or send the request anyway; Root may assess this owner directly from verified facts when they suffice, otherwise hold for review. A suggestion is advisory and cannot override an explicit user direction, dispatch work, or authorize an effect.
+用户指令未决定路由时，是/否判断与执行主体选择相互独立。若下游建议请求依赖的决策上下文缺失或不可用，不得伪造上下文或继续发送请求；若已核实事实足够，Root 仍可直接依据本文作出评估，否则应挂起等待审阅。建议仅供参考，不能推翻明确用户指令、派发工作或授权任何影响。
 
-### Output-token Decisions instructions
+### Output Token Decisions 指令
 
-If an explicit user execution instruction or output-route instruction settles the action, skip this advice and follow the instruction subject to higher-priority gates. Otherwise, decide whether the requested direct Root output would be large in Output Token terms. Use only the requested output shape, expected output volume, reviewed task context, current mode, and this owner's rules. Do not invent a numeric threshold or treat unrelated input size as a proxy. Choose `yes`, `no`, or `insufficient_evidence`. If the facts conflict, omit the requested output description, or cannot support a yes/no assessment, choose `insufficient_evidence` for Root review. A `yes` in an unresolved route does not imply that a child exists or is idle.
+用户明确的执行指令或输出路由指令已决定操作时，跳过本建议并在高优先级门禁约束下遵循指令。否则，判断 Root 直接输出请求是否会产生大量 Output Token。只使用请求形态、预期输出量、审阅后的任务上下文、当前模式及本文规范。不得设定数值阈值，也不得将无关输入大小当成代理。选择 `yes`、`no` 或 `insufficient_evidence`。事实冲突、未说明请求输出描述，或不足以支持是/否判断时，选择 `insufficient_evidence` 供 Root 审阅。未确定路由时，`yes` 不代表已有子代理或子代理空闲。
 
-### Output-token choice descriptions
+### Output Token 选项说明
 
 #### yes
 
-The requested direct output would create a large Output Token burden for Root. When no explicit user instruction settles the route, Root must use an idle suitable current-session child or wait/hold. If the current mode is Single-Agent, hold and report the topology boundary; do not invent a child or task-reframing behavior.
+直接输出请求会为 Root 产生大量 Output Token。若用户指令尚未决定路由，Root 必须使用空闲且合适的当前会话子代理，或等待/挂起。若当前模式为 Single-Agent，应挂起并报告拓扑边界；不得臆造子代理或任务重构行为。
 
 #### no
 
-The requested direct output is not large in Output Token terms under the supplied task facts. Root may execute only after checking all other applicable gates.
+根据提供的任务事实，请求不属于大量 Output Token 输出。Root 只有检查其他所有适用门禁后才能执行。
 
 #### insufficient_evidence
 
-The requested output shape, expected volume, or task evidence is too incomplete or conflicting to support a yes/no choice. Root reviews the facts and current owner; do not default to either yes or no.
+请求形态、预期输出量或任务证据不完整或冲突，无法支持是/否判断。Root 审阅事实和当前 owner；不得默认是或否。
 
-### Action boundary
+### 操作边界
 
-Before using advice, Root compares its fact, context, and policy hashes with current evidence and checks the current mode. After a `yes`, Root separately checks the selected child's current identity, suitability, permission, and idle availability before any dispatch. A busy child is not dispatch-ready. When no suitable idle child exists, retain a wait/hold state; do not create a child to satisfy this output route. Advice never changes an explicit user execution instruction.
+使用建议前，Root 将其事实、上下文和政策哈希与当前证据比对，并核验当前模式。得到 `yes` 后，Root 还须独立核验所选子代理的当前身份、适任性、权限和空闲状态，之后才可派发。忙碌子代理尚未准备好接受派发。没有合适的空闲子代理时，保留等待/挂起状态；不得为满足此输出路由而新建子代理。建议不得改变明确用户执行指令。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-When exposed and the user has not explicitly settled the output route, call `workflow_assess_output_tokens` as a separate public Decisions request with bounded, current task facts and explicit per-call outbound permission. A `yes` routes to idle-child selection or wait/hold; a `no` permits Root to continue through the ordinary gates. The request does not perform either action and its result cannot override an explicit user instruction.
+先判断真正的预期输出，而不是工具原始返回体积。独立工具调用可在 codemode 内汇总后只输出有界证据。一次性任务完成不等于空闲且可续接的子代理；扩展不支持复用时如实处理拓扑限制，不虚构候选。
 
-## Claude Code CLI / Claude Desktop optimizations
 
-There are currently no concept-specific optimizations for this concept; follow the General rules.
+## 相关概念
 
-## Related concepts
-
-- [Output Materialization](output-materialization.md) — owns controlled candidate preparation and application.
-- [Workflow Routing Advice](workflow-routing-advice.md) — owns optional checkpoint-stage suggestions.
-- [Task Assignment](task-assignment.md) — owns Root/child executor and current-child selection.
-- [Session Model](../session-runtime/session-model.md) — owns Session identity and topology semantics.
-- [Delegation Count Gate](../delegation/delegation-mode-count-gate.md) — owns locked child capacity and explicit expansion.
-- [Delegation Mode Re-entry](../delegation/delegation-mode-reentry.md) — owns fresh mode selection for a Fork.
-- [Delegation State Record](../delegation/delegation-state-record.md) — owns current allocation identity and status.
-- [Decision Context Generation](decision-context-generation.md) — owns generation and review of bounded decision context.
+- [Output Materialization](output-materialization.md) — 拥有受控候选内容准备和应用。
+- [Workflow Routing Advice](workflow-routing-advice.md) — 拥有可选检查点阶段建议。
+- [任务执行主体分配](task-assignment.md) — 负责 Root/子代理执行主体与现有子代理选择。
+- [Session 模型](../session-runtime/session-model.md) — 负责 Session 身份和拓扑语义。
+- [委派数量门禁](../delegation/delegation-mode-count-gate.md) — 负责锁定子代理容量和显式扩展。
+- [委派模式重入](../delegation/delegation-mode-reentry.md) — 负责 Fork 的新模式选择。
+- [委派状态记录](../delegation/delegation-state-record.md) — 负责当前 allocation 身份和状态。
+- [决策上下文生成](decision-context-generation.md) — 负责有界决策上下文的生成与审阅。

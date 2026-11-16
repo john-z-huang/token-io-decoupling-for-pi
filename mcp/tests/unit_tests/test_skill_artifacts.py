@@ -160,11 +160,11 @@ print(json.dumps({
     skill = legacy.with_name("token-io-decoupling-skill")
     baseline = (skill / "SKILL.md").read_bytes()
     assert b"name: token-io-decoupling-skill" in baseline
-    assert (skill / "SKILL_zh_cn.md").is_file()
+    assert not (skill / "SKILL_zh_cn.md").exists()
     assert (skill / "workflows/coding.md").is_file()
     _assert_local_links(skill, skill)
     assert not (skill / "_project/mcp/rule-registry.json").exists()
-    assert (skill / "_project/.github/workflows/mcp.yml").is_file()
+    assert not (skill / "_project/.github/workflows/mcp.yml").exists()
     # Remove detached source too: updates still read the installed package snapshot.
     import shutil
 

@@ -1,35 +1,34 @@
-# Workflow Navigation Selection
+# 工作流导航选择
 
-[English](workflow-navigation-selection.md) | [简体中文](workflow-navigation-selection_zh_cn.md)
 
-This checkpoint decides whether bounded workflow navigation or structural input checking is useful for the current task. These are stateless aids; caller-supplied facts and authoritative owner documents remain the source for judging policy and results.
+本检查点判断当前任务是否适合使用有界工作流导航或结构输入检查。这些都是无状态辅助能力；调用方提供的事实和权威 owner 文档仍是判断策略与结果的依据。
 
-## Trigger and inputs
+## 触发与输入
 
-Use current [Environment](../layer-02-workflow-concepts/entry-and-context/environment.md) and [capability inventory](../layer-02-workflow-concepts/entry-and-context/environment-capability-inventory.md) results. Consult [Workflow Navigation Availability](../layer-01-fundamental-concepts/workflow-navigation/navigation-availability.md) and [Workflow Rule Context](../layer-01-fundamental-concepts/workflow-navigation/rule-context.md) when optional navigation may help. If a structural check of supplied checkpoint facts may help, apply [Checkpoint Structural Checks](../layer-01-fundamental-concepts/workflow-navigation/checkpoint-structure-checks.md). Both aids are optional unless the task independently requires their result.
+使用当前[环境](../layer-02-workflow-concepts/entry-and-context/environment.md)及[能力清单](../layer-02-workflow-concepts/entry-and-context/environment-capability-inventory.md)结果。可选导航可能有帮助时，参考[工作流导航可用性](../layer-01-fundamental-concepts/workflow-navigation/navigation-availability.md)和[工作流规则上下文](../layer-01-fundamental-concepts/workflow-navigation/rule-context.md)。若对所供检查点事实执行结构检查可能有帮助，则应用[检查点结构检查](../layer-01-fundamental-concepts/workflow-navigation/checkpoint-structure-checks.md)。除非任务本身要求相关结果，否则两种辅助能力均为可选。
 
-## Decision and result
+## 决策与结果
 
-1. Identify the authoritative owner documents needed for the current judgment.
-2. If optional navigation is useful and available, use only the bounded current context it returns. Treat source/hash/status as navigation evidence; it does not establish identity, permission, semantic truth, checkpoint completion, sequencing, or acceptance.
-3. If structural checking is useful, compare its structural result with the supplied input and current owner, then independently judge what the facts and evidence mean. The check does not establish identity, permission, semantic truth, checkpoint completion, sequencing, or acceptance.
-4. When either optional aid is not useful, record `Not applicable` with a reason; do not make an extra lookup or check merely to produce a result. Read the required authoritative owners directly.
-5. If an aid is unavailable or incomplete, use direct authoritative documents when accessible through current authorized capabilities and record the limitation. If a required owner cannot be obtained, block the dependent judgment.
-6. Return the selected source and any requested structural result for review. This decision does not change workflow state, authorize an action, or establish a checkpoint result.
+1. 找出当前判断所需的权威 owner 文档。
+2. 若可选导航有用且可用，仅使用其返回的有界当前上下文。将来源/Hash/status 视为导航证据；它不能证明身份、权限、语义真实性、检查点完成、跨调用顺序或验收。
+3. 若结构检查有用，则将结构结果与所供输入和当前 owner 对照，再独立判断事实及证据含义。检查不能证明身份、权限、语义真实性、检查点完成、跨调用顺序或验收。
+4. 任一可选辅助能力无用时，记录附有理由的 `Not applicable`；不得仅为产出结果而额外查询或检查。直接读取必需的权威 owner。
+5. 若辅助能力不可用或不完整，且当前授权能力可以访问权威文档，则直接使用并记录限制。若无法获取必需 owner，则阻塞依赖该判断的工作。
+6. 返回所选来源和任何所需的结构检查结果供审阅。本决策不会更改工作流状态、授权操作或建立检查点结果。
 
-## Failure boundary
+## 失败边界
 
-| Result | Required action |
+| 结果 | 必需操作 |
 | --- | --- |
-| Optional navigation is not needed | Record `Not applicable`; read required authoritative owners directly. |
-| Bounded navigation is available | Review current returned source and read any uncovered direct owner; independently judge the task facts. |
-| Optional structural checking is not needed or unavailable | Record `Not applicable` with the reason; continue from the authoritative owner unless the task independently requires the structural result. |
-| Structural check is available and selected | Review its result against the current owner and caller-supplied input; decide evidence meaning independently. |
-| Navigation is unavailable/incomplete but direct owner is accessible | Read the owner directly and record the limitation. |
-| Required authoritative owner is inaccessible | Block only the judgment that depends on it; do not infer or skip its policy. |
+| 不需要可选导航 | 记录 `Not applicable`；直接读取必需的权威 owner。 |
+| 有界导航可用 | 审阅当前返回来源并读取未覆盖的直接 owner；独立判断任务事实。 |
+| 不需要或无法进行可选结构检查 | 附理由记录 `Not applicable`；除非任务本身要求该结构结果，否则依据权威 owner 继续。 |
+| 结构检查可用且已选择 | 依据当前 owner 和调用方所供输入审阅结果；独立判断证据含义。 |
+| 导航不可用/不完整但直接 owner 可访问 | 直接阅读 owner 并记录限制。 |
+| 无法访问必需权威 owner | 仅阻塞依赖该判断的工作；不得推断或跳过其策略。 |
 
-## Related concepts
+## 相关概念
 
-- [Workflow Navigation Availability](../layer-01-fundamental-concepts/workflow-navigation/navigation-availability.md)
-- [Workflow Rule Context](../layer-01-fundamental-concepts/workflow-navigation/rule-context.md)
-- [Environment Capability Inventory](../layer-02-workflow-concepts/entry-and-context/environment-capability-inventory.md)
+- [工作流导航可用性](../layer-01-fundamental-concepts/workflow-navigation/navigation-availability.md)
+- [工作流规则上下文](../layer-01-fundamental-concepts/workflow-navigation/rule-context.md)
+- [运行环境能力清单](../layer-02-workflow-concepts/entry-and-context/environment-capability-inventory.md)

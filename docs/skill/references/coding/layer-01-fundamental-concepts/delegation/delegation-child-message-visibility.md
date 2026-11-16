@@ -1,38 +1,30 @@
-# Coding Child Message Visibility
+# Coding 子代理消息可见性
 
-[English](delegation-child-message-visibility.md) | [简体中文](delegation-child-message-visibility_zh_cn.md)
 
-This module owns only the conversation visibility and body evidence for text messages between the parent conversation and child Agents. It does not define message authorization or content scope.
+本文档仅规定父级会话与子代理之间文本消息的会话可见性和正文证据，不规定消息授权或消息内容范围。
 
-## General rules
+## 通用规范
 
-### Configured display; complete body before reliance
+### 按配置展示；依赖前取得完整正文
 
-Apply the configured [session audit visibility](../session-runtime/session-audit-visibility.md) preset. The Worker must keep the complete safe inbound and outbound bodies visible in its own conversation. For Root messages, show the configured preview, summary, or full body; when full display is required, show the complete safe body before sending and confirm it exactly matches the payload. A Worker final result already visible in full is its outbound copy and must not be duplicated.
+按[会话审计可见性](../session-runtime/session-audit-visibility.md)预设执行。Worker 必须在自身会话中完整展示安全的入站和出站正文。Root 消息按预设展示预览、摘要或全文；要求全文时，发送前须完整展示安全正文并确认与载荷完全一致。Worker 已完整可见的最终结果就是出站副本，不得重复打印。
 
-After a message arrives, Root must obtain and read the complete actual returned body before relying on it. Root displays the full safe body or configured summary in the primary conversation according to the preset. Tool-call cards, activity events, delivery receipts, task status, or notices such as “message sent” are not the message body and cannot replace it.
+收到消息后，Root 在依赖前必须取得并完整阅读实际返回正文；再按预设在主要会话中展示完整安全正文或摘要。工具调用卡片、活动事件、送达回执、任务状态或“消息已发送”等通知不等同于消息正文，不能代替正文。
 
-When full display is required by role or preset, a long body may be displayed in consecutively numbered parts without summarizing or truncating it; clearly mark any redactions. If the actual body is not exposed and cannot be reproduced from the conversation record, do not use the message for dependent work.
+按职责或预设要求完整展示时，过长正文可拆分为连续编号的部分展示，不得概述或截断；如需遮蔽内容，应明确标记。若运行环境未显示实际正文，且无法从会话记录复现，则不得将该消息用于依赖工作。
 
-### Preserve direction and evidence
+### 保留方向与证据
 
-Identify each message's direction and, when the runtime exposes identity, its intended or source child. Keep the body distinguishable from commentary. A paraphrase, summary, or claim that content was sent or received is not evidence of the message body.
+注明每条消息的方向；运行环境提供身份时，同时注明目标或来源子代理。将正文与评论清楚区分。转述、摘要或声称内容已发送/收到，均不能作为消息正文的证据。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-### Use the message tool exposed to the current Session
+以实际扩展输入和返回正文作为消息证据。当前界面未展示 Worker 会话记录时，日志可见性记为 unverified 或有证据的 unavailable；最终返回可用不代表内部日志可用。依赖前读取完整正文；截断时取得剩余部分，不能将摘要冒充全文。
 
-When `collaboration.send_message` is exposed and authorized, apply the configured preset. A Worker keeps complete safe inbound and outbound bodies visible; a full Root outbound display must match the payload. Root always reads the complete actual return before reliance, while its visible copy follows the preset. If the actual body cannot be reproduced from the conversation record, block dependent work. A visible copy is not proof of original transport bytes.
 
-## Claude Code CLI / Claude Desktop optimizations
+## 相关概念
 
-### Use the exposed SendMessage tool
-
-Anthropic's [Agent Teams documentation](https://code.claude.com/docs/en/agent-teams) describes `SendMessage` as the tool for sending messages between agents. When the current Session exposes and authorizes it, follow the general configured preset. A Worker retains complete safe inbound and outbound visibility; Root reads the full actual return before reliance, with display governed by the preset. A visible copy does not prove original transport bytes. If `SendMessage` is unavailable, do not assume it exists; the general evidence requirement still applies.
-
-## Related concepts
-
-- [Coding Child Creation](delegation-child-creation.md) — locate the creation boundary for a new child prompt.
-- [Coding Child Dispatch](delegation-child-dispatch.md) — locate released-slice and follow-up dispatch requirements.
-- [Coding Child Lifecycle](delegation-child-lifecycle.md) — locate child status and return handling.
-- [Coding Session Audit Visibility](../session-runtime/session-audit-visibility.md) — locate session visibility presets and their precedence.
+- [Coding Child Creation](delegation-child-creation.md) — 定位新子代理提示的创建边界。
+- [Coding Child Dispatch](delegation-child-dispatch.md) — 定位已放行切片和后续派发要求。
+- [Coding Child Lifecycle](delegation-child-lifecycle.md) — 定位子代理状态及返回处理。
+- [Coding Session 审计可见性](../session-runtime/session-audit-visibility.md) — 定位会话可见性预设及优先级。

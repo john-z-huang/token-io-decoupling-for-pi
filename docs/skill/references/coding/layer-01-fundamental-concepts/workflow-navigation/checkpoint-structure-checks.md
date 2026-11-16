@@ -1,38 +1,27 @@
-# Checkpoint Structural Checks
+# 检查点结构检查
 
-[English](checkpoint-structure-checks.md) | [简体中文](checkpoint-structure-checks_zh_cn.md)
 
-This owner defines deterministic structural evaluation of caller-supplied checkpoint facts and evidence. It does not authenticate inputs, determine semantic truth, authorize work, or accept a task.
+本文档负责对调用方提供的检查点事实和证据执行确定性结构评估。不负责认证输入、判定语义真实性、授权工作或验收任务。
 
-## General rules
+## 通用规范
 
-### Treat evaluation as an optional structural aid
+### 将评估视为可选的结构辅助
 
-Use a structural check when it helps identify missing or malformed supplied facts for a current checkpoint judgment. The current checkpoint owner remains authoritative. Inspect it directly and decide what the evidence means; a structurally complete submission is not proof that its facts are true or that the checkpoint passed.
+当结构检查有助于识别当前检查点判断中缺失或格式错误的所供事实时，可使用该检查。当前检查点 owner 仍是权威来源。应直接检查该 owner 并判断证据含义；结构完整的提交不证明事实真实，也不表示检查点已通过。
 
-Inputs, evidence references, revisions, fingerprints, and hashes supplied by the caller remain caller-supplied facts. A checker may reject malformed, inconsistent, stale, or unsupported inputs, but cannot authenticate the caller, prove permission or provenance, grant authority, establish sequencing across calls, or accept a task. Results do not persist state or remember previous calls.
+调用方提供的输入、证据引用、修订、指纹和 Hash 始终是调用方提供的事实。检查器可以拒绝格式错误、不一致、过期或不受支持的输入，但不能认证调用方、证明权限或来源、授予授权、建立跨调用顺序或验收任务。结果不持久化状态，也不会记住先前调用。
 
-`ready_for_agent_review` means only that the supplied input meets the checker's structural requirements. `incomplete_for_agent_review` reports missing required facts or evidence. `blocked_input` reports an invalid, inconsistent, stale, or unsupported input. Review the current owner and evidence independently for every status.
+`ready_for_agent_review` 仅表示所供输入满足检查器的结构要求。`incomplete_for_agent_review` 报告缺失的必需事实或证据。`blocked_input` 报告无效、不一致、过期或不受支持的输入。无论何种状态，均须独立审阅当前 owner 和证据。
 
-For Control, the structural result does not replace the current Control owner, current-state verification, or the required user/Agent judgment. If the optional structural check is unavailable, use the authoritative owner and available evidence directly; block only a judgment whose required input cannot otherwise be established.
+对于 Control，结构结果不能取代当前 Control owner、当前状态验证或必需的用户/Agent 判断。若可选结构检查不可用，应直接使用权威 owner 和可用证据；仅当无法以其他方式确立判断所需输入时，才阻塞该判断。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-When the optional structural check is useful and available, call `workflow_evaluate` with `payload.node_id` and `payload.submission`; the top-level node must match `submission.node_id`. Call `evaluate_control_checkpoint` with `payload.submission` for Control; its node must be `control`. Both envelopes accept `payload.language` (`en` or `zh_cn`, default `en`), optional `payload.expected_rule_hash`, optional `payload.semantic_input`, and optional `payload.current_facts`. Set `language` to `zh_cn` when checking the Chinese rule text; the default `en` selects English rules. `current_facts` defaults to an empty map; supplying it does not enable API requests or authorize disclosure. Omit `semantic_input` for structural-only use. Supplying `semantic_input` additionally requests separate Decisions advice and follows [Decisions Advisory](../execution-planning/decisions-advisory.md); it does not change the structural result.
+通过 Pi codemode 的 `searchTools`、`describeTool`、`describeNamespace` 核对实际 MCP 能力及 schema，调用检查 `isError`；hidden 不得绕过。项目 Server 未迁移时不得假称支持。Pi 可授权直接读取当前 owner 文档；可选导航或结构检查不适用时，依据当前 owner 判断并记录理由。必需能力缺失只阻塞依赖该能力的判断。旧身份上下文不可伪造。
 
-The typed submission contains 1–128 facts; at most 128 top-level evidence references; at most three coverage dimensions; and an optional evidence-request ID of 1–128 characters. A fact may include at most 16 evidence references; a `missing_evidence` judgment may identify 1–16 required references. Each reference URI is 1–512 characters, and an evidence ID or request ID is 1–128 characters. The normalized submission (excluding its optional `input_hash`) and the complete normalized evaluation payload are each limited to 32 KiB of UTF-8 JSON; the complete payload ceiling includes all fields, including `submission`, `current_facts`, and any `semantic_input`, so the component maxima cannot all be used at once. The payload's `current_facts` map allows 0–16 flat string pairs, with keys 1–64 characters and values 1–1,024 characters; keys and values cannot be blank or whitespace-only. These JSON byte ceilings apply to the normalized model payload, not protocol framing.
+## 相关概念
 
-The optional `input_hash` is a consistency assertion: omission lets the service return the computed `source_input_hash`; a supplied mismatch returns `blocked_input` with `source_input_hash_mismatch`. Compute the canonical SHA-256 as follows: serialize `submission.model_dump(mode="json", exclude={"input_hash"})` using `ensure_ascii=False`, sorted keys, and compact `,` and `:` separators; encode the result as UTF-8 and hash those bytes. `source_input_hash` fingerprints only the normalized submission. The separate optional `expected_rule_hash` must come from the full registered-node `rules_get_context` result for the same node and selected language, with `context_version` omitted. Do not pass a version-1 fragment bundle's `context_hash` or `index_sha256`; those identify a different rules fragment set. Because `expected_rule_hash` is optional, do not make an extra rules lookup when that freshness assertion is unnecessary. The returned `rule_hash` identifies the full current registered node rules in the selected language; it is distinct from `source_input_hash`.
-
-The result reports `status`, `reason`, evaluated `language`, `source_input_hash`, `rule_hash`, and applicable selected branch and missing requirements. Treat it as `authority: structural_check_only`; it is never a checkpoint pass, permission, acceptance, or sequencing token. The tools do not persist state. A schema violation fails input validation before evaluation; correct the caller-supplied input against the current schema before retrying, and do not truncate facts or evidence to fit. A returned `blocked_input` identifies an inconsistent, stale, or unsupported submission.
-
-## Claude Code CLI / Claude Desktop optimizations
-
-There is currently no Claude-specific direct-MCP optimization for structural checkpoint checks. Follow the general rules, use only capabilities actually exposed to the current Session, and maintain equivalent evidence through an authorized mechanism. When the optional check is unavailable, mark it `Not applicable` with a reason unless the task independently requires its structural result; in that case, block only the dependent judgment if the required structure cannot be checked by another authorized means.
-
-## Related concepts
-
-- [Workflow Rule Context](rule-context.md) — owns bounded navigation to current workflow rules.
-- [Workflow Navigation Availability](navigation-availability.md) — owns the unavailable-navigation and optional-check branch.
-- [Coding Execution Control](../execution-control/execution-control.md) — owns Slice and Control decisions.
-- [Decisions Advisory](../execution-planning/decisions-advisory.md) — owns separately requested optional semantic advice.
+- [工作流规则上下文](rule-context.md) — 负责有界导航至当前工作流规则。
+- [工作流导航可用性](navigation-availability.md) — 负责导航不可用和可选检查分支。
+- [Coding Execution Control](../execution-control/execution-control.md) — 负责 Slice 与 Control 判断。
+- [Decisions Advisory](../execution-planning/decisions-advisory.md) — 负责单独请求的可选语义建议。

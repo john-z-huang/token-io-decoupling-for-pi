@@ -27,7 +27,7 @@ SECTIONS = {
     "zh": ("## 触发与输入", "## 决策与结果", "## 失败边界", "## 相关概念"),
 }
 SECTION_ALIASES = {
-    "module-entry-resolution_zh_cn.md": {"## 触发与输入", "## Trigger 和输入"},
+    "module-entry-resolution.md": {"## 触发与输入", "## Trigger 和输入"},
 }
 OWNER_TERMS = {
     "workflow-navigation-selection": {
@@ -98,7 +98,7 @@ REL_LINK_PREFIX = "../../layer-03-workflow-checkpoints/"
 
 def numbered_steps(path: Path) -> list[tuple[str, str, list[str]]]:
     lines = path.read_text(encoding="utf-8").splitlines()
-    title = "## 有序模块清单" if path.stem.endswith("_zh_cn") else "## Ordered module checklist"
+    title = "## 有序模块清单"
     try:
         start = lines.index(title) + 1
     except ValueError:
@@ -126,7 +126,7 @@ def main() -> int:
     errors: list[str] = []
     consumed: dict[str, set[str]] = {"en": set(), "zh": set()}
     for slug in SLUGS:
-        for suffix, lang in ((".md", "en"), ("_zh_cn.md", "zh")):
+        for suffix, lang in ((".md", "zh"),):
             path = L3 / f"{slug}{suffix}"
             if not path.is_file():
                 errors.append(f"missing Layer-03 owner: {path.relative_to(ROOT)}")
@@ -147,11 +147,9 @@ def main() -> int:
             for term in OWNER_TERMS.get(slug, {}).get(lang, ()):
                 if term.casefold() not in operational_text.casefold():
                     errors.append(f"{path.relative_to(ROOT)}: missing semantic requirement: {term}")
-            if "[English]" not in text or "[简体中文]" not in text:
-                errors.append(f"{path.relative_to(ROOT)}: missing language switch")
 
     for module in MODULE_NAMES:
-        for suffix, lang in ((".md", "en"), ("_zh_cn.md", "zh")):
+        for suffix, lang in ((".md", "zh"),):
             module_consumed: set[str] = set()
             path = MODULES / f"{module}{suffix}"
             if not path.is_file():
@@ -164,7 +162,7 @@ def main() -> int:
             ids = [step_id for step_id, _, _ in steps]
             if len(ids) != len(set(ids)):
                 errors.append(f"{path.relative_to(ROOT)}: duplicate local checkpoint ID")
-            expected_entry = "module-entry-resolution" + ("_zh_cn" if lang == "zh" else "") + ".md"
+            expected_entry = "module-entry-resolution" + "" + ".md"
             if not any(REL_LINK_PREFIX + expected_entry in body for _, body, _ in steps):
                 errors.append(f"{path.relative_to(ROOT)}: module-entry-resolution is not consumed by a numbered step")
             entry_id = MODULE_PREFIXES[module] + "00"
@@ -178,7 +176,7 @@ def main() -> int:
                     errors.append(f"{path.relative_to(ROOT)}: required checkpoint step is missing: {checkpoint}")
                     continue
                 for owner in owners:
-                    target = f"{REL_LINK_PREFIX}{owner}{'_zh_cn' if lang == 'zh' else ''}.md"
+                    target = f"{REL_LINK_PREFIX}{owner}.md"
                     if target not in markdown_link_targets(body):
                         errors.append(f"{path.relative_to(ROOT)}: {checkpoint} must directly consume {owner}")
             for _, body, _ in steps:
@@ -194,12 +192,6 @@ def main() -> int:
                         errors.append(f"{path.relative_to(ROOT)}: invalid Layer-03 target {target}")
                         continue
                     slug = target_name.removesuffix("_zh_cn.md").removesuffix(".md")
-                    if lang == "zh" and not target_name.endswith("_zh_cn.md"):
-                        errors.append(f"{path.relative_to(ROOT)}: cross-language Layer-03 target {target}")
-                        continue
-                    if lang == "en" and target_name.endswith("_zh_cn.md"):
-                        errors.append(f"{path.relative_to(ROOT)}: cross-language Layer-03 target {target}")
-                        continue
                     if not (L3 / target_name).is_file():
                         errors.append(f"{path.relative_to(ROOT)}: missing Layer-03 target {target}")
                         continue
@@ -209,7 +201,7 @@ def main() -> int:
                 if slug not in module_consumed:
                     errors.append(f"{path.relative_to(ROOT)}: missing direct numbered-step consumption for {slug}")
 
-    for lang, suffix in (("en", ""), ("zh", "_zh_cn")):
+    for lang, suffix in (("zh", ""),):
         selector = ROOT / f"docs/skill/workflows/coding{suffix}.md"
         text = selector.read_text(encoding="utf-8")
         section = "## Entry" if lang == "en" else "## 入口"
@@ -221,7 +213,7 @@ def main() -> int:
         else:
             errors.append(f"{selector.relative_to(ROOT)}: Route Entry must be a real same-language Entry link in the selector")
     for slug in SLUGS:
-        for lang in ("en", "zh"):
+        for lang in ("zh",):
             if slug not in consumed[lang]:
                 errors.append(f"Layer-03 owner has no same-language numbered module-step/selector consumer: {slug} ({lang})")
 
@@ -229,7 +221,7 @@ def main() -> int:
         print("Workflow checkpoint ownership validation failed:", file=sys.stderr)
         print("\n".join(f"- {item}" for item in errors), file=sys.stderr)
         return 1
-    print(f"Workflow checkpoint ownership validation passed ({len(SLUGS)} owners and 8 bilingual module checklists).")
+    print(f"Workflow checkpoint ownership validation passed ({len(SLUGS)} owners and 8 Chinese module checklists).")
     return 0
 
 

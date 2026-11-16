@@ -1,8 +1,7 @@
-# Layer 02: Workflow Checkpoints Index
+# Layer 02: Workflow Checkpoints 索引
 
-[English](INDEX.md) | [简体中文](INDEX_zh_cn.md)
 
-## Categories
+## 分类
 
 - [entry-and-context/](entry-and-context/INDEX.md)
 - [decision-and-execution/](decision-and-execution/INDEX.md)

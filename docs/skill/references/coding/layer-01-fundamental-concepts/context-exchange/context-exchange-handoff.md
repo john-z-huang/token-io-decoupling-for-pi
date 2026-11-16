@@ -1,32 +1,27 @@
 # Coding Context Exchange Handoff
 
-[English](context-exchange-handoff.md) | [简体中文](context-exchange-handoff_zh_cn.md)
 
-This owner defines content, updates, and successor exposure for handoff and Worker context-index records persisted as Serena project Memories. It does not authorize child reuse/replacement or define capsule freshness.
+本文档定义以 Serena 项目 Memory 持久化的 handoff 和 Worker context-index 记录的内容、更新与后继者暴露，不授权子 Agent 复用/替换，也不定义 capsule 新鲜度。
 
-## General rules
+## 通用规范
 
-### Context index and handoff records
+### Context index 与 handoff 记录
 
-Use `context-exchange/INDEX` for the parent-owned routing index and `context-exchange/workers/<worker-context-id>/INDEX` for a Worker's task, scope, status, latest material update, record names, and blocker/handoff target. Handoff records preserve achieved state, failed approaches with evidence, current changes and verification, blockers, next action, and exact authoritative source pointers. Update at material state/evidence/handoff changes, not after every command.
+使用 `context-exchange/INDEX` 作为父级路由索引，使用 `context-exchange/workers/<worker-context-id>/INDEX` 记录 Worker 的 task、scope、status、最近一次实质更新、记录名称及 blocker/handoff 目标。Handoff 记录保留已完成状态、带证据的失败方案、当前修改和验证、阻塞、下一步动作及准确权威来源指针。只在状态/证据/handoff 实质变化时更新，不要逐命令记录。
 
-Map former handoff/import names to the same basename and subdirectory intent under `context-exchange/`. A successor reads only Memory names explicitly exposed in its released task; it must not write another Worker's names unless explicitly authorized. This is logical instruction ownership only, not technical isolation; Serena may expose records to any authorized Session. Never reconstruct a full transcript. If Memory tools are unavailable, report and block dependent work; do not fall back to files.
+原 handoff/import 名称在 `context-exchange/` 下沿用相同 basename 和子目录意图映射。后继者只读取其已放行任务明确暴露的 Memory 名称；除非明确授权，不得写入其他 Worker 的名称。这只是指令逻辑归属，不是技术隔离；Serena 可能向任何获准 Session 暴露记录。不得重建完整 transcript。Memory 工具不可用时，报告并阻塞依赖工作；不得回退为文件。
 
-### Authorization boundary
+### 授权边界
 
-A Context ID or memory name never authorizes creating/replacing an Agent or changing parent live task state. Keep mode/count/allocation/epoch state in its existing owner.
+Context ID 或 Memory 名称本身不授权创建/替换 Agent，也不授权改变父级实时任务状态。mode/count/allocation/epoch 状态仍由其原 owner 管理。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-Use only exposed, authorized Serena tools. Name the exact records in the released handoff, read only those records, verify source freshness, and confirm any write result. Thread/worktree transfer alone does not create or deliver a Memory handoff.
+Serena 是可选外部 MCP。需要 Memory 时，通过 Pi codemode 的 `searchTools`、`describeTool`、`describeNamespace` 核实实际工具与 schema，调用时检查 `isError`；hidden 工具不得绕过。确认真实项目绑定及 Memory Schema。Memory 名称、内容、持久化及禁止回退文件、授权隔离和边界均按通用规范；能力缺失只阻塞依赖项。Pi 的 `read`、`edit`、`write`、`bash` 可按授权直接访问文档，不代表 Serena Memory 能力。旧身份上下文不可伪造。
 
-## Claude Code CLI / Claude Desktop optimizations
+## 相关概念
 
-Use Serena MCP Memory only when exposed and authorized in the active Session; discover deferred MCP tools before relying on them. Claude resume/branch and auto memory do not authorize or deliver this record. If unavailable, follow the report/block rule.
-
-## Related concepts
-
-- [Coding Context Exchange](context-exchange.md) — locate capsule and freshness rules.
-- [Coding Context Exchange Workspace Boundary](context-exchange-workspace-boundary.md) — locate logical naming and authorization.
-- [Coding Session Context Firewall](../session-runtime/session-context-firewall.md) — locate raw-state ingress.
-- [Coding Child Reuse and Replacement](../delegation/delegation-child-reuse-replacement.md) — locate replacement authorization.
+- [Coding Context Exchange](context-exchange.md) — 定位 capsule 和新鲜度规则。
+- [Coding Context Exchange Workspace Boundary](context-exchange-workspace-boundary.md) — 定位逻辑命名与授权。
+- [Coding Session Context Firewall](../session-runtime/session-context-firewall.md) — 定位原始状态输入。
+- [Coding Child Reuse and Replacement](../delegation/delegation-child-reuse-replacement.md) — 定位替换授权。

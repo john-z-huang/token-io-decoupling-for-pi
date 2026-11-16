@@ -1,25 +1,24 @@
-# Repair Verification Handoff Checkpoint
+# 修复验证交接检查点
 
-[English](repair-verification-handoff.md) | [简体中文](repair-verification-handoff_zh_cn.md)
 
-This checkpoint owns the handoff of a state-changing repair to Verification with a new final-state fingerprint or epoch. It does not authorize the repair, define repair content, or define Verification checks or result reporting.
+本检查点负责将改变状态的修复以新的最终状态指纹或 epoch 交回验证。它不授权修复、不定义修复内容，也不定义验证检查或结果报告。
 
-## Actions
+## 动作
 
-1. For a state-changing repair, capture the resulting final-state fingerprint or epoch.
-2. Send that new state back through the Verification checkpoint before dependent work continues.
+1. 对改变状态的修复，捕获产生的最终状态指纹或 epoch。
+2. 在依赖工作继续前，将新状态交回验证检查点。
 
-## Pass condition
+## 通过条件
 
-The changed state has a new final-state fingerprint or epoch and is explicitly queued for Verification, or the handoff is paused with the missing evidence named.
+已改变状态拥有新的最终状态指纹或 epoch，并已明确排队等待验证；或者交接已暂停并明确缺少的证据。
 
-## Boundary
+## 边界
 
-This checkpoint does not diagnose failures, authorize or execute repairs, define check contents, classify results, write documentation, or perform Git effects.
+本检查点不诊断失败，不授权或执行修复，不定义检查内容，不分类结果，不写文档，也不产生 Git 影响。
 
-## Related concepts
+## 相关概念
 
-- [Coding Execution Control](../../layer-01-fundamental-concepts/execution-control/execution-control.md) — locate material-boundary and return-condition ownership.
-- [Coding Execution Decision Gate](../../layer-01-fundamental-concepts/execution-planning/execution-decision-gate.md) — locate dependent-release ownership.
-- [Coding Delegation State Record Worker Boundary](../../layer-01-fundamental-concepts/delegation/delegation-worker-boundary.md) — locate final-state evidence access boundaries.
-- [Coding Child Reuse and Replacement](../../layer-01-fundamental-concepts/delegation/delegation-child-reuse-replacement.md) — locate repaired-epoch reuse ownership.
+- [Coding Execution Control](../../layer-01-fundamental-concepts/execution-control/execution-control.md) — 定位实质性边界和返回条件归属。
+- [Coding Execution Decision Gate](../../layer-01-fundamental-concepts/execution-planning/execution-decision-gate.md) — 定位依赖路线放行归属。
+- [Coding Delegation State Record Worker Boundary](../../layer-01-fundamental-concepts/delegation/delegation-worker-boundary.md) — 定位最终状态证据访问边界。
+- [Coding Child Reuse and Replacement](../../layer-01-fundamental-concepts/delegation/delegation-child-reuse-replacement.md) — 定位修复 epoch 复用归属。

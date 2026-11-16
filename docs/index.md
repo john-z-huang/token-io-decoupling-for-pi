@@ -1,68 +1,67 @@
 ---
 layout: default
 title: Token I/O Decoupling
-lang: en-US
+lang: zh-CN
 ---
 
-[English](.) | [简体中文]({{ '/zh-cn/' | relative_url }})
 
 # Token I/O Decoupling
 
-An Agent orchestration Skill for separating semantic decisions, state consumption, and output execution.
+用于分离语义决策、状态消费和输出执行的 Agent 调度 Skill。
 
-## What it provides
+## 提供的功能
 
-The Skill routes a task to the flow that owns its primary state, then defines the responsibilities and information boundaries used during execution.
+Skill 根据任务的主要状态选择对应的 Flow，并定义执行过程中使用的职责和信息边界。
 
-It provides one executable flow:
+它只提供一条可执行 Flow：
 
-- **Coding Flow** for repository and development work.
+- **Coding Flow**：面向仓库和开发工作。
 
-Multimodal material is retained as reference content only; it is not an executable flow in this Skill.
+仓库保留 Multimodal 内容作为 reference，但它不是本 Skill 中可执行的独立 Flow。
 
 ## Coding Flow
 
-Coding Flow covers repository and development tasks:
+Coding Flow 覆盖仓库和开发任务：
 
-- progressive exploration of source and project state;
-- code and configuration implementation;
-- focused implementation checks;
-- independent final change verification;
-- approved documentation and Git operations.
+- 渐进式探索源代码和项目状态；
+- 实现代码和配置改动；
+- 运行聚焦的实现检查；
+- 独立验证最终变更状态；
+- 执行已批准的文档和 Git 操作。
 
-Start with [`SKILL.md`](skill/SKILL.md), then follow the Coding references selected for the current stage.
+从 [`SKILL.md`](skill/SKILL.md) 开始，然后按照当前阶段选择对应的 Coding reference。
 
-## Multimodal reference material
+## Multimodal reference
 
-The repository retains reference material for tasks that consume visual or temporal state:
+仓库保留以下需要消费视觉或时间状态的任务 reference：
 
-- GUI and browser interaction;
-- image and screenshot observation;
-- video and other temporal state;
-- visual-state verification;
-- a narrow handoff to Coding when repository changes are required.
+- GUI 和浏览器交互；
+- 图片和截图观察；
+- 视频及其他时间状态处理；
+- 视觉状态验证；
+- 当需要修改仓库时，向 Coding 进行窄范围移交。
 
-These references do not define a separately executable route. Start with the [Coding entry](skill/SKILL.md).
+这些 reference 不定义独立的可执行路线。请从 [Coding 入口](skill/SKILL.md) 开始。
 
-## Responsibilities
+## 职责
 
-| Responsibility | Function |
+| 职责 | 功能 |
 | --- | --- |
-| Input-side Reasoning | Defines the goal, constraints, decisions, and acceptance criteria. |
-| Primary Output | Explores the relevant state and materializes the approved implementation. |
-| Change Verification | Independently checks the final changed state against the acceptance criteria. |
-| Documentation / Git Operations | Handles approved documentation and repository Git operations. |
+| Input-side Reasoning | 定义目标、约束、决策和验收标准。 |
+| Primary Output | 探索相关状态并物化已批准的实现方向。 |
+| Change Verification | 根据验收标准独立检查最终变更状态。 |
+| Documentation / Git Operations | 处理已批准的文档和仓库 Git 操作。 |
 
-## Execution sequence
+## 执行顺序
 
-1. Route the task to the Coding flow; consult retained Multimodal references only when the Coding workflow explicitly names them.
-2. Define a Semantic Contract containing the goal, constraints, decisions, and acceptance criteria.
-3. Let the responsible output role explore state and materialize the approved direction.
-4. Pass only the necessary context across responsibility boundaries.
-5. Verify the final state against the acceptance criteria.
+1. 将任务路由到 Coding；只有 Coding 工作流明确点名时，才查阅保留的 Multimodal reference。
+2. 定义包含目标、约束、决策和验收标准的 Semantic Contract。
+3. 由负责输出的角色探索状态并物化已批准方向。
+4. 在职责边界之间只传递必要上下文。
+5. 根据验收标准验证最终状态。
 
-## Repository references
+## 仓库 reference
 
-- [Reference library](https://github.com/john-z-huang/token-io-decoupling/tree/main/references) contains the detailed Coding, runtime, session, and execution references.
-- [Multilingual rules](https://github.com/john-z-huang/token-io-decoupling/blob/main/MULTI_LINGUAL.md) define the repository's bilingual documentation rules.
-- [GitHub repository](https://github.com/john-z-huang/token-io-decoupling)
+- [Reference library](https://github.com/john-z-huang/token-io-decoupling/tree/main/references) 包含 Coding、runtime、session 和 execution 的详细 reference。
+- [多语言规则](https://github.com/john-z-huang/token-io-decoupling/blob/main/MULTI_LINGUAL.md) 定义仓库的中文单一文档规则。
+- [GitHub 仓库](https://github.com/john-z-huang/token-io-decoupling)

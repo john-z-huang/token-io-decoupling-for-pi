@@ -1,13 +1,12 @@
 # Delegation
 
-[English](README.md) | [简体中文](README_zh_cn.md)
 
-## Scope and boundary
+## 范围与边界
 
-Mode/count gates, role allocation, child creation/dispatch/lifecycle, Worker boundaries, and message visibility. It defines delegation authority and lifecycle; it does not own context-exchange content or general execution planning.
+模式/数量门禁、职责分配、子代理创建/派发/生命周期、Worker 边界与消息可见性。本分类定义委派授权和生命周期；上下文交换内容及通用执行规划由其他分类负责。
 
-## Entry
+## 入口
 
-Start with mode confirmation and the state record; load creation, dispatch, and lifecycle owners only at their applicable route steps.
+从模式确认和状态记录开始；仅在路线步骤适用时加载创建、派发和生命周期所有者。
 
-[INDEX](INDEX.md)
+[索引](INDEX.md)

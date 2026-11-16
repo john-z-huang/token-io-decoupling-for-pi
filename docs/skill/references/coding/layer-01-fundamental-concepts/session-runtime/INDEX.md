@@ -1,8 +1,7 @@
-# Session Runtime Index
+# Session Runtime 索引
 
-[English](INDEX.md) | [简体中文](INDEX_zh_cn.md)
 
-## Owners
+## 所有者
 
 - [LSP-MCP-Tools](LSP-MCP-Tools.md)
 - [runtime-provider-support](runtime-provider-support.md)

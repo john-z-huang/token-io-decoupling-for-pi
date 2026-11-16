@@ -280,9 +280,9 @@ TOOL_DESCRIPTIONS: dict[str, str] = {
         "and current working directory cannot choose a root. Without a configured reader, the "
         "tool performs no path probe and disk/baseline evidence is unknown. A disallowed scope "
         "is not evaluated.",
-        "For skill_maintenance, checks cover the changed file's bilingual mirror, candidate "
-        "Markdown language and layer links with direct-target checks, and Layer-01 three-section "
-        "structure when applicable. The overlay includes all candidates in this request. "
+        "For skill_maintenance, Chinese documents are the sole authority; bilingual_mirror is "
+        "not_applicable. Checks cover Markdown layer links and direct targets, and Layer-01 "
+        "three-section structure when applicable. The overlay covers all submitted candidates. "
         "generic_project returns not_applicable for Skill-maintenance checks. The implementation "
         "never imports or executes candidate-repository scripts.",
         "Returns overall status fail/unknown/pass/not_applicable, policy_version=1, bounded "
@@ -292,7 +292,7 @@ TOOL_DESCRIPTIONS: dict[str, str] = {
         "unknown, then pass; not_applicable checks do not mask active results. Link-target and "
         "output-check limits turn omitted evidence into unknown.",
         "This is a read-only lookup: no target file writes, API request, subprocess, reverse "
-        "inbound-link scan, semantic English/Chinese comparison, or full CI run. Unknown means "
+        "inbound-link scan, proof of semantic correctness, or full CI run. Unknown means "
         "the relevant disk evidence could not be safely verified; correct scope, baseline, path, "
         "reader configuration, or budget issues and rerun against current content.",
     ),

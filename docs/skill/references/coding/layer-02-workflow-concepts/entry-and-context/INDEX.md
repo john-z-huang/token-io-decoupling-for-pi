@@ -1,8 +1,7 @@
-# Entry And Context Index
+# Entry And Context 索引
 
-[English](INDEX.md) | [简体中文](INDEX_zh_cn.md)
 
-## Owners
+## 所有者
 
 - [contract](contract.md)
 - [environment](environment.md)

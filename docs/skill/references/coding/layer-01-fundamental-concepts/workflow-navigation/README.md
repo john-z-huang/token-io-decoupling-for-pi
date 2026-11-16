@@ -1,11 +1,10 @@
-# Workflow Navigation
+# 工作流导航
 
-[English](README.md) | [简体中文](README_zh_cn.md)
 
-## Scope and boundary
+## 范围与边界
 
-This category groups bounded workflow navigation and caller-supplied structural input checks. It does not own workflow policy, identity, permission, or checkpoint outcomes.
+此类别汇总有界工作流导航及调用方提供的结构输入检查；不负责工作流策略、身份、权限或检查点结果。
 
-## Entry
+## 入口
 
-Use the [INDEX](INDEX.md) to locate the relevant owner.
+使用 [INDEX](INDEX.md) 定位相关 owner。

@@ -1,44 +1,30 @@
-# Coding Delegation Worker Boundary
+# Coding 委派 Worker 边界
 
-[English](delegation-worker-boundary.md) | [简体中文](delegation-worker-boundary_zh_cn.md)
 
-This module owns released Worker snapshots, Worker read/write boundaries, parent-controlled Dispatch entry, and the block that applies when the task-control record cannot be persisted or returned. It consumes the record defined by [the delegation state record](delegation-state-record.md); it does not define record shape, mode/count policy, child lifecycle, or Dispatch Preview strategy.
+本文档负责已放行的 Worker 快照、Worker 读写边界、父级控制的 Dispatch 进入路径，以及任务控制记录无法持久化或返回时的阻断。它消费[委派状态记录](delegation-state-record.md)定义的记录；不定义记录结构、模式/数量策略、子 Agent 生命周期或 Dispatch Preview 策略。
 
-## General rules
+## 通用规范
 
-### Worker snapshot and access boundary
+### Worker 快照和访问边界
 
-Workers receive only the relevant released snapshot through the parent-controlled Dispatch. They must not infer, mutate, or replace the root record. The Worker may use the snapshot only within the released scope and return the required facts through the parent-controlled path.
+Worker 只能通过父级控制的 Dispatch 接收相关的已放行快照。不得推断、修改或替换根记录。Worker 只能在已放行范围内使用快照，并通过父级控制的路径返回所需事实。
 
-### Dispatch entry and persistence block
+### Dispatch 进入和持久化阻断
 
-After release, a Worker enters through the parent-provided Dispatch Preview and does not reopen the root-user mode or count gates. If the runtime cannot persist or return the task-control record, the dependent route is blocked.
+放行后，Worker 通过父级提供的 Dispatch Preview 进入，不重新打开根用户模式或数量门禁。运行时无法持久化或返回任务控制记录时，依赖该记录的路线被阻塞。
 
-### Shared task-plan contribution
+### 共享任务计划贡献
 
-Apply [Task Plan Memory Lifecycle](../execution-planning/task-plan-memory-lifecycle.md) to every assigned role. Dispatch names the exact project and shared plan, permitted contribution, and any authorized current record-writer turn. The Worker confirms only the access its released role requires; it uses current plan context or obtains needed content at that owner's refresh triggers. Submit sourced facts and progress through the authorized record writer or contribution path at owner-defined boundaries; an ordinary progress report does not independently trigger a write or full readback. Record changed requirements before analysis, then persist the analysis/revised proposal and complete any owner-required verification before requesting parent release. Facts affecting authorization, scope, acceptance, direction, or dependent actions must be recorded and analyzed before those actions. This named contribution is separate from the root record and optional execution memo; it grants no source/peer access or Contract authority. A verifier may contribute verification facts only. Missing required access, failed persistence, or failed required verification blocks dependent work and must be reported to the parent.
+每个分配角色都应用[任务计划 Memory 生命周期](../execution-planning/task-plan-memory-lifecycle.md)。派发指明准确项目与共享计划、允许贡献，以及实际获准的当前记录者写入轮次。Worker 仅确认已释放职责所需的访问；复用当前计划上下文，或在该 owner 的刷新条件触发时取得所需内容。在 owner 定义的边界，通过获准记录者或贡献路径提交带来源事实与进展；普通进度汇报不单独触发写入或全文读回。需求变化先记录再分析，分析/修订提议持久化并完成 owner 要求的核验后，才请求父级释放。影响授权、范围、验收、方向或依赖动作的事实，须在受影响动作前记录并分析。此具名贡献与 root 记录及可选执行 memo 分离，不授予源码/同级访问或 Contract 权威。验证者仅可贡献验证事实。缺少必需访问、持久化失败或必需核验失败时阻塞依赖工作，须向父级报告。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-Codex's configured `PreToolUse` hook can match the local `spawn_agent` tool under its `Agent` alias; where available, use it as a tested guardrail against unauthorized nested delegation, alongside the runtime's actual tool/sandbox restrictions. Some specialized tools bypass hook coverage, so a prompt or hook alone is not proof that recursion or peer messaging is impossible. Keep the parent-controlled spawn/follow-up role separate from Worker permissions. [OpenAI: hook tool coverage](https://learn.chatgpt.com/docs/hooks).
+扩展输入显式提供项目根目录、已放行范围、需要读取的绝对指令路径及计划/Memory 名称；不要假定子上下文继承父级全部工具、Skill 或配置。任务结果通过扩展返回父级。父级保留规范状态即可，不要求 Worker 持久化根记录。
 
-### Effective worker authority
 
-A Codex custom agent file can set `developer_instructions`, `sandbox_mode`, scoped `mcp_servers` and `skills.config`, but omitted fields inherit the parent and live parent permission overrides can be reapplied at spawn. Inspect the resulting child rather than trusting the file's intended profile. Where a trusted `PreToolUse` hook is installed, match local `spawn_agent`/`Agent` and exposed peer operations before executing, but no hook can prove a complete deny boundary for tools outside its coverage; use real runtime/OS restrictions or block the dependent Worker. [OpenAI: inherited subagent settings](https://learn.chatgpt.com/docs/agent-configuration/subagents), [OpenAI: tool-hook exceptions](https://learn.chatgpt.com/docs/hooks).
+## 相关概念
 
-## Claude Code CLI / Claude Desktop optimizations
-
-### Scoped worker tools
-
-For an approved Claude Code custom Worker, restrict the frontmatter `tools` allowlist and/or `disallowedTools` so the Worker cannot call `Agent` or peer-messaging tools. An Agent tool made available to the Worker can create nested subagents in current Claude Code; a prose-only prohibition is not a reliable tool boundary. If an MCP server is needed, grant only the required server/tool scope and deny unrelated MCP tools (for example, supported `mcp__<server>` patterns); this narrows tool availability, not the parent's record ownership. Project/user agent definitions can also scope `mcpServers`, but plugin-shipped agent frontmatter ignores that field. Do not assume the same restrictions are installed in Desktop Chat.
-
-Official reference: [subagent tools, disallowedTools and MCP scope](https://code.claude.com/docs/en/sub-agents).
-
-Before dispatch, check that the **effective**, inherited custom-agent tool pool matches the released role. Keep parent-to-child `SendMessage` and resume controls outside the Worker, and do not treat a narrowed `tools` list as a verified per-path filesystem boundary. [Anthropic: subagent tool scope](https://code.claude.com/docs/en/sub-agents).
-
-## Related concepts
-
-- [Coding Delegation State Record](delegation-state-record.md) — locate record ownership and field constraints.
-- [Coding Child Dispatch](delegation-child-dispatch.md) — locate Worker dispatch boundaries.
-- [Coding Execution Control](../execution-control/execution-control.md) — locate released Interaction Slice boundaries.
-- [Coding Context Exchange](../context-exchange/context-exchange.md) — locate named context transport ownership.
+- [Coding Delegation State Record](delegation-state-record.md) — 定位记录 ownership 和字段约束。
+- [Coding Child Dispatch](delegation-child-dispatch.md) — 定位 Worker 派发边界。
+- [Coding Execution Control](../execution-control/execution-control.md) — 定位已放行 Interaction Slice 边界。
+- [Coding Context Exchange](../context-exchange/context-exchange.md) — 定位命名上下文传输归属。

@@ -63,7 +63,7 @@ def discover_markdown(root: Path) -> list[Path]:
             not in _PRUNED_RELATIVE_DIRECTORIES
         )
         for filename in filenames:
-            if not filename.endswith(".md"):
+            if not filename.endswith(".md") or "_NOT_USE_" in filename:
                 continue
             candidate = current / filename
             if not candidate.is_symlink():

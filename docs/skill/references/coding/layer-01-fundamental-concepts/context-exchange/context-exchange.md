@@ -1,30 +1,25 @@
 # Coding Context Exchange
 
-[English](context-exchange.md) | [简体中文](context-exchange_zh_cn.md)
 
-This owner defines content and freshness rules for context capsules persisted as Serena project Memories for already-assigned Coding Workers. It does not define memory naming/authorization, handoff records, task meaning, Agent topology, or acceptance.
+本文档定义已分配 Coding Worker 的 Serena 项目 Memory 上下文 capsule 内容与新鲜度规则，不定义 Memory 命名/授权、handoff 记录、任务含义、Agent 拓扑或验收。
 
-## General rules
+## 通用规范
 
-### Capsule content and authoritative sources
+### Capsule 内容与权威来源
 
-Persist a capsule only when an authorized handoff or context bootstrap needs a durable record. Use concise neutral facts, exact pointers to authoritative sources, hashes, freshness/invalidation data, and narrow evidence pointers. Do not copy the full source documents into Memory; authoritative repository files remain binding. Receiving Workers read only capsule memories named in their released task, then verify needed facts against named approved sources.
+只有已授权 handoff 或 context bootstrap 需要持久记录时才写入 capsule。内容限于精简中性事实、指向权威来源的准确指针、hash、新鲜度/失效数据和窄范围证据指针。不得把来源文件全文复制到 Memory；权威仓库文件仍具有约束力。接收 Worker 只读取已放行任务中点名的 capsule Memory，再对照获准且点名的来源核实所需事实。
 
-Use these bootstrap Memory names, preserving former filenames: `context-exchange/context-bootstrap/MANIFEST`, `context-exchange/context-bootstrap/project-context`, and `context-exchange/context-bootstrap/policy-context`. `MANIFEST` records snapshot identity, hashes, and freshness rules; the other memories hold neutral project facts/pointers and policy-routing pointers. Other exchange/import records use their existing basename and subdirectory intent under `context-exchange/`.
+使用以下 bootstrap Memory 名称保留原文件名：`context-exchange/context-bootstrap/MANIFEST`、`context-exchange/context-bootstrap/project-context` 和 `context-exchange/context-bootstrap/policy-context`。`MANIFEST` 记录快照身份、hash 和新鲜度规则；其他 Memory 保存中性项目事实/指针及 policy-routing 指针。其他交换/import 记录在 `context-exchange/` 下沿用原 basename 和子目录意图。
 
-Check freshness against `HEAD`/tree, tracked-delta fingerprint, listed source hashes, relevant untracked state, and active task/scope. Refresh only affected entries when material fields change; otherwise read named authoritative sources directly. A capsule never replaces Contract or independent final-state verification. Memory listing/read/write capability unavailable means report the limitation and block dependent work; do not use file-backed fallback.
+根据 `HEAD`/tree、tracked-delta fingerprint、所列来源 hash、相关未跟踪状态和当前 task/scope 检查新鲜度。实质字段变化时只刷新受影响条目；否则直接读取点名权威来源。Capsule 不能替代 Contract 或最终状态的独立验证。Memory 列表/读写能力不可用时，报告限制并阻塞依赖工作；不得回退为文件存储。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-Use only exposed, authorized Serena Memory tools. Name the exact capsule Memory in the released task, read it before use, verify source pointers/freshness, and confirm writes. Do not broaden source or tool access just to make a capsule available.
+Serena 是可选外部 MCP。需要 Memory 时，通过 Pi codemode 的 `searchTools`、`describeTool`、`describeNamespace` 核实实际工具与 schema，调用时检查 `isError`；hidden 工具不得绕过。确认真实项目绑定及 Memory Schema。Memory 名称、内容、持久化及禁止回退文件、授权隔离和边界均按通用规范；能力缺失只阻塞依赖项。Pi 的 `read`、`edit`、`write`、`bash` 可按授权直接访问文档，不代表 Serena Memory 能力。旧身份上下文不可伪造。
 
-## Claude Code CLI / Claude Desktop optimizations
+## 相关概念
 
-Use Serena Memory only when the current Agent Session exposes and authorizes its MCP tools. Claude Code MCP Tool Search may defer definitions; discover and verify the tools before relying on them. Claude auto memory or compaction is not a replacement for a named exchange capsule.
-
-## Related concepts
-
-- [Coding Context Exchange Workspace Boundary](context-exchange-workspace-boundary.md) — locate logical naming and authorization.
-- [Coding Context Exchange Handoff](context-exchange-handoff.md) — locate handoff record content.
-- [Coding Session Context Firewall](../session-runtime/session-context-firewall.md) — locate bounded ingress rules.
-- [Coding Child Dispatch](../delegation/delegation-child-dispatch.md) — locate released-task authorization.
+- [Coding Context Exchange Workspace Boundary](context-exchange-workspace-boundary.md) — 定位逻辑命名和授权。
+- [Coding Context Exchange Handoff](context-exchange-handoff.md) — 定位 handoff 记录内容。
+- [Coding Session Context Firewall](../session-runtime/session-context-firewall.md) — 定位有界输入规则。
+- [Coding Child Dispatch](../delegation/delegation-child-dispatch.md) — 定位已放行任务授权。

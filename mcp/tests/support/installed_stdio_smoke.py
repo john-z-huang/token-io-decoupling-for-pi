@@ -271,11 +271,12 @@ async def _exercise(
                         "4. 区分已观察到的事实与假设。未解决的实质性问题不得进入实现发布。",
                         "5. 从直接权威来源确定任务意图和符合条件的输出分类。任何建议输出都与 "
                         "Contract 分开；它不能授权范围。建议政策遵循[Decisions 建议]("
-                        "../../layer-01-fundamental-concepts/execution-planning/decisions-advisory_zh_cn.md)。",
+                        "../../layer-01-fundamental-concepts/execution-planning/decisions-advisory.md)。",
                     ),
                 }
+                contract_actions["en"] = contract_actions["zh_cn"]
                 for language, expected_actions in contract_actions.items():
-                    expected_owner_section = {"en": "Actions", "zh_cn": "动作"}[language]
+                    expected_owner_section = {"en": "动作", "zh_cn": "动作"}[language]
                     result = await client.call_tool(
                         "rules_get_context",
                         {"payload": {"node_id": "contract", "language": language}},

@@ -1,0 +1,111 @@
+"""Pi 指令的模块结构、旧宿主清理与 Server 迁移边界回归。"""
+from __future__ import annotations
+
+import runpy
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+OWNER = (
+    "docs/skill/references/coding/layer-01-fundamental-concepts/"
+    "session-runtime/runtime-provider-support.md"
+)
+CORE = runpy.run_path(str(ROOT / "scripts/compliance_core_loader.py"))["load_compliance_core"]()
+CHECKER = runpy.run_path(str(ROOT / "scripts/check-layer-01-sections.py"))
+
+
+class PiRuntimeSupportTests(unittest.TestCase):
+    def setUp(self):
+        self.text = (ROOT / OWNER).read_text(encoding="utf-8")
+
+    def test_runtime_owner_has_only_pi_modules(self):
+        self.assertEqual(CORE.layer01_section_issues(OWNER, self.text), [])
+        self.assertEqual(
+            [heading for _line, heading, _offset in CORE.top_level_sections(self.text)],
+            ["通用规范", "Pi Coding Agent 优化指令", "相关概念"],
+        )
+        for legacy in ("Codex", "Claude", "ChatGPT", "sonnet", "haiku", "spawn_agent"):
+            self.assertNotIn(legacy, self.text)
+
+    def test_installed_skill_relative_path_uses_same_contract(self):
+        self.assertEqual(
+            CORE.layer01_section_issues(OWNER.removeprefix("docs/skill/"), self.text), []
+        )
+
+    def test_required_modules_cannot_be_missing_duplicate_empty_or_reordered(self):
+        for heading in ("通用规范", "Pi Coding Agent 优化指令"):
+            for changed in (
+                self.text.replace(f"## {heading}", "## 不受支持的模块"),
+                self.text + f"\n## {heading}\n重复模块。\n",
+            ):
+                with self.subTest(heading=heading, changed=changed[:40]):
+                    self.assertTrue(CORE.layer01_section_issues(OWNER, changed))
+        empty = "## 通用规范\n\n## Pi Coding Agent 优化指令\n正文。\n"
+        reversed_sections = "## Pi Coding Agent 优化指令\n正文。\n## 通用规范\n正文。\n"
+        self.assertTrue(CORE.layer01_section_issues(OWNER, empty))
+        self.assertTrue(CORE.layer01_section_issues(OWNER, reversed_sections))
+
+    def test_all_owners_use_pi_structure_without_changing_server_contract(self):
+        directory = (ROOT / OWNER).parent.parent
+        owners = CHECKER["discover_owner_documents"](directory)
+        self.assertEqual(len(owners), 41)
+        for owner in owners:
+            with self.subTest(owner=owner):
+                self.assertEqual(CHECKER["check_document"](owner, ROOT), [])
+        # Server remains intentionally unchanged and still rejects other Pi owners.
+        other = OWNER.replace("runtime-provider-support.md", "session-model.md")
+        self.assertTrue(CORE.layer01_section_issues(other, self.text))
+
+    def test_local_validator_rejects_missing_duplicate_empty_and_reordered_modules(self):
+        check = CHECKER["layer01_section_issues"]
+        self.assertEqual(check(OWNER, self.text), [])
+        for heading in ("通用规范", "Pi Coding Agent 优化指令", "相关概念"):
+            with self.subTest(heading=heading):
+                self.assertTrue(check(OWNER, self.text.replace(f"## {heading}", "## 未知")))
+                self.assertTrue(check(OWNER, self.text + f"\n## {heading}\n重复\n"))
+        self.assertTrue(check(OWNER, "## 通用规范\n\n## Pi Coding Agent 优化指令\n内容\n## 相关概念\n链接\n"))
+        self.assertTrue(check(OWNER, "## Pi Coding Agent 优化指令\n内容\n## 通用规范\n内容\n## 相关概念\n链接\n"))
+
+    def test_active_skill_contains_no_legacy_host_instructions(self):
+        import re
+
+        forbidden = re.compile(r"codex|claude|chatgpt|\b(?:haiku|sonnet|spawn_agent|send_input|read_thread|update_plan)\b", re.I)
+        for path in (ROOT / "docs/skill").rglob("*.md"):
+            with self.subTest(path=path):
+                self.assertIsNone(forbidden.search(path.read_text(encoding="utf-8")))
+
+    def test_one_shot_extension_and_api_boundaries(self):
+        directory = (ROOT / OWNER).parent.parent
+        creation = (directory / "delegation/delegation-child-creation.md").read_text(encoding="utf-8")
+        self.assertIn("一次性", creation)
+        self.assertIn("不伪造宿主 ID", creation)
+        self.assertIn("workflow_select_child_effort", creation)
+        advisory = (directory / "execution-planning/decisions-advisory.md").read_text(encoding="utf-8")
+        for fact in ("OPENAI_API_KEY", "OPENAI_BASE_URL", "gpt-6-luna", "Mock"):
+            self.assertIn(fact, advisory)
+
+    def test_delegated_module_handles_synchronous_results_without_replay(self):
+        module = ROOT / "docs/skill/references/coding/layer-04-workflows/modules/delegated-execution.md"
+        text = module.read_text(encoding="utf-8")
+        self.assertIn("同一次工具调用创建、派发、执行并返回", text)
+        self.assertIn("同步一次性调用返回后直接在 DE07 审阅", text)
+        self.assertIn("不重放任务", text)
+        self.assertNotIn("不得等子代理结果返回后才开始 DE07", text)
+
+    def test_model_and_extension_boundaries_remain_explicit(self):
+        for fact in (
+            "Pi 不默认提供内置子代理或 Plan mode",
+            "workflow_select_child_effort",
+            "Not applicable",
+            "OPENAI_API_KEY",
+            "OPENAI_BASE_URL",
+            "gpt-6-luna",
+            "三个独立边界",
+            "hidden",
+            "isError",
+        ):
+            self.assertIn(fact, self.text)
+
+
+if __name__ == "__main__":
+    unittest.main()

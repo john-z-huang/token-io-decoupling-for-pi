@@ -1,11 +1,10 @@
 # Layer 02: Workflow Checkpoints
 
-[English](README.md) | [简体中文](README_zh_cn.md)
 
-## Scope and boundary
+## 范围与边界
 
-Provider-independent checkpoint owners define generic actions, evidence, pass conditions, and boundaries. Layer-03 owns task-specific applicability decisions; Layer-04 orders those decisions into complete routes.
+与提供方无关的检查点所有者定义通用操作、证据、通过条件和边界。Layer-03 负责当前任务适用性判断；Layer-04 将这些判断排序组合为完整路线。
 
-## Entry
+## 入口
 
-Begin with the [INDEX](INDEX.md) to locate a checkpoint, then read its same-language owner.
+从[索引](INDEX.md)查找检查点，再阅读其同语言所有者。

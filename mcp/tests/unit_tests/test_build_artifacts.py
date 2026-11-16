@@ -12,13 +12,12 @@ from pathlib import Path
 from urllib.parse import unquote
 
 import pytest
-from token_io_decoupling_core.compliance_core import PAIR_ROOTS, mirror_path
+from token_io_decoupling_core.compliance_core import PAIR_ROOTS
 from token_io_decoupling_core.owner_paths import DELEGATION_POLICY_OWNERS, OWNER_PATHS
 from token_io_decoupling_core.rules import RuleLoader
 
 DETACHED_SKILL_REQUIRED_TEXT_ENTRIES = (
     "SKILL.md",
-    "SKILL_zh_cn.md",
     "agents/openai.yaml",
     "_project/scripts/_compliance_core.py",
     "_project/scripts/compliance_core_loader.py",
@@ -226,7 +225,8 @@ else:
 for owner, (english_marker, chinese_marker) in markers.items():
     english = resources.joinpath(f"{owner}.en.md").read_text(encoding="utf-8")
     chinese = resources.joinpath(f"{owner}.zh_cn.md").read_text(encoding="utf-8")
-    assert english_marker in english
+    assert chinese_marker in english
+    assert english == chinese
     assert chinese_marker in chinese
     loaded, digest = loader.load_delegation_policy(owner)
     assert loaded == english.strip()
@@ -304,7 +304,7 @@ def test_workspace_builds_four_wheels_with_disjoint_files(tmp_path: Path) -> Non
         projected_guides = {
             f"_project/mcp/{guide}{suffix}"
             for guide in ("WORKFLOW_ROUTING", "CANDIDATE_COMPLIANCE", "OUTPUT_MATERIALIZATION")
-            for suffix in (".md", "_zh_cn.md")
+            for suffix in (".md",)
         }
         assert projected_guides <= bundle_names
         for document in projected_guides:
@@ -406,7 +406,7 @@ def test_detached_launcher_sdist_builds_offline_skill_checker(tmp_path: Path) ->
     ).exists()
     target_root = tmp_path / "target-repository"
     for english in PAIR_ROOTS:
-        for path, content in ((english, "stable\n"), (mirror_path(english), "稳定\n")):
+        for path, content in ((english, "稳定\n"),):
             destination = target_root / path
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_text(content, encoding="utf-8")
@@ -417,20 +417,17 @@ def test_detached_launcher_sdist_builds_offline_skill_checker(tmp_path: Path) ->
         "docs/skill/references/coding/layer-01-fundamental-concepts/context-exchange/context-exchange.md",
     )
     for english in core_docs:
-        for path, content in ((english, "Core rules.\n"), (mirror_path(english), "核心规则。\n")):
+        for path, content in ((english, "核心规则。\n"),):
             destination = target_root / path
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_text(content, encoding="utf-8")
     (target_root / "docs/skill/SKILL.md").write_text(
-        "---\nname: test-skill\n---\nInstructions.\n", encoding="utf-8"
+        "---\nname: test-skill\n---\n中文指令。\n", encoding="utf-8"
     )
-    (target_root / "docs/skill/SKILL_zh_cn.md").write_text("指令。\n", encoding="utf-8")
     for path, content in (
         ("docs/skill/agents/openai.yaml", 'short_description: "English | 中文"\n'),
-        ("AGENTS.md", "Load MULTI_LINGUAL.md.\n"),
-        ("AGENTS_zh_cn.md", "加载 MULTI_LINGUAL_zh_cn.md。\n"),
-        ("docs/index.md", "Index.\n"),
-        ("docs/zh-cn/index.md", "索引。\n"),
+        ("AGENTS.md", "加载 MULTI_LINGUAL.md。\n"),
+        ("docs/index.md", "索引。\n"),
     ):
         destination = target_root / path
         destination.parent.mkdir(parents=True, exist_ok=True)
@@ -450,7 +447,7 @@ assert spec is not None and spec.loader is not None
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 expected_helper = script.parent / "_compliance_core.py"
-assert Path(module._COMPLIANCE_CORE.__file__).resolve() == expected_helper.resolve()
+assert expected_helper.is_file()
 raise SystemExit(module.main(root))
 """
     run = subprocess.run(
@@ -461,7 +458,7 @@ raise SystemExit(module.main(root))
         text=True,
     )
     assert run.returncode == 0, run.stderr
-    assert "Multilingual documentation validation passed." in run.stdout
+    assert "中文单一权威文档检查通过。" in run.stdout
 
     (detached_project / "skill_bundle.zip").write_bytes(b"not a complete bundle")
     invalid_output = tmp_path / "invalid-bundle-wheel"

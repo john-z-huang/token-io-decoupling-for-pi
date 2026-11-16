@@ -1,39 +1,31 @@
-# Output Materialization
+# 输出物化
 
-[English](output-materialization.md) | [简体中文](output-materialization_zh_cn.md)
 
-This owner defines controlled preparation, inspection, and application of a bounded candidate output batch through a separately authorized write capability. It does not own role policy, grant issuance, final verification, or general-purpose file writing.
+本文档定义通过单独授权的写入能力，对有界候选输出批次进行受控准备、检查和应用。它不拥有角色政策、授权签发、最终验证或通用文件写入。
 
-## General rules
+## 通用规范
 
-### Keep preparation, review, and application distinct
+### 区分准备、审阅和应用
 
-Prepare output only when the current assignment, operation-specific grant, pinned roots, exact paths, and required safety capabilities are verified for the current call. A role assignment, tool discovery, capability listing, or ordinary write permission does not substitute for a separate matching grant. If the required context or guard is missing, stale, revoked, or ambiguous, stop without guessing a path or capability.
+只有在当前调用中核实当前任务分配、操作专用授权、固定根目录、精确路径和必要安全能力后，才可准备输出。角色分配、工具发现、能力列表或普通写入权限均不能替代独立且匹配的授权。上下文或守卫缺失、过期、撤销或含糊时，应停止，不得猜测路径或能力。
 
-Preparation creates a bounded candidate artifact outside the project and must not be described as a project write. Preserve its identifier and manifest hash. Inspect only bounded portions and review the candidate before application. Apply the same prepared candidate only after rechecking current authority, artifact integrity, baselines, and a fresh whole-batch preflight for the pinned project. Do not regenerate content during apply or treat a prior preflight as current authorization.
+准备会在项目目录外创建有界候选产物，不得称为项目写入。保留其标识符和清单哈希。只检查有界内容，并在应用前审阅候选内容。仅当重新核实当前权限、产物完整性、基线以及针对固定项目的新鲜整批预检后，才可应用同一候选内容。应用期间不得重新生成内容，也不得将先前预检视为当前授权。
 
-Use only the finite locally rendered templates and declared limits. Any optional semantic service may select among supplied fact identifiers only; local code retains supplied facts and renders the output. Missing configuration, refusal, invalid response, stale context, or limit failure stops preparation without substituting free-form output. Do not infer zero usage when a service does not report usage.
+仅使用有限的本地渲染模板和既定限制。任何可选语义服务只能在已提供的事实标识符中排序；本地代码保留原始事实并渲染输出。配置缺失、拒答、响应无效、上下文过期或超限时，准备应停止，不得替换成自由形式的输出。服务未报告用量时，不得推断用量为零。
 
-Application is bounded by exact authorized paths and operations. Recheck current file state, preserve external changes, and inspect receipts and actual files after partial or uncertain outcomes. A same-candidate replay must not overwrite a later user change. Cooperative locks do not protect against unrelated writers; a multi-file batch may be partially applied and has no promised global rollback. When state is uncertain or authority has changed, stop and resolve from current evidence before preparing a new candidate.
+应用仅限精确授权的路径和操作。重新检查当前文件状态，保留外部变更，并在部分或不确定结果后检查收据和实际文件。同一候选内容的重放不得覆盖用户后续变更。协作锁无法防止无关写入者并发修改；多文件批次可能只应用一部分，也不保证全局回滚。状态不确定或权限已变化时，应依据当前证据先解决问题，再准备新候选内容。
 
-This capability is optional. Native output work may continue under its own authorized route when this capability is unavailable. Never treat unavailable as success or weaken the relevant role, permission, or verification owner.
+此能力是可选的。能力不可用时，可在自身授权路线允许的范围内继续 Native 输出工作。不得把不可用当作成功，也不得弱化相关角色、权限或验证 owner。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-The current MCP operation is `materialize_decoupled_output` with `payload.request` action `prepare`, `inspect`, or `apply`. It requires a trusted startup-injected authorization provider that supplies current Worker binding and assignment context, a separate operator grant, pinned project/artifact roots, and required read-only compliance preflight. The service checks that provider context matches the actual per-call Worker binding and rechecks authority across phases. Tool payloads cannot select or supply authority context. No standard provider is configured; without the trusted provider and grant, the capability is unavailable and no default root is guessed.
+edit/write 是普通直接文件能力，不是受保护物化工具。仅当真实暴露的物化工具已支持当前身份、角色、授权和守卫契约时使用该可选路径；否则依 owner 判断能否走独立授权的直接路径。已选受保护路径失败不得换入口绕过。
 
-The supported role is `Primary Output` with output class `code_configuration` or `skill_instructions`. Ordinary documentation and other roles/classes are unsupported. Version 1 has finite `literal_text`, `json_document`, and `fact_markdown` templates. `prepare` stores a candidate outside the project; `inspect` reads a bounded page; `apply` rechecks current grant, assignment, hashes, baselines, and whole-batch preflight before writing. Keep and pass the same manifest hash. Review per-file and batch receipts, especially `partial`, `conflict`, or `uncertain`; do not assume rollback or retry over changed content. The MCP output-materialization contract owns exact request fields, limits, and recovery classifications.
 
-For the optional fact-ordering request, follow the fixed API contract stated in the actual MCP tool metadata; the model can return only an ordering of supplied fact IDs. This tool contract does not inspect or change the Agent Session's model. Agent runtime, model, and effort bindings belong to [Runtime and Model Provider Support](../session-runtime/runtime-provider-support.md).
+## 相关概念
 
-## Claude Code CLI / Claude Desktop optimizations
-
-This repository's MCP Server supports local Codex CLI only. Claude's generic MCP capability does not make this server a supported direct client, and no Claude-specific direct-tool optimization is defined. Follow the general rules using capabilities actually exposed and authorized in the current Session. If this controlled capability is unavailable, use any independently authorized direct output route and its verification requirements.
-
-## Related concepts
-
-- [Candidate Compliance Preflight](candidate-compliance.md) — owns read-only candidate checks.
-- [Session Role Ownership](../session-runtime/session-role-ownership.md) — owns role responsibility; this service still requires its separate trusted binding context and grant.
-- [Workflow Navigation Availability](../workflow-navigation/navigation-availability.md) — owns direct-owner fallback when optional navigation is unavailable.
-- [Coding Execution Control](../execution-control/execution-control.md) — owns release and Control transitions.
-- [Task Assignment](task-assignment.md) — owns executor and output responsibility.
+- [Candidate Compliance Preflight](candidate-compliance.md) — 拥有只读候选检查。
+- [Session Role Ownership](../session-runtime/session-role-ownership.md) — 负责角色责任；此服务仍需单独的可信绑定上下文和 grant。
+- [Workflow Navigation Availability](../workflow-navigation/navigation-availability.md) — 负责可选导航不可用时直接读取 owner 的回退。
+- [Coding Execution Control](../execution-control/execution-control.md) — 拥有释放和 Control 转换。
+- [Task Assignment](task-assignment.md) — 拥有执行者和输出责任选择。

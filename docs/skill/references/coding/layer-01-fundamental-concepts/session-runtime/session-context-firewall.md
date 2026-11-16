@@ -1,45 +1,29 @@
 # Coding Session Context Firewall
 
-[English](session-context-firewall.md) | [简体中文](session-context-firewall_zh_cn.md)
 
-This module owns the Context Firewall: raw-state ingress limits, bounded inspection, fact-return boundaries, and temporary project localization. It does not define role responsibilities, Session semantics, Memory context transport, or workflow acceptance.
+本文档负责 Context Firewall：原始状态进入限制、有界检查、事实返回边界和临时项目定位。不定义职责责任、Session 语义、Memory 上下文传输或工作流验收。
 
-## General rules
+## 通用规范
 
-### Raw-state ingress
+### 原始状态进入
 
-In a multi-Session Coding run, the input-side Session reads only bounded, read-only environment and code evidence needed for the prerequisite confirmations owned by [session role ownership](session-role-ownership.md), not an open-ended repository scan. Primary Output consumes further source/configuration state only within released scope; Change Verification consumes final-state evidence; Documentation/Comments & Git Operations consumes Git state and approved documentation scope. Each returns only next-decision facts and exact source pointers.
+在多 Session Coding 中，输入侧 Session 按[职责归属](session-role-ownership.md)要求读取派发前确认所需的有界、只读环境与代码证据，不进行开放式项目扫描。Primary Output 仅在父级确认和放行的范围内读取更多源代码/配置状态；Change Verification 消费最终状态证据；Documentation/Comments & Git Operations 消费 Git 状态和获准文档范围。各自只返回下一步决策需要的事实与准确来源。
 
-Raw-state ingress is bounded by potential output volume, state sensitivity, and repository impact, not the command name. A single Session has no cross-Session firewall but still reads progressively and compresses raw state.
+原始状态摄入边界由潜在输出体积、状态敏感性和仓库影响决定，而不是命令名称。单 Session 没有跨 Session Firewall，但仍须渐进读取并压缩原始状态。
 
-### Semantic ownership and ephemeral localization
+### 语义 ownership 和临时定位
 
-The firewall limits raw-state ingress without transferring semantic authority; follow [session role ownership](session-role-ownership.md). Temporary project-localization facts are not automatically promoted to long-lived Contract state, and raw state must not be dumped. Authorized reusable context records may be persisted as named project Memories under [Coding Context Exchange](../context-exchange/context-exchange.md) and [Coding Context Exchange Workspace Boundary](../context-exchange/context-exchange-workspace-boundary.md); memory names express logical ownership only and provide no technical isolation.
+Firewall 只限制原始状态进入，不转移语义责任；语义权威性遵循[职责归属](session-role-ownership.md)。临时项目定位事实不自动提升为长期 Contract 状态，也不应倾倒原始状态。经授权且可复用的上下文记录可按 [Coding Context Exchange](../context-exchange/context-exchange.md) 和 [Coding Context Exchange Workspace Boundary](../context-exchange/context-exchange-workspace-boundary.md) 使用具名项目 Memory 持久化；Memory 名称只表达逻辑归属，不提供技术隔离。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-Codex custom agent profiles may narrow source/tool exposure with `sandbox_mode: read-only` and selected `mcp_servers`; `developer_instructions` can request bounded source pointers but is not a permission boundary. Inspect inherited settings because omitted custom-agent fields inherit the parent. These settings are not Claude's `tools`/`disallowedTools` frontmatter and do not imply Claude Desktop Chat's connector Tool-access mode. [OpenAI: custom subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents).
+子代理隔离取决于实际扩展，不能从一次独立任务或工作目录推断文件系统隔离。codemode 自身没有直接文件系统或网络访问，须调用已授权工具；只将当前判断需要的有界证据 text 返回父级。
 
-### Local bounded tools and Skill/MCP disclosure
 
-Do not reread unchanged owners or retrieve history already present in the active context. Prefer stable context plus a small delta. When tool output repeats the same payload in `content` and `structuredContent`, retain only the representation needed for the next decision; preserve distinct evidence and source pointers.
+## 相关概念
 
-Use the runtime's exposed local code-search/file-reading tools for targeted symbols and small source ranges, returning stable paths and evidence pointers instead of complete build logs or recursive repository dumps. For Codex role-specific access, a reviewed custom agent may set `sandbox_mode: read-only` and narrow `mcp_servers`; an omitted key can inherit parent settings and a live permission override can affect the spawned child. Local Codex skills reveal metadata first, load `SKILL.md` when selected and references only on demand; select only concept owners needed by the current slice. The CLI/IDE/Desktop Codex host can share MCP configuration; `/mcp` verifies available connections. Do not treat a plugin or a separate Chat Session's tool access as a separate Codex child or a permission grant. [OpenAI: skills progressive disclosure](https://learn.chatgpt.com/docs/build-skills), [OpenAI: MCP host configuration](https://learn.chatgpt.com/docs/extend/mcp), [OpenAI: custom agents](https://learn.chatgpt.com/docs/agent-configuration/subagents).
-
-## Claude Code CLI / Claude Desktop optimizations
-
-### Native bounded reads and deferred MCP discovery
-
-On local Claude Code, start repository localization with targeted `Glob`/`Grep` and small `Read` ranges, then return paths, line pointers, and compressed facts; do not route an entire recursive listing or build log through the parent. MCP Tool Search is enabled by default: Claude Code defers MCP tool definitions and loads them when needed. If `ANTHROPIC_BASE_URL` points to a non-first-party host, Claude Code normally disables Tool Search because most proxies do not forward `tool_reference` blocks; for a new session, launch with `ENABLE_TOOL_SEARCH=true claude` only when the model and proxy support those blocks. Microsoft Foundry deployments hosted on Azure reject Tool Search server-side, so the environment forces upfront loading and the variable cannot override it. `CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` also keeps Tool Search disabled and cannot be overridden with `ENABLE_TOOL_SEARCH`. When Tool Search is unavailable, expect MCP tools to load upfront and do not claim deferred-loading savings. An authorized desktop extension/local MCP server may expose local resources in Desktop Chat, whereas a remote connector accesses its remote service; in both cases inspect the actual tool scope and avoid assuming local shell, unrestricted filesystem, or an independent Agent.
-
-Official references: [MCP Tool Search in Claude Code](https://code.claude.com/docs/en/mcp), [Desktop connector boundary](https://support.claude.com/en/articles/11725091-when-to-use-desktop-and-web-connectors), [local MCP extension](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop).
-
-A Claude Code project/user custom subagent can scope an inline `mcpServers` definition to the child, keeping unneeded tool descriptions out of the parent context; plugin-shipped agent definitions do not necessarily honor that field. Inspect the MCP tools directly exposed to a Desktop Agent Session and use only those needed and authorized for its released slice. [Anthropic: subagent MCP scope](https://code.claude.com/docs/en/sub-agents).
-
-## Related concepts
-
-- [Coding Session Model](session-model.md) — locate Session semantics and affinity.
-- [Coding Session Role Ownership](session-role-ownership.md) — locate role responsibility ownership.
-- [Coding Context Exchange](../context-exchange/context-exchange.md) — locate Memory context transport.
-- [Coding Delegation State Record](../delegation/delegation-state-record.md) — locate task-control state ownership.
-- [Coding Execution Control](../execution-control/execution-control.md) — locate bounded stage and slice ownership.
+- [Coding Session Model](session-model.md) — 定位 Session 语义和 Affinity。
+- [Coding Session Role Ownership](session-role-ownership.md) — 定位职责责任归属。
+- [Coding Context Exchange](../context-exchange/context-exchange.md) — 定位 Memory 上下文传输。
+- [Coding Delegation State Record](../delegation/delegation-state-record.md) — 定位任务控制状态归属。
+- [Coding Execution Control](../execution-control/execution-control.md) — 定位有界阶段和 slice 归属。

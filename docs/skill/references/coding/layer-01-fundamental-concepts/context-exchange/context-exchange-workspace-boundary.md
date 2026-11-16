@@ -1,32 +1,27 @@
-# Coding Context Exchange Workspace Boundary
+# Coding Context Exchange 工作区边界
 
-[English](context-exchange-workspace-boundary.md) | [简体中文](context-exchange-workspace-boundary_zh_cn.md)
 
-This owner defines logical naming and authorization for Agent-facing context records persisted as Serena project Memories. It does not define code-workspace filesystem permissions, capsule content, freshness, or handoff authorization.
+本文档定义以 Serena 项目 Memory 持久化的 Agent 上下文记录的逻辑命名和授权，不定义代码工作区文件系统权限、capsule 内容、新鲜度或 handoff 授权。
 
-## General rules
+## 通用规范
 
-### Memory names and logical ownership
+### Memory 名称与逻辑归属
 
-Use Serena project Memory names for context records. Under the default project data directory, names map beneath `.serena/memories/`, slash segments create subdirectories, and Serena adds `.md`; follow configured overrides. Preserve the former record layout in names: `context-exchange/INDEX`; `context-exchange/workers/<worker-context-id>/INDEX`; `context-exchange/workers/<worker-context-id>/content-memo`; and `context-exchange/context-bootstrap/MANIFEST`, `.../project-context`, and `.../policy-context`. Map other handoff/import records using their existing basenames and subdirectory intent.
+上下文记录使用 Serena 项目 Memory 名称。默认项目数据目录下，名称映射到 `.serena/memories/`，斜杠分段创建子目录，Serena 自动补 `.md`；配置覆盖时遵循配置。保留原记录布局作为名称：`context-exchange/INDEX`；`context-exchange/workers/<worker-context-id>/INDEX`；`context-exchange/workers/<worker-context-id>/content-memo`；以及 `context-exchange/context-bootstrap/MANIFEST`、`.../project-context`、`.../policy-context`。其他 handoff/import 记录沿用原 basename 和子目录意图映射。
 
-A memory name expresses logical ownership only. Serena does not provide Worker-level visibility isolation, read-only ACLs, or OS/RW/RO/DENY enforcement for Memory records. The tool may expose listed memories to any authorized Session. Agents must follow the released task's instructions about which names they may read or write, but neither the namespace nor Serena's project-wide patterns technically enforce that rule. Do not claim these records are protected by directories, `.gitignore`, worktrees, or filesystem permissions.
+Memory 名称只表示逻辑归属。Serena 不为 Memory 记录提供 Worker 级可见性隔离、只读 ACL 或 OS/RW/RO/DENY 强制。工具可能向任何获准 Session 暴露已列出的 Memory。Agent 必须遵守已放行任务对可读写名称的指令，但命名空间和 Serena 项目级模式都不会在技术上强制该规则。不得声称这些记录受目录、`.gitignore`、worktree 或文件系统权限保护。
 
-Keep source-code and authoritative repository-file access within their separately approved filesystem/tool boundaries. A Memory capsule may contain concise facts, exact authoritative source pointers, hashes, freshness, and scope; do not store full source documents as authoritative copies. Parent live mode/count/allocation/epoch state remains in its existing owner, not these memories. Secrets, full transcripts, and private reasoning remain prohibited.
+代码与权威仓库文件访问仍受各自单独批准的文件系统/工具边界约束。Memory capsule 可保存精简事实、准确权威来源指针、hash、新鲜度和范围；不得把来源全文作为权威副本存入 Memory。父级实时 mode/count/allocation/epoch 状态仍归其原 owner，不写入这些 Memory。秘密、完整 transcript 和私有推理仍禁止。
 
-If Serena Memory tools are unavailable, report the limitation and block work that depends on reading or writing the context record. Do not fall back to a file-backed copy. Independent work may continue.
+Serena Memory 工具不可用时，报告限制并阻塞依赖读取或写入该上下文记录的工作。不得回退为文件副本。独立工作可以继续。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-Use only Serena Memory tools exposed and authorized to the active Session. List and read named records before relying on them; write only the names authorized in the released task and confirm the result. Codex filesystem sandbox or worktree settings still govern source files, but do not create or imply per-Worker Memory isolation.
+Serena 是可选外部 MCP。需要 Memory 时，通过 Pi codemode 的 `searchTools`、`describeTool`、`describeNamespace` 核实实际工具与 schema，调用时检查 `isError`；hidden 工具不得绕过。确认真实项目绑定及 Memory Schema。Memory 名称、内容、持久化及禁止回退文件、授权隔离和边界均按通用规范；能力缺失只阻塞依赖项。Pi 的 `read`、`edit`、`write`、`bash` 可按授权直接访问文档，不代表 Serena Memory 能力。旧身份上下文不可伪造。
 
-## Claude Code CLI / Claude Desktop optimizations
+## 相关概念
 
-Use Serena Memory only when the active Agent Session exposes and authorizes the relevant MCP tools. Claude Code MCP Tool Search may defer tool definitions, so discover and verify the actual tools first. Claude auto memory, worktree isolation, and filesystem rules do not provide Serena Memory isolation. If unavailable, follow the general report/block rule.
-
-## Related concepts
-
-- [Coding Context Exchange](context-exchange.md) — locate capsule content and freshness rules.
-- [Coding Context Exchange Handoff](context-exchange-handoff.md) — locate handoff record content.
-- [Coding Session Context Firewall](../session-runtime/session-context-firewall.md) — locate bounded ingress rules.
-- [Coding Child Dispatch](../delegation/delegation-child-dispatch.md) — locate released-task authorization.
+- [Coding Context Exchange](context-exchange.md) — 定位 capsule 内容与新鲜度规则。
+- [Coding Context Exchange Handoff](context-exchange-handoff.md) — 定位 handoff 记录内容。
+- [Coding Session Context Firewall](../session-runtime/session-context-firewall.md) — 定位有界输入规则。
+- [Coding Child Dispatch](../delegation/delegation-child-dispatch.md) — 定位任务授权。

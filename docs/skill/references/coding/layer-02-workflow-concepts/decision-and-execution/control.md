@@ -1,29 +1,28 @@
-# Control Boundary Checkpoint
+# 控制边界检查点
 
-[English](control.md) | [简体中文](control_zh_cn.md)
 
-## Actions
+## 动作
 
-1. Consume the compressed Progress Signal from the Stage Feedback owner; append the current `Unreleased boundary` without creating a second progress report.
-2. Check whether the next action crosses an interface, schema, compatibility, security, risk, irreversible, scope, or external-effect boundary.
-3. If more evidence is required, request Evidence-on-Demand and **pause** release; return to this checkpoint after evidence arrives. This is an intermediate action, not a fourth final authorization outcome.
-4. Choose the final `Continue`, `Amend`, or `Stop` outcome. Only an explicit `Continue` releases the next slice within the approved envelope; `Amend` returns through Contract and Decision. In Single-Agent this is a logical pause; in Multi-Agent the parent controls release.
-   - A material change to the task record, authorization, scope, implementation, or relevant evidence invalidates any dependent earlier Control result. Re-evaluate Control from current authoritative facts before releasing or resuming a Slice.
+1. 消费 Stage Feedback owner 的压缩 Progress Signal，补充当前 `Unreleased boundary`，不额外生成第二份进度报告。
+2. 检查下一动作是否跨越接口、schema、兼容性、安全、风险、难以逆转修改、范围或外部影响边界。
+3. 需要更多证据时发出 Evidence-on-Demand，并**暂停**放行；取得证据后返回本检查点。这是中间动作，不是第四种最终授权结果。
+4. 最终只选择 `Continue`、`Amend` 或 `Stop`；只有明确的 `Continue` 才放行已批准范围内的下一 Slice，`Amend` 返回 Contract 与 Decision。单代理作为逻辑暂停；多代理由父级控制放行。
+   - 任务记录、授权、范围、实施或相关证据发生实质变化时，任何依赖该事实的先前 Control 结果都会失效。释放或恢复 Slice 前，必须依据当前权威事实重新评估 Control。
 
-5. If the route supplies advisory output, treat it only as input. Verify current Root state and direct Control owner, then make and persist the explicit outcome through the trusted transition; advice itself has no effect. Use current direct evidence to make the decision. Apply [Decisions Advisory](../../layer-01-fundamental-concepts/execution-planning/decisions-advisory.md) for advisory policy.
+5. 路线提供建议输出时，仅将其作为输入。核验当前 Root 状态和直接 Control owner，再通过可信转换作出并持久化显式结果；建议本身不产生效果。使用当前直接证据作出决定。建议政策遵循[Decisions 建议](../../layer-01-fundamental-concepts/execution-planning/decisions-advisory.md)。
 
-Apply [Task Plan Memory Lifecycle](../../layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md) to confirm current plan evidence and persistence, plus any verification the owner requires, before dependent release. On a user requirement change, record the instruction first, then analyze and persist the impact/revised proposal before resolving the affected Contract/Decision and authorizing changes. Required persistence or verification failure pauses affected release; plan text alone never authorizes it.
+应用[任务计划 Memory 生命周期](../../layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md)，在依赖释放前确认当前计划证据和持久化，以及 owner 要求的任何核验。用户需求变化时，先记录指令，再分析并持久化影响/修订提议，之后才解决受影响 Contract/Decision 并授权改动。必需持久化或核验失败暂停受影响释放；计划文字本身绝不构成授权。
 
-## Pass condition
+## 通过条件
 
-The next action is either released within the current envelope or is paused with the required amendment, evidence, capability, or authorization named.
+下一步要么已在当前范围内发布，要么已暂停并明确需要的修改、证据、能力或授权。
 
-## Boundary
+## 边界
 
-This checkpoint controls release and authority. It does not silently approve scope expansion, replace verification, or grant Git or external-effect authorization.
+本检查点控制发布和权限，不静默批准范围扩大，不替代验证，也不授予 Git 或外部影响授权。
 
-## Related concepts
+## 相关概念
 
-- [Coding Execution Control](../../layer-01-fundamental-concepts/execution-control/execution-control.md) — locate Interaction Slice and control-boundary ownership.
-- [Coding Execution Decision Gate](../../layer-01-fundamental-concepts/execution-planning/execution-decision-gate.md) — locate decision and release-condition ownership.
-- [Coding Delegation State Record Worker Boundary](../../layer-01-fundamental-concepts/delegation/delegation-worker-boundary.md) — locate parent-controlled Worker release boundaries.
+- [Coding Execution Control](../../layer-01-fundamental-concepts/execution-control/execution-control.md) — 定位 Interaction Slice 和控制边界归属。
+- [Coding Execution Decision Gate](../../layer-01-fundamental-concepts/execution-planning/execution-decision-gate.md) — 定位决策和放行条件归属。
+- [Coding Delegation State Record Worker Boundary](../../layer-01-fundamental-concepts/delegation/delegation-worker-boundary.md) — 定位父级控制的 Worker 放行边界。

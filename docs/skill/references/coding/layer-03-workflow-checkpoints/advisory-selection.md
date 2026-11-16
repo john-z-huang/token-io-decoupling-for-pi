@@ -1,26 +1,25 @@
-# Advisory selection
-
-[English](advisory-selection.md) | [简体中文](advisory-selection_zh_cn.md)
-
-This checkpoint owns stage-level applicability routing for optional advice.
+# 建议选择
 
 
-## Trigger and inputs
+本检查点负责可选建议在各阶段的适用性路由。
 
-Before Mode and Session pass and authorized Root context exists, record advice as `Not applicable`; use direct authoritative sources for task-intent/output classification. Advice cannot select or change the route selection result, reopen the Mode gate, or change locked mode/count. After authorized Root context exists, the Decision, Control, and Verification/Epoch stages consume only their relevant advice, respectively. Apply [Decisions Advisory](../layer-01-fundamental-concepts/execution-planning/decisions-advisory.md) and the current direct checkpoint owner; return each suggestion to its named stage for evidence-based review.
 
-## Decision and result
+## 触发与输入
 
-1. Before Mode, Session, and authorized Root context pass, record `Not applicable`; classify task intent and output from direct authoritative sources.
-2. At Decision, Control, and Verification/Epoch, assess optional advice only when enabled, eligible, relevant, and the current stage binding and Root authorization are verified.
-3. Record the typed suggestion, current policy/input/context hashes, freshness result, and direct-owner comparison. Return it to that stage for a decision from authoritative owners and current evidence.
-4. Keep Task Assignment, Output Token Routing, and role-reservation advice outside this five-node opt-in gate; their owners control those decisions independently.
-5. Return the reviewed suggestion or `Not applicable` and reason to route scheduling; advice never authorizes work or replaces a pass condition.
+Mode 和 Session 通过且存在获授权 Root 上下文前，建议记为 `Not applicable`；任务意图/输出分类使用直接权威来源。建议不能选择或改变路线选择结果，不能重开 Mode gate 或改变已锁定 mode/count。存在获授权 Root 上下文后，Decision、Control 和 Verification/Epoch 阶段分别只消费与自身相关的建议。应用[Decisions Advisory](../layer-01-fundamental-concepts/execution-planning/decisions-advisory.md)和当前直接检查点 owner；将每条建议返回指定阶段进行基于证据的审阅。
 
-## Failure boundary
+## 决策与结果
 
-Stale, unavailable, malformed, or failed advice falls back to direct owner review only when required facts remain sufficient; otherwise block. Do not make external advice calls mandatory or retry around opt-in/authorization limits.
+1. Mode、Session 和已授权 Root 上下文通过前，记录 `Not applicable`；任务意图和输出分类使用直接权威来源。
+2. 在 Decision、Control 和 Verification/Epoch 阶段，仅当建议已启用、符合条件、相关，且当前阶段绑定和 Root 授权已核实时，才评估可选建议。
+3. 记录类型化建议、当前政策/输入/上下文 Hash、新鲜度结果及与直接 owner 的比较。将建议返回该阶段，并依据权威 owner 和当前证据决策。
+4. Task Assignment、Output Token Routing 和角色预留建议不属于这五节点 opt-in 门禁；其 owner 独立控制这些决策。
+5. 向路线调度返回已审阅建议或附理由的 `Not applicable`；建议不授权工作，也不替代通过条件。
 
-## Related concepts
+## 失败边界
 
-- [Decisions Advisory](../layer-01-fundamental-concepts/execution-planning/decisions-advisory.md)
+建议过期、不可用、格式错误或调用失败时，仅当必需事实仍充分时才回退到直接 owner 审查，否则阻塞。不得把外部建议调用变成强制要求，也不得绕过 opt-in/授权限制重试。
+
+## 相关概念
+
+- [Decisions 建议](../layer-01-fundamental-concepts/execution-planning/decisions-advisory.md)

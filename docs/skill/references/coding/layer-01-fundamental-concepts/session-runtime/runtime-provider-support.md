@@ -1,123 +1,67 @@
-# Coding Runtime and Model Provider Support
+# Pi Coding Agent 运行时与能力边界
 
-[English](runtime-provider-support.md) | [简体中文](runtime-provider-support_zh_cn.md)
+本文档负责本 Skill 在 Pi Coding Agent 中的运行时事实、工具可达性，以及模型与子代理控制的能力边界。它不再维护多产品运行环境分支或跨产品模型 Profile；不选择任务模式、不创建 Session，也不授予操作权限。保留现有文件路径供调用方引用。
 
-This module owns the supported runtime branches, their identifying evidence, and branch-specific model controls and profile bindings. It does not choose the task mode, create Sessions, or treat a model name alone as proof of the runtime.
+## 通用规范
 
-## General rules
+### 单一运行时目标
 
-### Supported runtime branches
+本 Skill 的目标运行时是 Pi Coding Agent。以当前会话明确的宿主元数据和实际暴露的工具为依据，不再要求用户从多个产品中选择运行环境，也不以模型名称、某个工具名或本地 Shell 推断宿主身份。元数据缺失或相互冲突时，记录具体缺口，只暂停依赖该事实的操作；不要使用旧的多产品分类问卷。
 
-- **Local Codex**: the task exposes local filesystem/shell or worktree capabilities and Codex Agent tools.
-- **Local Claude Code**: the task explicitly exposes a Claude Code Session together with local filesystem/shell or worktree capabilities.
-- **ChatGPT Work**: the task exposes Work Sessions/connectors/files, but local execution is not implied.
-- **Standard ChatGPT**: do not assume local execution or independent Sessions unless explicitly exposed.
+能力存在、操作授权和任务模式是独立条件。工具可调用不代表获准调用；用户批准多代理模式也不代表存在子代理扩展。保留真实的身份、角色、路径、权限和操作守卫检查。
 
-If the available metadata cannot distinguish these branches, use this exact fallback question: `I cannot determine the current runtime environment from the available metadata. In your next instruction, explicitly state whether it is "local Codex", "local Claude Code", "ChatGPT Work", or "standard ChatGPT", then resume.`
+### 模型与 API 请求相互独立
 
-### Desktop sessions and exposed tools
+沿用用户为 Pi 选择的模型与设置，不按职责强制指定模型系列、固定 thinking 档位或升级阶梯。只有当前任务明确要求某个模型能力或设置时，才核实与该要求直接相关的事实；不要读取凭据或遍历无关配置。没有设置观察工具不单独阻塞不依赖该设置的普通工作。
 
-For ChatGPT Desktop and Claude Desktop, use only tools, commands, or APIs directly exposed and authorized for the current Agent Session. Identify the active runtime and its capabilities from Session metadata and the exposed tool inventory. If a necessary step is only available through a channel that repository instructions prohibit, stop the Skill task and report the blocker; do not route the step through an adapter or helper. When an optional capability is absent, block only the dependent route or slice.
+Pi 会话模型、子代理扩展使用的模型，以及 MCP Tools 内部调用的 OpenAI API 模型是三个独立边界。不得把其中一个模型的能力或参数套用到另外两个，也不得以本页为由修改全局配置。
 
-### Multi-Agent child effort decision
+MCP Tools 继续通过 OpenAI API 完成其既有分析、生成和决策工作。真实请求仍须显式使用进程中非空的 `OPENAI_API_KEY` 和 `OPENAI_BASE_URL`，并遵守工具既有的固定 API 模型 `gpt-6-luna`、出站授权、输入范围与失败边界。这不要求 Pi 会话或子代理使用同名模型，也不授权输出凭据或发起额外请求。
 
-Before each new Child creation, provide current facts for the exact released slice: assigned role; objective; concrete task complexity evidence; scope and component interactions; dependencies; uncertainty; risk/impact; verification demands; and relevant prior failure evidence (write `none` when absent). Include the stable slice identity and use a parent-computed current-slice fingerprint or equivalent current-slice evidence where the runtime exposes it. The complexity label summarizes these facts and never replaces them. Select the lowest effort supported by the verified runtime and model that is adequate for the facts; do not require a lower effort to fail first. If evidence is insufficient or no offered supported effort is adequate, block creation instead of forcing the highest available choice. Immediately before creation, verify any returned fingerprint remains current and any canonical decision input hash matches the complete reviewed facts. A selected effort is advisory input only; creation still requires all existing gates and effective runtime precedence checks.
+### 不可用能力与禁止操作
 
-## Codex CLI / ChatGPT Desktop optimizations
+区分必需能力、可选优化和尚未迁移的工具契约。必需能力缺失时，报告证据并暂停依赖的 Slice；可选优化缺失时记录 `Not applicable`，按获准的基本路径继续。不得伪造参数、身份、工具结果或能力证据，也不得绕过实际拒绝或权限失败。
 
-- On Local Codex, use the exposed model/Session controls and restart after changing global instructions, overrides, the Skill, or repository instructions.
+禁止 Computer Use，包括 GUI 截图定位、点击、模拟鼠标／键盘、辅助功能与窗口自动化，以及经 Shell、MCP、辅助进程或子代理包装的同类操作。必需步骤只有被禁止的路线可执行时，立即停止当前 Skill 任务并报告具体阻塞与未完成工作；不得委派、静默跳过或假设存在替代能力。
 
-### Local Codex independent-Session model profile
+## Pi Coding Agent 优化指令
 
-For independent role assignments on Local Codex, these are required bindings, not product-wide availability claims:
+### 渐进加载与工具调用
 
-| Role | Model |
-| --- | --- |
-| Primary Output | `gpt-6-luna` |
-| Change Verification | `gpt-6-luna` |
-| Documentation/Comments & Git Operations | `gpt-6-luna` |
-| Context Bootstrap/Refresh | `gpt-6-luna` |
+- Pi 默认提供 `read`、`bash`、`edit`、`write`，但当前会话可配置不同工具集；以实际声明为准。读取指令和代码只取当前步骤需要的范围，修改已有文件优先使用精确编辑。
+- Skill 以 `SKILL.md` 为入口，引用路径相对 Skill 所在目录解析。只加载当前步骤所需 owner，不预读整个引用目录。
+- MCP 工具未直接声明不等于不可用。当前暴露 `codemode` 时，用 `searchTools` 定位相关工具、用 `describeTool` 核对 Schema、用 `describeNamespace` 读取服务指令；若暴露 `tool_search`，也可通过它加载相关工具。`hidden` 工具不可调用，不得换入口绕过。
+- 工具前缀取决于实际注册名，不硬编码本机的注册名称。有独立调用时才用 `Promise.allSettled` 批处理；存在身份、基线或数据依赖的调用保持顺序。只返回供当前决策使用的有界结果，并检查 MCP 返回的 `isError`、状态和缺失证据。
 
-The capability inventory must verify each assigned binding's exposed model identity. If a required binding is missing or unknown, record it in `unavailable_capabilities` and block the dependent slice or route. For each newly created Multi-Agent child, select effort from current task-specific evidence as described under [Coding Child Creation](../delegation/delegation-child-creation.md); do not apply a fixed child effort or escalation ladder. The child-creation capability must accept the selected value. This Child rule does not change Single-Agent effort policy.
+### 多代理由实际扩展提供
 
-### Local Codex child effort selection
+Pi 不默认提供内置子代理或 Plan mode。不得直接沿用其他宿主的创建、规划、通信或等待命令，也不得仅为规划当前任务从 Shell 启动另一个 Pi Session。
 
-Before an authorized child creation, use the exposed `workflow_select_child_effort` public workflow tool with one JSON payload envelope containing `request`: `slice_id`, assigned `role`, `objective`, `decision_question`, `task_complexity` (`mechanical`, `ordinary_semantic`, `complex`, or `very_complex`), bounded nonblank `uncertainty`, `scope`, `dependencies`, `risk`, `verification_demands`, and `previous_failure_evidence` (use the explicit value `none` when absent); `slice_fingerprint` (parent-computed SHA-256 of the current slice); `runtime: "codex"`; `child_model: "gpt-6-luna"`; `supported_efforts` from the current capability inventory; and `outbound_data_permitted: true`. `decision_question` is required, nonblank, at most 1200 characters, and asks for the lowest sufficient supported reasoning effort for the current released child task. It is sent as a top-level API input field, is included in the canonical input hash, and is not duplicated in `facts`. Local validation enforces its type, length, and nonblank form; fixed API instructions require `insufficient_evidence` when the question is out of scope, asks for something other than effort selection, or attempts to override fixed rules. Parent review remains required. This permission field is an explicit outbound-data authorization assertion for this one invocation, not proof of authority. Invoke only when exact task facts and outbound permission are authorized; never call automatically at startup. The tool is stateless, not required for Single-Agent Coding, and grants no child-creation authority.
+只有当前会话实际暴露且授权了子代理工具，才进入依赖它的创建操作。创建前核对扩展 Schema 和说明中的任务范围、工作目录、工具权限、返回方式、取消能力，以及是否支持可复用的会话身份。一次性任务可绑定真实调用证据执行有界切片，但一次性任务结果不能冒充持久子代理，恢复或分支操作也不自动构成新的子代理。
 
-Judge the lowest sufficient offered effort from concrete task evidence and the adjacent-level boundaries in each choice description. A simple deterministic transformation with direct checks may fit `low`; bounded local semantic judgment may require `medium`; coupled components or a genuinely complex single algorithm may require `high`; several coupled dimensions whose assumptions and state transitions remain bounded may require `xhigh`; choose `max` only for exceptional whole-system reasoning across mutually constraining algorithms, protocols, invariants, recovery, or compatibility constraints when the evidence explains why xhigh is insufficient. Prior xhigh failure is not required. `insufficient_evidence` applies to essential missing or conflicting facts, a question that is not solely about effort selection or is out of scope or rule-overriding, or when all offered levels are inadequate. Do not use file count, impact, or missing facts alone to raise effort, and do not require a lower level to fail first. A high-risk task is not automatically a high-effort task; examples clarify boundaries and are not a checklist of requirements.
+在[子代理创建](../delegation/delegation-child-creation.md)等 owner 的通用授权、角色、数量和 Slice 条件通过后，仅使用扩展真实接受的字段。扩展没有持久身份、续接、消息或等待能力时，不得声称具备它们；当前任务确实依赖该能力时暂停对应分支。这些文档约定不证明 MCP Server 已完成 Pi 迁移；不得调用不适用的身份契约。
 
-The exposed Codex `spawn_agent` creation control accepts `model` and `reasoning_effort` on a non-fork child creation (`fork_turns: "none"`). Set the selected value there and resolve any applicable custom profile precedence; a custom profile may supersede spawn/default/inherited choices. If the active control cannot accept the value or effective precedence cannot be established, block creation.
+### thinking 与子代理设置
 
-The tool offers only effort values that pass its local runtime/model ceiling and intersect the supplied supported set, plus `insufficient_evidence`. It reads `OPENAI_API_KEY` and `OPENAI_BASE_URL` at invocation time and explicitly uses both with the exact API model `gpt-6-luna`; callers cannot override credentials, endpoint, or API model. Do not substitute another API model, endpoint, or a fixed effort if configuration is missing, the response is refused or invalid, evidence is insufficient, or the service fails. Use only `status: available`; compare the echoed `slice_fingerprint` with the current slice and the returned server-computed `input_hash` with the canonical hash of the full submitted decision facts. Recheck that the selected effort remains supported by the effective child model and runtime precedence. Otherwise block creation. No reasoning parameter is sent to the Decisions request.
+Pi 使用的 thinking 控制不等于任意扩展的 effort 参数。只在用户授权和当前工具实际支持时应用设置，并确认扩展接受的值；运行时可能按模型能力收窄档位，不把请求值当作已生效值。不要求子代理自行检查或汇报其模型设置。
 
-### Bounded recovery for the stateless selector
+为获准的新子代理选择可选 thinking 设置时，依据已放行任务的目标、职责、复杂度、范围与依赖、风险、不确定性、验证要求和相关失败事实，在实际受支持的值中选择足够的设置；不按文件数量或角色机械升档。缺少可选设置控制时沿用扩展默认值并记录限制；任务明确要求的设置无法落实时暂停创建，不虚构控制或改用其他模型。
 
-The selector makes one API request per invocation; the SDK does not retry. A blocked result preserves its original status, reason, and hashes, and may include `recovery`. Only `recovery.retry_eligible: true` is a candidate for an optional caller-decided repeat, after rechecking that task authorization remains valid, the request hash and slice fingerprint still match, and no result or side effect needs review. The caller tracks at most three total calls in one recovery process, including the first; the service has no cross-call attempt counter and makes no second request. `recovery: null` means no retry guidance is present. Authentication, authorization, configuration, quota, unknown errors, refusal, invalid response, and insufficient evidence are not retry candidates. Correct the prerequisite or review/correct evidence. Only a successful `available` result can be considered for child creation after all current gates pass.
+`workflow_select_child_effort` 当前尚未完成 Pi 输入契约迁移，本页不指示 Pi 调用它。将此优化记录为 `Not applicable`；不得伪造它要求的运行时或子模型字段。后续工具迁移必须同步更新 Schema、能力报告、描述和测试，再恢复此调用。该限制不影响其他满足契约的 API 工具。
 
-To reproduce `input_hash`, use the validated request object after JSON-mode normalization, excluding only `outbound_data_permitted` and `slice_fingerprint`, then compute SHA-256 over UTF-8 `json.dumps(request, sort_keys=True, ensure_ascii=False, separators=(",", ":"))`. Compare it with the same canonical decision facts; `slice_fingerprint` is a separate freshness token and must not be compared to `input_hash`.
+### 加载更新与能力复核
 
-### Codex instruction-loading correspondence
+Skill 修改后由用户通过 `/reload` 重新加载；不能从 Shell 模拟交互命令。若当前 Agent 没有暴露的重载控制，说明需用户重载或新建会话，不声称磁盘修改已替换当前会话加载的指令。MCP 或扩展更新后，也须根据实际连接与工具清单核对生效状态。
 
-Codex natively discovers `AGENTS.md` along its instruction hierarchy; do not create a `CLAUDE.md` copy or require Claude Code's `@AGENTS.md` import for Codex. After an authorized instruction change, verify the running Session actually loaded the current instructions or restart it; a child-status view is not proof of instruction freshness. [OpenAI: AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md).
+Pi 的用户级 MCP 配置为 `~/.pi/agent/mcp.json`，项目级为 `.pi/mcp.json`，项目配置受信任条件约束。这里只说明配置归属，不授权读取敏感值、安装服务或修改配置。使用前仍须核对服务实际连接、工具契约和操作权限；宿主支持 MCP 不代表本项目 Server 的 Pi 接入已经完成。
 
-### Desktop runtime identification
+## 相关概念
 
-ChatGPT Desktop can host **Chat**, **Work**, and **Codex** Sessions. Use Session metadata and exposed tools to identify the active runtime before treating it as local Codex: Work has its own hosted Agent workflows, and a Chat or Work Session does not imply a local shell or a child of a project-bound Codex Session. A quick Codex Session is not automatically bound to the project. In Remote sessions, the repository remains on the connected host. [OpenAI: desktop experiences](https://learn.chatgpt.com/docs/use-chatgpt), [OpenAI: subagent availability](https://learn.chatgpt.com/docs/agent-configuration/subagents), [OpenAI: worktree host](https://learn.chatgpt.com/docs/environments/git-worktrees).
-
-### Effective local configuration
-
-Codex CLI, IDE, and Codex in the ChatGPT desktop app can share the active host's `~/.codex/config.toml` and trusted project `.codex/config.toml`; project-local config, rules, and hooks are skipped for an untrusted project. Several config layers can apply at once — session flags and CLI overrides, trusted project `.codex/config.toml` files, the selected profile, user `~/.codex/config.toml`, managed policy such as system config, MDM, or delivered organization requirements, plugins, and packaged defaults — and the host decides their effective precedence rather than the order in which they are named here. Resolve the active value from the running Session instead of assuming a fixed order: in a CLI Session that exposes them, run `/status` to inspect the active model, approval policy, and writable roots, then `/debug-config`, which prints the config-layer stack in precedence order together with the active requirements and policy sources. If these commands are unavailable, use only settings and metadata directly exposed to the current Session; mark hidden layers unavailable instead of guessing. A spawned subagent also inherits the parent turn's live permission/sandbox overrides. Check `AGENTS.override.md`, nested instruction precedence and `project_doc_max_bytes` before claiming a large instruction file loaded in full. These checks do not change this Skill's fixed role-model profile. [OpenAI: config precedence](https://learn.chatgpt.com/docs/config-file/config-basic), [OpenAI: inspect settings](https://learn.chatgpt.com/docs/developer-settings), [OpenAI: instruction discovery](https://learn.chatgpt.com/docs/agent-configuration/agents-md), [OpenAI: child overrides](https://learn.chatgpt.com/docs/agent-configuration/subagents).
-
-## Claude Code CLI / Claude Desktop optimizations
-
-### Local Claude Code model selection
-
-Use only the `sonnet` and `haiku` aliases, or verified model identifiers in the `claude-sonnet-*` and `claude-haiku-*` families. Before using an active Session or launching an Agent, confirm the effective model resolves to one of these families. Never launch an Agent with `claude-opus-*`, an Opus alias, or any model above or outside the Sonnet/Haiku families. Do not use an unresolved default, inherited model, or fallback as a substitute for this check.
-
-- **Single-Agent Coding:** keep one active model for all logical phases. Use Sonnet for material coding, decisions, repair, or verification; Haiku is allowed for simple, bounded, mechanically checkable work. If the active model is ineligible or insufficient for the task and an allowed switch is unavailable, block the dependent work rather than continuing on that model.
-- **Multi-Agent Coding, only after its mode and capability gates release it:** assign Sonnet to Primary Output, Change Verification, Documentation/Comments & Git Operations, and Context Bootstrap. Assign Haiku only to a deterministic Context Refresh; use Sonnet when the refresh requires semantic judgment. Confirm each Agent's effective model before launch. These bindings do not authorize creating independent Sessions or changing the locked child count.
-
-For Claude Code, confirm whether the selected model exposes an effort parameter. Haiku does not support one; do not set or claim one for Haiku.
-
-| Role | Model |
-| --- | --- |
-| Primary Output | `sonnet` |
-| Change Verification | `sonnet` |
-| Documentation/Comments & Git Operations | `sonnet` |
-| Context Bootstrap/Refresh | `sonnet` |
-| Deterministic Context Refresh only | `haiku` (no effort parameter) |
-
-For newly created Multi-Agent children, use the verified task facts from the General rules to choose effort through an actually supported Claude Code child-creation control. The Codex-only MCP Decisions selector is unavailable in Claude Code; record that optional optimization as `Not applicable` and do not invoke it. This replaces fixed CHILD effort defaults and escalation ladders. Apply only levels supported by the verified Sonnet model and current capability; the creation mechanism must accept the selected effort. Resolve effective runtime precedence before launch. If the assigned model genuinely has no effort parameter, record `Not applicable` with the reason. This profile excludes `xhigh`; do not widen the offered set. If the required effort cannot be applied or established, block creation.
-
-For Single-Agent Coding, retain the current Sonnet `medium` rule and its affected-slice escalation policy. A Haiku-only Single-Agent task must remain simple, bounded, and mechanically checkable; it has no effort control. Verify the effective model and effort before relying on that binding, including any organization cap or inherited setting. Raise only the affected Sonnet slice to `high` for concrete complexity or repeated failure/blockage, then restore `medium`. Use `max` only if `high` was insufficient and repeated failure/blockage continues, and only when the active Sonnet model exposes `max`; then restore `medium`. Do not select `xhigh` or `ultracode` in the Single-Agent profile. If the required model or supported effort binding is missing or cannot be verified, record it in `unavailable_capabilities` and block the dependent slice or route; do not switch to Opus or a higher model.
-
-After changing `CLAUDE.md`, this Skill, or an agent definition, start a new Claude Code session if the current session cannot prove it loaded the changed instructions; `/tasks` and `/agents` do not establish that proof.
-
-### Claude MCP transport replay boundary
-
-When a tool is marked safe with `readOnlyHint` or `idempotentHint`, Claude Code can repeat one unanswered call on a new connection for an HTTP server or a `claude.ai` connector. This transport replay does not apply to stdio or WebSocket clients and is not an application API retry or authority to create a child. The [Codex CLI MCP documentation](https://learn.chatgpt.com/docs/extend/mcp?surface=cli) documents local stdio and HTTP connections but does not specify an equivalent annotation-driven replay; do not assume that behavior for Codex CLI. The Codex-only effort selector remains `Not applicable` in Claude Code.
-
-### Claude Code Plan-mode startup and Session boundary
-
-`claude --permission-mode plan` selects read-only Plan mode **when launching a new Claude Code CLI Session**. It is not a command for switching an already running Parent or Worker Session into Plan mode: do not invoke it from the active Session's shell merely to plan the current slice. For an existing Session, use only a Plan-mode control actually exposed and authorized within that same Session; if none exists, follow the general bounded planning and decision process without claiming Plan-mode protection. A separately launched CLI Session is not the recorded Parent or an allocated Child and does not inherit this Skill's locked mode/count, released Interaction Slice, or live task record by virtue of its launch flags. Plan-mode tool permissions do not authorize implementation or change the Skill's Contract and release gates. [Anthropic: CLI permission mode](https://code.claude.com/docs/en/cli-reference), [Anthropic: Plan mode](https://code.claude.com/docs/en/common-workflows).
-
-### Claude Desktop connectors and tool inventory
-
-Claude Desktop Sessions can expose Claude Code capabilities, remote connectors, or local MCP tools; the app identity alone does not establish which are available. Use `Agent`, `SendMessage`, `/tasks`, shell, or hooks only when the current Session directly exposes them. For hosted resources, call an authorized remote connector; for machine-local resources, use an authorized local MCP/desktop-extension tool. Check the exposed tool's read/write scope before use. A connector provides data or actions, not an independent Coding Session, a parent-controlled Agent identity, or a locked child slot. If a required capability is absent, record it and block the dependent route or slice.
-
-Claude Desktop can load local MCP definitions from `claude_desktop_config.json`; the standalone CLI does not read that file automatically. Inspect the MCP tools exposed to each Session instead of assuming the Desktop and CLI tool inventories match. Do not treat CLI `--allowedTools` or `--disallowedTools` arguments as controls on a Desktop Session. [Anthropic: Desktop local MCP](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop), [Anthropic: remote connectors](https://support.claude.com/en/articles/11725091-when-to-use-desktop-and-web-connectors).
-
-### Claude Code instruction loading
-
-In Claude Code, project instructions are loaded from `CLAUDE.md`. When a repository's canonical rules live in `AGENTS.md`, an authorized `CLAUDE.md` can import them with `@AGENTS.md` instead of copying their policy. Use `/context` to inspect loaded memory/instruction files; neither this view nor `CLAUDE.md` is the live parent mode/count record. A remote Desktop MCP connector executes through Anthropic's infrastructure, not through the desktop's localhost, so verify its actual network reachability and permissions. [Anthropic: memory](https://code.claude.com/docs/en/memory), [Anthropic: remote MCP](https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp).
-
-## Related concepts
-
-- [Coding Session Model](session-model.md) — locate Single-Agent and Multi-Agent Session mapping.
-- [Coding Session Role Ownership](session-role-ownership.md) — locate role responsibilities.
-- [Coding Delegation Mode Confirmation](../delegation/delegation-mode-confirmation.md) — locate timed mode selection.
-- [Coding Child Creation](../delegation/delegation-child-creation.md) — locate runtime child-launch controls.
-- [Coding Child Reuse and Replacement](../delegation/delegation-child-reuse-replacement.md) — locate child follow-up controls.
-- [Coding Delegation State Record](../delegation/delegation-state-record.md) — locate the canonical parent record.
-- [Coding Child Lifecycle](../delegation/delegation-child-lifecycle.md) — locate runtime status observation.
-- [Coding Context Exchange Workspace Boundary](../context-exchange/context-exchange-workspace-boundary.md) — locate worktree and tool-scope controls.
+- [Session 模型](session-model.md) — 单代理与多代理的逻辑拓扑。
+- [Session 角色归属](session-role-ownership.md) — 职责与操作权限边界。
+- [模式确认](../delegation/delegation-mode-confirmation.md) — 模式选择与授权门禁。
+- [子代理创建](../delegation/delegation-child-creation.md) — 创建前的通用条件。
+- [子代理复用与替代](../delegation/delegation-child-reuse-replacement.md) — 仅在实际扩展支持时复用。
+- [委派状态记录](../delegation/delegation-state-record.md) — 父级维护的规范任务事实。
+- [子代理生命周期](../delegation/delegation-child-lifecycle.md) — 观察、返回与结束边界。
+- [上下文交换工作区边界](../context-exchange/context-exchange-workspace-boundary.md) — 工作目录、worktree 与文件范围。

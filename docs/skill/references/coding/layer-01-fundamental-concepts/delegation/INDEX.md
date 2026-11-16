@@ -1,8 +1,7 @@
-# Delegation Index
+# Delegation 索引
 
-[English](INDEX.md) | [简体中文](INDEX_zh_cn.md)
 
-## Owners
+## 所有者
 
 - [child-role-selection](child-role-selection.md)
 - [delegation-child-creation](delegation-child-creation.md)

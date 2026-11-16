@@ -1,8 +1,7 @@
-# Execution Planning Index
+# Execution Planning 索引
 
-[English](INDEX.md) | [简体中文](INDEX_zh_cn.md)
 
-## Owners
+## 所有者
 
 - [candidate-compliance](candidate-compliance.md)
 - [decision-context-generation](decision-context-generation.md)

@@ -1,44 +1,31 @@
 # Coding Execution Stage Feedback
 
-[English](execution-stage-feedback.md) | [简体中文](execution-stage-feedback_zh_cn.md)
 
-This module defines bounded stages, Progress Signals, and the stage-internal use of Decision Checkpoints. It does not define the Decision Brief, solution selection, Contract updates, Interaction Slice fields, role/session semantics, context transport, or delegation lifecycle.
+本文档定义有界阶段、Progress Signals 和阶段内使用 Decision Checkpoint 的方式。不定义 Decision Brief、方案选择、Contract 更新、Interaction Slice 字段、角色/Session 语义、上下文传输或委派生命周期。
 
-## General rules
+## 通用规范
 
-### Bounded stages
+### 有界阶段
 
-For high-uncertainty work, predeclare a short sequence of evidence-producing stages. Each stage ends at an observation or decision boundary, not a command list.
+对于高不确定性工作，预先声明一组短小、能够产出证据的阶段。每个阶段以观察结果或决策边界结束，而不是命令列表。
 
-### Progress Signals and stage feedback
+### Progress Signals 与阶段反馈
 
-At a declared stage boundary, return only the compressed progress signals needed for the next decision: material status, findings, changed scope, verification, issue, and need. Update the parent record by delta when evidence or status changes; do not repeat unchanged progress or rewrite stable state. Keep ordinary reads, local edits, formatter/lint fixes, straightforward test repairs, and repeated compile/test cycles inside the approved stage. Do not add checkpoints or execution slices merely to report low-value mechanics. Apply [session audit visibility](../session-runtime/session-audit-visibility.md) summary cadence while retaining required stage feedback.
+在声明的阶段边界，只返回下一步决策所需的压缩进度信号：实质状态、发现、变更范围、验证、问题和所需动作。有新证据或状态变化时才增量更新父级记录；不要重复汇报无变化进度或重写稳定状态。普通读取、局部编辑、formatter/lint 修复、直接测试修复和重复 compile/test 循环留在已批准阶段内。不要仅为了汇报低价值机械步骤增加 checkpoint 或执行 slice。应用[会话审计可见性](../session-runtime/session-audit-visibility.md)摘要频率，同时保留必需阶段反馈。
 
-When stage evidence shows that the next stage depends on high-value judgment, route the signal to the Decision Gate. The Decision Gate owns solution selection and Contract updates; this module does not restate those policies.
+如果阶段证据显示下一阶段依赖高价值判断，应将信号交给 Decision Gate。Decision Gate 负责方案选择和 Contract 更新；本文档不重复这些策略。
 
-### Shared-plan evidence for feedback
+### 反馈使用的共享计划证据
 
-Apply [Task Plan Memory Lifecycle](../execution-planning/task-plan-memory-lifecycle.md) when feedback uses shared-plan evidence: record material progress and sourced facts at its applicable phase, handoff, pause, or completion boundaries, through the authorized current record writer or released contribution path. Ordinary progress reports and checks or repairs within a phase do not independently trigger persistence or full readback. Record and analyze facts affecting authorization, scope, acceptance, direction, or dependent actions before those actions. Feedback carries the exact plan identity, persistence confirmation, and any owner-required verification evidence; it does not duplicate the full plan or change release authority. A missing required access, failed persistence, or failed required verification pauses the dependent boundary; only a documented persistence restriction permits the owner's exception.
+反馈使用共享计划证据时，应用[任务计划 Memory 生命周期](../execution-planning/task-plan-memory-lifecycle.md)：在该 owner 规定的阶段、交接、暂停或完成边界，通过获准的当前记录者或已释放贡献路径记录实质进展和带来源事实。普通进度汇报及阶段内的检查或修复，不单独触发持久化或全文读回。影响授权、范围、验收、方向或依赖动作的事实，仍须在受影响动作前记录并分析。反馈携带准确计划身份、持久化确认及 owner 要求的核验证据，不重复全文或改变释放权。缺少必需访问、持久化失败或必需核验失败时，暂停受影响边界；仅已记录的持久化限制可使用该 owner 的例外。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-A configured Codex `PostToolUse` or `SubagentStop` hook can supply observed tool or child results for the parent's compressed Progress Signal, while `PreCompact` can mark a pending context-loss boundary. These optional events never prove semantic acceptance and must not trigger a full tool-log or transcript dump. [OpenAI: tool and lifecycle hooks](https://learn.chatgpt.com/docs/hooks).
+Pi 没有内置 Plan、subagent 或持久子代理消息机制；不得将工具/会话行为描述成这些能力。按通用 Slice、阶段反馈及授权边界执行；使用当前实际可用的工具结果作为证据，不以 Hook 或宿主特性替代语义判断。
 
-An exposed Codex `/diff`, file/diff tool, `/agent`, or child-result tool can locate changed files, lines, and the producing Worker at a stage boundary. Return a compact Progress Signal with changed paths, actual checks, blocker and source pointers. When available, `/review` produces **review findings of a diff**, but only a truly separate authorized verifier context can satisfy any required independent-agent verification. [OpenAI: diff and review](https://learn.chatgpt.com/docs/code-review), [OpenAI: CLI commands](https://learn.chatgpt.com/docs/developer-commands), [OpenAI: subagent threads](https://learn.chatgpt.com/docs/agent-configuration/subagents).
+## 相关概念
 
-## Claude Code CLI / Claude Desktop optimizations
-
-### Hook-assisted compact stage evidence
-
-For a persistent Claude Code child, `SubagentStop` exposes `last_assistant_message`, allowing the parent to consume a short stage result without replaying the child transcript. When a tool execution itself fails, `PostToolUseFailure` can expose its error information for the executor to report at the *existing* stage boundary; do not convert every failed command into a new high-value decision checkpoint. Neither event substitutes for explicit progress evidence, final verification, or the parent Control choice. Use native Hooks only where installed in the current Claude Code runtime, not in an unrelated Desktop Chat conversation.
-
-Official reference: [SubagentStop and PostToolUseFailure event data](https://code.claude.com/docs/en/hooks).
-
-A configured `PostToolUse` can provide actual tool outcomes at a stage boundary but cannot replace the compressed Progress Signal. A diff tool result is evidence of changed lines, not proof of tests or independent verification. [Anthropic: hooks](https://code.claude.com/docs/en/hooks).
-
-## Related concepts
-
-- [Coding Execution Control](execution-control.md) — locate Interaction Slice boundaries.
-- [Coding Execution Planning](../execution-planning/execution-planning.md) — locate bounded plan and stage outline ownership.
-- [Coding Execution Decision Gate](../execution-planning/execution-decision-gate.md) — locate high-value decision conditions.
-- [Coding Session Audit Visibility](../session-runtime/session-audit-visibility.md) — locate summary cadence.
+- [Coding Execution Control](execution-control.md) — 定位 Interaction Slice 边界。
+- [Coding Execution Planning](../execution-planning/execution-planning.md) — 定位有界计划和阶段提纲归属。
+- [Coding Execution Decision Gate](../execution-planning/execution-decision-gate.md) — 定位高价值决策条件。
+- [Coding Session 审计可见性](../session-runtime/session-audit-visibility.md) — 定位摘要频率。

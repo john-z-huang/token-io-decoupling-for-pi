@@ -1,13 +1,12 @@
 # Decision And Execution
 
-[English](README.md) | [简体中文](README_zh_cn.md)
 
-## Scope and boundary
+## 范围与边界
 
-Generic decision, implementation, and control checkpoints. These owners define evidence and boundaries for an approved slice; semantic decision policy and route sequencing remain in their respective owners.
+通用决策、实现和控制检查点。这些所有者定义已批准切片的证据与边界；语义决策政策和路线顺序仍由各自所有者负责。
 
-## Entry
+## 入口
 
-Use Decision before a material implementation release, then Implementation and Control for the released slice.
+重大实现放行前使用决策检查点；切片放行后使用实现与控制检查点。
 
-[INDEX](INDEX.md)
+[索引](INDEX.md)

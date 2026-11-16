@@ -1,33 +1,32 @@
-# Coding Environment Capability Inventory
+# Coding 运行环境能力清单
 
-[English](environment-capability-inventory.md) | [简体中文](environment-capability-inventory_zh_cn.md)
 
-This module owns the capability inventory for an already-classified runtime environment: exposed capabilities, unknown capability handling, and dependent-route blocking. Branch definitions and model bindings belong to [Runtime and Model Provider Support](../../layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md). This module does not classify the environment, choose execution mode, bind roles, authorize delegation, authorize implementation, or define task policy.
+本文档负责当前运行环境的能力清单：暴露能力、未知能力处理和依赖路线阻断。运行时事实与设置边界由[运行时与能力边界](../../layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md)负责。本文档不选择运行环境，不选择执行模式，不绑定角色，不授权委派，不授权实现，也不定义任务策略。
 
-## Exposed capability inventory
+## 暴露能力清单
 
-Record only capabilities directly exposed by the current surface: model identity and parameter controls, Session topology, filesystem and sandbox access, tools, connectors, authentication, and any available return path for delegated work.
+只记录当前界面直接暴露的能力：模型身份和参数控制、Session 拓扑、文件系统与沙箱访问、工具、连接器、认证，以及委派工作可用的返回路径。
 
-## Unknown capability and route blocking
+## 未知能力和路线阻断
 
-Mark an unobserved capability as unknown. Do not substitute another runtime environment, model, parameter, Session, tool, permission, or inferred capability. Any required capability that is missing or unknown blocks the dependent slice.
+未观察到的能力标记为未知。不得替换成其他运行环境、模型、参数、Session、工具、权限或推断出的能力。所需能力缺失或未知时，阻塞依赖该能力的切片。
 
-## Protected operation capability
+## 受保护操作能力
 
-For each protected operation, record the current Session and role facts plus the actual capabilities and permission checks it requires, with evidence and scope. Application request scope or a public rule surface does not authenticate identity or prove authority. Missing required capability blocks only dependent work. This inventory does not authorize a protected call.
+针对每项受保护操作，记录当前 Session 和角色事实，以及该操作实际要求的能力和权限检查，并附上证据与范围。应用请求范围或公共规则接口不能认证身份或证明授权。必需能力缺失时，只阻塞依赖工作。本清单不授权受保护调用。
 
-## Route consumption
+## 路线消费
 
-Routes consume this inventory and state only for their topology-specific deltas. Apply branch-specific controls and model bindings from [Runtime and Model Provider Support](../../layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md).
+路线消费这份能力清单和状态，只记录各自拓扑差异。按[运行时与能力边界](../../layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md)核实当前实际可用的控制，不继承已取消的多产品模型绑定。
 
-A profile required by a route is a capability requirement, not a product-wide availability claim. A branch-specific route may consume that profile only after this inventory records the current surface's actual model identity and every parameter required by that profile. If a required model or parameter is not exposed or is unknown, record the requirement in `unavailable_capabilities` and block the dependent slice or route. Do not silently substitute a model, reasoning effort, Session, tool, permission, or mode/count; choosing a different route requires re-entering its applicable gate and obtaining new explicit confirmation. This keeps Core rules decoupled from product details while allowing a route to consume its required, surface-specific profile.
+路线所需的 profile 是能力要求，不是对整个产品可用性的声明。只有任务明确要求特定模型或参数时，才记录其实际生效证据并据此消费该 profile；没有这类要求时，不增加模型检查门禁。如果必需的模型或参数未暴露或未知，必须将该要求记录到 `unavailable_capabilities`，并阻塞依赖的切片或路线。不得静默替换模型、reasoning effort、Session、工具、权限或 mode/count；选择其他路线必须重新进入其适用门禁并取得新的明确确认。这使 Core 规则与产品细节解耦，同时允许路线消费其所需的、特定于 surface 的 profile。
 
-## Related concepts
+## 相关概念
 
-- [Coding Session Model](../../layer-01-fundamental-concepts/session-runtime/session-model.md) — locate Session topology ownership.
-- [Coding Session Role Ownership](../../layer-01-fundamental-concepts/session-runtime/session-role-ownership.md) — locate role responsibility ownership.
-- [Coding Context Exchange Workspace Boundary](../../layer-01-fundamental-concepts/context-exchange/context-exchange-workspace-boundary.md) — locate filesystem and worktree capability ownership.
-- [Coding Delegation Mode Confirmation](../../layer-01-fundamental-concepts/delegation/delegation-mode-confirmation.md) — locate mode-gate capability consumers.
-- [Coding Delegation Count Gate](../../layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.md) — locate count-gate capability consumers.
+- [Coding Session Model](../../layer-01-fundamental-concepts/session-runtime/session-model.md) — 定位 Session 拓扑归属。
+- [Coding Session Role Ownership](../../layer-01-fundamental-concepts/session-runtime/session-role-ownership.md) — 定位职责责任归属。
+- [Coding Context Exchange 工作区边界](../../layer-01-fundamental-concepts/context-exchange/context-exchange-workspace-boundary.md) — 定位文件系统和 worktree 能力归属。
+- [Coding Delegation Mode Confirmation](../../layer-01-fundamental-concepts/delegation/delegation-mode-confirmation.md) — 定位模式门禁能力消费者。
+- [Coding Delegation Count Gate](../../layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.md) — 定位数量门禁能力消费者。
 
-- [Workflow Navigation Availability](../../layer-01-fundamental-concepts/workflow-navigation/navigation-availability.md) — locate optional-navigation failure disposition.
+- [工作流导航可用性](../../layer-01-fundamental-concepts/workflow-navigation/navigation-availability.md) — 定位可选导航失败处置。

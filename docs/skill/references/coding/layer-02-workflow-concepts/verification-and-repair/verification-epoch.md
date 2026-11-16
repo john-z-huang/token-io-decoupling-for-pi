@@ -1,30 +1,29 @@
-# Verification Epoch Checkpoint
+# 验证 Epoch 检查点
 
-[English](verification-epoch.md) | [简体中文](verification-epoch_zh_cn.md)
 
-This checkpoint owns epoch invalidation by covered state dimension. A later change advances only the dimension whose verified coverage it changes; earlier evidence remains valid for unaffected dimensions. It does not define check contents, independent Sessions, result classification, or repair.
+本检查点负责按验证覆盖状态维度处理 epoch 失效。后续修改只推进其改变了验证覆盖范围的维度；未受影响维度的早期证据仍然有效。不定义检查内容、独立 Session、结果分类或修复。
 
-## Actions
+## 动作
 
-1. Track three dimensions: implementation/content, documentation, and Git metadata.
-2. Advance the implementation/content epoch when implementation, configuration, tests, or other content covered by product verification changes; invalidate earlier product verification for that changed content.
-3. Advance the documentation epoch when maintained documentation or comments change. Run the applicable Markdown, link, whitespace, multilingual, and scope checks. If the change alters executable content, the Contract, or acceptance conditions, also treat it as an implementation/content change and return to implementation Verification.
-4. Advance the Git metadata epoch when commit, branch, index, or history state changes. Do not advance the implementation/content or documentation epoch for Git metadata operations alone. Git state still requires the Git checkpoint to confirm that staged or committed content matches the latest verified fingerprints; content divergence or unverified content returns to the corresponding Verification epoch.
-5. Do not use evidence from an earlier epoch for an affected dimension; require the applicable checks or Verification for the new epoch.
+1. 跟踪三个维度：implementation/content、documentation 和 Git metadata。
+2. 当实现、配置、测试或其他被产品验证覆盖的内容发生变化时，推进 implementation/content epoch；该内容的早期产品验证失效。
+3. 当维护中的文档或注释发生变化时，推进 documentation epoch，并运行适用的 Markdown、链接、空白、多语言和范围检查。如果变化改动了可执行内容、Contract 或验收条件，还必须同时视为 implementation/content 变化，返回实现 Verification。
+4. 当 commit、branch、index 或 history 状态发生变化时，推进 Git metadata epoch。仅 Git metadata 操作不会推进 implementation/content 或 documentation epoch。但 Git 状态仍须经过 Git 检查点确认 staged 或 committed content 与最新验证指纹一致；内容发生差异或包含未验证内容时，返回对应的 Verification epoch。
+5. 不得将受影响维度的早期 epoch 证据用于当前状态；必须完成新 epoch 所需的检查或 Verification。
 
-6. If the route supplies verification-impact advisory output, treat it only as a coverage-dimension suggestion. Confirm candidate dimensions against current fingerprints and the direct owner; it is not a verification verdict and cannot waive checks or re-verification for changed dimensions. Determine required coverage from current evidence. Apply [Decisions Advisory](../../layer-01-fundamental-concepts/execution-planning/decisions-advisory.md) for advisory policy.
+6. 路线提供 verification-impact 建议输出时，仅将其视为覆盖维度建议。必须根据当前 fingerprint 和直接 owner 核验候选维度；它不是验证结论，不能免除变化维度所需的检查或重新验证。依据当前证据确定必需覆盖。建议政策遵循[Decisions 建议](../../layer-01-fundamental-concepts/execution-planning/decisions-advisory.md)。
 
-## Pass condition
+## 通过条件
 
-The latest applicable implementation/content, documentation, and Git metadata epochs are explicit, their required checks or Verification are queued or complete, and no affected dimension relies on stale evidence.
+最新的 implementation/content、documentation 和 Git metadata 适用 epoch 已明确，各自所需的检查或 Verification 已排队或完成，且没有任何受影响维度依赖过期证据。
 
-## Boundary
+## 边界
 
-This checkpoint does not capture fingerprints, choose checks, define independent verification, classify results, authorize repairs, write documentation, or perform Git effects.
+本检查点不捕获指纹，不选择检查，不定义独立验证，不分类结果，不授权修复，不写文档，也不产生 Git 影响。
 
-## Related concepts
+## 相关概念
 
-- [Coding Execution Control](../../layer-01-fundamental-concepts/execution-control/execution-control.md) — locate material state-boundary ownership.
-- [Coding Delegation State Record Worker Boundary](../../layer-01-fundamental-concepts/delegation/delegation-worker-boundary.md) — locate final-state evidence access.
-- [Coding Child Reuse and Replacement](../../layer-01-fundamental-concepts/delegation/delegation-child-reuse-replacement.md) — locate repaired-epoch reuse ownership.
-- [Coding Execution Decision Gate](../../layer-01-fundamental-concepts/execution-planning/execution-decision-gate.md) — locate dependent-release conditions.
+- [Coding Execution Control](../../layer-01-fundamental-concepts/execution-control/execution-control.md) — 定位实质性状态边界归属。
+- [Coding Delegation State Record Worker Boundary](../../layer-01-fundamental-concepts/delegation/delegation-worker-boundary.md) — 定位最终状态证据访问。
+- [Coding Child Reuse and Replacement](../../layer-01-fundamental-concepts/delegation/delegation-child-reuse-replacement.md) — 定位修复 epoch 复用归属。
+- [Coding Execution Decision Gate](../../layer-01-fundamental-concepts/execution-planning/execution-decision-gate.md) — 定位依赖路线放行条件。

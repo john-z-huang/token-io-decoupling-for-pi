@@ -203,7 +203,7 @@ class RuleLoader:
                 _expected_node, owner_key = owner_binding
                 path = OWNER_PATHS[owner_key]
                 if selected_language == "zh_cn":
-                    path = path.removesuffix(".md") + "_zh_cn.md"
+                    path = path
             section = fragment.section_en if selected_language == "en" else fragment.section_zh_cn
             try:
                 text = self._read_indexed_fragment(fragment_id, path, section, selected_language)
@@ -391,7 +391,7 @@ class RuleLoader:
         if not isinstance(path, str):
             raise RuleLoadError("missing mapped delegation policy")
         if self._repository_root is not None:
-            text = self._read_repository_owner(path, "General rules")
+            text = self._read_repository_owner(path, "通用规范")
         else:
             try:
                 text = (

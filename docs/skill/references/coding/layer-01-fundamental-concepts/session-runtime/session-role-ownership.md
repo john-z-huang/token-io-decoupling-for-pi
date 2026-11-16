@@ -1,46 +1,42 @@
-# Coding Session Role Ownership
+# Coding Session 职责归属
 
-[English](session-role-ownership.md) | [简体中文](session-role-ownership_zh_cn.md)
 
-This module owns the responsibilities of the Coding architecture roles: Input-side Reasoning, Primary Output, Context Bootstrap/Refresh, Change Verification, and Documentation/Comments & Git Operations. It does not define Session semantics, role allocation, Context Firewall policy, or final workflow acceptance.
+本文档负责 Coding 架构角色的责任：输入侧推理、Primary Output、Context Bootstrap/Refresh、Change Verification 以及 Documentation/Comments & Git Operations。不定义 Session 语义、职责分配、Context Firewall 策略或工作流最终验收。
 
-## General rules
+## 通用规范
 
-### Input-side Reasoning Agent
+### 输入侧推理 Agent
 
-Owns instruction analysis, project-environment confirmation, and direct confirmation of the code details needed to define a task, as well as the Semantic Contract, architecture and risk decisions, unresolved trade-offs, stage and slice boundaries, release decisions, checkpoint outcomes, user interaction, and final semantic acceptance. Before assigning a child, it must complete these confirmations itself and turn them into precise instructions with source pointers and acceptance conditions. It must not delegate these prerequisite judgments to a child. It inspects only the bounded evidence needed for those confirmations and does not absorb unrelated high-volume raw project state or expand already-approved decisions into long output.
+负责指令分析、项目环境确认和定义任务所需代码细节的直接事实确认，以及 Semantic Contract、架构和风险决策、未解决的权衡、阶段与 slice 边界、放行决定、checkpoint 结果、用户交互和最终语义验收。分配子代理前，必须亲自完成上述确认，并将其转化为包含源文件定位和验收条件的精确指令；不得将这些前置判断委派给子代理。只检查完成确认所需的有界证据，不摄入无关的高体量项目原始状态，也不把已批准的决定展开成长篇输出。
 
-### Primary Output Role
+### Primary 输出角色
 
-Owns execution of the parent's precise, released task instructions, including bounded exploration within the confirmed scope, evidence compression, code/configuration materialization, repairs within the released slice, and provisional implementation checks. Within the existing Contract, it proactively designs and runs applicable negative, boundary, and concurrency checks; it reports gaps and evidence. A check or fix outside released scope, or one requiring a new architecture decision, returns to the parent before action. Under the Multi-Agent route, create this child only after the normal release gates and only for actual code/configuration implementation or authorship/editing of this Skill's instructions/reference documents. It reads progressively and reports any fact that contradicts the parent's confirmed premises; it cannot take over the prerequisite instruction analysis, environment confirmation, or code-detail confirmation, or change unresolved goals, constraints, architecture, or acceptance criteria. It does not own final acceptance or non-trivial Git work. Apply the configured Worker summary cadence and complete message visibility without duplicating a complete final return.
+负责执行父级已放行的精确任务指令，包括在已确认范围内有界探索、证据压缩、代码/配置物化、已放行 slice 内的修复和临时实现检查。在现有 Contract 内主动设计并运行适用的负面、边界和并发检查，并报告缺口与证据。超出已放行范围的检查/修复，或需要新架构决策的事项，都应先返回父级再行动。Multi-Agent 路线下，只有正常放行门禁完成后，且任务涉及实际代码/配置实现或本 Skill 指令/参考文档编写编辑时，才创建该子代理。它采用渐进式读取，发现与父级已确认前提冲突的事实时须报告；不得接管前置的指令分析、环境确认或代码细节事实确认，也不能改变未解决的目标、约束、架构或验收标准。它不负责最终验收或非简单 Git 工作。遵循配置的 Worker 摘要频率和完整消息可见性，完整最终返回不重复打印。
 
-### Context Bootstrap/Refresh Responsibility
+### Context Bootstrap/Refresh 职责
 
-When assigned, builds or refreshes a bounded, fingerprinted capsule of neutral project facts, exact source pointers, policy-routing pointers, and freshness data. It does not decide the task, change the Contract, implement, verify, materialize documentation, or delegate recursively. The capsule supplements mandatory instructions and never replaces direct reading of authoritative files.
+被分配时，构建或刷新包含中性项目事实、准确 source pointer、policy-routing pointer 和 freshness 数据的有界 fingerprint capsule。它不定义任务、不修改 Contract、不实现、不验证、不物化文档，也不得递归委派。Capsule 只能补充强制指令，不能替代直接读取权威文件。
 
 ### Change Verification Agent
 
-When assigned, independently verifies the final state of a material change against the Contract and acceptance criteria. It uses the supplied scope evidence, runs relevant holistic and targeted checks, re-evaluates every final-state fingerprint/epoch, and reports evidence, gaps, failures, and risks. It is read-only for product code/configuration, documentation, and Git, except for explicitly named verification assets; it does not repair, make semantic decisions, or delegate.
+被分配时，独立依据 Contract 和验收标准验证实质性改动的最终状态。它消费范围证据，执行适当的整体和定向检查，针对每个最终状态 fingerprint/epoch 重新评估，并报告证据、缺口、失败和风险。除明确点名的验证资产外，它对产品代码/配置、文档和 Git 保持只读；不修复、不作语义决策、不委派。
 
 ### Documentation/Comments & Git Operations Agent
 
-When assigned, performs only the explicitly released non-trivial Git slice. It does not change product behavior, tests, or semantic decisions; a conflict requiring new content or meaning returns to the parent. The root parent authors ordinary non-Skill documentation/comments, including documentation accompanying code changes; this work never triggers or consumes the reserved Primary Output slot. Authorship/editing of this Skill's instructions or reference documents may be assigned to the Primary Output child after all release gates, with parent review at Documentation and Acceptance. Git remains a separate execution scope.
+被分配时，只执行明确放行的非简单 Git slice。它不得修改产品行为、测试或语义决策；如果冲突需要新的内容或含义，必须返回父级。普通非 Skill 文档/注释（包括伴随代码修改的文档）由根父级编写，绝不触发或消耗预留的 Primary Output 名额。本 Skill 指令/参考文档的编写编辑在所有放行门禁完成后可交由 Primary Output 子代理，并由父级在 Documentation 和 Acceptance 阶段审阅。Git 工作保持为独立执行范围。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-Under the default session audit policy, Worker keeps complete safe inbound and outbound messages visible in its own conversation and uses the configured Worker summary cadence. A complete final result already visible is not printed twice.
+Root 保留语义决策与验收；扩展配置的 agent 名称不授予 Skill 职责。分别放行互不冲突的任务后才可并行，结果包含实际路径、检查与失败证据。验证者必须未参与被审实现；同一上下文切换名称不是独立验证。
 
-## Claude Code CLI / Claude Desktop optimizations
 
-No provider-specific optimization instructions at present; follow the general rules above.
+## 相关概念
 
-## Related concepts
-
-- [Coding Session Model](session-model.md) — locate Session semantics and affinity.
-- [Coding Session Context Firewall](session-context-firewall.md) — locate raw-state ingress ownership.
-- [Coding Child Role Allocation](../delegation/delegation-child-role-allocation.md) — locate role allocation ownership.
-- [Coding Delegation State Record](../delegation/delegation-state-record.md) — locate task-control state ownership.
-- [Coding Execution Control](../execution-control/execution-control.md) — locate stage and slice boundary ownership.
-- [Coding Session Audit Visibility](session-audit-visibility.md) — locate Worker message and summary policy.
-- [Child Role Selection](../delegation/child-role-selection.md) — locate the advisory choice among maintained roles.
-- [Task Assignment](../execution-planning/task-assignment.md) — locate Root and existing-child selection.
+- [Coding Session Model](session-model.md) — 定位 Session 语义和 Affinity。
+- [Coding Session Context Firewall](session-context-firewall.md) — 定位原始状态进入归属。
+- [Coding Child Role Allocation](../delegation/delegation-child-role-allocation.md) — 定位职责分配归属。
+- [Coding Delegation State Record](../delegation/delegation-state-record.md) — 定位任务控制状态归属。
+- [Coding Execution Control](../execution-control/execution-control.md) — 定位阶段和 slice 边界归属。
+- [Coding Session 审计可见性](session-audit-visibility.md) — 定位 Worker 消息与摘要策略。
+- [子代理职责选择](../delegation/child-role-selection.md) — 定位受维护职责之间的建议选择。
+- [任务执行主体分配](../execution-planning/task-assignment.md) — 定位 Root 和现有子代理的选择。

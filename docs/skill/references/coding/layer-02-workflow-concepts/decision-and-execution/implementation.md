@@ -1,31 +1,30 @@
-# Implementation Checkpoint
+# 实现检查点
 
-[English](implementation.md) | [简体中文](implementation_zh_cn.md)
 
-## Actions
+## 动作
 
-1. Re-read the slice objective, authorized paths, allowed mutations, and return conditions.
-2. Inspect only the files needed for this slice, then make the smallest change that satisfies the approved direction.
-3. When the authorized implementation path uses controlled candidate output, follow [Output Materialization](../../layer-01-fundamental-concepts/execution-planning/output-materialization.md) and [Candidate Compliance Preflight](../../layer-01-fundamental-concepts/execution-planning/candidate-compliance.md) at their owned gates. Review the exact bounded candidate and its current baseline; resolve every selected failed, unknown, omitted, or stale preflight result before applying it. If the optional candidate path is not selected, record `Not applicable` with the reason and continue only under the independently authorized implementation path. Preparation, preflight, and apply receipts are provisional evidence, not a substitute for this checkpoint's focused checks or later final Verification.
-4. Keep unrelated cleanup, refactoring, generated output, and external effects out of the slice.
-5. Run focused provisional checks that can guide repair without treating them as final acceptance.
-6. Return changed paths, relevant output, remaining issue, and the boundary that was not released.
+1. 重新读取切片目标、授权路径、允许的修改和返回条件。
+2. 只检查该切片所需的文件，然后以最小修改满足已批准的方向。
+3. 授权实施路径使用受控候选输出时，在各自 owner 规定的门禁处遵循[输出物料化](../../layer-01-fundamental-concepts/execution-planning/output-materialization.md)和[候选合规预检](../../layer-01-fundamental-concepts/execution-planning/candidate-compliance.md)。审阅准确的有界候选及其当前基线；应用前解决每项已选预检返回的失败、未知、遗漏或过期结果。未选择可选候选路径时，记录有原因的 `Not applicable`，且仅在独立授权的实施路径下继续。准备、预检和应用收据都是临时证据，不能替代本检查点的聚焦检查或后续最终 Verification。
+4. 不要把无关清理、重构、生成产物或外部影响带入切片。
+5. 运行可以指导修复的聚焦临时检查，但不要把它们当作最终验收。
+6. 返回已修改路径、相关输出、剩余问题和尚未发布的边界。
 
-Apply [Task Plan Memory Lifecycle](../../layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md) before implementation: require current plan evidence and confirmed persistence, any content verification required by that owner, or its documented restriction exception. Record updates at owner-defined boundaries; facts affecting authorization, scope, acceptance, direction, or dependent implementation must be recorded and analyzed before that work. Only the parent releases affected work.
+实施前应用[任务计划 Memory 生命周期](../../layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md)：要求当前计划证据和持久化确认，以及该 owner 要求的内容核验，或其有记录的限制例外。按 owner 规定的边界记录更新；影响授权、范围、验收、方向或依赖实施的事实，须在该工作前记录并分析。仅父级可释放受影响工作。
 
-## Pass condition
+## 通过条件
 
-The approved slice is implemented within scope, and its focused checks either pass or provide a concrete issue for the Repair checkpoint.
+获批准的切片已在范围内实现，且聚焦检查要么通过，要么提供了可交给修复检查点的具体问题。
 
-## Boundary
+## 边界
 
-This checkpoint does not expand scope, change a material decision, perform final verification, write post-verification documentation, or perform unapproved Git effects.
+本检查点不扩大范围，不改变实质性决策，不执行最终验证，不写入验证后的文档，也不产生未授权的 Git 影响。
 
-## Related concepts
+## 相关概念
 
-- [Coding Execution Control](../../layer-01-fundamental-concepts/execution-control/execution-control.md) — locate authorized paths, mutations, and return-boundary ownership.
-- [Coding Execution Planning](../../layer-01-fundamental-concepts/execution-planning/execution-planning.md) — locate bounded plan and released-slice ownership.
-- [Coding Execution Decision Gate](../../layer-01-fundamental-concepts/execution-planning/execution-decision-gate.md) — locate direction and implementation-release ownership.
-- [Output Materialization](../../layer-01-fundamental-concepts/execution-planning/output-materialization.md) — locate controlled candidate preparation and application.
-- [Candidate Compliance Preflight](../../layer-01-fundamental-concepts/execution-planning/candidate-compliance.md) — locate read-only candidate checks.
-- [Coding Delegation State Record Worker Boundary](../../layer-01-fundamental-concepts/delegation/delegation-worker-boundary.md) — locate named-path Worker access boundaries.
+- [Coding Execution Control](../../layer-01-fundamental-concepts/execution-control/execution-control.md) — 定位授权路径、修改和返回边界归属。
+- [Coding Execution Planning](../../layer-01-fundamental-concepts/execution-planning/execution-planning.md) — 定位有界规划和已放行 slice 归属。
+- [Coding Execution Decision Gate](../../layer-01-fundamental-concepts/execution-planning/execution-decision-gate.md) — 定位方向和实现放行归属。
+- [输出物料化](../../layer-01-fundamental-concepts/execution-planning/output-materialization.md) — 定位受控候选准备和应用。
+- [候选合规预检](../../layer-01-fundamental-concepts/execution-planning/candidate-compliance.md) — 定位只读候选检查。
+- [Coding Delegation State Record Worker Boundary](../../layer-01-fundamental-concepts/delegation/delegation-worker-boundary.md) — 定位命名路径的 Worker 访问边界。

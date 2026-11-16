@@ -1,78 +1,77 @@
-# Delivery and Acceptance Module
+# 交付与验收模块
 
-[English](delivery-acceptance.md) | [简体中文](delivery-acceptance_zh_cn.md)
 
-This Layer-04 module checks current content/documentation Verification evidence, performs only an explicitly authorized Git delivery effect when requested, then maps every Contract criterion to the current applicable epochs for Acceptance. Module completion grants no additional authority.
+本 Layer-04 模块先核验当前内容/文档 Verification 证据；仅在用户明确要求且已授权时执行 Git 交付效果；然后将每项 Contract 标准映射到当前适用 epoch 进行 Acceptance。模块完成不会授予额外权限。
 
-## Entry declaration
+## 入口声明
 
-| Field | Requirement |
+| 字段 | 要求 |
 | --- | --- |
-| Entry prerequisites | The applicable Single-Agent or Multi-Agent Mode gate has released current evidence; current Session identity and authority are confirmed; the caller continuation and completed effects are known, with no unresolved effect ambiguity. |
-| Required inputs | Current Contract and all acceptance criteria, current implementation/content and documentation Verification results, current scope/fingerprints/epochs, exact Git target and effect intent, and actual operation-specific Git authorization if a Git effect is requested. |
-| Permitted effects | Inspect and perform only the explicitly authorized Git operation against the exact target; read current Acceptance evidence and finalize and archive a matching completed active plan through the plan owner's required preservation-verification path. Do not replay completed effects or create new authority. |
-| Results | `complete` only when every applicable Contract criterion maps to current evidence and any requested authorized delivery result matches verified fingerprints; otherwise `needs_prerequisite` or `blocked` with the unresolved criterion, authorization, or owner. |
-| Freshness | Bind delivery to the current target, scope, verified content/documentation fingerprints and epochs, and Git metadata epoch. Any divergence returns to the affected Verification dimension before further Git effects or Acceptance. |
+| 入口前置条件 | 适用的 Single-Agent 或 Multi-Agent Mode 门禁已有当前释放证据；当前 Session 身份与 authority 已确认；调用方 continuation 和已完成效果均已知，且无未解决的效果歧义。 |
+| 必需输入 | 当前 Contract 和全部验收标准、当前 implementation/content 与 documentation Verification 结果、当前范围/指纹/epoch、准确的 Git 目标和效果意图，以及请求 Git 效果时针对该操作的实际授权。 |
+| 允许效果 | 仅检查并针对准确目标执行明确授权的 Git 操作；读取当前 Acceptance 证据；通过计划 owner 要求的内容保留核验路径完成和归档匹配的已完成 active plan。不得重放已完成效果或产生新授权。 |
+| 结果 | 仅当每项适用 Contract 标准都映射到当前证据，且所请求并已授权的交付结果符合已验证指纹时返回 `complete`；否则针对未解决标准、授权或 owner 返回 `needs_prerequisite` 或 `blocked`。 |
+| 新鲜度 | 将交付绑定到当前目标、范围、已验证内容/文档指纹与 epoch，以及 Git metadata epoch。任何差异都须在进一步 Git 效果或 Acceptance 前返回受影响的 Verification 维度。 |
 
-## Workflow map
+## 工作流路线图
 
 ```mermaid
 flowchart TD
-    DA00["DA00 Resolve module entry"]
-    DA01["DA01 Confirm current content/documentation Verification and Contract criteria"]
-    D_VERIFIED{"Required final Verification current?"}
-    D_GIT{"Was a Git effect requested and explicitly authorized?"}
-    DA02["DA02 Confirm exact Git target, scope, fingerprint, and effect status"]
-    DA03["DA03 Map each Acceptance criterion to current epochs"]
-    D_PLAN{"Does Acceptance have a matching active plan to archive?"}
-    DA04["DA04 Preserve full plan; append final evidence; verify lossless archive; same repository scope"]
-    DA05["DA05 Return Acceptance by criterion and scope"]
-    DA_DONE["complete only if every criterion has current evidence"]
-    DA_GIT_NA["not_applicable: no Git effect requested; record reason"]
-    DA_PLAN_NA["not_applicable: documented persistence restriction and no active plan"]
-    DA_NEEDS_PLAN["needs_prerequisite: recover required task-plan evidence"]
-    DA_NEEDS_VERIFICATION["needs_prerequisite: obtain current final Verification"]
-    DA_NEEDS_CONTRACT["needs_prerequisite: resolve current Contract/criteria with caller"]
-    DA_NEEDS_GIT["needs_prerequisite: resolve exact Git target/authorization"]
+    DA00["DA00 解析模块入口"]
+    DA01["DA01 核验当前内容/文档 Verification 和 Contract 标准"]
+    D_VERIFIED{"必需的最终 Verification 当前有效？"}
+    D_GIT{"是否请求并明确授权了 Git 效果？"}
+    DA02["DA02 核验准确 Git 目标、范围、指纹及效果状态"]
+    DA03["DA03 将每项 Acceptance 标准映射到当前 epoch"]
+    D_PLAN{"Acceptance 中是否有匹配的 active plan 可归档？"}
+    DA04["DA04 保留计划全文；追加最终证据；验证无损归档；同一仓库存储范围"]
+    DA05["DA05 按标准返回 Acceptance"]
+    DA_DONE["仅当每项标准都有当前证据才 complete"]
+    DA_GIT_NA["not_applicable：未请求 Git 效果；记录原因"]
+    DA_PLAN_NA["not_applicable：已记录的持久化限制且无活动计划"]
+    DA_NEEDS_PLAN["needs_prerequisite：恢复必需任务计划证据"]
+    DA_NEEDS_VERIFICATION["needs_prerequisite：取得当前最终 Verification"]
+    DA_NEEDS_CONTRACT["needs_prerequisite：与调用方解决当前 Contract/criteria"]
+    DA_NEEDS_GIT["needs_prerequisite：解决准确 Git target/授权"]
     DA_BLOCK["blocked"]
-    DA00 -- ready --> DA01
-    DA00 -- missing Contract/criteria --> DA_NEEDS_CONTRACT
-    DA00 -- missing/stale Verification --> DA_NEEDS_VERIFICATION
-    DA00 -- missing Git target/authorization prerequisite --> DA_NEEDS_GIT
-    DA00 -- conflict or unsafe state --> DA_BLOCK
+    DA00 -- 就绪 --> DA01
+    DA00 -- Contract/criteria 缺失 --> DA_NEEDS_CONTRACT
+    DA00 -- Verification 缺失/过期 --> DA_NEEDS_VERIFICATION
+    DA00 -- Git target/授权前置缺失 --> DA_NEEDS_GIT
+    DA00 -- 冲突或状态不安全 --> DA_BLOCK
     DA01 --> D_VERIFIED
-    D_VERIFIED -- current required content and documentation Verification --> D_GIT
-    D_VERIFIED -- missing/stale final Verification --> DA_NEEDS_VERIFICATION
-    D_VERIFIED -- contradictory or failed required evidence --> DA_BLOCK
-    D_GIT -- requested and authorized --> DA02
-    D_GIT -- no Git effect requested --> DA_GIT_NA
-    D_GIT -- requested but authorization absent --> DA_BLOCK
-    DA02 -- exact target and staged/committed fingerprint match; effect result confirmed --> DA03
-    DA02 -- content differs or is unverified --> DA_NEEDS_VERIFICATION
-    DA02 -- target ambiguous, permission missing, or unsafe conflict --> DA_BLOCK
+    D_VERIFIED -- 当前内容和文档 Verification 有效 --> D_GIT
+    D_VERIFIED -- 最终 Verification 缺失/过期 --> DA_NEEDS_VERIFICATION
+    D_VERIFIED -- 必需证据矛盾或失败 --> DA_BLOCK
+    D_GIT -- 已请求且已授权 --> DA02
+    D_GIT -- 未请求 Git 效果 --> DA_GIT_NA
+    D_GIT -- 已请求但缺少授权 --> DA_BLOCK
+    DA02 -- 准确目标且暂存/提交指纹匹配；效果结果已确认 --> DA03
+    DA02 -- 内容不同或未经验证 --> DA_NEEDS_VERIFICATION
+    DA02 -- 目标不明、缺少权限或存在不安全冲突 --> DA_BLOCK
     DA_GIT_NA --> DA03
-    DA03 -- all criteria mapped; every applicable item passes on current epochs --> D_PLAN
-    DA03 -- required evidence missing, unavailable, or unknown --> DA_NEEDS_VERIFICATION
-    DA03 -- required criterion failed or conflicts with Contract --> DA_BLOCK
-    D_PLAN -- matching active plan exists --> DA04
-    D_PLAN -- no active plan; documented persistence restriction --> DA_PLAN_NA
-    D_PLAN -- required plan missing or inaccessible --> DA_NEEDS_PLAN
-    DA04 -- preservation passed; archive equals final active content; active entry absent --> DA05
-    DA04 -- preservation, update, archive or readback failed --> DA_BLOCK
+    DA03 -- 所有 criteria 已映射且适用项在当前 epoch 均通过 --> D_PLAN
+    DA03 -- 必需证据缺失、不可用或未知 --> DA_NEEDS_VERIFICATION
+    DA03 -- 必需 criteria 失败或与 Contract 冲突 --> DA_BLOCK
+    D_PLAN -- 存在匹配 active plan --> DA04
+    D_PLAN -- 无活动计划且有记录的持久化限制 --> DA_PLAN_NA
+    D_PLAN -- 必需计划缺失或不可访问 --> DA_NEEDS_PLAN
+    DA04 -- 内容保留通过；归档等于最终活动内容；活动项已不存在 --> DA05
+    DA04 -- 内容保留、更新、归档或读回失败 --> DA_BLOCK
     DA_PLAN_NA --> DA05
     DA05 --> DA_DONE
 ```
 
-## Ordered module checklist
+## 有序模块清单
 
-1. **DA00 — Resolve entry.** Call [Module Entry Resolution](../../layer-03-workflow-checkpoints/module-entry-resolution.md) with this declaration, current Contract/criteria, current implementation/content and documentation Verification, scope/fingerprints/epochs, exact target/effect intent, authorization, and continuation. Route a missing prerequisite to its semantic owner: Contract/criteria to the caller for current Contract resolution, Verification to the affected Verification owner, and Git target/authorization to the Git owner or authorization boundary. Conflict, unsafe state, or unrecoverable effects return `blocked`.
-2. **DA01 — Confirm current Verification before delivery.** Apply [Acceptance](../../layer-02-workflow-concepts/completion-and-effects/acceptance.md), [Verification](../../layer-02-workflow-concepts/verification-and-repair/verification.md), [Verification Epoch](../../layer-02-workflow-concepts/verification-and-repair/verification-epoch.md), and [Documentation](../../layer-02-workflow-concepts/completion-and-effects/documentation.md). Require current final implementation/content and documentation Verification evidence for their applicable latest epochs before any Git effect. If either is absent or stale, return to its Verification owner; do not perform Git. Identify the exact Contract criteria and scope to be accepted.
-3. **DA02 — Perform only requested, authorized Git delivery.** Apply [Git](../../layer-02-workflow-concepts/completion-and-effects/git.md). If no Git effect was requested, record Git `not_applicable` with reason and continue to DA03. If an effect was requested but its actual operation-specific authorization is absent, return `blocked`. With authorization, confirm exact repository/worktree/ref/remote/operation, target scope, current fingerprints and latest applicable content/documentation epochs; inspect status/history and exclude unrelated changes. Staged or committed content must match the verified fingerprints and contain no unverified content. Any divergence returns to the corresponding Verification dimension before further Git action. Do not repeat a completed commit/push/other effect while resuming; record its actual result and current Git metadata epoch. Git metadata changes alone do not stale content/documentation epochs. Ambiguous target, missing permission, or unsafe conflict blocks.
-4. **DA03 — Map every Acceptance criterion to current epochs.** Apply [Acceptance](../../layer-02-workflow-concepts/completion-and-effects/acceptance.md) and [Verification Epoch](../../layer-02-workflow-concepts/verification-and-repair/verification-epoch.md). For each Contract criterion, cite current evidence from each applicable latest implementation/content, documentation, and Git metadata epoch. Report those three dimensions separately and distinguish pass, fail, not-run, unavailable, assumed, user-authorized, residual risk, and required follow-up. Never use prior-epoch evidence after a relevant change. Proceed to plan matching/archive only after every criterion is mapped and every applicable required item is current and passed. A failed criterion or Contract conflict blocks; missing, unavailable, not-run, assumed, or otherwise unknown required evidence returns `needs_prerequisite` to the affected owner. Do not archive a plan for incomplete Acceptance. Apply [Task Plan Memory Lifecycle](../../layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md) to identify the matching completed active plan. Only a documented persistence restriction with no active plan permits the archive exception. A required plan that is missing or inaccessible returns `needs_prerequisite` to that owner; preserve the exact caller position and resume only after current plan evidence is recovered. Unrelated or nonmatching plans never qualify for archive.
-5. **DA04 — Finalize and archive only the matching completed plan.** Only after DA03 confirms every applicable criterion passes and this active plan belongs to the completed task, apply [Task Plan Memory Lifecycle](../../layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md). Require its full-plan baseline, local completion update plus appended final results/Acceptance evidence/limitations, and complete preservation verification; use the selected plan-owner path, whose verified receipt may satisfy the comparison. A final summary cannot replace accumulated records. Reconfirm that the active plan and archive target belong to the same verified repository storage scope; identity or mapping changes stop and return to the planning owner, never selecting another repository or local copy. Then confirm the matching archive target is absent; a collision preserves both entries and blocks archiving. Move only the namespace/name, then confirm the archive exists, the active name is absent, and the archive is identical to the verified final active baseline using the plan owner's matching verified receipt or required actual inspection/readback. A preservation mismatch, plan update, required verification, or archive failure blocks Acceptance; preserve the last confirmed state, do not replay an uncertain effect, and never edit an existing archive to repair a mismatch. If no matching active plan exists under the documented restriction exception, record `not_applicable` with its evidence; never archive another or an incomplete plan.
-6. **DA05 — Return Acceptance.** Return the criterion-to-evidence map, applicable current epochs, separate content/documentation/Git status, exact authorized effects and their results, plan-archive result or justified `not_applicable`, residual risks, and unresolved items. Return `complete` only when every applicable criterion has current evidence, no required verification/capability/authorization remains unresolved, and requested delivery matches the verified fingerprints. Completion of this module does not grant authority for any additional effect.
+1. **DA00 — 解析入口。** 提供本声明、当前 Contract/标准、当前 implementation/content 与 documentation Verification、范围/指纹/epoch、准确目标/效果意图、授权和 continuation，调用[模块入口解析](../../layer-03-workflow-checkpoints/module-entry-resolution.md)。将缺少的前置送回语义对应 owner：Contract/标准交调用方解决当前 Contract；Verification 交受影响的 Verification owner；Git target/授权交 Git owner 或授权边界。冲突、状态不安全或效果无法恢复时返回 `blocked`。
+2. **DA01 — 交付前核验当前 Verification。** 应用[Acceptance](../../layer-02-workflow-concepts/completion-and-effects/acceptance.md)、[Verification](../../layer-02-workflow-concepts/verification-and-repair/verification.md)、[Verification Epoch](../../layer-02-workflow-concepts/verification-and-repair/verification-epoch.md)及[Documentation](../../layer-02-workflow-concepts/completion-and-effects/documentation.md)。任何 Git 效果前，必须具备适用最新 epoch 的当前最终 implementation/content 与 documentation Verification 证据。任何一项缺失或过期时，返回相应 Verification owner；不得执行 Git。明确准确的 Contract 标准和验收范围。
+3. **DA02 — 仅执行已请求并授权的 Git 交付。** 应用[Git](../../layer-02-workflow-concepts/completion-and-effects/git.md)。未请求 Git 效果时，将 Git 记录为有原因的 `not_applicable` 并进入 DA03。若请求了效果但缺少针对实际操作的授权，则返回 `blocked`。获授权后，确认准确的 repository/worktree/ref/remote/operation、目标范围、当前指纹及适用的最新内容/文档 epoch；检查 status/history 并排除无关改动。暂存或提交内容须匹配已验证指纹，且不得包含未验证内容。有任何差异时，进一步 Git 操作前返回对应 Verification 维度。恢复 continuation 时不得重复已完成的 commit/push/其他效果；记录其实际结果和当前 Git metadata epoch。仅 Git metadata 变化不会使内容/文档 epoch 过期。目标不明确、缺少权限或存在不安全冲突时阻塞。
+4. **DA03 — 将每项 Acceptance 标准映射到当前 epoch。** 应用[Acceptance](../../layer-02-workflow-concepts/completion-and-effects/acceptance.md)和[Verification Epoch](../../layer-02-workflow-concepts/verification-and-repair/verification-epoch.md)。对每一项 Contract 标准，引用适用最新 implementation/content、documentation 和 Git metadata epoch 的当前证据。分别报告这三个维度，并区分通过、失败、未运行、不可用、假设、用户授权、剩余风险及必需后续事项。相关变化后不得使用旧 epoch 证据。只有每项标准均已映射且每个适用的必需项都当前并通过时，才能进入 plan 匹配/归档。标准失败或与 Contract 冲突时阻塞；必需证据缺失、不可用、未运行、假设或仍未知时，返回受影响 owner 并返回 `needs_prerequisite`。不得为未完成的 Acceptance 归档 plan。判断 Acceptance 是否存在符合归档条件的匹配 active plan；无关或不匹配计划不适用。 应用[任务计划 Memory 生命周期](../../layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md)识别匹配的已完成活动计划。仅有记录的持久化限制且无活动计划才允许归档例外。必需计划缺失或不可访问时，向该 owner 返回 `needs_prerequisite`，保留准确调用位置，仅在恢复当前计划证据后继续；无关或不匹配计划绝不符合归档条件。
+5. **DA04 — 完成最终更新并仅归档匹配的已完成计划。** 仅在 DA03 确认所有适用标准通过，且该 active plan 属于已完成任务后，应用[任务计划 Memory 生命周期](../../layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md)。要求该 owner 的计划全文基线、局部完成更新并追加最终结果/Acceptance 证据/限制，以及完整内容保留核验；遵循选定的计划 owner 核验路径，其已核验回执可满足比对。最终摘要不能替换累积记录。先重新核对活动计划与归档目标属于同一已验证仓库存储范围；身份或映射改变时停止并返回规划 owner，绝不选择其他仓库或其他本地副本。再确认匹配的归档目标不存在；碰撞时保留两个条目并阻塞归档。仅移动命名空间/名称，然后通过计划 owner 匹配的已核验回执或必需的实际检查/读回，确认归档存在、活动名称已不存在，且归档与已核验的最终活动基线完全相同。内容保留不一致、计划更新、必需核验或归档失败均阻塞 Acceptance；保留最后确认状态，不重放结果不明的效果，绝不编辑已有归档以修复不一致。若在已记录的限制例外下不存在匹配活动计划，则附证据记录 `not_applicable`；不得归档其他或未完成计划。
+6. **DA05 — 返回 Acceptance。** 返回按标准映射的证据、适用的当前 epoch、分别报告的内容/文档/Git 状态、准确的已授权效果及其结果、计划归档结果或有依据的 `not_applicable`、剩余风险和未解决项目。只有每项适用标准都有当前证据、无必需验证/能力/授权待解决，且所请求交付符合已验证指纹时，才返回 `complete`。模块完成不授予任何额外效果的权限。
 
-## Related concepts
+## 相关概念
 
 - [Acceptance](../../layer-02-workflow-concepts/completion-and-effects/acceptance.md)
 - [Git](../../layer-02-workflow-concepts/completion-and-effects/git.md)

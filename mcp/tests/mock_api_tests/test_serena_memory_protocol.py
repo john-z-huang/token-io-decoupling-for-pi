@@ -78,7 +78,8 @@ def test_flat_wire_contract_and_configured_dispatch() -> None:
     asyncio.run(run())
 
 
-def test_unconfigured_tools_are_discoverable_but_unavailable() -> None:
+def test_unconfigured_tools_are_discoverable_but_unavailable(tmp_path, monkeypatch) -> None:
+    monkeypatch.chdir(tmp_path)  # 不读取开发者检出中的真实 .serena 配置。
     async def run() -> None:
         async with Client(create_workflow_server()) as client:
             caps = receipt(await client.call_tool("workflow_capabilities", {}))

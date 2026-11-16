@@ -1,21 +1,20 @@
-# Coding route entry
+# Coding 路线入口
 
-[English](route-entry.md) | [简体中文](route-entry_zh_cn.md)
 
-This checkpoint owns pre-route validation composition and the unique authorized route-selection result.
+本检查点负责路线前验证组合及唯一获授权路线选择结果。
 
-## Trigger and inputs
+## 触发与输入
 
-The Coding entry invokes this checkpoint after the [Contract checkpoint](../layer-02-workflow-concepts/entry-and-context/contract.md), [Environment checkpoint](../layer-02-workflow-concepts/entry-and-context/environment.md), [capability inventory](../layer-02-workflow-concepts/entry-and-context/environment-capability-inventory.md), and [Mode checkpoint](../layer-02-workflow-concepts/entry-and-context/mode.md) have passed. Inputs are their current results, including the released mode/count and any unresolved failure.
+Coding 入口在[Contract 检查点](../layer-02-workflow-concepts/entry-and-context/contract.md)、[Environment 检查点](../layer-02-workflow-concepts/entry-and-context/environment.md)、[能力清单](../layer-02-workflow-concepts/entry-and-context/environment-capability-inventory.md)和[Mode 检查点](../layer-02-workflow-concepts/entry-and-context/mode.md)通过后调用本检查点。输入为各项当前结果，包括已释放的 mode/count 及未解决的失败。
 
-## Decision and result
+## 决策与结果
 
-Confirm all required gates are complete, select only the route authorized by Mode, and return the selected route identity and gate evidence to the caller for loading and validation.
+确认所有必需门禁均已完成，只选择 Mode 授权的路线，并向调用方返回所选路线标识和门禁证据，由调用方加载并核验。
 
-## Failure boundary
+## 失败边界
 
-If any prerequisite is missing, contradictory, or unreleased, return to the owning entry checkpoint and stop dependent route work. Do not reinterpret Mode, choose a fallback route, or initialize route-only state here.
+若前置项缺失、矛盾或尚未释放，返回对应入口检查点并停止依赖该结果的路线工作。不得重新解释 Mode、选择后备路线或在此初始化路线专用状态。
 
-## Related concepts
+## 相关概念
 
 - [Mode](../layer-02-workflow-concepts/entry-and-context/mode.md)

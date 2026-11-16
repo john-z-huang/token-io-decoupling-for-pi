@@ -1,25 +1,24 @@
-# Repair Execution Checkpoint
+# 修复执行检查点
 
-[English](repair-execution.md) | [简体中文](repair-execution_zh_cn.md)
 
-This checkpoint owns execution of an authorized narrow repair and its focused checks. It consumes the scope-gate authorization; it does not diagnose failures, define authorization criteria, or create Verification epochs.
+本检查点负责执行获准的窄范围修复及其聚焦检查。它消费范围门禁的授权；不诊断失败，不定义授权条件，也不创建验证 epoch。
 
-## Actions
+## 动作
 
-1. Apply only the authorized repair within the released paths and mutations.
-2. Run focused checks that directly exercise or inform that repair.
-3. Return the changed paths, relevant check output, and any remaining issue to the parent boundary.
+1. 只在已放行的路径和修改范围内执行获准修复。
+2. 运行直接检查该修复或为其提供信息的聚焦检查。
+3. 向父级边界返回已修改路径、相关检查输出和剩余问题。
 
-## Pass condition
+## 通过条件
 
-The authorized narrow repair has been applied and its focused checks have passed or produced a concrete issue for the next owner.
+获准的窄范围修复已经执行，且聚焦检查已通过或产生了可交给下一 owner 的具体问题。
 
-## Boundary
+## 边界
 
-This checkpoint does not diagnose failures, authorize scope changes, define final-state fingerprints or epochs, perform final Verification, write documentation, or perform Git effects.
+本检查点不诊断失败，不授权范围变化，不定义最终状态指纹或 epoch，不执行最终验证，不写文档，也不产生 Git 影响。
 
-## Related concepts
+## 相关概念
 
-- [Coding Execution Control](../../layer-01-fundamental-concepts/execution-control/execution-control.md) — locate released paths and mutation boundaries.
-- [Coding Execution Planning](../../layer-01-fundamental-concepts/execution-planning/execution-planning.md) — locate bounded implementation-slice ownership.
-- [Coding Delegation State Record Worker Boundary](../../layer-01-fundamental-concepts/delegation/delegation-worker-boundary.md) — locate named-path Worker access boundaries.
+- [Coding Execution Control](../../layer-01-fundamental-concepts/execution-control/execution-control.md) — 定位已放行路径和修改边界。
+- [Coding Execution Planning](../../layer-01-fundamental-concepts/execution-planning/execution-planning.md) — 定位有界实现 slice 归属。
+- [Coding Delegation State Record Worker Boundary](../../layer-01-fundamental-concepts/delegation/delegation-worker-boundary.md) — 定位命名路径的 Worker 访问边界。

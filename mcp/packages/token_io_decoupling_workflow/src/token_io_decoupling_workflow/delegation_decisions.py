@@ -241,16 +241,16 @@ _GENERIC_BOUNDARY_INSTRUCTIONS = (
 )
 
 _INSTRUCTION_HEADINGS: dict[str, tuple[str, str]] = {
-    "child_role": (_ROLE_POLICY, "Role Decisions instructions"),
-    "executor": (_TASK_POLICY, "Executor Decisions instructions"),
-    "child_candidate": (_TASK_POLICY, "Child-selection Decisions instructions"),
-    "output_tokens": (_OUTPUT_POLICY, "Output-token Decisions instructions"),
+    "child_role": (_ROLE_POLICY, "职责 Decisions 指令"),
+    "executor": (_TASK_POLICY, "执行主体 Decisions 指令"),
+    "child_candidate": (_TASK_POLICY, "子代理选择 Decisions 指令"),
+    "output_tokens": (_OUTPUT_POLICY, "Output Token Decisions 指令"),
 }
 _CHOICE_HEADINGS: dict[str, tuple[str, str]] = {
-    "child_role": (_ROLE_POLICY, "Role choice descriptions"),
-    "executor": (_TASK_POLICY, "Executor choice descriptions"),
-    "child_candidate": (_TASK_POLICY, "Child-candidate choice descriptions"),
-    "output_tokens": (_OUTPUT_POLICY, "Output-token choice descriptions"),
+    "child_role": (_ROLE_POLICY, "职责选项说明"),
+    "executor": (_TASK_POLICY, "执行主体选项说明"),
+    "child_candidate": (_TASK_POLICY, "子代理选项说明"),
+    "output_tokens": (_OUTPUT_POLICY, "Output Token 选项说明"),
 }
 
 

@@ -1,61 +1,48 @@
 # Coding Session Model
 
-[English](session-model.md) | [简体中文](session-model_zh_cn.md)
 
-This module owns Coding Session semantics, Single-Agent and Multi-Agent Session mapping, Primary Execution Session affinity, and reuse/worktree separation boundaries. It consumes role ownership from its owner concept and state from the active workflow; it does not define role responsibilities, the Context Firewall, runtime eligibility, execution parameters, dispatch formatting, project-context transport, or acceptance procedures.
+本模块负责 Coding 的 Session 语义、单代理与多代理 Session 映射、Primary Execution Session Affinity，以及复用/worktree 隔离边界。它消费 owner 概念提供的职责归属和当前工作流的状态；不定义职责责任、Context Firewall、运行环境 eligibility、执行参数、dispatch 格式、项目上下文传输或验收流程。
 
-## General rules
+## 通用规范
 
-### Session semantics
+### Session 语义
 
-The active workflow supplies mode, topology, role allocation, lifecycle, reuse, replacement, exceptions, and unavailable handling. A role label never authorizes a new Session or topology change.
+模式、拓扑、职责分配、生命周期、复用、替换、例外和不可用处理由当前工作流提供。职责名称本身不能授权新建 Session 或改变拓扑。
 
-Here, a Session means the host-identified Session lifetime, not one user/assistant exchange. Later turns and a compacted or resumed instance of the same Session retain its mode, count, and child identities. A Fork with a new Session identity starts a separate lifetime and must pass fresh re-entry gates.
+本文中的 Session 指宿主识别的完整 Session 生命周期，而不是一次用户/助手交互。同一 Session 的后续轮次、compact 或恢复都沿用其模式、数量和子代理身份。具有新 Session 身份的 Fork 开始独立生命周期，必须重新通过门禁。
 
-A Fork starts a new Coding Session with a new root identity. Re-enter fresh mode/count selection before dependent work, even when the source Session used Single-Agent mode. Child identities bound to the source Session are foreign in the Fork: do not adopt them as created children, reuse or resume them, count them toward its capacity, or offer them as current-session candidates. The [Delegation Mode Re-entry](../delegation/delegation-mode-reentry.md) and [Session State Record](../delegation/delegation-state-record.md) owners govern the new record.
+Fork 会以新的根身份开启新的 Coding Session。在开展依赖工作前，必须重新通过模式/数量选择，即使来源 Session 使用过 Single-Agent 模式也一样。绑定到来源 Session 的子代理身份在 Fork 中属于其他会话：不得将其采纳为已创建子代理、复用或恢复、计入新会话预算，或提供给当前会话候选选择。新状态记录由[委派模式重入](../delegation/delegation-mode-reentry.md)和[委派状态记录](../delegation/delegation-state-record.md) owner 负责。
 
-In Single-Agent Coding, the current Session performs the logical decision, implementation, documentation, Git, and allowed-check phases; logical roles do not imply independent Agents. In Multi-Agent Coding, use only the child execution contexts explicitly supplied by the active workflow; their exact Session isolation depends on the runtime provider:
+单代理 Coding 中，当前 Session 执行逻辑上的决策、实现、文档、Git 和允许的检查阶段；逻辑职责不表示存在独立 Agent。多代理 Coding 中，只使用当前工作流明确提供的子级执行上下文；具体 Session 隔离由运行环境决定：
 
 ```text
-root parent context → Input-side Reasoning
-assigned Primary child context → Primary Output
-assigned verifier child context → Change Verification
-assigned docs/Git child context → Documentation/Comments & Git Operations
+根父上下文 → Input-side Reasoning
+已分配 Primary 子级上下文 → Primary Output
+已分配 verifier 子级上下文 → Change Verification
+已分配文档/Git 子级上下文 → Documentation/Comments & Git Operations
 ```
 
-An unassigned role is unavailable as an independent child context. Do not infer a role from the number of reserved slots; one slot does not automatically mean Primary Output. Select a role only after current task context and Decision are reviewed, then record it in an unassigned slot under the role-selection and allocation owners. Do not simulate independence by relabeling same-context work.
+未分配的职责在独立子级上下文层面不可用。不得通过给同一上下文的工作改名来模拟独立性。
+不得从预留名额数量推断职责；一个名额不会自动表示 Primary Output。只有审阅当前任务上下文和 Decision 后才能选择职责，再由职责选择与分配 owner 记录到未分配名额中。
 
-### Primary Execution Session and affinity
+### Primary Execution Session 与 Affinity
 
-Maintain one Primary Execution Session: the current Session in Single-Agent mode; in Multi-Agent mode, the created child assigned `Primary Output`, when one exists. Until that child exists, the current root Session remains the active decision context, not an implied Primary child. Reuse the assigned Primary Session for related exploration, implementation, diagnosis, tests, repairs, and local execution to preserve stable context. A Session is sticky but not immortal; lifecycle changes use the active workflow's recorded state.
+维持一个 Primary Execution Session：Single-Agent 模式下为当前 Session；Multi-Agent 模式下为已经创建且分配了 `Primary Output` 的子代理（如果存在）。在该子代理创建前，当前根 Session 仍是活跃决策上下文，但这不隐含创建 Primary 子代理。扩展支持持久身份与续接时，相关探索、实现、诊断、测试、修复和局部执行优先复用已分配的 Primary Session；一次性扩展不保证该能力。Session 应保持 sticky but not immortal；生命周期变化遵循当前工作流的已记录状态。
 
-Session isolation and Git worktree isolation are distinct. Workspace and filesystem isolation requirements belong to [Coding Context Exchange Workspace Boundary](../context-exchange/context-exchange-workspace-boundary.md); Session reuse alone does not prove cache hits or runtime savings.
+Session 隔离与 Git worktree 隔离不同。工作区和文件系统隔离条件由[上下文工作区边界](../context-exchange/context-exchange-workspace-boundary.md)定义；不得仅因复用 Session 就声称命中缓存或获得其他运行时收益。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-An allocated Codex child uses an independent child Session. Confirm that relationship only through runtime metadata or a directly exposed child/thread tool, and report only the isolation those sources establish.
+Pi 主会话与扩展子任务不是必然一对一的持久 Session。一次性执行以逻辑 allocation 和真实工具证据定位，不虚构可恢复 ID。只有扩展实际支持稳定身份/继续执行时才应用 Primary Session affinity；不支持时报告复用限制，不阻塞不依赖复用的一次性工作。新根会话与树导航/恢复的区别按真实宿主事实判断，工作目录不等于 worktree 隔离。
 
-For Codex, the Session runs from the host Session's start until it ends; it is not reset by each user/assistant turn. Compaction and reopening or resuming the same Session retain its mode/count and child-identity record. A Fork creates a new Session identity and follows the fresh re-entry gate.
 
-### Desktop Session and child identities
+## 相关概念
 
-In ChatGPT Desktop, count a spawned Codex thread as a child only when a tool exposed to the active Session reports that parent-child relationship. A tool that creates or transfers another Session or worktree does not by itself establish a child identity; Codex-managed worktrees can be detached-HEAD and disposable. A Chat or Work Session is not a Codex child unless an exposed tool reports that relation. [OpenAI: subagent threads](https://learn.chatgpt.com/docs/agent-configuration/subagents), [OpenAI: worktree behavior](https://learn.chatgpt.com/docs/environments/git-worktrees), [OpenAI: Desktop modes](https://learn.chatgpt.com/docs/use-chatgpt).
-
-## Claude Code CLI / Claude Desktop optimizations
-
-A Claude Code subagent has its own context inside the parent session. Treat it as the allocated child context, return only to the parent, and report actual isolation and verification independence. Do not use an agent team or peer channel as a substitute.
-
-For a Claude Code subagent, its `Agent` invocation and returned ID identify a child context within the parent Session; the built-in Explore and Plan agents are one-shot and do not return resumable IDs. Preserve the parent identity and the returned ID if a future authorized follow-up may be needed. `/resume` resumes a Claude Code conversation, not an arbitrary previously completed one-shot child. [Anthropic: subagent context and resume](https://code.claude.com/docs/en/sub-agents).
-
-In Claude Desktop, use the built-in `Agent` or `SendMessage` tool only when directly exposed to the active Session. A separately identified Session, connector tool call, or worktree is not an allocated child unless the parent-controlled tool result establishes that identity relation. [Anthropic: subagent context and lifecycle](https://code.claude.com/docs/en/sub-agents), [Anthropic: Desktop MCP tools](https://support.claude.com/en/articles/10949351-getting-started-with-local-mcp-servers-on-claude-desktop).
-
-## Related concepts
-
-- [Coding Session Role Ownership](session-role-ownership.md) — locate role responsibility ownership.
-- [Coding Session Context Firewall](session-context-firewall.md) — locate raw-state ingress boundaries.
-- [Coding Delegation State Record](../delegation/delegation-state-record.md) — locate task-control state ownership.
-- [Coding Delegation Mode Re-entry](../delegation/delegation-mode-reentry.md) — locate fresh mode/count selection for a Fork.
-- [Coding Child Role Selection](../delegation/child-role-selection.md) — locate the decision that supplies a new child's role.
-- [Coding Task Assignment](../execution-planning/task-assignment.md) — locate Root and existing-child selection.
-- [Coding Context Exchange](../context-exchange/context-exchange.md) — locate file-backed context transport ownership.
-- [Coding Execution Control](../execution-control/execution-control.md) — locate Interaction Slice and session-boundary controls.
+- [Coding Session Role Ownership](session-role-ownership.md) — 定位职责责任归属。
+- [Coding Session Context Firewall](session-context-firewall.md) — 定位原始状态进入边界。
+- [Coding Delegation State Record](../delegation/delegation-state-record.md) — 定位任务控制状态归属。
+- [Coding Delegation Mode Re-entry](../delegation/delegation-mode-reentry.md) — 定位 Fork 的全新模式/数量选择。
+- [Coding Child Role Selection](../delegation/child-role-selection.md) — 定位新子代理职责的选择判断。
+- [Coding Task Assignment](../execution-planning/task-assignment.md) — 定位 Root 和现有子代理的选择。
+- [Coding Context Exchange](../context-exchange/context-exchange.md) — 定位文件化上下文传输归属。
+- [Coding Execution Control](../execution-control/execution-control.md) — 定位 Interaction Slice 和 Session 边界控制。

@@ -1,11 +1,10 @@
 # Layer 01: Fundamental Concepts
 
-[English](README.md) | [简体中文](README_zh_cn.md)
 
-## Scope and boundary
+## 范围与边界
 
-Atomic owners for reusable foundational concepts. Each owner is authoritative only for the concept stated in its title and scope; category directories group owners without changing their responsibilities.
+可复用基础概念的原子所有者。每个所有者仅对标题和范围所述概念负责；分类目录只做归类，不改变职责。
 
-## Entry
+## 入口
 
-Begin with the [INDEX](INDEX.md) to locate an owner by category, then read only the owner in the selected language. Its language-switch link is navigation only.
+从[索引](INDEX.md)按分类查找所有者，再只阅读当前所需的中文 owner。

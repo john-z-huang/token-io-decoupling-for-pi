@@ -110,7 +110,7 @@ class RuleResourcesBuildHook(BuildHookInterface):
                         f"must belong to node {expected_node}"
                     )
                 english_path = OWNER_PATHS[owner_key]
-                chinese_path = english_path.removesuffix(".md") + "_zh_cn.md"
+                chinese_path = english_path
                 owner_pairs = {
                     "en": (english_path, fragment["section_en"]),
                     "zh_cn": (chinese_path, fragment["section_zh_cn"]),
@@ -132,14 +132,14 @@ class RuleResourcesBuildHook(BuildHookInterface):
 
         for owner in OWNER_PATHS:
             for language, _suffix, heading in (
-                ("en", "", "General rules"),
-                ("zh_cn", "_zh_cn", "通用规范"),
+                ("en", "", "通用规范"),
+                ("zh_cn", "", "通用规范"),
             ):
                 relative = OWNER_PATHS.get(owner)
                 if not isinstance(relative, str):
                     raise RuntimeError(f"missing mapped Layer-01 owner path: {owner}")
                 if language == "zh_cn":
-                    relative = relative.removesuffix(".md") + "_zh_cn.md"
+                    relative = relative
                 source = _safe_source(source_root, relative)
                 excerpt = _extract_heading(source.read_text(encoding="utf-8"), heading, relative)
                 staged = staging_root / "rules" / f"{owner}.{language}.md"

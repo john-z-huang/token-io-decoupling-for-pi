@@ -1,13 +1,12 @@
 # Execution Planning
 
-[English](README.md) | [简体中文](README_zh_cn.md)
 
-## Scope and boundary
+## 范围与边界
 
-Task assignment and output routing, decision context/advisory, decision gates, workflow-module contracts, planning, and plan-memory lifecycle. It owns planning and semantic decision boundaries, not stage control or runtime-specific bindings.
+任务分配与输出路由、决策上下文/建议、决策门禁、工作流模块契约、规划和计划记忆生命周期。本分类管理规划与语义决策边界，不管理阶段控制或运行时专属绑定。
 
-## Entry
+## 入口
 
-Start with the Decision Gate for unresolved direction. For a bounded reusable module, apply the Workflow Module Contract; otherwise use the planning or assignment owner matching the task.
+方向未决时从决策门禁开始。调用有界可复用模块时应用工作流模块契约；其他情况按任务选择规划或执行主体分配 owner。
 
-[INDEX](INDEX.md)
+[索引](INDEX.md)

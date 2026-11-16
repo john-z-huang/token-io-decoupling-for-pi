@@ -29,12 +29,22 @@ def _repository(tmp_path: Path) -> Path:
     registry = json.loads((mcp_root / "rule-registry.json").read_text(encoding="utf-8"))
     contract = next(node for node in registry["nodes"] if node["node_id"] == "contract")
     contract["owner_path"] = "owners/en.md"
+    contract["owner_section"] = "Actions"
     contract["owner_mirrors"] = {"zh_cn": {"path": "owners/zh.md", "section": "动作"}}
     (root / "mcp/rule-registry.json").write_text(
         json.dumps(registry, ensure_ascii=False), encoding="utf-8"
     )
+    index = json.loads((mcp_root / "rule-context-index.json").read_text(encoding="utf-8"))
+    sections = {
+        "contract.actions": "Actions",
+        "contract.pass": "Pass condition",
+        "contract.boundary": "Boundary",
+    }
+    for fragment in index["fragments"]:
+        if fragment["fragment_id"] in sections:
+            fragment["section_en"] = sections[fragment["fragment_id"]]
     (root / "mcp/rule-context-index.json").write_text(
-        (mcp_root / "rule-context-index.json").read_text(encoding="utf-8"), encoding="utf-8"
+        json.dumps(index, ensure_ascii=False), encoding="utf-8"
     )
     return root
 
@@ -124,11 +134,8 @@ def test_controlled_optional_owner_fragments_preserve_default_and_load_bilingual
             "docs/skill/references/coding/layer-01-fundamental-concepts/execution-planning/"
         )
         assert english_fragment.owner_path == owner_base + owner_filename
-        assert (
-            chinese_fragment.owner_path
-            == owner_base + owner_filename.removesuffix(".md") + "_zh_cn.md"
-        )
-        assert english_fragment.owner_section == "General rules"
+        assert chinese_fragment.owner_path == owner_base + owner_filename
+        assert english_fragment.owner_section == "通用规范"
         assert chinese_fragment.owner_section == "通用规范"
         assert len(english_fragment.text_sha256) == 64
         assert len(chinese_fragment.text_sha256) == 64

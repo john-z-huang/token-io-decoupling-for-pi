@@ -1,91 +1,34 @@
-# Multilingual documentation rules
+# 文档语言与维护规范
 
-[English](MULTI_LINGUAL.md) | [简体中文](MULTI_LINGUAL_zh_cn.md)
+本文件负责当前仓库的文档语言、命名与维护要求。中文文档是唯一权威来源，不再维护英文副本或中英文镜像。
 
-This file is the English canonical version of the multilingual documentation rules for this repository. `MULTI_LINGUAL_zh_cn.md` is its Simplified Chinese semantic mirror. Both files must be maintained together.
+## 文件命名
 
-## Canonical language layout
+- 维护的说明、指令和设计文档统一使用简体中文，保留既有不带语言后缀的文件名，例如 `README.md`、`SKILL.md`。
+- 不创建带旧语言后缀的中文镜像，也不另建英文版本或语言目录。
+- 技术术语、模型与 API 标识符、命令、配置键、代码示例和外部资料的原始名称无需强行翻译。
+- 用户保存的非启用备份、历史测量数据和第三方原始材料不属于维护中的权威指令，不因本规范被自动改写。
 
-- English is the default documentation language.
-- Simplified Chinese mirrors use the `_zh_cn` suffix immediately before `.md`.
-- Canonical English examples: `README.md`, `SKILL.md`, `MULTI_LINGUAL.md`, `workflows/coding.md`.
-- Simplified Chinese examples: `README_zh_cn.md`, `SKILL_zh_cn.md`, `MULTI_LINGUAL_zh_cn.md`, `workflows/coding_zh_cn.md`.
-- `AGENTS.md` is the repository instruction entry point; `AGENTS_zh_cn.md` is its Simplified Chinese semantic mirror. Each must point to the rule file in the same language rather than duplicate these rules.
-- Configuration, code, generated files, and non-Markdown assets do not require language mirrors unless a task explicitly requires them.
-- Locale-directory documentation is an explicit exception to the suffix rule: `docs/index.md` is paired with `docs/zh-cn/index.md`.
-- `agents/openai.yaml` is a deliberate exception: user-facing description text must contain both English and Simplified Chinese in the same scalar value, separated by ` | `, with English first.
+## 内容与引用
 
-## Pairing requirements
+- 每份文档只维护一份中文正文，不再提供语言切换链接。
+- 本地 Markdown 链接必须指向实际存在的当前文件；移动文件时同步更新链接、代码中的资源路径、规则注册表和构建资源。
+- Skill 入口使用标准 `SKILL.md` 和有效的 YAML front matter，按需引用其目录内的中文说明。
+- 面向用户的元数据说明使用中文；程序字段与协议标识符保持其接口约定。
+- 本次语言迁移不改变 MCP Tools 内部使用 OpenAI API 的执行方式，也不改变操作授权与安全边界。
 
-When a maintained Markdown document belongs to the bilingual documentation set:
+## 验证
 
-1. Keep an English canonical file and a Simplified Chinese `_zh_cn.md` mirror.
-2. If one side is added, renamed, moved, or deleted, make the corresponding change to the other side in the same change set.
-3. When semantic content changes on one side, update the other side in the same pull request unless the task explicitly documents why synchronization is temporarily impossible.
-4. Preserve behavior, constraints, architecture, examples, and acceptance semantics across both languages. Translation may be idiomatic; meaning must remain equivalent.
-5. Do not silently add requirements to only one language version.
-6. These multilingual rules themselves are subject to the same pairing requirement: `MULTI_LINGUAL.md` and `MULTI_LINGUAL_zh_cn.md` must remain semantic mirrors.
+运行以下文档检查，并按修改范围运行对应测试：
 
-## Same-language reference isolation
-
-- English Markdown must link to English Markdown when a bilingual target exists.
-- Simplified Chinese Markdown must link to the corresponding `_zh_cn.md` target when a bilingual target exists.
-- Language-switch links are the only intended cross-language Markdown links.
-- `AGENTS.md` must load `MULTI_LINGUAL.md`; `AGENTS_zh_cn.md` must load `MULTI_LINGUAL_zh_cn.md`.
-- `docs/index.md` and `docs/zh-cn/index.md` must remain semantic mirrors and use same-language local links.
-- English instructions in `SKILL.md` must load only English files under `references/`.
-- Simplified Chinese instructions in `SKILL_zh_cn.md` must load only `_zh_cn.md` files under `references/`.
-- English reference documents must not load or depend on Chinese reference documents, and Chinese reference documents must not load or depend on English reference documents.
-
-## Language-switch links
-
-For a bilingual document pair intended for direct human reading, keep a visible language switch near the top when practical:
-
-```md
-[English](example.md) | [简体中文](example_zh_cn.md)
-```
-
-The exact relative path may differ by directory. Do not use this exception for module dependency links.
-
-## `agents/openai.yaml` bilingual text
-
-- Keep one YAML field rather than creating language-specific YAML files.
-- Put English first and Simplified Chinese second.
-- Separate the two descriptions with exactly ` | `.
-- Keep both sides semantically equivalent.
-- Example: `"English description | 中文描述"`.
-
-## Adding a new documentation file
-
-Before adding a new Markdown document, classify it first.
-
-- **Bilingual product/Skill documentation**: create both English and `_zh_cn.md` files and follow all rules above.
-- **Repository operational metadata**: follow the tool/platform-required filename. If a bilingual mirror is useful and supported, add one without changing the required canonical filename.
-- **Generated/vendor/external material**: do not manufacture a translation unless the task requires it.
-
-If classification is unclear, prefer the bilingual product/Skill-documentation path.
-
-## Required validation
-
-Before completing a documentation change, run:
-
-```bash
+```sh
 python3 scripts/check-multilingual-docs.py
+python3 scripts/check-doc-layer-links.py
+python3 scripts/check-layer-01-sections.py
+python3 scripts/check-layer-02-04-provider-neutrality.py
+python3 scripts/check-layer-04-workflow-maps.py
+python3 -m unittest discover -s tests
+git diff --check
 ```
 
-A change is not complete while this validator reports an error. The repository CI also runs this validator for relevant pull requests and pushes to `main`. If the validator and these rules disagree, fix the validator and documentation together rather than bypassing the check.
-
-## Pull-request review checklist
-
-For every change that touches bilingual documentation, verify that:
-
-- English canonical filenames remain unsuffixed.
-- Simplified Chinese filenames use `_zh_cn.md`.
-- Both language versions are present where required, including `MULTI_LINGUAL.md` and `MULTI_LINGUAL_zh_cn.md`.
-- Same-language links remain isolated except for explicit language-switch links.
-- `AGENTS.md` points to `MULTI_LINGUAL.md`, and `AGENTS_zh_cn.md` points to `MULTI_LINGUAL_zh_cn.md`.
-- `SKILL.md` loads only English references.
-- `SKILL_zh_cn.md` loads only Simplified Chinese references.
-- Semantic changes are synchronized across each pair.
-- `agents/openai.yaml` keeps bilingual descriptive text in the form `English | 中文`.
-- `python3 scripts/check-multilingual-docs.py` passes.
+`check-multilingual-docs.py` 保留原命令名以兼容已有调用，其职责已改为检查中文单一文档布局，不再要求任何语言镜像。文档层级、所有权、模块顺序、必要证据和工作流返回边界仍须保留。

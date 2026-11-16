@@ -1,34 +1,30 @@
-# Coding Delegation Re-entry
+# Coding 委派重新进入
 
-[English](delegation-mode-reentry.md) | [简体中文](delegation-mode-reentry_zh_cn.md)
 
-This module owns re-entry into the mode and count gates and the blocking boundary for higher-priority constraints or unavailable capabilities. It consumes the mode-confirmation and count-gate outcomes; it does not repeat their confirmation or count-locking policies, and it does not define child creation or lifecycle.
+本文档负责重新进入模式和数量门禁，以及更高优先级限制或能力不可用时的阻断边界。它消费模式确认和数量门禁的结果；不重复其确认或数量锁定策略，也不定义子 Agent 创建或生命周期。
 
-## General rules
+## 通用规范
 
-### Gate re-entry
+### 门禁重新进入
 
-A later root directive in the same host-identified Session lifetime reuses the locked mode and current child-count budget; it does not reopen mode selection or replace the session decision. A later turn, compaction, or same-Session resume does not reset these gates. The only same-Session count change is the exact one-slot increase authorized by the [Delegation Count Gate](delegation-mode-count-gate.md) after actual explicit user approval for a different unoccupied role. That transaction changes the count only; it does not reselect the mode, release a slice, or create a child. Other requested count or topology changes block dependent work until a new Session. Refresh task-specific Contract, slices, allocations' current lifecycle, and capability evidence as needed.
+同一宿主 Session 生命周期内的后续根指令沿用已锁定的模式和当前子代理数量预算；不重新打开模式选择，也不替换会话选择。后续轮次、compact 或同一 Session 的恢复均不会重置这些门禁。唯一允许的同 Session 数量变化，是按[委派数量门禁](delegation-mode-count-gate.md)，在用户实际明确批准为不同且未占用职责增加一个名额后，恰好增加一个名额。该事务只改变数量；不重新选择模式、不放行 Slice，也不创建子代理。其他数量或拓扑变更请求都会阻塞依赖工作，直到开启新 Session。按需更新任务专属 Contract、切片、allocation 的当前生命周期和能力证据。
 
-A Fork starts a new conversation with a new Session identity. Before any dependent work, perform fresh mode confirmation, count selection, and state-record initialization even if the source conversation used Single-Agent mode. Treat inherited child identities as foreign to the new Session: do not adopt them as created, reserved, resumable, or eligible current-session candidates. Build the new record from this conversation's current user direction and state; do not carry over the source conversation's locked mode/count decision as if it were newly selected.
+Fork 会以新的 Session 身份开启新会话。在任何依赖工作前，必须重新确认模式、选择数量并初始化状态记录，即使来源会话曾使用 Single-Agent 模式也一样。继承的子代理身份属于其他会话：不得将其采纳为已创建、已预留、可恢复或当前会话的合格候选。新记录只能依据本会话当前用户指令和状态构建；不得把来源会话已锁定的模式/数量选择冒充为本会话的新选择。
 
-### Higher-priority constraints and capability blocks
+### 更高优先级限制和能力阻断
 
-Higher-priority user, permission, security, product, runtime, capability, repository, and safety constraints always apply. An unavailable capability blocks the route; it never authorizes silently changing mode or count.
+用户、权限、安全、产品、运行环境、能力、仓库和安全限制始终有效。能力不可用时阻塞路线，不能据此默默改变模式或数量。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-No provider-specific optimization instructions at present; follow the general rules above.
+区分 Pi 当前会话的 compact/恢复和真正新根会话。只依据真实宿主事件和当前记录，不从文件名猜测身份。分支、树导航和扩展任务均不自动继承可操作子代理；缺少当前状态时先恢复证据再继续。
 
-## Claude Code CLI / Claude Desktop optimizations
 
-No provider-specific optimization instructions at present; follow the general rules above.
+## 相关概念
 
-## Related concepts
-
-- [Coding Delegation Mode Confirmation](delegation-mode-confirmation.md) — locate mode confirmation ownership.
-- [Coding Delegation Count Gate](delegation-mode-count-gate.md) — locate count locking ownership.
-- [Coding Delegation State Record](delegation-state-record.md) — locate state record ownership.
-- [Coding Session Model](../session-runtime/session-model.md) — locate Session identity and Fork boundaries.
-- [Coding Child Creation](delegation-child-creation.md) — locate child creation ownership.
-- [Coding Child Lifecycle](delegation-child-lifecycle.md) — locate child lifecycle ownership.
+- [Coding Delegation Mode Confirmation](delegation-mode-confirmation.md) — 定位模式确认归属。
+- [Coding Delegation Count Gate](delegation-mode-count-gate.md) — 定位数量锁定归属。
+- [Coding Delegation State Record](delegation-state-record.md) — 定位状态记录归属。
+- [Coding Session Model](../session-runtime/session-model.md) — 定位 Session 身份和 Fork 边界。
+- [Coding Child Creation](delegation-child-creation.md) — 定位子 Agent 创建归属。
+- [Coding Child Lifecycle](delegation-child-lifecycle.md) — 定位子 Agent 生命周期归属。

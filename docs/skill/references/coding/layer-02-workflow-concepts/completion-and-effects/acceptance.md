@@ -1,24 +1,23 @@
-# Acceptance Checkpoint
+# 验收检查点
 
-[English](acceptance.md) | [简体中文](acceptance_zh_cn.md)
 
-## Actions
+## 动作
 
-1. Map every Contract acceptance condition to the latest evidence for each applicable implementation/content, documentation, and Git metadata epoch.
-2. Check that the changed paths, effects, and documentation stay within the approved scope.
-3. Report implementation/content, documentation, and Git metadata status separately, and separate passed, failed, not-run, unavailable, assumed, and user-authorized items.
-4. Record residual risks and any follow-up that requires new authority or a new Contract.
-5. Do not use evidence from an older epoch as current evidence after a related change. Report `COMPLETE` only when every applicable latest epoch has current evidence and no required item, capability, verification boundary, or authorization remains unresolved.
+1. 将 Contract 中的每个验收条件映射到每个适用的 implementation/content、documentation 和 Git metadata epoch 的最新证据。
+2. 检查修改路径、影响和文档都在已批准范围内。
+3. 分别报告 implementation/content、documentation 和 Git metadata 状态，并分开记录通过、失败、未运行、不可用、假设和用户已授权的项目。
+4. 记录剩余风险，以及需要新授权或新 Contract 才能处理的后续工作。
+5. 相关变化发生后，不得把较早 epoch 的证据作为当前证据。只有每个适用的最新 epoch 都有当前证据，且不存在未解决的必需项目、能力、验证边界或授权问题时，才报告 `COMPLETE`。
 
-## Pass condition
+## 通过条件
 
-The final report maps every acceptance condition to current evidence from the applicable latest epochs, reports the three status dimensions separately, and is scope-accurate and explicit about limitations and authorized effects.
+最终报告将每个验收条件映射到适用最新 epoch 的当前证据，分别报告三个状态维度，准确描述范围，并明确说明限制和已授权影响。
 
-## Boundary
+## 边界
 
-This checkpoint does not hide failures, convert assumptions into facts, or authorize new implementation, documentation, or Git work.
+本检查点不隐藏失败，不把假设变成事实，也不授权新的实现、文档或 Git 工作。
 
-## Related concepts
+## 相关概念
 
-- [Coding Execution Decision Gate](../../layer-01-fundamental-concepts/execution-planning/execution-decision-gate.md) — locate decision and acceptance-condition ownership.
-- [Coding Execution Control](../../layer-01-fundamental-concepts/execution-control/execution-control.md) — locate released-scope and return-boundary ownership.
+- [Coding Execution Decision Gate](../../layer-01-fundamental-concepts/execution-planning/execution-decision-gate.md) — 定位决策和验收条件归属。
+- [Coding Execution Control](../../layer-01-fundamental-concepts/execution-control/execution-control.md) — 定位已放行范围和返回边界归属。

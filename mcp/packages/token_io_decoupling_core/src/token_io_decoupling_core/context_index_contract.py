@@ -135,7 +135,7 @@ def validate_context_index(
             raise ValueError(
                 f"controlled owner fragment {fragment_id} must belong to node {expected_node}"
             )
-        if fragment["section_en"] != "General rules" or fragment["section_zh_cn"] != "通用规范":
+        if fragment["section_en"] != "通用规范" or fragment["section_zh_cn"] != "通用规范":
             raise ValueError(
                 f"controlled owner fragment {fragment_id} must select General rules sections"
             )

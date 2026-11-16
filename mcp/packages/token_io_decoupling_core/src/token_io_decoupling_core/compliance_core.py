@@ -219,7 +219,7 @@ def path_layer(path: PurePosixPath) -> str:
 
 
 def path_language(path: PurePosixPath) -> str:
-    return "zh" if path.parts[:2] == ("docs", "zh-cn") or path.name.endswith(ZH_SUFFIX) else "en"
+    return "zh"
 
 
 def is_language_switch(label: str) -> bool:
@@ -477,11 +477,8 @@ def document_link_issues(documents: Mapping[str, str]) -> list[str]:
 
 
 def is_bilingual_document(path: str) -> bool:
-    return (
-        path in _PAIR_ROOT_SET
-        or mirror_path(path) in _PAIR_ROOT_SET
-        or path.startswith("docs/skill/references/")
-    )
+    """中文文档不再要求语言镜像。"""
+    return False
 
 
 def mirror_path(path: str) -> str:
@@ -499,35 +496,8 @@ def multilingual_mirror_issues(
     markdown_paths: Iterable[str],
     path_present: Callable[[str], bool | None],
 ) -> list[str]:
-    """Mirror existence checks shared by the standalone CLI and candidate preflight."""
-    paths = list(dict.fromkeys(markdown_paths))
-    english_paths = list(PAIR_ROOTS)
-    english_paths.extend(
-        path
-        for path in paths
-        if path.startswith("docs/skill/references/")
-        and not path.endswith(ZH_SUFFIX)
-        and path not in _PAIR_ROOT_SET
-    )
-    issues: list[str] = []
-    for english in english_paths:
-        if path_present(english) is False:
-            continue
-        chinese = mirror_path(english)
-        present = path_present(chinese)
-        if present is False:
-            issues.append(f"missing Chinese mirror: {chinese} for {english}")
-    for chinese in (path for path in paths if path.endswith(ZH_SUFFIX)):
-        if not (
-            chinese.startswith("docs/skill/references/")
-            or PurePosixPath(chinese).name in _PAIR_ROOT_ZH_NAMES
-        ):
-            continue
-        english = mirror_path(chinese)
-        present = path_present(english)
-        if present is False:
-            issues.append(f"missing English canonical file: {english} for {chinese}")
-    return issues
+    """兼容旧入口；中文单一来源没有镜像要求。"""
+    return []
 
 
 def multilingual_cross_language_issues(documents: Mapping[str, str]) -> list[str]:
@@ -630,8 +600,15 @@ def top_level_sections(content: str) -> list[tuple[int, str, int]]:
 
 def layer01_section_issues(path: str, content: str) -> list[str]:
     relative = path
-    language = "zh" if PurePosixPath(path).name.endswith(ZH_SUFFIX) else "en"
-    expected = LAYER01_HEADINGS[language]
+    language = "zh"
+    expected = (
+        ("通用规范", "Pi Coding Agent 优化指令")
+        if path.removeprefix("docs/skill/") == (
+            "references/coding/layer-01-fundamental-concepts/"
+            "session-runtime/runtime-provider-support.md"
+        )
+        else LAYER01_HEADINGS[language]
+    )
     sections = top_level_sections(content)
     errors: list[str] = []
     for heading in expected:
@@ -647,7 +624,7 @@ def layer01_section_issues(path: str, content: str) -> list[str]:
     ]
     known_positions = [position for position in positions if position is not None]
     if len(known_positions) == len(positions) and known_positions != sorted(known_positions):
-        errors.append(f"{relative}: 三个必需标题顺序错误；应为通用规范 → Codex → Claude Code")
+        errors.append(f"{relative}: 必需标题顺序错误；应为" + " → ".join(expected))
     allowed = {*expected, LAYER01_NAVIGATION[language]}
     for line, heading, _offset in sections:
         if heading not in allowed:
@@ -683,7 +660,7 @@ def layer01_section_issues(path: str, content: str) -> list[str]:
         None,
     )
     if navigation is not None and positions[-1] is not None and navigation < positions[-1]:
-        errors.append(f"{relative}: 导航章节必须位于三个内容模块之后")
+        errors.append(f"{relative}: 导航章节必须位于必需内容模块之后")
     return errors
 
 
@@ -902,7 +879,7 @@ def build_result(
         "checks": bounded,
         "not_evaluated": [
             "reverse inbound-link scans across unchanged documents",
-            "semantic equivalence between English and Simplified Chinese mirrors",
+            "中文指令的语义准确性与完整性",
             "full repository CI and final integration acceptance",
         ],
         "limits": {

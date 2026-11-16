@@ -29,7 +29,6 @@ class SkillBuildHook(BuildHookInterface):
         source = repo / "docs/skill"
         source_markers = (
             source / "SKILL.md",
-            source / "SKILL_zh_cn.md",
             source / "agents/openai.yaml",
             repo / "scripts/compliance_core_loader.py",
             repo / "scripts/check-multilingual-docs.py",
@@ -46,7 +45,6 @@ class SkillBuildHook(BuildHookInterface):
                 with zipfile.ZipFile(bundled) as archive:
                     required_entries = {
                         "SKILL.md",
-                        "SKILL_zh_cn.md",
                         "agents/openai.yaml",
                         "_project/scripts/_compliance_core.py",
                         "_project/scripts/compliance_core_loader.py",
@@ -102,6 +100,7 @@ class SkillBuildHook(BuildHookInterface):
                 path
                 for path in files
                 if path.is_file()
+                and "_NOT_USE_" not in path.name
                 and not path.is_symlink()
                 and not any(
                     part.startswith(".") or part in ("__pycache__", "dist", "build")

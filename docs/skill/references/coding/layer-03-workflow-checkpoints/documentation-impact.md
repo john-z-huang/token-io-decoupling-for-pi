@@ -1,25 +1,24 @@
-# Documentation impact
-
-[English](documentation-impact.md) | [简体中文](documentation-impact_zh_cn.md)
-
-This checkpoint owns route-level impact classification and return routing after documentation/content changes.
+# 文档影响
 
 
-## Trigger and inputs
+本检查点负责文档/内容变更后的路线级影响分类和返回路由。
 
-After Documentation or an approved content change, determine whether implementation/content, documentation, or Contract evidence changed. Apply [Documentation](../layer-02-workflow-concepts/completion-and-effects/documentation.md) and [Verification Epoch](../layer-02-workflow-concepts/verification-and-repair/verification-epoch.md).
 
-## Decision and result
+## 触发与输入
 
-1. Capture before/after fingerprints and classify each affected dimension: implementation/content, documentation, Git metadata, or multiple. Attach evidence for each classification.
-2. Name required checks, evidence that remains reusable, and why each unaffected dimension is unchanged. A no-change result is `Not applicable` with fingerprint evidence.
-3. Re-verify changed dimensions. If content changes behavior, Contract, or acceptance, return the evidence to implementation/content Verification; if only documentation changed, return documentation checks and unaffected-dimension rationale.
-4. Return the classification, fingerprints, checks, reuse rationale, and Verification disposition to route scheduling.
+Documentation 或获批内容变更后，判断 implementation/content、documentation 或 Contract 证据是否改变。应用[Documentation](../layer-02-workflow-concepts/completion-and-effects/documentation.md)和[Verification Epoch](../layer-02-workflow-concepts/verification-and-repair/verification-epoch.md)。
 
-## Failure boundary
+## 决策与结果
 
-Unknown impact, missing required checks, or stale evidence blocks Acceptance. Preserve the affected/unaffected dimension reasoning and permitted output scope; do not reuse evidence across a changed epoch.
+1. 记录变更前后指纹，并分类每个受影响维度：实现/内容、文档、Git 元数据或多个维度。为每项分类附上证据。
+2. 列出必需检查、仍可复用的证据，以及每个未变维度未变化的理由。无变化结果应带指纹证据并记录为 `Not applicable`。
+3. 重新核验变更维度。若内容改变行为、Contract 或验收，将证据返回实现/内容 Verification；若仅文档变化，返回文档检查及未变维度理由。
+4. 向路线调度返回分类、指纹、检查、复用理由和 Verification 处置结果。
 
-## Related concepts
+## 失败边界
+
+影响未知、必需检查缺失或证据过期时阻塞 Acceptance。保留受影响/不受影响维度判断及输出授权范围；变更 epoch 后不得复用旧证据。
+
+## 相关概念
 
 - [Documentation](../layer-02-workflow-concepts/completion-and-effects/documentation.md)

@@ -1,26 +1,25 @@
-# Session Audit Resolution
+# Session 审计解决
 
-[English](session-audit-resolution.md) | [简体中文](session-audit-resolution_zh_cn.md)
 
-This checkpoint owns applying current Session audit preferences to the parent-controlled record and confirming the resulting values. It does not make audit visibility a permission or execution gate.
+本检查点负责将当前 Session 审计偏好应用于父级控制记录，并核对最终值；不将审计可见性设为权限或执行门禁。
 
-## Trigger and inputs
+## 触发与输入
 
-After the canonical parent-context record is available, consume it and current Session audit facts. Apply [Session Audit Visibility](../layer-01-fundamental-concepts/session-runtime/session-audit-visibility.md) for field values and display semantics, and [Delegation State Record](../layer-01-fundamental-concepts/delegation/delegation-state-record.md) for record ownership and shape.
+取得规范 parent-context 记录后，使用该记录和当前 Session 审计事实。应用[Session Audit Visibility](../layer-01-fundamental-concepts/session-runtime/session-audit-visibility.md)了解字段值与显示语义，并应用[委派状态记录](../layer-01-fundamental-concepts/delegation/delegation-state-record.md)了解记录归属和结构。
 
-## Decision and result
+## 决策与结果
 
-Use valid explicit preferences already supplied by the user or retained in the current parent-controlled record. Otherwise apply the defaults immediately: Root `balanced/milestone_only`; Worker `full`. The user may explicitly change any preference, and the parent records the effective values and whether they were explicit or default. Do not ask a mandatory first-use question. Do not start a timer, wait for a reply, or migrate older prompt-state values.
+使用用户已提供或当前父级控制记录中保留的有效显式偏好。否则立即应用缺省值：Root 为 `balanced/milestone_only`；Worker 为 `full`。用户可明确更改任一偏好，父级记录最终值及其显式或缺省来源。不得强制首次提问。不得启动计时器、等待回复或迁移旧提示状态值。
 
-If the available record contains obsolete prompt/timing or migration fields, ignore those fields and preserve valid preference values. Do not infer a preference from obsolete prompt status. If current explicit values conflict or are invalid, request clarification only for the affected preference when appropriate; if it cannot be resolved, use the policy default and report the limitation rather than blocking unrelated work.
+若现有记录含过时提示/计时或迁移字段，则忽略这些字段并保留有效偏好值。不得根据过时提示状态推断偏好。若当前显式值冲突或无效，适当时只针对受影响偏好请求澄清；若无法解决，则使用策略缺省值并报告限制，不阻塞无关工作。
 
-Worker-log visibility remains an evidence description. When a task depends on access to the complete safe Worker conversation record, report `available`, `unverified`, or `unavailable` only from actual access evidence; no Worker means `Not applicable` with a reason. If that evidence is required and unavailable or unverified, block only the dependent audit judgment. A returned final body or tool discovery alone does not prove full log access.
+Worker 日志可见性仍只是证据描述。若任务依赖访问完整安全 Worker 会话记录，只能依据实际访问证据报告 `available`、`unverified` 或 `unavailable`；不存在 Worker 时，记录带理由的 `Not applicable`。若该证据是必需的且不可用或未验证，则仅阻塞依赖它的审计判断。仅返回最终正文或发现工具均不能证明可访问完整日志。
 
-## Failure boundary
+## 失败边界
 
-Preference collection is optional and never grants authorization. Continue using effective defaults if no preference was supplied. Preserve required progress reports and confidentiality rules. Block only a judgment that depends on required but missing audit evidence; report unavailable preference or Worker-log evidence without treating it as proof of completion.
+偏好收集是可选项，绝不授予授权。未提供偏好时，继续使用有效缺省值。保留必需进度报告和保密规则。仅当某项判断依赖缺失的必需审计证据时才阻塞；报告偏好或 Worker 日志证据不可用，但不得把它视为完成证明。
 
-## Related concepts
+## 相关概念
 
 - [Session Audit Visibility](../layer-01-fundamental-concepts/session-runtime/session-audit-visibility.md)
 - [Coding Delegation State Record](../layer-01-fundamental-concepts/delegation/delegation-state-record.md)

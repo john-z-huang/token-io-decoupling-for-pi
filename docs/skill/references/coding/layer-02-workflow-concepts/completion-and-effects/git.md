@@ -1,28 +1,27 @@
-# Git Checkpoint
+# Git 检查点
 
-[English](git.md) | [简体中文](git_zh_cn.md)
 
-## Actions
+## 动作
 
-1. Confirm the exact repository, worktree, branch or ref, remote, operation, and intended external effect.
-2. Inspect status and relevant history before mutating Git state. Do not include unrelated user changes.
-3. Treat commit, branch, index, and history changes as Git metadata operations that do not automatically invalidate the implementation/content or documentation epoch.
-4. Confirm that staged or committed content matches the latest verified fingerprints and contains no unverified content. If it differs, return to the corresponding implementation/content or documentation Verification epoch before continuing.
-5. Keep commit, push, Issue, PR, remote changes, and other external effects separate unless each effect is explicitly authorized.
-6. Record the latest applicable implementation/content and documentation epochs that the Git operation targets.
-7. Stop on an ambiguous target, unexpected conflict, missing authorization, or failed prerequisite; do not broaden the operation to recover.
+1. 确认准确的仓库、worktree、分支或 ref、远程、操作和计划产生的外部影响。
+2. 修改 Git 状态前检查 status 和相关历史，不要纳入用户无关的现有修改。
+3. 将 commit、branch、index 和 history 变化视为 Git metadata 操作；它们不会自动使 implementation/content 或 documentation epoch 失效。
+4. 确认 staged 或 committed content 与最新验证指纹一致，且不包含未验证内容。如果存在差异，继续前必须返回对应的 implementation/content 或 documentation Verification epoch。
+5. 将 commit、push、Issue、PR、远程配置修改和其他外部影响分开处理，除非每项影响都得到明确授权。
+6. 记录 Git 操作所针对的最新适用 implementation/content 和 documentation epoch。
+7. 目标不明确、出现意外冲突、缺少授权或前置条件失败时停止；不要扩大操作范围来恢复。
 
-## Pass condition
+## 通过条件
 
-The authorized Git operation completes against the exact target, records the latest applicable content and documentation epochs, and matches their verified fingerprints; otherwise the unavailable authorization, conflict, prerequisite, or required Verification return is reported.
+获授权的 Git 操作已针对准确目标完成，记录了最新适用的 content 和 documentation epoch，并与其验证指纹一致；否则报告不可用的授权、冲突、前置条件或所需的 Verification 返回。
 
-## Boundary
+## 边界
 
-This checkpoint does not grant product decision authority, permit unrequested cleanup, or turn a possible Git effect into an authorized one.
+本检查点不授予产品决策权限，不允许未请求的清理，也不会把可能产生的 Git 影响变成已授权影响。
 
-## Related concepts
+## 相关概念
 
-- [Coding Context Exchange Workspace Boundary](../../layer-01-fundamental-concepts/context-exchange/context-exchange-workspace-boundary.md) — locate worktree, permission, and path boundaries.
-- [Coding Session Role Ownership](../../layer-01-fundamental-concepts/session-runtime/session-role-ownership.md) — locate Documentation/Comments & Git Operations ownership.
-- [Coding Execution Control](../../layer-01-fundamental-concepts/execution-control/execution-control.md) — locate authorized scope and unreleased-boundary ownership.
-- [Coding Delegation State Record Worker Boundary](../../layer-01-fundamental-concepts/delegation/delegation-worker-boundary.md) — locate parent-controlled path and Worker access boundaries.
+- [Coding Context Exchange 工作区边界](../../layer-01-fundamental-concepts/context-exchange/context-exchange-workspace-boundary.md) — 定位 worktree、权限和路径边界。
+- [Coding Session 职责归属](../../layer-01-fundamental-concepts/session-runtime/session-role-ownership.md) — 定位 Documentation/Comments & Git Operations 归属。
+- [Coding Execution Control](../../layer-01-fundamental-concepts/execution-control/execution-control.md) — 定位授权范围和未发布边界归属。
+- [Coding Delegation State Record Worker Boundary](../../layer-01-fundamental-concepts/delegation/delegation-worker-boundary.md) — 定位父级控制路径和 Worker 访问边界。

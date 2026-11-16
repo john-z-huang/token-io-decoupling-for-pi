@@ -1,26 +1,21 @@
 # Worker Content Memo Lifecycle
 
-[English](content-memo-lifecycle.md) | [简体中文](content-memo-lifecycle_zh_cn.md)
 
-This owner defines creation, update, cleanup, and discoverability for a Worker's Serena Memory memo. It does not define memo content, dispatch, handoff authorization, or acceptance.
+本文档定义 Serena Memory Worker memo 的创建、更新、清理和可发现性，不定义 memo 内容、dispatch、handoff 授权或验收。
 
-## General rules
+## 通用规范
 
-### Creation, update, and discovery
+### 创建、更新与发现
 
-When `write_content_memo` is true, use `list_memories` to check the named entry and `write_memory` to create or update `context-exchange/workers/<worker-context-id>/content-memo` when reusable state first appears and at material milestones, blockers, handoff, replacement, or normal exit. Update only when state/evidence materially changes, not after every command. A parent or successor may read it only when the released instructions name or authorize it; Serena itself does not enforce that ownership rule. Do not create a local file index for these records; the name is discoverable through Serena's memory listing.
+`write_content_memo` 为 true 时，使用 `list_memories` 检查具名条目，并在首次出现可复用状态以及实质里程碑、阻塞、handoff、replacement 或正常退出时，使用 `write_memory` 创建或更新 `context-exchange/workers/<worker-context-id>/content-memo`。只在状态/证据实质变化时更新，不要逐命令记录。父级或后继者只有在已放行指令具名或授权该记录时才能读取；Serena 本身不强制该归属规则。这些记录不另建本地文件索引；名称可通过 Serena Memory 列表发现。
 
-Memory capability failure must be reported and blocks dependent record use; never fall back to writing the record as a file. Preserve the content contract and do not turn it into a command journal.
+Memory 能力失败时必须报告，并阻塞依赖该记录的工作；不得回退为文件写入。遵守 memo 内容契约，不得写成命令日志。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-Hooks may signal a compaction or exit boundary but do not write or validate the named Memory. Use exposed, authorized Serena tools and confirm the write result; do not write another Worker's memory name unless the parent explicitly authorizes that record.
+Serena 是可选外部 MCP。需要 Memory 时，通过 Pi codemode 的 `searchTools`、`describeTool`、`describeNamespace` 核实实际工具与 schema，调用时检查 `isError`；hidden 工具不得绕过。确认真实项目绑定及 Memory Schema。Memory 名称、内容、持久化及禁止回退文件、授权隔离和边界均按通用规范；能力缺失只阻塞依赖项。Pi 的 `read`、`edit`、`write`、`bash` 可按授权直接访问文档，不代表 Serena Memory 能力。旧身份上下文不可伪造。
 
-## Claude Code CLI / Claude Desktop optimizations
+## 相关概念
 
-Only when Serena MCP Memory tools are exposed and authorized, use the named memory and verify the write result. Hooks or auto memory do not replace it. If unavailable, report the limitation and block dependent work.
-
-## Related concepts
-
-- [Worker Content Memo](content-memo.md) — locate the memo content contract.
-- [Worker Content Memo Dispatch](content-memo-dispatch.md) — locate the memo switch.
+- [Worker Content Memo](content-memo.md) — 定位 memo 内容契约。
+- [Worker Content Memo Dispatch](content-memo-dispatch.md) — 定位 memo 开关。

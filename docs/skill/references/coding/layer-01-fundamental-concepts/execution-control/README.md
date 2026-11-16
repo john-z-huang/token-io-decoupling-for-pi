@@ -1,13 +1,12 @@
 # Execution Control
 
-[English](README.md) | [简体中文](README_zh_cn.md)
 
-## Scope and boundary
+## 范围与边界
 
-Interaction slices, release and progress control, and bounded-stage feedback. It governs execution boundaries after a direction is approved; planning decisions remain in execution-planning.
+交互切片、放行与进度控制、有限阶段反馈。本分类管理方向获批后的执行边界；规划决策归执行规划分类。
 
-## Entry
+## 入口
 
-Start with Execution Control for slice/release rules, then consult Stage Feedback when reporting progress or exceptions.
+从执行控制的切片/放行规则开始；报告进展或异常时查阅阶段反馈。
 
-[INDEX](INDEX.md)
+[索引](INDEX.md)

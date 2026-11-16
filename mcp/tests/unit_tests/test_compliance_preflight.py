@@ -43,23 +43,11 @@ def _request(*candidates: dict[str, object], scope: str = "skill_maintenance") -
 
 
 def _content(language: str, peer: str) -> str:
-    if language == "en":
-        switch = f"[简体中文]({peer})"
-        first = "General rules"
-        second = "Codex CLI / ChatGPT Desktop optimizations"
-        third = "Claude Code CLI / Claude Desktop optimizations"
-        empty = "No provider-specific optimization is currently defined."
-        related = "Related concepts"
-    else:
-        switch = f"[English]({peer})"
-        first = "通用规范"
-        second = "Codex CLI / ChatGPT Desktop 特别优化指令"
-        third = "Claude Code CLI / Claude Desktop 特别优化指令"
-        empty = "当前没有特定于提供商的优化指令。"
-        related = "相关概念"
     return (
-        f"## {first}\nRules.\n{switch}\n## {second}\n{empty}"
-        f"\n## {third}\n{empty}\n## {related}\nNavigation.\n"
+        "## 通用规范\n规范。\n"
+        "## Codex CLI / ChatGPT Desktop 特别优化指令\n暂无。\n"
+        "## Claude Code CLI / Claude Desktop 特别优化指令\n暂无。\n"
+        "## 相关概念\n导航。\n"
     )
 
 
@@ -129,7 +117,7 @@ def test_no_reader_reports_unknown_without_probing_and_keeps_static_evidence_unk
     assert "no candidate path was probed" in message
     assert result["not_evaluated"] == [
         "reverse inbound-link scans across unchanged documents",
-        "semantic equivalence between English and Simplified Chinese mirrors",
+        "中文指令的语义准确性与完整性",
         "full repository CI and final integration acceptance",
     ]
 
@@ -146,7 +134,9 @@ def test_skill_overlay_checks_bilingual_links_and_layer01_structure() -> None:
     )
     assert result["status"] == "unknown"  # static content passes; disk baselines remain unknown
     assert all(check["status"] == "pass" for check in _checks_for(result, "layer01_structure"))
-    assert all(check["status"] == "pass" for check in _checks_for(result, "bilingual_mirror"))
+    assert all(
+        check["status"] == "not_applicable" for check in _checks_for(result, "bilingual_mirror")
+    )
     assert not any(
         check["status"] == "fail"
         for check in result["checks"]
@@ -351,7 +341,7 @@ def test_result_exposes_policy_version_and_rule_id() -> None:
         ("mcp/OPTIMIZATION_BENCHMARK.md", "mcp/OPTIMIZATION_BENCHMARK_zh_cn.md"),
     ],
 )
-def test_new_mcp_owner_candidate_requires_its_mirror(
+def test_new_mcp_owner_candidate_does_not_require_a_mirror(
     tmp_path: Path,
     candidate_path: str,
     mirror_path: str,
@@ -363,8 +353,8 @@ def test_new_mcp_owner_candidate_requires_its_mirror(
             _request(_candidate(candidate_path, "Candidate text\n")),
         )
         mirror = _checks_for(result, "bilingual_mirror")[0]
-        assert mirror["status"] == "fail"
-        assert mirror["target_path"] == mirror_path
+        assert mirror["status"] == "not_applicable"
+        assert mirror.get("target_path") is None
     finally:
         service.close()
 
@@ -386,7 +376,7 @@ def _delete_candidate(path: str, current: bytes) -> dict[str, object]:
         (["mcp/CANDIDATE_COMPLIANCE.md", "mcp/CANDIDATE_COMPLIANCE_zh_cn.md"], "pass"),
     ],
 )
-def test_delete_preserves_bilingual_pair_state(
+def test_delete_has_no_bilingual_pair_requirement(
     tmp_path: Path, deleted_paths: list[str], expected_status: str
 ) -> None:
     en_path = "mcp/CANDIDATE_COMPLIANCE.md"
@@ -402,12 +392,12 @@ def test_delete_preserves_bilingual_pair_state(
             service,
             _request(*(_delete_candidate(path, contents[path]) for path in deleted_paths)),
         )
-        assert _checks_for(result, "bilingual_mirror")[0]["status"] == expected_status
+        assert _checks_for(result, "bilingual_mirror")[0]["status"] == "not_applicable"
     finally:
         service.close()
 
 
-def test_delete_with_absent_peer_passes_and_unknown_peer_stays_unknown(tmp_path: Path) -> None:
+def test_delete_does_not_probe_absent_or_unsafe_legacy_peer(tmp_path: Path) -> None:
     en_path = "mcp/CANDIDATE_COMPLIANCE.md"
     content = b"English\n"
     target = tmp_path / en_path
@@ -418,7 +408,7 @@ def test_delete_with_absent_peer_passes_and_unknown_peer_stays_unknown(tmp_path:
         absent = validate_decoupling_compliance(
             service, _request(_delete_candidate(en_path, content))
         )
-        assert _checks_for(absent, "bilingual_mirror")[0]["status"] == "pass"
+        assert _checks_for(absent, "bilingual_mirror")[0]["status"] == "not_applicable"
     finally:
         service.close()
 
@@ -436,8 +426,8 @@ def test_delete_with_absent_peer_passes_and_unknown_peer_stays_unknown(tmp_path:
             unknown_service, _request(_delete_candidate(en_path, content))
         )
         mirror = _checks_for(unknown, "bilingual_mirror")[0]
-        assert mirror["status"] == "unknown"
-        assert mirror["evidence_missing"]
+        assert mirror["status"] == "not_applicable"
+        assert not mirror["evidence_missing"]
     finally:
         unknown_service.close()
 

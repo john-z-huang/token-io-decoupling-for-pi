@@ -1,30 +1,29 @@
-# Decision context selection
+# 决策上下文选择
 
-[English](decision-context-selection.md) | [简体中文](decision-context-selection_zh_cn.md)
 
-This checkpoint owns whether a downstream decision needs generated background and whether that background is current and usable. It does not make the executor, output-route, role, advice-eligibility, or other downstream decision.
+本检查点负责决定下游决策是否需要生成背景，以及该背景是否当前且可用；不代替执行主体、输出路由、职责、建议资格或其他下游决策。
 
-## Trigger and inputs
+## 触发与输入
 
-Consume the current decision question, verified facts with their source provenance, explicit user direction, and the downstream decision that may use generated context. Apply [Decision Context Generation](../layer-01-fundamental-concepts/execution-planning/decision-context-generation.md). This checkpoint does not enable advice. The separate optional five-node stage-advice gate is governed by route Advisory Selection and [Decisions Advisory](../layer-01-fundamental-concepts/execution-planning/decisions-advisory.md); it does not reopen or change Mode. Executor, output-route, candidate, and role decisions remain with their direct owners.
+消费当前决策问题、带来源溯源的已核实事实、用户明确指令，以及可能使用生成上下文的下游决策。应用[决策上下文生成](../layer-01-fundamental-concepts/execution-planning/decision-context-generation.md)。本检查点不启用建议。单独的可选五节点阶段建议门禁由路线建议选择和[Decisions 建议](../layer-01-fundamental-concepts/execution-planning/decisions-advisory.md)负责；它不会重开或改变 Mode。执行主体、输出路由、候选和职责决策仍由各自直接 owner 负责。
 
-## Decision and result
+## 决策与结果
 
-1. Name the unresolved downstream question and identify which current facts and constraints bear on it, with source pointers and provenance labels. Keep user requirements, current evidence, plans, assumptions, and unverified claims distinct.
-2. If explicit user direction settles the relevant choice, or no downstream decision requires generated context, record `Not applicable` and why. Otherwise call Decision Context Generation with only the bounded facts, provenance, and concrete decision goal needed for that question.
-3. Review the returned context for factual fidelity, provenance, language, relevance, and missing information. Compare its input hash with the exact current source material and goal; compare its policy binding with the current applicable rules. Reject stale, mismatched, incomplete, or conflicting context and do not send it to downstream advice.
-4. Return one of these results to the named downstream owner:
+1. 命名尚未解决的下游问题，并识别与问题有关的当前事实和约束，保留来源指针及来源标签。区分用户要求、当前证据、计划、假设和未经核实的说法。
+2. 若用户明确指令已经决定相关选项，或没有下游决策需要生成上下文，则记录 `Not applicable` 和原因。否则仅把该问题必需的有界事实、来源和具体决策目标交给 Decision Context Generation。
+3. 审阅返回上下文的事实准确性、来源、语言、相关性和缺失信息。将输入 Hash 与当前确切源材料和目标比较；将政策绑定与当前适用规则比较。拒绝过期、不匹配、不完整或冲突的上下文，不得发送给下游建议。
+4. 向指定下游 owner 返回以下一种结果：
 
-| Result | Required route action |
+| 结果 | 必需路线动作 |
 | --- | --- |
-| Reviewed context and exact current input/policy bindings | Pass only that context and its provenance/hash evidence to the corresponding advice consumer. |
-| Explicit direction settled the choice, or no downstream decision requires generated context | Record `Not applicable` and why; follow the explicit direction or proceed under the direct decision owner. |
-| Generation failed, or required facts are missing/conflicting | Do not invent context or hashes. Decide directly only if verified facts are sufficient under the direct owner; otherwise block the dependent decision and request the missing evidence. |
+| 上下文已审阅，输入/政策绑定精确且当前 | 仅向对应建议消费者传递该上下文及来源/Hash 证据。 |
+| 明确指令已决定选项，或下游决策无需生成上下文 | 记录 `Not applicable` 和原因；遵循明确指令或按直接决策 owner 继续。 |
+| 生成失败，或必需事实缺失/冲突 | 不得伪造上下文或 Hash。仅当直接 owner 下的已核实事实足够时直接判断；否则阻塞依赖决策并请求缺失证据。 |
 
-## Failure boundary
+## 失败边界
 
-Generated context is supporting input, not a decision, authorization, or substitute for current direct owners. This checkpoint does not determine whether any advice is enabled, relevant, or acceptable; each direct decision owner keeps its own gate, and the separate optional five-node stage-advice gate remains with Advisory Selection.
+生成的上下文仅是辅助输入，不是决策、授权或当前直接 owner 的替代品。本检查点不决定任何建议是否启用、相关或可接受；各直接决策 owner 保留自身门禁，单独的可选五节点阶段建议门禁仍由对应的路线检查点负责。
 
-## Related concepts
+## 相关概念
 
-- [Decision Context Generation](../layer-01-fundamental-concepts/execution-planning/decision-context-generation.md)
+- [决策上下文生成](../layer-01-fundamental-concepts/execution-planning/decision-context-generation.md)

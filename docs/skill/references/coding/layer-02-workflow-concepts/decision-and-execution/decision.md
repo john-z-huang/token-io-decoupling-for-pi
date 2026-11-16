@@ -1,26 +1,25 @@
-# Decision Checkpoint
+# 决策检查点
 
-[English](decision.md) | [简体中文](decision_zh_cn.md)
 
-## Actions
+## 动作
 
-1. State the decision the next slice depends on.
-2. List the relevant facts, constraints, options, chosen direction, and rejected alternatives.
-3. Confirm that the chosen direction stays within the Contract and named paths or mutations.
-4. Release only one concrete Development slice. If a new fact changes the decision, amend the Contract and make a new decision before continuing.
+1. 说明下一切片所依赖的决策。
+2. 列出相关事实、约束、可选方案、选定方向和被放弃的方案。
+3. 确认选定方向仍在 Contract 以及已命名路径或修改范围内。
+4. 只发布一个具体的 Development 切片。如果新事实改变了决策，继续前先修改 Contract 并重新决策。
 
-5. When a route supplies advisory output for this decision, re-read the applicable direct owner and decide from current facts; advice does not choose the Core branch or release the Slice. Continue from the direct owner only when required evidence remains available. Apply [Decisions Advisory](../../layer-01-fundamental-concepts/execution-planning/decisions-advisory.md) for advisory policy.
+5. 路线为本决策提供建议输出时，重新读取适用的直接 owner，并依据当前事实作出决策；建议不选择 Core 分支，也不释放 Slice。只有必需证据仍可取得时，才依据直接 owner 继续判断。建议政策遵循[Decisions 建议](../../layer-01-fundamental-concepts/execution-planning/decisions-advisory.md)。
 
-## Pass condition
+## 通过条件
 
-The next slice has one approved direction, an explicit scope, and a stated boundary beyond which work must pause.
+下一切片拥有一个获批准的方向、明确范围，以及工作必须暂停的边界。
 
-## Boundary
+## 边界
 
-This checkpoint decides what may be done next. It does not implement, perform final verification, write post-verification documentation, or perform Git effects.
+本检查点决定下一步允许做什么，不实现，不执行最终验证，不写入验证后的文档，也不产生 Git 影响。
 
-## Related concepts
+## 相关概念
 
-- [Coding Execution Decision Gate](../../layer-01-fundamental-concepts/execution-planning/execution-decision-gate.md) — locate decision-brief and release-condition ownership.
-- [Coding Execution Planning](../../layer-01-fundamental-concepts/execution-planning/execution-planning.md) — locate bounded planning ownership.
-- [Coding Execution Control](../../layer-01-fundamental-concepts/execution-control/execution-control.md) — locate released-slice boundary ownership.
+- [Coding Execution Decision Gate](../../layer-01-fundamental-concepts/execution-planning/execution-decision-gate.md) — 定位 Decision Brief 和放行条件归属。
+- [Coding Execution Planning](../../layer-01-fundamental-concepts/execution-planning/execution-planning.md) — 定位有界规划归属。
+- [Coding Execution Control](../../layer-01-fundamental-concepts/execution-control/execution-control.md) — 定位已放行 slice 边界归属。

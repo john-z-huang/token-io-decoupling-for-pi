@@ -1,44 +1,28 @@
-# Coding Child Lifecycle
+# Coding 子 Agent 生命周期
 
-[English](delegation-child-lifecycle.md) | [简体中文](delegation-child-lifecycle_zh_cn.md)
 
-This module owns persistence and lifecycle states for created Multi-Agent children. It consumes a child whose creation, allocation, and dispatch have already been handled by their owner concepts; it does not define creation, role allocation, Dispatch Preview, Worker boundaries, reuse/replacement, or context transport.
+本文档负责已创建多代理子 Agent 的持久性和生命周期状态。它消费已由各自 owner 概念处理创建、分配和派发的子 Agent；不定义创建、职责分配、Dispatch Preview、Worker 边界、复用/替换或上下文传输。
 
-## General rules
+## 通用规范
 
-### Lifecycle states
+### 生命周期状态
 
-Keep each created child's identity and lifecycle persistent in the parent record. Do not close, shut down, archive, delete, or remove a child merely as cleanup. When runtime status is temporary, retain the child ID and status in the parent record after the status is no longer available. While pending or running, use bounded event-driven waits where available. Record a status or lifecycle delta only when it changes; avoid repeat polling and status rewrites when there is no new state. A child may become completed only after returning its final result and evidence. Apply the configured summary cadence; required milestone feedback remains due.
+在父级记录中持久保存每个已创建子 Agent 的身份和生命周期。不得仅为清理而关闭、shutdown、归档、删除或移除子 Agent。运行时状态信息是短暂的情形下，即使状态不再可用，仍须在父级记录保留真实身份或任务调用证据和状态。pending 或 running 时，在可用情况下采用有界的事件驱动等待；只有状态变化时才更新记录，避免无变化时重复轮询或重写状态。只有返回最终结果和证据后才能进入 completed。应用配置的摘要频率，必需的里程碑反馈仍须输出。
 
-### Error and interruption
+### 错误与中断
 
-On error or interruption, preserve the original child's identity, explicit lifecycle state, and available evidence. Do not close it as cleanup without authorization. The reuse/replacement owner decides whether an authorized follow-up through that same child is possible and what to do if it is not; the lifecycle owner only records the resulting state and blocker. Do not infer permission to create a successor or to recycle an allocation from a lifecycle transition.
+发生错误或中断时，保留原子代理的身份、明确的生命周期状态与现有证据；未经授权不得以清理为由关闭它。同一子代理是否能够进行获准 follow-up，以及无法继续时如何处理，均由复用/替换 owner 决定；生命周期 owner 只记录结果状态和阻塞原因。不得从生命周期变化推断创建 successor 或回收 allocation 名额的权限。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-Codex can also expose configured `SubagentStart`/`SubagentStop` hooks for child IDs and observed lifecycle; `SubagentStart` with `continue: false` does **not** block spawning. Preserve the actual child ID and final evidence in the parent record even if a status result or hook report is no longer available. These events are observational and do not authorize replacement or prove verification passed. [OpenAI: lifecycle hooks](https://learn.chatgpt.com/docs/hooks).
+父级保留实际任务调用、返回状态与证据。同步返回的任务可直接由 running 进入 completed/failed；只有工具明确提供异步句柄与状态接口时才查询或等待。工具未暴露取消、消息或恢复能力时不得模拟。终态不释放已绑定名额或职责。
 
-### Codex thread observation
 
-When the active Agent Session exposes `/agent` or a direct subagent-status/result tool, use it to obtain active work and returned summaries without moving whole transcripts into the parent context. Process an approval only when the active Session directly provides an approval request or control; verify its source and requested operation first. If the host cannot provide a fresh authorized approval path, the action fails and the parent must record the blocked slice. A `SubagentStop` hook is observational; a status label does not supersede final evidence or grant cleanup/replacement authority. [OpenAI: subagent thread controls and approvals](https://learn.chatgpt.com/docs/agent-configuration/subagents), [OpenAI: hooks](https://learn.chatgpt.com/docs/hooks).
+## 相关概念
 
-## Claude Code CLI / Claude Desktop optimizations
-
-Use the `Agent` result and `/tasks` command output when available to observe a running child; use a bounded runtime wait for its result. `/tasks` output is transient, so retain the returned Agent ID and completed or error state in the parent record after it is no longer available.
-
-### Event-assisted observation
-
-In a Claude Code Session that actually exposes Hooks, an optional `SubagentStart` hook can record the emitted `agent_id`/`agent_type`; an optional `SubagentStop` hook can observe `agent_id`, `agent_transcript_path`, and `last_assistant_message` without copying the full transcript into the parent context. Reconcile those signals with the actual `Agent` result and parent state record; a hook event alone does not prove successful completion or grant permission to close, replace, or create a child. Record failures and partial output distinctly. `/tasks` output is a convenience signal, not the durable source of truth; retain ID and evidence when that output no longer includes the child. Use Hooks only when the active Session exposes them.
-
-Official references: [SubagentStart/SubagentStop event inputs](https://code.claude.com/docs/en/hooks), [subagent lifecycle and resume](https://code.claude.com/docs/en/sub-agents).
-
-An exhausted `maxTurns`, failed `Agent` call or incomplete/background result is partial or interrupted until the parent verifies actual output and return conditions. Disappearance from `/tasks` is not completion evidence. [Anthropic: subagent execution limits](https://code.claude.com/docs/en/sub-agents).
-
-## Related concepts
-
-- [Coding Child Creation](delegation-child-creation.md) — locate child creation capability.
-- [Coding Child Role Allocation](delegation-child-role-allocation.md) — locate slot and role allocation.
-- [Coding Child Dispatch](delegation-child-dispatch.md) — locate Dispatch Preview and Worker boundary.
-- [Coding Child Reuse and Replacement](delegation-child-reuse-replacement.md) — locate authorized repair and replacement relations.
-- [Coding Context Exchange](../context-exchange/context-exchange.md) — locate context transport ownership.
-- [Coding Session Audit Visibility](../session-runtime/session-audit-visibility.md) — locate audit and summary configuration.
+- [Coding Child Creation](delegation-child-creation.md) — 定位子 Agent 创建能力。
+- [Coding Child Role Allocation](delegation-child-role-allocation.md) — 定位名额和职责分配。
+- [Coding Child Dispatch](delegation-child-dispatch.md) — 定位 Dispatch Preview 和 Worker 边界。
+- [Coding Child Reuse and Replacement](delegation-child-reuse-replacement.md) — 定位获准修复和替换关系。
+- [Coding Context Exchange](../context-exchange/context-exchange.md) — 定位上下文传输归属。
+- [Coding Session 审计可见性](../session-runtime/session-audit-visibility.md) — 定位审计和摘要配置。

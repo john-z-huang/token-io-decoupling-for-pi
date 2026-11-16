@@ -1,80 +1,79 @@
-# Work Definition Module
+# 工作定义模块
 
-[English](work-definition.md) | [简体中文](work-definition_zh_cn.md)
 
-This Layer-04 module grounds the task in current facts and produces a Contract-consistent decision and the default shared task plan. It does not select an executor, assess output routing, reserve a role, release a Slice, or perform Bootstrap.
+本 Layer-04 模块用当前事实建立任务上下文，并产出符合 Contract 的决策及默认共享任务计划。它不选择执行者、不评估输出路由、不预留角色、不释放 Slice，也不执行 Bootstrap。
 
-## Entry declaration
+## 入口声明
 
-| Field | Requirement |
+| 字段 | 要求 |
 | --- | --- |
-| Required inputs | Current authorized Contract and task scope, released route/mode evidence, current canonical Session state and completed audit readback, known task facts/source pointers, an authorized available way to obtain needed Context, and caller continuation/effect state. WD01 establishes the current Context; it is not an entry prerequisite. |
-| Permitted effects | Bounded authorized read-only Context retrieval; eligible semantic advice only with an authorized current Root Session; default task-plan persistence within existing authorization, respecting explicit persistence restrictions. No executor/output routing, role reservation, Slice release, Bootstrap, implementation, or child dispatch. |
-| Results | The module returns `complete` with current sourced Context, Contract-consistent Decision/unreleased boundary, and plan evidence or justified substep `not_applicable`; otherwise `needs_prerequisite` with suspended position or `blocked`. Context/advice/plan substeps may be `not_applicable` with trigger evidence, but the required work-definition module itself cannot be skipped as not applicable. Advice is evidence for review, never authorization. |
-| Freshness | Retain source/provenance/freshness and relevant input/policy hashes and epochs. Reconfirm them before advice or dependent decisions; material changes invalidate affected evidence and require caller-directed re-entry at the affected substep. |
+| 必需输入 | 当前已授权 Contract 和任务范围、已释放路线/模式证据、当前规范 Session state 和已完成的审计读回、已知任务事实/来源指针、取得所需 Context 的已授权可用方式，以及调用方 continuation/效果状态。WD01 建立当前 Context；它不是入口前置条件。 |
+| 允许效果 | 有界且已授权的只读 Context 检索；仅在已有授权的当前 Root Session 下请求符合条件的语义建议；在既有授权内默认持久化任务计划，并遵守明确持久化限制。不得执行 executor/output 路由、角色预留、Slice 释放、Bootstrap、实施或子代理派发。 |
+| 结果 | 本模块以当前有来源的 Context、符合 Contract 的 Decision/未释放边界，以及计划证据或有依据的子步骤 `not_applicable` 返回 `complete`；否则返回带暂停位置的 `needs_prerequisite` 或 `blocked`。Context/建议/计划子步骤可根据触发证据标为 `not_applicable`，但不得整体跳过必需的工作定义模块。建议是待审证据，不是授权。 |
+| 新鲜度 | 保留来源/出处/新鲜度及相关 input/policy hash 和 epoch。建议或依赖决策前重新确认；实质变化会使受影响证据失效，并要求调用方从受影响子步骤重新进入。 |
 
-## Workflow map
+## 工作流路线图
 
 ```mermaid
 flowchart TD
-    WD00["WD00 Resolve module entry"]
-    D_ENTRY{"Entry result?"}
-    WD01["WD01 Establish bounded current Context"]
-    WD02["WD02 Decide within Contract"]
-    D_ROUTING_ADVICE{"Task-stage advice selected and eligible?"}
-    WD03["WD03 Resolve default shared task plan"]
-    D_PLAN{"Persistence explicitly prohibited?"}
-    WD_PLAN["Persist shared task plan; confirm operation and owner-required verification; verify repository scope"]
+    WD00["WD00 解析模块入口"]
+    D_ENTRY{"入口结果？"}
+    WD01["WD01 建立有界当前 Context"]
+    WD02["WD02 在 Contract 范围内决策"]
+    D_ROUTING_ADVICE{"是否选择且符合条件使用任务阶段建议？"}
+    WD03["WD03 解决默认共享任务计划"]
+    D_PLAN{"明确禁止持久化？"}
+    WD_PLAN["持久化共享任务计划；确认操作及 owner 要求的核验；核验仓库存储范围"]
     WD_DONE["complete"]
-    WD_CONTEXT_NA["not_applicable: optional Context source absent"]
-    WD_ADVICE_NA["not_applicable: advice absent or ineligible"]
-    WD_ROUTING_NA["not_applicable: optional task-stage advice not selected; reason recorded"]
-    WD_PLAN_NA["not_applicable: documented persistence restriction"]
-    WD_NEEDS["needs_prerequisite: resume at owner"]
+    WD_CONTEXT_NA["not_applicable：可选 Context 来源不存在"]
+    WD_ADVICE_NA["not_applicable：建议不存在或不符合条件"]
+    WD_ROUTING_NA["not_applicable：未选择可选任务阶段建议；已记录原因"]
+    WD_PLAN_NA["not_applicable：已记录的持久化限制"]
+    WD_NEEDS["needs_prerequisite：返回 owner 恢复"]
     WD_BLOCK["blocked"]
     WD00 --> D_ENTRY
     D_ENTRY -- ready --> WD01
     D_ENTRY -- needs_prerequisite --> WD_NEEDS
     D_ENTRY -- blocked --> WD_BLOCK
-    WD01 -- essential facts current --> WD02
-    WD01 -- conditional source absent / N/A --> WD_CONTEXT_NA
+    WD01 -- 必需事实当前有效 --> WD02
+    WD01 -- 条件来源不存在 / N/A --> WD_CONTEXT_NA
     WD_CONTEXT_NA --> WD02
-    WD01 -- essential context missing --> WD_NEEDS
-    WD01 -- unresolved conflict --> WD_BLOCK
-    WD02 -- decision and optional Decision advice reviewed --> D_ROUTING_ADVICE
-    WD02 -- advice absent or ineligible / N/A --> WD_ADVICE_NA
+    WD01 -- 必需上下文缺失 --> WD_NEEDS
+    WD01 -- 冲突未解决 --> WD_BLOCK
+    WD02 -- 决策与可选 Decision 建议已审阅 --> D_ROUTING_ADVICE
+    WD02 -- 建议不存在或不符合条件 / N/A --> WD_ADVICE_NA
     WD_ADVICE_NA --> D_ROUTING_ADVICE
-    D_ROUTING_ADVICE -- available suggestion reviewed against current route and hashes --> WD03
-    D_ROUTING_ADVICE -- optional advice not selected or ineligible; record reason --> WD_ROUTING_NA
+    D_ROUTING_ADVICE -- 可用建议已根据当前路线和哈希审阅 --> WD03
+    D_ROUTING_ADVICE -- 未选择可选建议或不符合条件；记录原因 --> WD_ROUTING_NA
     WD_ROUTING_NA --> WD03
-    D_ROUTING_ADVICE -- selected advice stale or insufficient; refresh current facts --> WD_NEEDS
-    D_ROUTING_ADVICE -- selected required capability unavailable or route conflict --> WD_BLOCK
-    WD02 -- material choice needs evidence --> WD_NEEDS
-    WD02 -- Contract or authority conflict --> WD_BLOCK
+    D_ROUTING_ADVICE -- 已选择建议过期或证据不足；刷新当前事实 --> WD_NEEDS
+    D_ROUTING_ADVICE -- 所选必需能力不可用或路线冲突 --> WD_BLOCK
+    WD02 -- 实质选择需要证据 --> WD_NEEDS
+    WD02 -- Contract 或授权冲突 --> WD_BLOCK
     WD03 --> D_PLAN
-    D_PLAN -- no; default --> WD_PLAN
-    WD_PLAN -- verified --> WD_DONE
-    WD_PLAN -- persistence or required verification failed or uncertain --> WD_BLOCK
-    D_PLAN -- yes; restriction exception --> WD_PLAN_NA
-    D_PLAN -- explicit persistence requirement conflicts --> WD_BLOCK
+    D_PLAN -- 否；默认 --> WD_PLAN
+    WD_PLAN -- 已核验 --> WD_DONE
+    WD_PLAN -- 持久化或必需核验失败/结果不明 --> WD_BLOCK
+    D_PLAN -- 是；限制例外 --> WD_PLAN_NA
+    D_PLAN -- 与明确持久化要求冲突 --> WD_BLOCK
     WD_PLAN_NA --> WD_DONE
 ```
 
-## Ordered module checklist
+## 有序模块清单
 
-1. **WD00 — Resolve entry.** Call [Module Entry Resolution](../../layer-03-workflow-checkpoints/module-entry-resolution.md) with this declaration, current authorized Contract and task scope, released route/mode evidence, current canonical Session state and completed audit readback, known task facts/source pointers, an authorized available way to obtain needed Context, and continuation/effect state. A canonical state and completed audit readback are required inputs; current task Context is established in WD01. Resume the recorded substep. Missing prerequisites return with their semantic owners; conflicts or unrecoverable state block. Do not request advice without an authorized current Session.
-2. **WD01 — Establish bounded current Context.** Apply [Context](../../layer-02-workflow-concepts/entry-and-context/context.md), [Context Source Selection](../../layer-03-workflow-checkpoints/context-source-selection.md), and [Session Context Firewall](../../layer-01-fundamental-concepts/session-runtime/session-context-firewall.md). Define the smallest question for the next task and inspect only needed sources. Use the matching active plan when its content is already current in context; otherwise obtain it when needed. Current instructions prevail and a plan grants no authority. Read relevant reusable Memory only when needed content is absent or stale, and confirm its source pointers/freshness; when absent or unavailable, return to approved authoritative project sources and block only if an essential fact remains unverified. Use [Workflow Rule Context](../../layer-01-fundamental-concepts/workflow-navigation/rule-context.md) only for a triggered bounded rule lookup, confirm owner/language/source/hash, and read omitted direct owners. Apply [LSP MCP Tools](../../layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.md) only when project/code structure evidence is needed; otherwise record `not_applicable` and why. Return current sourced facts, provenance, freshness/epoch, and limitations; stale, conflicting, or missing essential facts block dependent decisions.
-   - If downstream Decision advice needs reviewed background, apply [Decision Context Selection](../../layer-03-workflow-checkpoints/decision-context-selection.md) and [Decision Context Generation](../../layer-01-fundamental-concepts/execution-planning/decision-context-generation.md): provide only bounded facts and a concrete goal, review fidelity/relevance/provenance, and confirm exact input/policy bindings. Reject stale or mismatched background; when advice needs no generated context, record `not_applicable` with why.
-   - In Multi-Agent mode only, if the Context Source Selection owner identifies a triggered persistent exchange or memo prerequisite, inspect only that trigger's [Context Exchange](../../layer-01-fundamental-concepts/context-exchange/context-exchange.md), [Workspace Boundary](../../layer-01-fundamental-concepts/context-exchange/context-exchange-workspace-boundary.md), [Handoff](../../layer-01-fundamental-concepts/context-exchange/context-exchange-handoff.md), or [Content Memo Dispatch](../../layer-01-fundamental-concepts/context-exchange/content-memo-dispatch.md) owner as applicable. Confirm required current record and Memory evidence; do not create an exchange record just for Context gathering and do not dispatch a memo here. If no trigger exists, record `not_applicable` with why. In Single-Agent mode, these child-specific exchange and memo owners are `not_applicable`; do not load them.
-3. **WD02 — Decide within the Contract.** Apply [Decision](../../layer-02-workflow-concepts/decision-and-execution/decision.md), [Execution Decision Gate](../../layer-01-fundamental-concepts/execution-planning/execution-decision-gate.md), and [Execution Planning](../../layer-01-fundamental-concepts/execution-planning/execution-planning.md). State the material question, verified facts, unknowns, options, chosen direction, rejected alternatives, authorized scope/effects, return conditions, and unreleased boundary. For material open choices, prepare the required Decision Brief and release reconnaissance only; confirm the Contract permits the selected direction before later release. After material Session recovery, re-evaluate only the current Decision/Contract evidence here when the caller requests it; do not reopen Mode or repeat a completed audit prompt.
-   - Advice is optional. Apply [Advisory Selection](../../layer-03-workflow-checkpoints/advisory-selection.md) and [Decisions Advisory](../../layer-01-fundamental-concepts/execution-planning/decisions-advisory.md) only when an authorized current Root Session exists and the Decision stage is eligible, enabled, and relevant. Otherwise use direct owners and record advice as `not_applicable` with why. Review any suggestion against current direct-owner evidence and hashes; advice never chooses or authorizes the work.
-   - Task-stage advice is a separate optional input. Apply [Workflow Routing Advice](../../layer-01-fundamental-concepts/execution-planning/workflow-routing-advice.md) only after WD01 facts are current, the locked mode/count and selected route are directly confirmed, and the advice path is eligible, enabled, and authorized. It may suggest the current stage/module for resumption; review an available suggestion against the current selected route and source/policy hashes. It never changes the route or mode/count, passes a gate, chooses an executor/output, or releases work. If optional advice is not selected or is ineligible, record `not_applicable` with the reason and continue under the current route. If the selected path requires unavailable capability or stale/insufficient evidence, return for current evidence or block that dependent path; do not silently fall back. Keep this separate from the existing Decision advice above.
-   - Executor selection and output routing are outside this module's scope and remain for the separately authorized execution path.
-4. **WD03 — Resolve the default shared task plan.** Call [Planning Output Selection](../../layer-03-workflow-checkpoints/planning-output-selection.md) and apply [Task Plan Memory Lifecycle](../../layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md). With or without an Issue or explicit planning request, synthesize current facts and the proposed solution, persist the concrete plan and confirm the operation before implementation or dependent dispatch; perform content verification when the owner requires it. Confirm the selected storage scope, repository identity and paired active/archive namespaces; shared storage reuses the plan across workspaces of one repository while keeping other repositories separate. Resolve the mapping through the lifecycle owner; unknown or conflicting mappings block without silent fallback. Return the exact project/plan identity, storage mapping, permitted contributions, persistence confirmation, and any owner-required verification evidence. Only a documented explicit persistence restriction permits the owner's exception; a conflicting explicit persistence requirement, missing required access, failed write, or failed required verification blocks. Record requirement changes first, then analyze and persist the revised proposal before affected work. Return `complete` only with current facts, Contract-consistent Decision/unreleased boundary and current plan evidence or the justified restriction exception. This does not release a Slice, select an executor, or authorize implementation; the required module cannot be skipped as `not_applicable`.
+1. **WD00 — 解析入口。** 提供本声明、当前已授权 Contract 和任务范围、已释放路线/模式证据、当前规范 Session state 和已完成的审计读回、已知任务事实/来源指针、取得所需 Context 的已授权可用方式，以及 continuation/效果状态，调用[模块入口解析](../../layer-03-workflow-checkpoints/module-entry-resolution.md)。规范 state 和已完成审计读回是必需输入；当前任务 Context 在 WD01 建立。从记录的子步骤恢复。缺少前置条件时，连同语义 owner 一起返回；冲突或无法恢复的状态则阻塞。没有已授权的当前 Session 时，不请求建议。
+2. **WD01 — 建立有界当前 Context。** 应用[Context](../../layer-02-workflow-concepts/entry-and-context/context.md)、[上下文来源选择](../../layer-03-workflow-checkpoints/context-source-selection.md)和[Session Context Firewall](../../layer-01-fundamental-concepts/session-runtime/session-context-firewall.md)。定义下一项任务所需的最小问题，只检查必需来源。计划内容在当前上下文中有效时直接复用；否则按需获取匹配的 active plan Memory。当前指令优先，plan 不授予授权。仅在所需内容缺失或过期时读取相关可复用 Memory，并核验来源指针/新鲜度；如果没有或不可用，返回经批准的权威项目来源，只有必需事实仍无法核实时才阻塞。仅在触发有界规则查询时使用[Workflow Rule Context](../../layer-01-fundamental-concepts/workflow-navigation/rule-context.md)，确认 owner/语言/来源/hash，并读取被摘录省略的直接 owner。仅在需要项目/代码结构证据时应用[LSP MCP Tools](../../layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.md)；否则记录 `not_applicable` 及原因。返回有来源的当前事实、来源链、新鲜度/epoch 和限制；过期、冲突或缺失的关键事实会阻塞依赖决策。
+   - 若下游 Decision 建议需要审阅背景，应用[决策上下文选择](../../layer-03-workflow-checkpoints/decision-context-selection.md)和[Decision Context Generation](../../layer-01-fundamental-concepts/execution-planning/decision-context-generation.md)：只提供有界事实和具体目标，审查忠实度/相关性/来源，并核验准确的输入/政策绑定。拒绝过期或不匹配背景；若建议不需要生成背景，记录 `not_applicable` 及原因。
+   - 仅在 Multi-Agent 模式下，若上下文来源选择 owner 确认触发了持久化交换或 memo 前置条件，则只按该触发检查相应的[Context Exchange](../../layer-01-fundamental-concepts/context-exchange/context-exchange.md)、[工作区边界](../../layer-01-fundamental-concepts/context-exchange/context-exchange-workspace-boundary.md)、[交接](../../layer-01-fundamental-concepts/context-exchange/context-exchange-handoff.md)或[Content Memo Dispatch](../../layer-01-fundamental-concepts/context-exchange/content-memo-dispatch.md) owner。确认必需的当前记录和 Memory 证据；不得仅为收集 Context 创建交换记录，也不得在此派发 memo。未触发时记录 `not_applicable` 及原因。Single-Agent 模式下，这些子代理专属交换和 memo owners 均为 `not_applicable`；不得加载这些 owner。
+3. **WD02 — 在 Contract 范围内决策。** 应用[Decision](../../layer-02-workflow-concepts/decision-and-execution/decision.md)、[执行决策门禁](../../layer-01-fundamental-concepts/execution-planning/execution-decision-gate.md)和[执行规划](../../layer-01-fundamental-concepts/execution-planning/execution-planning.md)。说明实质问题、已核实事实、未知项、选项、所选方向、拒绝的替代方案、授权范围/效果、返回条件和未释放边界。对于仍开放的实质选择，准备必需的 Decision Brief，且只释放侦察；确认 Contract 允许所选方向后再进入后续释放。Session 实质恢复后，仅在调用方要求时于此重评当前 Decision/Contract 证据；不得重开 Mode 或重复已完成的审计提问。
+   - 建议是可选的。仅当已有授权的当前 Root Session 存在，且 Decision 阶段符合资格、已启用并且相关时，应用[建议选择](../../layer-03-workflow-checkpoints/advisory-selection.md)和[Decisions Advisory](../../layer-01-fundamental-concepts/execution-planning/decisions-advisory.md)。否则依赖直接 owner 并将建议记录为带原因的 `not_applicable`。根据当前直接 owner 证据和 hash 审查任何建议；建议不会选择或授权工作。
+   - 任务阶段建议是独立的可选输入。仅当 WD01 事实当前有效、锁定的 mode/count 与所选路线已直接确认，且建议路径符合条件、已启用并获授权时，才应用[工作流路由建议](../../layer-01-fundamental-concepts/execution-planning/workflow-routing-advice.md)。它可以建议恢复时的当前阶段/模块；任何可用建议都须根据当前所选路线及来源/政策哈希审阅。它不会改变路线或 mode/count、通过门禁、选择执行者/输出或释放工作。未选择或不符合条件时，记录有原因的 `not_applicable` 并按当前路线继续。如果所选路径必需能力不可用或证据过期/不足，返回以取得当前证据或阻塞该依赖路径；不得静默回退。此项与上方现有 Decision 建议保持分离。
+   - 执行者选择和输出路由不属于本模块范围，仍由之后另行授权的执行路径处理。
+4. **WD03 — 解决默认共享任务计划。** 调用[规划输出选择](../../layer-03-workflow-checkpoints/planning-output-selection.md)，应用[任务计划 Memory 生命周期](../../layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md)。无论有无 Issue 或明确规划请求，均综合当前事实与拟议方案，持久化具体计划，并在实施或依赖派发前确认操作成功；owner 要求时才核验内容。确认所选存储范围、仓库身份和对应活动/归档命名空间；共享存储中，同仓库各工作区复用规划，其他仓库保持隔离。按生命周期 owner 解析映射；映射未知或冲突时阻塞，不静默回退。返回准确项目/计划身份、存储映射、允许贡献、持久化确认及 owner 要求的核验证据。仅已记录的明确持久化限制允许使用 owner 的例外；与明确持久化要求冲突、必需访问缺失、写入失败或必需核验失败时阻塞。需求变化先记录，再分析并持久化修订提议，然后才处理受影响工作。只有当前事实、符合 Contract 的 Decision/未释放边界，以及当前计划证据或有依据的限制例外齐备时，才返回 `complete`。这不释放 Slice、不选择执行者，也不授权实施；必需模块不能整体跳过为 `not_applicable`。
 
-## Related concepts
+## 相关概念
 
 - [Context](../../layer-02-workflow-concepts/entry-and-context/context.md)
-- [Context source selection](../../layer-03-workflow-checkpoints/context-source-selection.md)
+- [上下文来源选择](../../layer-03-workflow-checkpoints/context-source-selection.md)
 - [Decision](../../layer-02-workflow-concepts/decision-and-execution/decision.md)
-- [Planning output selection](../../layer-03-workflow-checkpoints/planning-output-selection.md)
+- [规划输出选择](../../layer-03-workflow-checkpoints/planning-output-selection.md)

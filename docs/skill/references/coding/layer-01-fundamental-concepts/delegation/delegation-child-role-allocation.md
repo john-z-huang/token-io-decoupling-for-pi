@@ -1,34 +1,28 @@
-# Coding Child Role Allocation
+# Coding 子 Agent 职责分配
 
-[English](delegation-child-role-allocation.md) | [简体中文](delegation-child-role-allocation_zh_cn.md)
 
-This module owns slot and auxiliary-role allocation under a locked Multi-Agent count. It does not define child creation, Dispatch Preview, Worker boundaries, reuse or replacement, lifecycle, context transport, verification, or Git policies.
+本文档负责在 Multi-Agent count 已 locked 时进行名额和辅助职责分配。不定义子 Agent 创建、Dispatch Preview、Worker 边界、复用或替换、生命周期、上下文传输、验证或 Git 策略。
 
-## General rules
+## 通用规范
 
-### Allocation
+### 职责分配
 
-Reserve the locked count as unbound, unassigned slots before task context and Decision are complete. That reservation stage does not select or assign Primary Output merely because only one slot exists; the slots remain `role: unassigned`, `slice_status: pending`, and `agent: unbound`. After Root has reviewed current task context and Decision, use [Child Role Selection](child-role-selection.md) to identify one role for the proposed child; an explicit user instruction skips role-selection advice but not Root's role and policy checks. If context generation or advice is unavailable, Root may decide directly from the current owner and verified facts. Then reserve the selected role in one unassigned slot and release its role and concrete slice before child creation. Ordinary non-Skill documentation remains parent-authored and does not consume a reserved slot, including when code work is also present. Each independent role consumes a separate slot. A role on an unbound, not-yet-created slot may be revised only as a parent-authorized plan update within the current count, and the new role must not be assigned to any other reserved or created child. Once a child is created, its role and identity remain bound and cannot be recycled or replaced. If no independent verifier or auxiliary role was allocated, use the current or already allocated Agent when safe, or report it unavailable; never simulate independence by relabeling same-Session work.
+在任务上下文和 Decision 完成前，先将锁定数量预留为未绑定、未分配职责的名额。该预留阶段不得仅因只有一个名额就选择或分配 Primary Output；名额保持 `role: unassigned`、`slice_status: pending` 和 `agent: unbound`。Root 审阅当前任务上下文和 Decision 后，使用[子代理职责选择](child-role-selection.md)为拟创建子代理确定一个职责；用户明确指令可跳过职责选择建议，但不能跳过 Root 的职责和政策检查。若上下文生成或建议能力不可用，Root 可直接根据当前 owner 和核实事实作出判断。随后在一个未分配名额中预留所选职责，并在创建子代理前放行职责及具体 Slice。普通非 Skill 文档仍由父级编写且不消耗预留名额，即使任务同时包含代码工作也一样。每项独立职责各自消耗一个名额。尚未创建子代理的 unbound 名额可由父级授权在当前数量内调整职责计划，但新职责不得分配给其他任何已预留或已创建子代理。子代理一旦创建，其职责和身份就保持绑定，不得回收或替换。未分配独立 verifier 或辅助职责时，安全情况下可使用当前或已分配 Agent，否则报告不可用；不得通过改名将同一 Session 的工作冒充独立验证。
 
-### Context Bootstrap/Refresh allocation
+### Context Bootstrap/Refresh 分配
 
-Assign Context Bootstrap/Refresh only when reuse is likely to outweigh setup: at least two independent downstream Workers, broad discovery plus three or more routed policy modules, or a source set roughly above 20k characters / 5k token-equivalents. Skip it for one small Worker or documentation-only fast paths. These are routing heuristics, not measured runtime or quality claims.
+仅当复用可能比设置成本更有利时分配 Context Bootstrap/Refresh：至少两个独立下游 Worker、广泛侦察加三个或更多路由策略模块，或来源集合大致超过 20k 字符 / 5k token-equivalents。单个小 Worker 或仅文档快速路径应跳过。这里的数值是路由启发式，不是运行时或质量测量结论。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-Codex `.codex/agents/*.toml` profiles can name a planned role, but registering one never creates an Agent or changes a reserved slot's child identity. Select the role and its effective `model`/`model_reasoning_effort`/`sandbox_mode` within the locked budget; a configurable global concurrent-agent limit is separate from this Skill's total child-count gate. [OpenAI: custom subagents](https://learn.chatgpt.com/docs/agent-configuration/subagents).
+父级以当前对话记录预留职责与名额，实际子任务完成后回写证据，不把扩展配置名当作职责。一次性执行不会自动释放已绑定名额。只有获准独立会话的验证才可标记独立，普通同上下文检查如实分类。
 
-When matching a released slot to a Codex role, distinguish the built-in `explorer` (read-heavy), `worker` (execution), and `default` (fallback) from a reviewed project/user custom profile. A profile choice sets an intended tool/model policy but does not bind an Agent ID, create a Session, or authorize a new slot. Resolve the effective parent-turn overrides before treating `sandbox_mode: read-only` as the verifier's or context-reader's actual restriction. If a child needs an approval the non-interactive host cannot surface, mark the dependent slice blocked instead of assigning a new profile/child to evade it. [OpenAI: native roles and approvals](https://learn.chatgpt.com/docs/agent-configuration/subagents).
 
-## Claude Code CLI / Claude Desktop optimizations
+## 相关概念
 
-Claude Code custom subagent definitions in `.claude/agents/` or `~/.claude/agents/` may specialize a *planned* role through `description`, `tools`, `model`, and `effort`; defining or discovering such a file does not create an Agent instance or consume another locked slot. Assign any reusable role to a slot before the creation owner invokes `Agent`. The built-in Explore/Plan agents are one-shot, so do not allocate them as durable Primary Output, verifier, or follow-up roles. Preserve the locked count even if the host exposes additional built-in agents. [Anthropic: subagent scopes and one-shot agents](https://code.claude.com/docs/en/sub-agents).
-
-## Related concepts
-
-- [Coding Child Creation](delegation-child-creation.md) — locate the child creation owner.
-- [Coding Child Role Selection](child-role-selection.md) — locate the decision that precedes role reservation.
-- [Coding Child Dispatch](delegation-child-dispatch.md) — locate material dispatch boundaries.
-- [Coding Child Lifecycle](delegation-child-lifecycle.md) — locate child state ownership.
-- [Coding Child Reuse and Replacement](delegation-child-reuse-replacement.md) — locate authorized reuse and replacement.
-- [Coding Context Exchange](../context-exchange/context-exchange.md) — locate context transport ownership.
+- [Coding Child Creation](delegation-child-creation.md) — 定位子 Agent 创建归属。
+- [Coding Child Role Selection](child-role-selection.md) — 定位职责预留之前的选择判断。
+- [Coding Child Dispatch](delegation-child-dispatch.md) — 定位实际派发边界。
+- [Coding Child Lifecycle](delegation-child-lifecycle.md) — 定位子 Agent 状态归属。
+- [Coding Child Reuse and Replacement](delegation-child-reuse-replacement.md) — 定位获准的复用和替换。
+- [Coding Context Exchange](../context-exchange/context-exchange.md) — 定位上下文传输归属。

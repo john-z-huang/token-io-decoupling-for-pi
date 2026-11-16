@@ -1,11 +1,10 @@
-# Layer-03 Workflow Checkpoints
+# Layer-03 工作流检查点
 
-[English](README.md) | [简体中文](README_zh_cn.md)
 
-This directory owns task-specific applicability and readiness decisions for Layer-04 route and bounded-module invocations. It does not redefine Layer-01 policies or Layer-02 pass conditions, and it does not schedule Layer-04 routes or modules.
+本目录负责 Layer-04 路线或有界模块调用所需的、针对当前任务的适用性和就绪决策；不重新定义 Layer-01 政策或 Layer-02 通过条件，也不调度 Layer-04 路线或模块。
 
-Layer-03 owners state semantic prerequisites, results, and failure boundaries without depending on numbered route coordinates. A route or module caller supplies the current requirements and owns any mapping or scheduling decision.
+Layer-03 owner 只描述语义前置条件、结果和失败边界，不依赖编号路线坐标。路线或模块调用方提供当前要求，并负责任何映射或调度决策。
 
-## Entry
+## 入口
 
-Use [INDEX](INDEX.md) to select a checkpoint. Route and module callers consume these owners at their applicable checkpoint or substep and record the returned evidence.
+使用 [INDEX](INDEX.md) 选择检查点。路线或模块调用方在适用的检查点或子步骤消费这些 owner，并记录返回证据。

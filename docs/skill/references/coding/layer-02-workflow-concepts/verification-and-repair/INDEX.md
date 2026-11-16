@@ -1,8 +1,7 @@
-# Verification And Repair Index
+# Verification And Repair 索引
 
-[English](INDEX.md) | [简体中文](INDEX_zh_cn.md)
 
-## Owners
+## 所有者
 
 - [verification](verification.md)
 - [verification-epoch](verification-epoch.md)

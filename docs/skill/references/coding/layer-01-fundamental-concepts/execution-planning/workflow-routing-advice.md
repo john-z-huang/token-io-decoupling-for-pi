@@ -1,35 +1,29 @@
-# Workflow Routing Advice
+# 工作流路由建议
 
-[English](workflow-routing-advice.md) | [简体中文](workflow-routing-advice_zh_cn.md)
 
-This owner defines optional task-level advice for locating the current checkpoint within an already authorized Coding route. It does not own route policy, readiness, mode selection, permission, or execution.
+本文档定义在已获授权的 Coding 路线内定位当前检查点的可选任务级建议。它不拥有路线政策、就绪判断、模式选择、权限或执行权。
 
-## General rules
+## 通用规范
 
-### Advice stays advisory
+### 建议与判断和授权分离
 
-Use this concept only to suggest the current stage or module from reviewed task facts and the locked route. The Coding workflow and selected route remain authoritative for stage order, checkpoint actions, evidence, branches, and acceptance. A suggestion never passes a checkpoint, changes the locked mode or child count, grants permission, creates or dispatches an agent, or calls another tool.
+仅根据已审阅的任务事实和已锁定路线，建议当前阶段或模块。Coding 工作流和选定路线仍是阶段顺序、检查点动作、证据、分支及验收的权威来源。建议不会通过检查点、改变已锁定模式或子代理数量、授予权限、创建或派发 Agent，也不会调用其他工具。
 
-An explicit stage may be mapped locally when the current route and rules are available. Automatic stage selection is optional and may use a semantic decision only when the necessary source facts, current rule context, capability, and outbound-data authorization are available. If facts or rules are missing, stale, over budget, or contradictory, return to direct judgment using the current route owner. Do not turn missing evidence into an assumed stage.
+当当前路线和规则可用时，可在本地映射显式阶段。自动阶段选择是可选的；只有在必要来源事实、当前规则上下文、能力和出站数据授权均可用时，才可使用语义判断。若事实或规则缺失、过期、超出预算或相互矛盾，应回到当前路线 owner 直接判断。不得把缺失证据转成假定阶段。
 
-Review the suggested stage against the current route and task state before acting. Treat hashes as change detectors, not source authentication or permission evidence. Refresh advice after relevant facts, route, or rules change. When the optional advice capability is unavailable, record that result. Continue only if an independently authorized Native/direct path applies; if a capability required by the selected path is missing, stop at its owner-defined boundary rather than silently falling back.
+行动前应根据当前路线和任务状态复核建议阶段。哈希仅用于检测内容变化，不认证来源或证明权限。相关事实、路线或规则变化后，应刷新建议。可选建议能力不可用时，应记录该结果。仅当任务适用一条独立获授权的 Native/直接路径时才可继续；若选定路径所需能力缺失，应在其 owner 定义的边界停止，不得静默回退。
 
-### Route boundary
+### 路线边界
 
-The stage-to-module correspondence is owned by the current Single-Agent or Multi-Agent route. Advice may identify the matching module only after the mode/count is locked. Multi-Agent execution reminders do not replace role, task authorization, memo, Slice, and child lifecycle owners. Verification, repair, documentation, Git, and acceptance remain governed by their direct owners.
+阶段与模块的对应关系由当前 Single-Agent 或 Multi-Agent 路线拥有。只有模式和数量已锁定后，建议才可指出匹配模块。Multi-Agent 执行提醒不能替代角色、任务授权、memo、Slice 和子代理生命周期 owner。验证、修复、文档、Git 与验收仍由各自直接 owner 管理。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-When the capability is exposed and authorized, `decide_decoupling_workflow` accepts a bounded request under `payload.request`. The schema requires `mode_locked: true` and the canonical `mode_count`, along with all other required fields and bounded caller-supplied evidence; `stage` is `auto` or an explicit supported stage. `source_facts_hash` must match the supplied facts. Populate the complete current schema, including task identifiers and summary, language, capability and constraint records, source-fact references, and outbound-data assertion where applicable; this summary is not an exhaustive payload field list. Explicit stages are resolved locally after bounded rule checks. `auto` may make one Decisions request only when source facts are present, outbound data is permitted, and the configured capability allows it. The tool reloads relevant context and rechecks hashes before returning compact advice.
+路由建议依赖实际暴露且适用于当前调用者的工具契约；项目 Server 尚未迁移不代表已有 Pi 身份绑定。不可用时直接读取已锁定路线并判断，不伪造规则 Hash 或调用方元数据。
 
-Only an `available` result is a suggestion; `insufficient_evidence`, `blocked`, and `stale` require direct review or refreshed facts/rules. Returned hashes do not cover the full Layer-04 route or prove it is unchanged; directly read the current selected route before acting. The result does not repeat full rules. The call is stateless and does not perform workflow actions. API failures are bounded and do not expose credentials or raw provider errors. Runtime/model and effort bindings remain in [Runtime and Model Provider Support](../session-runtime/runtime-provider-support.md).
 
-## Claude Code CLI / Claude Desktop optimizations
+## 相关概念
 
-This repository's MCP Server supports local Codex CLI only. Claude's general MCP support does not make this server a supported direct client, and there is no Claude-specific direct-tool optimization for this owner. Follow the general rules using capabilities actually exposed and authorized in the current Session; otherwise mark this optional advice unavailable and use the authoritative route directly.
-
-## Related concepts
-
-- [Coding Execution Decision Gate](execution-decision-gate.md) — owns execution decision prerequisites.
-- [Task Assignment](task-assignment.md) — owns executor selection.
-- [Workflow Rule Context](../workflow-navigation/rule-context.md) — owns bounded rule retrieval and completeness.
+- [Coding Execution Decision Gate](execution-decision-gate.md) — 拥有执行决策前置条件。
+- [Task Assignment](task-assignment.md) — 拥有执行者选择。
+- [Workflow Rule Context](../workflow-navigation/rule-context.md) — 拥有有界规则读取和完整性。

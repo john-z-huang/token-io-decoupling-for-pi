@@ -1,57 +1,56 @@
-# Entry Readiness Module
+# 入口就绪模块
 
-[English](entry-readiness.md) | [简体中文](entry-readiness_zh_cn.md)
 
-This Layer-04 module composes the current task Contract, Environment/capability, and released Mode evidence needed to establish route readiness. It consumes the existing Layer-01 through Layer-03 owners; it does not select a route, reinterpret Mode, or authorize implementation or child effects.
+本 Layer-04 模块组合建立路线就绪所需的当前任务 Contract、Environment/能力及已释放 Mode 证据。它消费现有 Layer-01 至 Layer-03 owners；不选择路线、不重新解释 Mode，也不授权实施或子代理效果。
 
-## Entry declaration
+## 入口声明
 
-| Field | Requirement |
+| 字段 | 要求 |
 | --- | --- |
-| Required inputs | The Coding selector's current `Contract`, `Environment`, capability inventory, and `Mode` pass evidence; [Route Entry](../../layer-03-workflow-checkpoints/route-entry.md) result naming the selected route; current task scope and known effect state. |
-| Permitted effects | Read and qualify declared evidence; choose bounded navigation or direct owner reading. Do not mutate workflow state, reopen Mode, or create/dispatch an Agent. |
-| Results | `complete` with current Contract, Environment/capability, released Mode/count, selected-route evidence, and navigation result or justified `not_applicable`; otherwise `needs_prerequisite` or `blocked` with the suspended position. |
-| Freshness | Confirm evidence against the current task/Session and its source/revision. Any material scope, Environment, capability, or Mode change requires the relevant owner to be rechecked before returning `complete`. |
+| 必需输入 | Coding selector 当前已通过的 `Contract`、`Environment`、能力清单和 `Mode` 证据；指出已选路线的[路线入口](../../layer-03-workflow-checkpoints/route-entry.md)结果；当前任务范围和已知效果状态。 |
+| 允许效果 | 读取并核验声明的证据；选择有界导航或直接读取 owner。不得修改工作流状态、重开 Mode，也不得创建/派发 Agent。 |
+| 结果 | 以当前 Contract、Environment/能力、已释放的 Mode/count、已选路线证据，以及导航结果或有依据的 `not_applicable` 返回 `complete`；否则以暂停位置返回 `needs_prerequisite` 或 `blocked`。 |
+| 新鲜度 | 根据当前任务/Session 及其来源/revision 确认证据。范围、Environment、能力或 Mode 有实质变化时，返回 `complete` 前须重核相关 owner。 |
 
-## Workflow map
+## 工作流路线图
 
 ```mermaid
 flowchart TD
-    ER00["ER00 Resolve module entry"]
-    D_ENTRY{"Entry result?"}
-    ER01["ER01 Confirm Contract"]
-    ER02["ER02 Confirm Environment and path"]
-    ER03["ER03 Confirm released Mode"]
+    ER00["ER00 解析模块入口"]
+    D_ENTRY{"入口结果？"}
+    ER01["ER01 核验 Contract"]
+    ER02["ER02 核验 Environment 和路径"]
+    ER03["ER03 核验已释放 Mode"]
     ER_DONE["complete"]
-    ER_NA["not_applicable: optional navigation not needed"]
-    ER_NEEDS["needs_prerequisite: caller resumes at owner"]
+    ER_NA["not_applicable：不需要可选导航"]
+    ER_NEEDS["needs_prerequisite：调用方返回 owner"]
     ER_BLOCK["blocked"]
     ER00 --> D_ENTRY
     D_ENTRY -- ready --> ER01
     D_ENTRY -- needs_prerequisite --> ER_NEEDS
     D_ENTRY -- blocked --> ER_BLOCK
-    ER01 -- current Contract confirmed --> ER02
-    ER01 -- missing evidence --> ER_NEEDS
-    ER01 -- conflict or unauthorized scope --> ER_BLOCK
-    ER02 -- navigation selected or direct-owner path available --> ER03
-    ER02 -- optional navigation not needed / N/A --> ER_NA
+    ER01 -- 当前 Contract 已核验 --> ER02
+    ER01 -- 证据缺失 --> ER_NEEDS
+    ER01 -- 范围冲突或未经授权 --> ER_BLOCK
+    ER02 -- 已选择导航或可直接读取 owner --> ER03
+    ER02 -- 不需要可选导航 / N/A --> ER_NA
     ER_NA --> ER03
-    ER02 -- required capability missing --> ER_BLOCK
-    ER03 -- mode and count evidence released --> ER_DONE
-    ER03 -- released evidence missing or stale --> ER_NEEDS
-    ER03 -- mode or count conflicts with selected route --> ER_BLOCK
+    ER02 -- 必需能力缺失 --> ER_BLOCK
+    ER03 -- 模式与数量证据已释放 --> ER_DONE
+    ER03 -- 已释放证据缺失或过期 --> ER_NEEDS
+    ER03 -- 模式或数量与已选路线冲突 --> ER_BLOCK
 ```
 
-## Ordered module checklist
+## 有序模块清单
 
-1. **ER00 — Resolve entry.** Call [Module Entry Resolution](../../layer-03-workflow-checkpoints/module-entry-resolution.md) with this declaration and the caller's current task, authorization, Session, evidence, and effect status. Consume the Coding selector's passed Contract/Environment/capability/Mode evidence and the [Route Entry](../../layer-03-workflow-checkpoints/route-entry.md) result naming the selected route; do not select or reselect it here. `ready` permits these checks only; map missing evidence to `needs_prerequisite` with this suspended position, and map a conflict or unsafe state to `blocked`. A direct caller may establish the continuation record; no top-level route is required.
-2. **ER01 — Confirm Contract and common protocol.** Apply [Contract](../../layer-02-workflow-concepts/entry-and-context/contract.md): confirm the goal, hard user/runtime/repository/permission/safety constraints, authorized effects, settled decisions, open questions, and acceptance conditions. Apply [Shared Protocols](../../../share/shared-protocols.md) to keep one current Semantic Contract, distinguish facts from assumptions, carry later changes as bounded amendments, and stop dependent work if required context or a return path is unavailable. An unresolved question is not implementation authority. Confirm that the released Contract records task intent and eligible output classification from direct authoritative sources, as required by Contract action 5; this step only checks those Contract records.
-3. **ER02 — Confirm Environment and navigation path.** Apply [Environment](../../layer-02-workflow-concepts/entry-and-context/environment.md) and [Environment Capability Inventory](../../layer-02-workflow-concepts/entry-and-context/environment-capability-inventory.md) to confirm the current environment and capabilities required by this task. Call [Workflow Navigation Selection](../../layer-03-workflow-checkpoints/workflow-navigation-selection.md). If optional navigation is unnecessary, record `Not applicable` with the reason and read required owners directly. If selected, use only current bounded navigation evidence; it does not establish identity, permission, state, or checkpoint completion. If navigation is unavailable, follow its direct-owner fallback; inaccessible required owners block dependent work.
-4. **ER03 — Confirm released Mode against the selected route.** Apply [Mode](../../layer-02-workflow-concepts/entry-and-context/mode.md), [Mode Confirmation](../../layer-01-fundamental-concepts/delegation/delegation-mode-confirmation.md), [Delegation Count Gate](../../layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.md), [Delegation State Record](../../layer-01-fundamental-concepts/delegation/delegation-state-record.md), and [Mode Re-entry](../../layer-01-fundamental-concepts/delegation/delegation-mode-reentry.md). Verify the exact released mode and locked count/state; Single-Agent requires `child_count: 0` and no allocations. Multi-Agent requires a positive locked count and valid current allocations consistent with the record; occupied/created and unassigned slots are both valid states, so do not require every slot to remain unbound. Missing or stale release evidence returns `needs_prerequisite`; a mode/count that conflicts with the already selected route returns `blocked`. A later directive reuses locked topology. This confirms route eligibility only: it does not release a concrete Slice or authorize child creation. Return `complete` with current gate evidence.
+1. **ER00 — 解析入口。** 提供本声明以及调用方当前任务、授权、Session、证据和效果状态，调用[模块入口解析](../../layer-03-workflow-checkpoints/module-entry-resolution.md)。消费 Coding selector 已通过的 Contract/Environment/能力/Mode 证据以及指出已选路线的[路线入口](../../layer-03-workflow-checkpoints/route-entry.md)结果；此处不得选择或重新选择路线。`ready` 只允许执行本模块的核验；将证据缺失映射为带暂停位置的 `needs_prerequisite`，将冲突或不安全状态映射为 `blocked`。直接调用方可以建立 continuation 记录；不要求存在顶层路线。
+2. **ER01 — 核验 Contract 和共享协议。** 应用[Contract](../../layer-02-workflow-concepts/entry-and-context/contract.md)，确认目标、用户/运行环境/仓库/权限/安全硬约束、已授权效果、已解决的决策、开放问题和验收条件。应用[共享协议](../../../share/shared-protocols.md)，保持一个当前 Semantic Contract，区分事实与假设，以有界增量传递后续变化，并在必需上下文或返回路径不可用时停止依赖工作。未解决的问题不构成实施授权。按 Contract 动作 5，核验已释放 Contract 是否从直接权威来源记录了 task intent 和 eligible output classification；此处仅核验这些 Contract 记录。
+3. **ER02 — 核验 Environment 和导航路径。** 应用[Environment](../../layer-02-workflow-concepts/entry-and-context/environment.md)与[Environment 能力清单](../../layer-02-workflow-concepts/entry-and-context/environment-capability-inventory.md)，确认当前环境及任务所需能力。调用[工作流导航选择](../../layer-03-workflow-checkpoints/workflow-navigation-selection.md)。若无需可选导航，记录附有理由的 `Not applicable` 并直接读取必需 owner。若选择导航，仅使用当前有界导航证据；该证据不能证明身份、权限、状态或检查点完成。导航不可用时遵循直接读取 owner 的回退；无法读取必需 owner 时阻塞依赖工作。
+4. **ER03 — 对照已选路线核验已释放 Mode。** 应用[Mode](../../layer-02-workflow-concepts/entry-and-context/mode.md)、[模式确认](../../layer-01-fundamental-concepts/delegation/delegation-mode-confirmation.md)、[委派数量门禁](../../layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.md)、[委派状态记录](../../layer-01-fundamental-concepts/delegation/delegation-state-record.md)和[模式重入](../../layer-01-fundamental-concepts/delegation/delegation-mode-reentry.md)。核验准确的已释放模式及锁定数量/状态；Single-Agent 要求 `child_count: 0` 且无 allocations。Multi-Agent 要求正数锁定数量及有效且与记录一致的当前 allocation；已占用/已创建和未分配的名额都可能是有效状态，不得要求每个名额都保持未绑定。已释放证据缺失或过期时返回 `needs_prerequisite`；模式/count 与已选路线冲突时返回 `blocked`。后续指令复用已锁定拓扑。这只确认路线资格，不释放具体 Slice 或授权创建子代理。以当前门禁证据返回 `complete`。
 
-## Related concepts
+## 相关概念
 
 - [Contract](../../layer-02-workflow-concepts/entry-and-context/contract.md)
-- [Environment capability inventory](../../layer-02-workflow-concepts/entry-and-context/environment-capability-inventory.md)
-- [Workflow Navigation Selection](../../layer-03-workflow-checkpoints/workflow-navigation-selection.md)
+- [Environment 能力清单](../../layer-02-workflow-concepts/entry-and-context/environment-capability-inventory.md)
+- [工作流导航选择](../../layer-03-workflow-checkpoints/workflow-navigation-selection.md)
 - [Mode](../../layer-02-workflow-concepts/entry-and-context/mode.md)

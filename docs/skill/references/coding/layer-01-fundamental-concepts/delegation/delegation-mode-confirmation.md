@@ -1,51 +1,41 @@
-# Coding Delegation Mode Confirmation
+# Coding 委派模式确认
 
-[English](delegation-mode-confirmation.md) | [简体中文](delegation-mode-confirmation_zh_cn.md)
 
-This module owns the conversation's initial mode selection, default, pre-selection restrictions, and Single-Agent route restrictions. It consumes and updates the state record; it does not define count locking, re-entry, child creation, or lifecycle.
+本文档负责会话首次的模式选择、默认值、选择前限制以及单代理路线限制。它消费并更新状态记录；不定义数量锁定、重新进入、子 Agent 创建或生命周期。
 
-## General rules
+## 通用规范
 
-### Session mode selection
+### 会话模式选择
 
-On the first Coding directive in a host-identified Session lifetime, the root parent must:
+宿主识别的 Session 生命周期中，第一次 Coding 指令到达后，根父级必须：
 
-1. Honor an explicit valid mode/count choice in the directive without asking again.
-2. If no valid choice is present, present this numbered menu. Only when the Mode gate must be released and there is still no valid user choice, use the stated default; an unanswered prompt by itself does not require releasing the gate. Explicit no-preference also selects the default:
-   1. Multi-Agent Coding, 1 child (recommended and default).
-   2. Single-Agent Coding, 0 children.
-   3. Multi-Agent Coding, custom positive child count (enter the integer as free text).
-   4. Custom instruction (enter it as free text; map it to a maintained mode and valid count).
-3. For option 3, require an explicit positive integer. If it is missing or invalid, ask one focused follow-up and keep the Mode gate unreleased; never substitute one. For option 4, use the text only to derive a maintained Single-Agent or Multi-Agent route and valid count, while recording other task constraints. If it is missing, invalid, ambiguous, conflicting, or requests an unmaintained route, ask one focused clarification and keep the gate unreleased. Custom text cannot override higher-priority permissions, safety, repository, authorization, or capability boundaries, and cannot create a route or capability.
-4. Record a valid user selection as `mode_source: explicit`. Record the no-reply or explicit no-preference default as `mode_source: default`, `mode: Multi-Agent Coding`, and `child_count: 1`. Apply the count owner before route release. Keep the mode fixed for the full host Session lifetime, not one user/assistant exchange. Later directives, compaction, and same-Session resume reuse it. The initial count remains fixed except for the Count Gate's exact one-slot increase after actual explicit user approval for a different unoccupied role; this does not reopen mode selection. A Fork with a new Session identity must complete fresh mode/count selection under the Re-entry owner rather than inherit the source Session's choice.
-5. Treat the released Multi-Agent count as reserved capacity only. Displaying the menu, selecting a mode, or locking the count never creates or initializes a child. Creation remains subject to the role, output-type, and released-slice gates.
+1. 直接遵循指令中明确给出的有效模式/数量选择，不再询问。
+2. 若没有有效选择，呈现以下编号菜单。只有必须放行 Mode gate 且仍没有有效用户选择时，才采用所示缺省值；仅仅尚未收到对提问的回复，并不要求放行门禁。用户明确表示无偏好时也选择缺省值：
+   1. Multi-Agent Coding，1 个子代理（推荐且缺省）。
+   2. Single-Agent Coding，0 个子代理。
+   3. Multi-Agent Coding，自定义正整数子代理数（通过自由文本填写整数）。
+   4. 自定义指令（通过自由文本填写完整指令，并映射到受维护的模式和有效数量）。
+3. 选项 3 必须提供明确正整数。若缺失或无效，只提出一个聚焦的补充问题，并保持 Mode gate 未放行；不得替换为 1。选项 4 的文本只用于推导受维护的 Single-Agent 或 Multi-Agent 路线及有效数量，同时记录其他任务约束。若文本缺失、无效、有歧义、冲突或要求未维护的路线，提出一个聚焦澄清并保持门禁未放行。自定义文本不得覆盖更高优先级的权限、安全、仓库、用户授权或能力边界，也不能创建路线或能力。
+4. 将有效用户选择记录为 `mode_source: explicit`。将无回复或明确无偏好时的缺省选择记录为 `mode_source: default`、`mode: Multi-Agent Coding`、`child_count: 1`。路线放行前应用数量 owner。模式在完整宿主 Session 生命周期内固定，而非只对一次用户/助手交互生效。后续指令、compact 和同一 Session 的恢复均沿用它。初始数量也保持固定，唯一例外是数量门禁在用户实际明确批准为不同且未占用职责增加一个名额后，恰好增加一。该流程不重新打开模式选择。具有新 Session 身份的 Fork 必须按 Re-entry owner 重新完成模式/数量选择，不继承来源 Session 的选择。
+5. 将已放行的 Multi-Agent 数量视为仅预留容量。展示菜单、选择模式或锁定数量均不会创建或初始化子代理；创建仍受职责、输出类型和已放行切片门禁约束。
 
-The default selects a workflow mode and reserved count only; it does not bypass a task-level prohibition or create a capability. If a higher-priority restriction forbids children, it controls. If the required record capability is absent, block the dependent route rather than pretending it exists.
+默认值只选择工作模式和预留数量，不绕过任务级禁止事项，也不创造能力。更高优先级规则禁止子代理时，必须遵循该规则。缺少所需记录能力时，阻塞依赖路线，不得假装记录存在。
 
-No child may be created until the count gate has released a valid positive count, the relevant role and concrete slice are released, and the output is code/configuration implementation or authorship/editing of this Skill's instructions or reference documents. Ordinary non-Skill documentation is authored by the root parent, including in tasks that also contain code changes. If the conversation is already locked to Single-Agent Coding, apply the Re-entry owner before considering any conflicting later instruction.
+只有数量门禁放行有效正整数数量、相关职责和具体切片均已放行，且输出属于代码/配置实现或本 Skill 指令/参考文档的编写编辑时，才可创建子代理。普通非 Skill 文档由根父级编写，即使任务同时包含代码修改也一样。如果本次会话已经锁定为单代理 Coding，遇到冲突的后续指令时先遵循模式重新进入 owner。
 
-### Single-Agent Coding
+### 单代理 Coding
 
-After confirmation, keep all work in the current Session. Do not create, fork, hand off to, message, replace, or otherwise manage a child Agent or additional Session. Structural benefit, verification, documentation/Git needs, bootstrap, recovery, or runtime convenience are not exceptions. Independent verification remains a semantic requirement, but is unavailable on this route.
+确认后所有工作保留在当前 Session。不得创建、fork、handoff、消息联系、替换或管理子 Agent 或额外 Session。结构收益、验证、文档/Git、bootstrap、恢复或运行便利都不是例外。独立验证仍是语义要求，但该路线不可用。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-### ChatGPT Desktop
+用普通会话文本呈现需要的菜单或澄清问题，不依赖专属问卷工具。扩展缺失不意味着可静默更换已锁定模式。模式选择与创建分开；不从 Shell 启动额外 Session 来补造子代理能力。
 
-When the active runtime actually exposes `request_user_input_async`, one question may present the menu with a free-text entry path, for example: `request_user_input_async({questions: [{title: "Select a Coding mode", options: ["1. Multi-Agent Coding, 1 child (recommended/default)", "2. Single-Agent Coding, 0 children", "3. Multi-Agent Coding, custom positive child count", "4. Custom instruction"]}]})`. The tool accepts at most 1–3 questions; options do not disable free-text answers, and the answer arrives asynchronously as a new user message. A preselected first option is not a submitted user choice. The tool cannot show a text field conditionally only for options 3 or 4, so state in the same prompt that option 3 requires a positive integer and option 4 requires the complete instruction; use the focused follow-up from the general rules for missing or invalid input. Do not infer a choice while the response is pending. If no valid choice arrives and the Mode gate must be released to proceed, apply the default; do not introduce a timer. If the tool is not exposed, send the numbered menu as ordinary text and receive the response through the normal conversation channel. Never use GUI or Computer Use to present or operate the menu.
 
-### Codex CLI
+## 相关概念
 
-In Codex CLI, present the four-option numbered menu as plain text, for example `1. Multi-Agent Coding, 1 child (recommended/default); 2. Single-Agent Coding, 0 children; 3. Multi-Agent Coding, custom positive child count; 4. Custom instruction`. Receive a later text reply such as `3: 4` or `4: ...` for the custom instruction; this does not assume a structured form. If no valid choice arrives and the Mode gate must be released to proceed, apply the default; do not introduce a timer. No structured form/input tool is assumed in this Session, so do not claim a conditional input field exists. If the terminal cannot surface a reply, keep the gate unreleased unless it must be released to proceed; then follow the general default or focused follow-up rules without adding a time limit.
-
-## Claude Code CLI / Claude Desktop optimizations
-
-When `AskUserQuestion` is available and authorized in the active Claude Code Session, call it with a `questions` array; each question supplies `question`, `header`, and `options` (each option has `label` and `description`), with `multiSelect: false` for this single mode choice. For example: `AskUserQuestion({questions: [{question: "Which Coding mode should this conversation use?", header: "Mode", options: [{label: "1. Multi-Agent Coding", description: "Reserve 1 child (recommended/default)."}, {label: "2. Single-Agent Coding", description: "Use 0 children."}, {label: "3. Multi-Agent Coding", description: "Enter a custom positive child count."}, {label: "4. Custom instruction", description: "Map the instruction to a maintained mode and count."}], multiSelect: false}]})`. The user can select an option or provide free text through `Other` or the notes field; apply the general validation and clarification rules to that text. Questions wait for an answer by default. Only a user-configured `askUserQuestionTimeout` setting of `60s`, `5m`, or `10m` can enable auto-continue; do not change that setting or add an implicit timeout. If the result reports a timeout, follow the returned result and do not invent a user selection; apply the general missing-choice/default rule only if the Mode gate must be released. If the tool is unavailable, ask the same numbered question in ordinary text.
-
-## Related concepts
-
-- [Coding Delegation Count Gate](delegation-mode-count-gate.md) — locate count locking ownership.
-- [Coding Delegation Re-entry](delegation-mode-reentry.md) — locate gate re-entry ownership.
-- [Coding Delegation State Record](delegation-state-record.md) — locate state record ownership.
-- [Coding Child Creation](delegation-child-creation.md) — locate child creation ownership.
-- [Coding Child Lifecycle](delegation-child-lifecycle.md) — locate child lifecycle ownership.
+- [Coding Delegation Count Gate](delegation-mode-count-gate.md) — 定位数量锁定归属。
+- [Coding Delegation Re-entry](delegation-mode-reentry.md) — 定位门禁重新进入归属。
+- [Coding Delegation State Record](delegation-state-record.md) — 定位状态记录归属。
+- [Coding Child Creation](delegation-child-creation.md) — 定位子 Agent 创建归属。
+- [Coding Child Lifecycle](delegation-child-lifecycle.md) — 定位子 Agent 生命周期归属。

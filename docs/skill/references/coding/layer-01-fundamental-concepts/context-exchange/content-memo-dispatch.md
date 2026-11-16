@@ -1,27 +1,22 @@
 # Worker Content Memo Dispatch
 
-[English](content-memo-dispatch.md) | [简体中文](content-memo-dispatch_zh_cn.md)
 
-This owner defines the parent-controlled `write_content_memo` switch for a Worker's Serena Memory memo. It does not define memo content or lifecycle.
+本文档定义父 Agent 控制的 Serena Memory Worker memo 开关 `write_content_memo`，不定义 memo 内容或生命周期。
 
-## General rules
+## 通用规范
 
-### Dispatch switch
+### Dispatch 开关
 
-Every released bundle explicitly includes `write_content_memo: true` or `false`; a Worker never infers a default. `true` enables writes to `context-exchange/workers/<worker-context-id>/content-memo`; `false` disables that memo only. Include the exact memory name in the released bundle. The parent controls the switch and name, but this is logical ownership only: Serena does not enforce per-Worker access or read-only ACLs.
+每个已放行 bundle 都必须显式包含 `write_content_memo: true` 或 `false`；Worker 不得自行推断默认值。`true` 启用对 `context-exchange/workers/<worker-context-id>/content-memo` 的写入；`false` 只关闭该 memo。已放行 bundle 中须包含准确 Memory 名称。父级控制开关和名称，但这只是逻辑归属：Serena 不强制 Worker 级访问或只读 ACL。
 
-If Memory tools are not exposed and authorized, report the limitation and block the memo-dependent slice; do not materialize the memo as a file. Other independent work may continue.
+Memory 工具未暴露或未获授权时，报告限制并阻塞依赖 memo 的切片；不得把 memo 物化为文件。其他独立工作可以继续。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-Serialize the switch and exact memory name in the actual released child-task prompt. Use only exposed, authorized Serena Memory tools and confirm the write result. Codex configuration, hooks, local memory, or compaction do not themselves implement this switch.
+Serena 是可选外部 MCP。需要 Memory 时，通过 Pi codemode 的 `searchTools`、`describeTool`、`describeNamespace` 核实实际工具与 schema，调用时检查 `isError`；hidden 工具不得绕过。确认真实项目绑定及 Memory Schema。Memory 名称、内容、持久化及禁止回退文件、授权隔离和边界均按通用规范；能力缺失只阻塞依赖项。Pi 的 `read`、`edit`、`write`、`bash` 可按授权直接访问文档，不代表 Serena Memory 能力。旧身份上下文不可伪造。
 
-## Claude Code CLI / Claude Desktop optimizations
+## 相关概念
 
-When the current Agent Session exposes and authorizes Serena MCP Memory tools, include the switch and name in the released bundle and confirm the write result. Claude auto memory, hooks, or compaction do not replace the named project Memory. If tools are unavailable, follow the general block/report rule.
-
-## Related concepts
-
-- [Worker Content Memo](content-memo.md) — locate the memo content contract.
-- [Worker Content Memo Lifecycle](content-memo-lifecycle.md) — locate update rules.
-- [Coding Context Exchange Workspace Boundary](context-exchange-workspace-boundary.md) — locate logical memory ownership rules.
+- [Worker Content Memo](content-memo.md) — 定位 memo 内容契约。
+- [Worker Content Memo Lifecycle](content-memo-lifecycle.md) — 定位更新规则。
+- [Coding Context Exchange Workspace Boundary](context-exchange-workspace-boundary.md) — 定位 Memory 逻辑归属规则。

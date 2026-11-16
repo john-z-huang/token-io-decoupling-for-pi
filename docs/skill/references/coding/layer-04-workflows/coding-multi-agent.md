@@ -1,105 +1,106 @@
-# Coding Workflow — Multi-Agent Mode
+# Coding 工作流 — Multi-Agent 模式
 
-[English](coding-multi-agent.md) | [简体中文](coding-multi-agent_zh_cn.md)
 
-This route composes the seven Layer-04 modules for a task whose released Mode is Multi-Agent Coding with a positive locked child count. It sequences module entry, preserves caller position across prerequisites, and routes changed state back to the affected module.
+本路线为已释放 Multi-Agent Coding 且锁定正数 child count 的任务组合七个 Layer-04 模块。它安排模块入口，在前置缺失时保留调用方位置，并将状态变化返回受影响的模块。
 
-## Workflow map
+子代理来自当前真实扩展，而非宿主内置能力。独立且不冲突的已放行切片可以并行；依赖性工作保持顺序。同步一次性扩展可以在一次调用中创建、派发并返回，在 DE07 消费结果；不模拟持久 ID、send/wait/resume。仅复用真实支持续接的身份。保留批准预算、职责唯一、完整结果审阅及独立验证要求；不能因工具方便而扩容。
+
+## 工作流路线图
 
 ```mermaid
 flowchart TD
-    MM01["MM01 Entry readiness"]
-    MM02["MM02 Session readiness"]
-    MM03["MM03 Work definition; plan and optional task-stage advice/N/A"]
-    MM04["MM04 Delegated execution; selected controlled output/preflight"]
-    MM05["MM05 Verification and repair; actual current state and epochs"]
-    MM06["MM06 Documentation; optional candidate preflight and post-write checks"]
-    MM07["MM07 Delivery and acceptance; preserve plan history and lossless archive"]
-    NEEDS["needs_prerequisite: retain caller and exact suspended position"]
+    MM01["MM01 入口就绪"]
+    MM02["MM02 Session 就绪"]
+    MM03["MM03 工作定义；计划和可选任务阶段建议/N/A"]
+    MM04["MM04 委派执行；所选受控输出/预检"]
+    MM05["MM05 验证与修复；实际当前状态与 epoch"]
+    MM06["MM06 文档；可选候选预检和写后检查"]
+    MM07["MM07 交付与验收；保留计划历史和无损归档"]
+    NEEDS["needs_prerequisite：保留调用方和准确暂停位置"]
     BLOCK["blocked"]
     DONE["complete"]
-    ROUTE_ENTRY["Coding workflow: resolve changed route facts and recheck Route Entry"]
-    MM01 -- current Contract, Environment, capability inventory, and released Multi-Agent Mode/count evidence --> MM02
-    MM02 -- current canonical state, audit, and capacity read back --> MM03
-    MM03 -- current Context/Decision/plan/advice and unreleased boundary --> MM04
-    MM04 -- current implementation/result and provisional evidence --> MM05
-    MM05 -- current Verification passes; no repair pending --> MM06
-    MM05 -- repair handoff or changed epoch --> MM05
-    MM05 -- semantic Contract/Decision change --> NEEDS
-    MM03 -- material route fact changed --> ROUTE_ENTRY
-    MM02 -- recovery changes route facts --> ROUTE_ENTRY
-    ROUTE_ENTRY -- current route evidence; retain released Mode/count; resume original suspended caller --> RESUME
-    ROUTE_ENTRY -- route/mode conflict --> BLOCK
-    MM06 -- documentation complete; no content-affecting change --> MM07
-    MM06 -- content/Contract/acceptance impact --> MM05
-    MM07 -- all criteria current and passed; delivery and plan preservation/archive resolved --> DONE
-    MM01 -- missing evidence --> NEEDS
-    MM02 -- missing evidence --> NEEDS
-    MM03 -- missing evidence --> NEEDS
-    MM04 -- missing evidence --> NEEDS
-    MM05 -- required evidence unavailable --> NEEDS
-    MM06 -- required evidence unavailable --> NEEDS
-    MM07 -- required evidence unavailable --> NEEDS
-    NEEDS -- producer complete; readback and epoch/effect checks pass --> RESUME
-    RESUME["Return only to the recorded caller module/substep"]
-    RESUME -- recorded caller is MM01 --> MM01
-    RESUME -- recorded caller is MM02 --> MM02
-    RESUME -- recorded caller is MM03 --> MM03
-    RESUME -- recorded caller is MM04 --> MM04
-    RESUME -- recorded caller is MM05 --> MM05
-    RESUME -- recorded caller is MM06 --> MM06
-    RESUME -- recorded caller is MM07 --> MM07
-    RESUME -- caller record missing or conflicts --> BLOCK
-    NEEDS -- owner/position unknown, effects unclear, or no new evidence --> BLOCK
-    MM01 -- conflict or unsafe state --> BLOCK
-    MM02 -- conflict or unsafe state --> BLOCK
-    MM03 -- conflict or unsafe state --> BLOCK
-    MM04 -- unauthorized or unsafe effect --> BLOCK
-    MM05 -- conflict or unsafe effect --> BLOCK
-    MM06 -- unauthorized or unsafe effect --> BLOCK
-    MM07 -- unauthorized or unsafe effect --> BLOCK
-    MM03 -- required plan access, persistence, or verification failed --> BLOCK
+    ROUTE_ENTRY["Coding 工作流：解决路线事实变化并重核 Route Entry"]
+    MM01 -- 当前 Contract、Environment、能力清单和已释放 Multi-Agent Mode/count 证据 --> MM02
+    MM02 -- 当前规范状态、审计和容量已读回 --> MM03
+    MM03 -- 当前 Context/Decision/plan/advice 和未释放边界 --> MM04
+    MM04 -- 当前实施/结果与初步证据 --> MM05
+    MM05 -- 当前 Verification 通过且无待修复项 --> MM06
+    MM05 -- 修复交接或 epoch 变化 --> MM05
+    MM05 -- Contract/Decision 语义变化 --> NEEDS
+    MM03 -- 路线事实实质变化 --> ROUTE_ENTRY
+    MM02 -- 恢复改变路线事实 --> ROUTE_ENTRY
+    ROUTE_ENTRY -- 路线证据当前；保留已释放 Mode/count；恢复原挂起调用位置 --> RESUME
+    ROUTE_ENTRY -- 路线/模式冲突 --> BLOCK
+    MM06 -- 文档完成且不影响内容 --> MM07
+    MM06 -- 内容/Contract/验收影响 --> MM05
+    MM07 -- 所有标准均有当前证据；交付及计划保留/归档已解决 --> DONE
+    MM01 -- 证据缺失 --> NEEDS
+    MM02 -- 证据缺失 --> NEEDS
+    MM03 -- 证据缺失 --> NEEDS
+    MM04 -- 证据缺失 --> NEEDS
+    MM05 -- 必需证据不可用 --> NEEDS
+    MM06 -- 必需证据不可用 --> NEEDS
+    MM07 -- 必需证据不可用 --> NEEDS
+    NEEDS -- producer 完成、读回及 epoch/effect 复核通过 --> RESUME
+    RESUME["仅返回已记录的原调用方模块/子步骤"]
+    RESUME -- 记录目标为 MM01 --> MM01
+    RESUME -- 记录目标为 MM02 --> MM02
+    RESUME -- 记录目标为 MM03 --> MM03
+    RESUME -- 记录目标为 MM04 --> MM04
+    RESUME -- 记录目标为 MM05 --> MM05
+    RESUME -- 记录目标为 MM06 --> MM06
+    RESUME -- 记录目标为 MM07 --> MM07
+    RESUME -- 调用方记录缺失或冲突 --> BLOCK
+    NEEDS -- owner/位置未知、效果不明或无新证据 --> BLOCK
+    MM01 -- 冲突或状态不安全 --> BLOCK
+    MM02 -- 冲突或状态不安全 --> BLOCK
+    MM03 -- 冲突或状态不安全 --> BLOCK
+    MM04 -- 效果未授权或不安全 --> BLOCK
+    MM05 -- 冲突或效果不安全 --> BLOCK
+    MM06 -- 效果未授权或不安全 --> BLOCK
+    MM07 -- 效果未授权或不安全 --> BLOCK
+    MM03 -- 必需计划访问、持久化或核验失败 --> BLOCK
 
 ```
 
-## Ordered route checklist
+## 路线顺序检查清单
 
-Before entering MM01, inspect evidence that the Coding workflow completed Contract, Environment, capability inventory, Mode, and Route Entry. Do not repeat those gates. The route requires a positive locked child count; a reserved count alone does not authorize a child. At each step, call only its linked module; preserve the exact module checkpoint and completed effects when a prerequisite suspends work. Resume at the returned position. Never replay earlier effects or restart the route because a prerequisite was missing.
+进入 MM01 前，检查 Coding 工作流已完成 Contract、Environment、能力清单、Mode 和 Route Entry 的证据。不得重复这些门禁。本路线要求正数锁定 child count；预留数量本身不授权创建子代理。每一步只调用所链接的模块；前置导致暂停时，保留准确模块检查点和已完成效果，并从返回位置恢复。不得重放先前效果，也不得因缺少前置而重启整条路线。
 
-1. **MM01 — Entry readiness.** Call [Entry Readiness](modules/entry-readiness.md) with current Contract, Environment, capability inventory, released Multi-Agent Mode, positive locked count, and authorized route evidence. Continue only when all entry evidence is current and consistent. Return missing prerequisites to their semantic owner and retain MM01; block conflicts or unsafe state.
-2. **MM02 — Session readiness.** Call [Session Readiness](modules/session-readiness.md) to confirm canonical authority/state, audit, and applicable capacity readback. Recovery changes must follow the module's canonical readback before audit sequence; do not reopen Mode or repeat completed prompts. Continue only with current Session, audit, and allocation evidence; retain its suspended position on `needs_prerequisite`, and block unresolved authority or readback failures.
-3. **MM03 — Work definition.** Call [Work Definition](modules/work-definition.md) to resolve sourced Context, Decision, planning output, applicable advice, and the unreleased boundary. Continue only with current source facts and a Contract-consistent Decision/plan. Return missing facts or decisions to their semantic owners and resume MM03. This module does not authorize the actual delegated task, reserve a role, release a Slice, create a child, or dispatch. Require the default shared plan identity, current plan evidence and persistence confirmation, or documented persistence-restriction exception from that module before execution; complete any content verification the owner requires. Missing required plan evidence blocks; no explicit planning request is needed. Verify the selected repository storage scope and paired active/archive namespaces; in shared storage, workspaces of the same repository refer to one plan while other repositories remain separate. Unknown or conflicting mappings return to the planning owner without silently falling back to another scope.
-   - At WD02, keep [Workflow Routing Advice](../layer-01-fundamental-concepts/execution-planning/workflow-routing-advice.md) separate from Decision advice. Consider it only after WD01 facts and the locked mode/count and selected route are directly confirmed; review a suggestion against that route and its hashes. Record `not_applicable` with a reason only when the branch is genuinely unselected or ineligible. Missing required capability or stale/insufficient selected evidence returns for resolution or blocks that dependent path; advice cannot change the route, pass a gate, choose an executor/output, or release work.
-4. **MM04 — Delegated execution.** Call [Delegated Execution](modules/delegated-execution.md) with MM01–MM03 evidence and continuation/effect state. DE01–DE04 own Bootstrap assessment, actual-task authorization, executor/output decisions, conditional role reservation, and the shared recovery/Slice gate before any creation/dispatch. Later module checkpoints own conditional child creation/dispatch, explicit Worker memo disposition, implementation/result, and Control. Continue only with current implementation/result and provisional evidence. A resumed bundle retains recorded effects and memo value; a new bundle receives its explicit memo value at DE04. Preserve pending-child, Control, and next-Slice positions; do not replay creation or dispatch. Carry the shared plan identity and current evidence; the module confirms access for the required role, records updates at owner-defined boundaries, and completes any owner-required content verification before dependent work/reporting, including requirement amendments.
-   - At DE07, use [Output Materialization](../layer-01-fundamental-concepts/execution-planning/output-materialization.md) and [Candidate Compliance Preflight](../layer-01-fundamental-concepts/execution-planning/candidate-compliance.md) only when the current executor, Slice, output class, capability, separate grant, pinned root, exact paths, and baseline satisfy their owners. During execution, prepare and inspect the same bounded candidate, run a fresh whole-batch preflight on the same root/policy, recheck the grant/artifact/baseline, apply the exact candidate, and review receipts against actual current files with the returned result; do not wait for the full child result before preparing it. A genuinely unselected optional path is `not_applicable` with a reason and continues only under an independently authorized direct path; selected missing, failed, unknown, stale, or uncertain prerequisites return for resolution or block, with no silent fallback. These results remain provisional until MM05 current Verification.
-5. **MM05 — Verification and repair.** Call [Verification and Repair](modules/verification-repair.md) against the exact current fingerprint and acceptance conditions. Complete required independent verification only when the Contract requires it and current independence evidence confirms availability; a Worker result is implementation evidence only. If required independence is unavailable, suspend dependent effects at MM05; same-Session checks cannot substitute. Continue only when required checks pass on current epochs and no repair remains. A repair returns through handoff to current Verification; semantic Contract/Decision changes return to the caller. Do not accept stale evidence after changed implementation, documentation, or Git metadata dimensions.
-   - At VR01, reconcile any output receipts against actual current files and recapture current state and affected epochs; resolve partial or uncertain effects before verifying. A preflight, receipt, or provisional check never replaces final Verification.
-6. **MM06 — Documentation.** Call [Documentation](modules/documentation.md) with current Verification, Contract, and before fingerprints. The module determines applicable output, requires authorization/source/path when output applies, handles requested Memory with any owner-required content verification, classifies impact, and runs checks. Continue only with its current documentation result. If a changed content/Contract/acceptance dimension requires re-verification, return to MM05, then resume the suspended MM06 substep and complete its current impact/checks before entering MM07.
-   - At DOC02, optional [Candidate Compliance Preflight](../layer-01-fundamental-concepts/execution-planning/candidate-compliance.md) applies only to a genuinely selected, applicable pre-write branch: prepare the bounded candidate and capture its trusted baseline before checking, then resolve selected failed, unknown, omitted, or stale results before application. If a selected branch lacks its candidate or baseline, return `needs_prerequisite`; do not mark it `not_applicable`. Record reasoned `not_applicable` only for a genuinely unselected or inapplicable branch. DOC05's post-write checks remain required; preflight does not replace them.
-7. **MM07 — Delivery and acceptance.** Call [Delivery and Acceptance](modules/delivery-acceptance.md) with current Contract criteria, verification evidence, epochs, and any exact authorized Git intent. Continue only when every applicable criterion maps to current passing evidence and requested delivery is resolved. Require the module's complete-plan preservation comparison before completion/archive and confirmation that the archive exactly matches the verified final active content; perform the content readback required by the plan owner. A final summary cannot replace accumulated history. The module may archive only a matching completed active plan after Acceptance evidence passes and preservation is confirmed. Missing criteria/evidence return to the semantic owner and recorded position; preservation mismatch, failure, conflict, or unauthorized effects block.
+1. **MM01 — 入口就绪。** 使用当前 Contract、Environment、能力清单、已释放 Multi-Agent Mode、正数锁定数量及授权路线证据，调用[入口就绪模块](modules/entry-readiness.md)。仅在入口证据当前且一致时继续。缺失前置交语义 owner 并保留 MM01；冲突或状态不安全时阻塞。
+2. **MM02 — Session 就绪。** 调用[Session 就绪模块](modules/session-readiness.md)，确认规范 authority/state、审计及适用的容量读回。恢复改变事实时，遵循模块要求的规范读回先于审计顺序；不得重开 Mode 或重复已完成提问。仅在 Session、审计和 allocation 证据当前时继续；`needs_prerequisite` 时保留暂停位置，authority 或读回失败未解决时阻塞。
+3. **MM03 — 工作定义。** 调用[工作定义模块](modules/work-definition.md)，解决来源明确的 Context、Decision、规划输出、适用 advice 和未释放边界。仅在来源事实以及符合 Contract 的 Decision/plan 当前有效时继续。缺失事实/决定交语义 owner 后恢复 MM03。该模块不授权实际委派任务、不预留角色、不释放 Slice、不创建或派发子代理。 执行前要求该模块返回默认共享计划身份、当前计划证据与持久化确认，或有记录的持久化限制例外；完成 owner 要求的任何内容核验。必需计划证据缺失时阻塞；无需额外规划请求。 验证所选仓库存储范围及对应活动/归档命名空间；共享存储时，同仓库各工作区指向同一规划，其他仓库保持隔离。映射未知或冲突时返回规划 owner，不得静默回退另一存储范围。
+   - 在 WD02，[工作流路由建议](../layer-01-fundamental-concepts/execution-planning/workflow-routing-advice.md)与 Decision 建议分开。仅在 WD01 事实当前有效、锁定的 mode/count 和所选路线已直接确认后考虑；根据该路线及其哈希审阅建议。只有分支确实未选择或不符合条件时，才记录有原因的 `not_applicable`。所选证据过期/不足或缺少必需能力时，返回解决前置条件或阻塞该依赖路径；建议不能改变路线、通过门禁、选择执行者/输出或释放工作。
+4. **MM04 — 委派执行。** 带上 MM01–MM03 证据及 continuation/effect 状态，调用[委派执行模块](modules/delegated-execution.md)。DE01–DE04 负责 Bootstrap 评估、实际任务授权、执行者/输出决策、条件角色预留以及创建/派发前共用的恢复/Slice 门禁。后续检查点负责条件子代理创建/派发、显式 Worker memo 处置、实施/结果及 Control。仅在当前实施/结果和初步证据齐备时继续。恢复既有 bundle 时保留已记录效果和 memo 值；新 bundle 在 DE04 明确 memo 值。保留等待子代理、Control 和下一 Slice 的位置；不得重放创建或派发。 携带共享计划身份和当前证据；模块确认所需职责的计划访问权限，按 owner 规定的边界记录更新，并在依赖工作/汇报前完成 owner 要求的内容核验；包括需求修订在内，影响依赖工作的变化须在该工作前记录。
+   - 在 DE07，仅当当前执行者、Slice、输出 class、capability、单独授权、固定 root、准确路径和 baseline 均满足 owner 要求时，才使用[输出物料化](../layer-01-fundamental-concepts/execution-planning/output-materialization.md)和[候选合规预检](../layer-01-fundamental-concepts/execution-planning/candidate-compliance.md)。执行期间准备并检查同一有界候选，在同一 root/政策下进行新鲜 whole-batch 预检，重新核验授权/artifact/baseline，应用准确候选，并结合实际当前文件审阅收据和返回结果；准备候选前不必等待完整子代理结果。仅在确实未选择可选路径时记录有原因的 `not_applicable`，且仅在独立授权的直接路径下继续；所选路径缺少候选/基线/必需能力或检查失败、未知、过期、不确定时，返回解决前置条件或阻塞，不得静默回退。这些结果在 MM05 当前 Verification 前均为初步证据。
+5. **MM05 — 验证与修复。** 针对准确当前指纹和验收条件调用[验证与修复模块](modules/verification-repair.md)。只有 Contract 要求独立验证且当前独立性证据确认可用时，才完成独立验证；Worker 结果仅是实施证据。必需验证者证据待补时暂停依赖效果；若无法取得获授权的独立验证者，则阻塞这些效果。同 Session 逻辑检查不可替代。仅当必需检查在当前 epoch 通过且没有待修复项时继续。修复经交接返回当前 Verification；Contract/Decision 语义变化交调用方。实施、文档或 Git metadata 维度改变后不得使用过期证据。
+   - 在 VR01，将任何输出收据与实际当前文件对账，并重新捕获当前状态和受影响 epoch；先根据当前证据解决部分或不确定效果。预检、收据或初步检查不能替代最终 Verification。
+6. **MM06 — 文档。** 带上当前 Verification、Contract 和写前指纹，调用[文档模块](modules/documentation.md)。该模块判断适用输出，输出适用时要求授权/来源/路径，处理请求 Memory 的 owner 要求内容核验、影响分类和检查。仅在当前文档结果齐备时继续。内容/Contract/验收变化需要重验时返回 MM05；受影响 epoch 通过后，恢复挂起的 MM06 子步骤，完成当前影响分类和文档检查后再进入 MM07。
+   - 在 DOC02，可选[候选合规预检](../layer-01-fundamental-concepts/execution-planning/candidate-compliance.md)仅适用于确实已选择且适用的写前分支：先准备有界候选并捕获可信基线，再运行检查；然后在应用前解决已选检查的失败、未知、遗漏或过期结果。已选分支缺少候选或基线时返回 `needs_prerequisite`，不得标为 `not_applicable`。只有分支确实未选择或不适用时才记录有原因的 `not_applicable`。DOC05 的写后检查仍必需，预检不能替代它。
+7. **MM07 — 交付与验收。** 带上当前 Contract 标准、验证证据、epoch 和任何准确且获授权的 Git 意图，调用[交付与验收模块](modules/delivery-acceptance.md)。仅当每项适用标准都有当前通过证据且请求交付已解决时继续。要求该模块在完成/归档前进行计划全文内容保留比对，并确认归档与已核验的最终活动内容完全相同；执行计划 owner 要求的内容读回。最终摘要不能替换累积历史。只有验收证据通过且内容保留已确认后，该模块才可归档匹配的已完成 active plan。缺少标准/证据时返回语义 owner 和记录位置；内容保留不一致、失败、冲突或效果未授权时阻塞。
 
-## Prerequisite return map
+## 前置返回映射
 
-Resolve only the missing item at its producer/recheck location. Preserve the original suspended module/substep, completed effects, and relevant epochs; if the producer also suspends, keep a nested continuation in the existing caller context. After readback and epoch/effect rechecks, resume only the original caller position. Contract/Environment/Mode evidence gaps require missing evidence completion; recheck Route Entry only if material route facts change, then return to the original pending position with locked Mode/count retained. Never replay earlier effects or reopen released Mode/count. Unknown owner/position/effects, no progress, or unrecoverable effects block dependent work.
+仅在其 producer/recheck 位置补齐缺失项。保留原挂起模块/子步骤、已完成效果和相关 epoch；若 producer 也暂停，则在现有调用方上下文保留嵌套 continuation。读回结果并重核 epoch/effect 后，只恢复原调用方位置。Contract/Environment/Mode 证据缺口仅需补齐缺失证据；只有路线事实实质变化时才重核 Route Entry，然后在保留锁定 Mode/count 的情况下返回原挂起位置。不得重放前序效果或重开已释放 Mode/count。owner/位置/效果未知、无进展或效果不可恢复时阻塞依赖工作。
 
-| Missing prerequisite | Producer/recheck location | Resume after readback |
+| 缺失前置 | producer/recheck 位置 | 读回后恢复位置 |
 | --- | --- | --- |
-| Contract/acceptance criteria | Coding workflow Contract owner; complete missing evidence. | Original suspended MM module/substep; recheck Route Entry only if material route facts changed. |
-| Environment/capability inventory | Corresponding Environment/capability owner; complete missing evidence. | Original suspended MM module/substep; recheck Route Entry only if material route facts changed. |
-| Route Entry evidence or changed route fact | Route Entry owner, only for material fact changes; keep released Mode/count. | Original suspended MM module/substep if the route remains valid; otherwise block. |
-| Released Multi-Agent Mode/count evidence | Existing Mode owner and locked record readback; do not repeat a released choice. | Original suspended MM module/substep only when current Multi-Agent mode and positive count are confirmed; conflict blocks. |
-| Session state, authority, audit, or capacity | MM02 Session owners, including canonical state readback before audit/capacity reuse. | Original suspended MM module/substep after readback; if MM02 itself is caller, resume its recorded producer substep. |
-| Context, Decision, plan, or advice | MM03 WD owners; resolve only the missing substep. | Original suspended MM module/substep; e.g. MM07 returns to MM07 after WD evidence is read back. |
-| Bootstrap, task authorization, executor/output, role, Slice, or Control | MM04 DE01–DE08 owners; do not replay completed allocation/dispatch effects. | Original suspended MM module/substep after result readback and effect/epoch checks. |
-| Verification, repair diagnosis, or handoff | MM05 VR owners; preserve current dimensions and repair effects. | Original suspended MM module/substep after current evidence; MM06 returns to its suspended DOC substep after verification. |
-| Documentation impact, owner-required Memory content verification, or checks | MM06 DOC owners; after a VR return, finish the suspended DOC substep. | Original suspended MM module/substep after readback and impact/check completion. |
-| Git target/effect, Acceptance criteria, or plan archive | MM07 DA owners; archive only after all criteria pass and required readback. | Original suspended MM module/substep after producer evidence is read back. |
-## Mode boundary
+| Contract/验收标准 | Coding 工作流 Contract owner；仅补齐缺失证据。 | 原挂起 MM 模块/子步骤；只有路线事实实质变化时才重核 Route Entry。 |
+| Environment/能力清单 | 对应 Environment/能力 owner；仅补齐缺失证据。 | 原挂起 MM 模块/子步骤；只有路线事实实质变化时才重核 Route Entry。 |
+| Route Entry 证据或已变化的路线事实 | 仅对实质变化事实调用 Route Entry owner；保留已释放 Mode/count。 | 路线仍有效时恢复原挂起 MM 模块/子步骤；否则阻塞。 |
+| 已释放 Multi-Agent Mode/count 证据 | 使用既有 Mode owner 和锁定记录读回；不得重复已释放选择。 | 仅在当前 Multi-Agent mode 和正数数量得到确认后恢复原挂起位置；冲突时阻塞。 |
+| Session state、authority、审计或容量 | MM02 Session owners；复用审计/容量前先完成 canonical state 读回。 | 读回后恢复原挂起 MM 模块/子步骤；若调用方本身是 MM02，则恢复其记录的 producer 子步骤。 |
+| Context、Decision、plan 或 advice | MM03 WD owners；只解决缺失子步骤。 | 原挂起 MM 模块/子步骤；例如 MM07 在 WD 证据读回后仍恢复 MM07。 |
+| Bootstrap、任务授权、执行者/输出、角色、Slice 或 Control | MM04 DE01–DE08 owners；不得重放已完成的分配/派发效果。 | 结果读回并核对 effect/epoch 后恢复原挂起位置。 |
+| Verification、修复诊断或 handoff | MM05 VR owners；保留当前维度和修复效果。 | 当前证据完成后恢复原挂起位置；MM06 在验证返回后恢复其挂起 DOC 子步骤。 |
+| 文档影响、owner 要求的 Memory 内容核验或检查 | MM06 DOC owners；VR 返回后完成挂起的 DOC 子步骤。 | 读回、影响分类及检查完成后恢复原挂起位置。 |
+| Git target/effect、Acceptance 标准或计划归档 | MM07 DA owners；仅在全部标准通过并完成所需读回后归档。 | producer 证据读回后恢复原挂起 MM 模块/子步骤。 |
+## Mode 边界
 
-Use only the already released Multi-Agent mode and positive locked count. Allocation, creation, dispatch, reuse, memo, and child lifecycle are governed by the composed lower-layer owners inside the called modules; this route only orders those modules.
+只使用已释放的 Multi-Agent mode 和正数锁定数量。角色分配、创建、派发、复用、memo 和子代理生命周期由所调用模块组合的底层 owners 管理；本路线只负责模块顺序。
 
-## Related concepts
+## 相关概念
 
-- [Entry Readiness](modules/entry-readiness.md)
-- [Delegated Execution](modules/delegated-execution.md)
-- [Verification and Repair](modules/verification-repair.md)
+- [入口就绪模块](modules/entry-readiness.md)
+- [委派执行模块](modules/delegated-execution.md)
+- [验证与修复模块](modules/verification-repair.md)

@@ -1,13 +1,12 @@
 # Completion And Effects
 
-[English](README.md) | [简体中文](README_zh_cn.md)
 
-## Scope and boundary
+## 范围与边界
 
-Generic documentation, Git, and acceptance checkpoints. It records required evidence and boundaries for completion/effects; authorization and repository operations remain governed by their owners and controls.
+通用文档、Git 和验收检查点。记录完成/效果所需证据与边界；授权和仓库操作仍由其所有者及控制规则负责。
 
-## Entry
+## 入口
 
-Consult Documentation and Git only when those effects apply, then use Acceptance for final evidence.
+仅在适用时查阅文档和 Git 检查点，最后通过验收核对证据。
 
-[INDEX](INDEX.md)
+[索引](INDEX.md)

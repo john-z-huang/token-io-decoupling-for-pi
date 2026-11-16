@@ -1,36 +1,32 @@
-# Coding Delegation Count Gate
+# Coding 委派数量门禁
 
-[English](delegation-mode-count-gate.md) | [简体中文](delegation-mode-count-gate_zh_cn.md)
 
-This module owns Multi-Agent child-count selection, locking, and count-budget boundaries. It consumes the selected mode and the state record; it does not define mode selection, re-entry, child creation, or lifecycle.
+本文档负责多代理子 Agent 数量的选择、锁定和数量预算边界。它消费已选择的模式和状态记录；不定义模式选择、重新进入、子 Agent 创建或生命周期。
 
-## General rules
+## 通用规范
 
-### Count selection and lock
+### 数量选择和锁定
 
-For a selected Multi-Agent Session, take the explicit positive child count supplied by the user, if any. Otherwise lock a budget of one child. This default also applies when Multi-Agent is selected as the first Coding directive's default. The Skill sets no maximum for this initial positive count. If the user selected the custom-count menu option but omitted or supplied an invalid count, ask one focused follow-up and keep the Mode gate unreleased; never substitute one. Do not ask an additional count question when the count is valid. Reject any other invalid explicit count and keep the route unreleased until the user supplies a valid positive integer; do not reinterpret it as consent to a different count. The count is a total child budget for the host Session lifetime, not a per-turn, per-task, per-stage, or per-role number.
+选择 Multi-Agent Session 后，采用用户明确给出的正整数子代理数量；否则锁定 1 个子代理的预算。首次 Coding 指令默认选择 Multi-Agent 时也应用此默认值。本 Skill 不限制初始正整数数量的最大值。用户选择了自定义数量选项、但遗漏或给出无效数量时，只提出一个聚焦的补充问题并保持 Mode gate 未放行；不得替换为 1。数量有效时不再提出额外数量问题。其他明确数量无效时，保持路线未放行，直到用户给出有效正整数；不得解释为同意其他数量。数量是完整宿主 Session 生命周期内的子代理总预算，而非每轮、每任务、每阶段或每职责的数量。
 
-Lock the count before route release and reserve exactly that many planned allocation slots in the parent record. Each reserved slot starts with `agent: unbound`, `role: unassigned`, `slice_status: pending`, and `lifecycle: pending`; it does not assert that Context, Decision, or a concrete slice is released, and does not initialize a child. Reservation does not select a role or make Primary Output the automatic role for a one-child budget. After current task context and Decision are reviewed, [Child Role Selection](child-role-selection.md) selects a role and the allocation owner records it in an unassigned slot. No child may be created until its role and current slice are released and the output is code/configuration implementation or authorship/editing of this Skill's instructions or reference documents. Ordinary non-Skill documentation never triggers or consumes a reserved slot; the root parent authors it, including when code changes are also present. Every independently assigned role consumes one reserved slot; reuse consumes none. Locking the count fixes the total budget, not the contents of an unbound slot.
+路线放行前锁定数量，在父级状态记录中预留恰好该数量的计划 allocation 名额。每个初始名额均使用 `agent: unbound`、`role: unassigned`、`slice_status: pending` 和 `lifecycle: pending`；预留名额不表示 Context、Decision 或具体 Slice 已经放行，也不会初始化子代理。预留本身不选择职责，也不因只预留一个名额就自动选择 Primary Output。当前任务上下文和 Decision 审阅完成后，由[子代理职责选择](child-role-selection.md)确定职责，再由分配 owner 将其记录到未分配名额中。只有角色和本次 Slice 均获放行，且输出属于代码/配置实现或本 Skill 指令/参考文档编写编辑，才可以创建对应子代理。普通非 Skill 文档不会触发或消耗预留名额；由根父级编写，包括同时存在代码修改的任务。每项独立职责消耗一个预留名额；复用不增加名额。数量锁定固定的是总预算，不是尚未绑定子代理名额的具体内容。
 
-### Explicit one-slot increase
+### 用户明确批准增加一个名额
 
-If no unassigned slot remains and current facts establish a need for one additional child with a different, unoccupied role, Root may ask the user for explicit approval to increase the locked count by exactly one. No model advice, inferred intent, prior approval for another change, or API result is user approval. Root must review the actual user instruction and supply its `SemanticRef` or `EvidenceRef` in the guarded reservation transaction. The transaction accepts the increase only when the requested count equals the current count plus one, preserves the prior count source in the canonical semantic references, records the new approval as the current source, and atomically adds and reserves the unoccupied role in one new slot. Its mutation receipt records the approval evidence and the old/new counts. If any fact is missing, approval is unclear, the new role is already reserved or created, or the exact count cannot be represented by the existing approval contract (which accepts approved counts through four), preserve the state and stop; do not coerce or split the request. An explicit initial count is not capped by that approval-field limit.
+如果没有未分配名额，且当前事实表明需要为不同且未占用的职责增加一个子代理，Root 可以向用户请求将锁定数量恰好增加一。模型建议、推断意图、针对其他变更的历史批准或 API 结果都不是用户批准。Root 必须审阅实际用户指令，保留其准确来源引用和旧数量依据；仅在所请求数量等于当前数量加一、职责不同且未占用时，在父级规范对话记录中协调更新数量和预留职责。记录新旧值、批准和当前事实，不宣称存在服务端原子事务。事实缺失、批准不清或职责被占用时保留状态并停止，不强行转换请求。实际工具若另有更窄约束必须遵守，但不得把尚未适用的旧工具字段当作 Pi 已实现能力。
 
-An increase does not choose a role from the budget alone, release a slice, or create a child. A remaining unassigned slot is used under the existing count and normal release gates; it does not require budget approval. A role assignment on an unbound, not-yet-created slot may be revised only as a parent-authorized plan update within the current count, and the replacement role must be unoccupied. Once a child is created, its identity, slot, and role are permanent in this Session: never recycle or replace them, including through a fork or handoff successor. Only an additional child above the current count requires the exact one-slot user approval above, and that approval is for a different unoccupied role, never a replacement. If all maintained roles are occupied, approval cannot authorize a repeated role. If a required slot or capability is unavailable, block dependent work instead of silently changing the count.
+增加名额不会仅凭预算选择职责、放行 Slice 或创建子代理。已有未分配名额时，应在现有数量和正常放行门禁内使用，无需预算批准。尚未创建子代理的 unbound 名额可由父级授权在当前数量内调整职责计划，但新职责必须未被占用。子代理一旦创建，其身份、名额和职责在本 Session 中永久绑定：不得回收或替换，包括通过 Fork 或 handoff successor。只有超过当前数量的额外子代理才需要上述确切的单名额用户批准，且必须为不同、未占用的职责，绝不允许借此替换已创建子代理。若所有受维护职责都已占用，批准不能授权重复职责。必需名额或能力不可用时阻塞依赖工作，不得默默更改数量。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-No provider-specific optimization instructions at present; follow the general rules above.
+父级核对真实用户批准来源，并在当前规范对话记录中一次性更新数量与预留职责，保留旧值和证据；这只是父级协调，不是服务端原子事务。尚未完成 Pi 身份适配的受保护工具不能用于伪造回执或批准。
 
-## Claude Code CLI / Claude Desktop optimizations
 
-No provider-specific optimization instructions at present; follow the general rules above.
+## 相关概念
 
-## Related concepts
-
-- [Coding Delegation Mode Confirmation](delegation-mode-confirmation.md) — locate root mode confirmation ownership.
-- [Coding Delegation Re-entry](delegation-mode-reentry.md) — locate gate re-entry ownership.
-- [Coding Delegation State Record](delegation-state-record.md) — locate state record ownership.
-- [Coding Child Creation](delegation-child-creation.md) — locate child creation ownership.
-- [Coding Child Lifecycle](delegation-child-lifecycle.md) — locate child lifecycle ownership.
-- [Coding Child Role Selection](child-role-selection.md) — locate the selection that uses approved capacity.
+- [Coding Delegation Mode Confirmation](delegation-mode-confirmation.md) — 定位根模式确认归属。
+- [Coding Delegation Re-entry](delegation-mode-reentry.md) — 定位门禁重新进入归属。
+- [Coding Delegation State Record](delegation-state-record.md) — 定位状态记录归属。
+- [Coding Child Creation](delegation-child-creation.md) — 定位子 Agent 创建归属。
+- [Coding Child Lifecycle](delegation-child-lifecycle.md) — 定位子 Agent 生命周期归属。
+- [Coding Child Role Selection](child-role-selection.md) — 定位使用已批准容量的职责选择。

@@ -1,89 +1,88 @@
-# Documentation Module
+# 文档模块
 
-[English](documentation.md) | [简体中文](documentation_zh_cn.md)
 
-This Layer-04 module writes only authorized documentation/comments or requested reusable project knowledge against a current verified state, then classifies post-write impact by affected dimension. It does not perform final Verification, decide semantic changes, or authorize Git effects.
+本 Layer-04 模块基于当前已验证状态，仅编写获准的文档/注释或用户要求的可复用项目知识，然后按受影响维度分类写入后的影响。不执行最终 Verification、不决策语义变化，也不授权 Git 影响。
 
-## Entry declaration
+## 入口声明
 
-| Field | Requirement |
+| 字段 | 要求 |
 | --- | --- |
-| Entry prerequisites | The applicable Single-Agent or Multi-Agent Mode gate has released current evidence; current Session identity and authority are confirmed; the caller continuation and completed effects are known, with no unresolved effect ambiguity. |
-| Required inputs | Current Contract and scope, current implementation/content Verification for the state under consideration, and before fingerprints. Approved paths, audience, purpose, source evidence, and writer/role authorization are required when a documentation, comment, or Memory output applies. |
-| Permitted effects | Edit the released documentation/comment paths; conditionally persist specifically requested or triggered reusable project Memory; run applicable documentation checks and impact classification. Ordinary non-Skill documentation remains parent-authored. |
-| Results | `complete` with current documentation epoch, checks, before/after fingerprints, affected/unaffected dimensions, and any reusable Memory write/readback result; otherwise `needs_prerequisite` or `blocked` with the required owner and continuation. |
-| Freshness | Bind the source verification and documentation result to current fingerprints and applicable epochs. A post-write change invalidates only affected dimensions; executable-content, Contract, or acceptance changes also invalidate implementation/content evidence. |
+| 入口前置条件 | 适用的 Single-Agent 或 Multi-Agent Mode 门禁已有当前释放证据；当前 Session 身份与 authority 已确认；调用方 continuation 和已完成效果均已知，且无未解决的效果歧义。 |
+| 必需输入 | 当前 Contract 和范围、待记录状态的当前 implementation/content Verification，以及写前指纹。适用文档、注释或 Memory 输出时，须提供批准路径、读者、目的、来源证据和作者/职责授权。 |
+| 允许效果 | 编辑已放行的文档/注释路径；有条件地持久化明确请求或触发的可复用项目 Memory；运行适用的文档检查并分类影响。普通非 Skill 文档由 parent 编写。 |
+| 结果 | 以当前 documentation epoch、检查、前后指纹、受影响/未受影响维度，以及可复用 Memory 写入/读回结果返回 `complete`；否则连同所需 owner 和 continuation 返回 `needs_prerequisite` 或 `blocked`。 |
+| 新鲜度 | 将来源 Verification 和文档结果绑定到当前指纹及适用 epoch。写后变化只使受影响维度失效；可执行内容、Contract 或验收变化也会使 implementation/content 证据失效。 |
 
-## Workflow map
+## 工作流路线图
 
 ```mermaid
 flowchart TD
-    DOC00["DOC00 Resolve module entry"]
-    DOC01["DOC01 Confirm current verified state and approved documentation scope"]
-    D_PREFLIGHT{"Is an authorized pre-write candidate check selected?"}
-    DOC_PREFLIGHT["Check exact documentation candidate against current trusted baseline"]
-    DOC_PREFLIGHT_NA["not_applicable: no selected candidate-preflight branch; reason recorded"]
-    DOC_NEEDS_PREFLIGHT["needs_prerequisite: resolve candidate/scope/baseline/preflight; resume DOC02"]
-    DOC02["DOC02 Author approved documentation/comments or record evidenced no-op"]
-    D_MEMORY{"Requested project Memory or reusable-knowledge trigger?"}
-    DOC03["DOC03 Persist authorized project Memory and confirm operation"]
-    D_MEMORY_VERIFY{"Does the applicable owner require stored-content verification?"}
-    DOC_MEM_VERIFY["Complete owner-required verification with matching evidence or content comparison"]
-    DOC_MEM_VERIFY_NA["not_applicable: no owner-triggered stored-content check; reason recorded"]
-    DOC04["DOC04 Classify post-write impact and advance affected epochs"]
-    DOC05["DOC05 Run current documentation checks and justify unaffected-dimension reuse"]
-    DOC06["DOC06 Return documentation result and route affected verification"]
-    DOC_NEEDS["needs_prerequisite: obtain current Verification or approved scope"]
-    DOC_NEEDS_IMPL["needs_prerequisite: return behavior/Contract/acceptance impact to implementation Verification"]
-    DOC_NEEDS_MEM["needs_prerequisite: Memory capability, persistence, or required verification unavailable/failed"]
+    DOC00["DOC00 解析模块入口"]
+    DOC01["DOC01 核验当前已验证状态和批准的文档范围"]
+    D_PREFLIGHT{"是否选择了获授权的写前候选检查？"}
+    DOC_PREFLIGHT["根据当前可信基线检查准确的文档候选"]
+    DOC_PREFLIGHT_NA["not_applicable：未选择候选预检分支；已记录原因"]
+    DOC_NEEDS_PREFLIGHT["needs_prerequisite：解决候选/范围/基线/预检；恢复 DOC02"]
+    DOC02["DOC02 编写获准输出或记录有证据的无变化"]
+    D_MEMORY{"是否请求项目 Memory 或触发可复用知识条件？"}
+    DOC03["DOC03 持久化已授权项目 Memory 并确认操作"]
+    D_MEMORY_VERIFY{"适用 owner 是否要求存储内容核验？"}
+    DOC_MEM_VERIFY["使用匹配的核验凭据或内容比较完成 owner 要求的核验"]
+    DOC_MEM_VERIFY_NA["not_applicable：无 owner 触发的存储内容检查；已记录原因"]
+    DOC04["DOC04 分类写后影响并推进受影响 epoch"]
+    DOC05["DOC05 运行当前文档检查并证明未受影响维度可复用"]
+    DOC06["DOC06 返回文档结果并路由受影响验证"]
+    DOC_NEEDS["needs_prerequisite：取得当前 Verification 或批准范围"]
+    DOC_NEEDS_IMPL["needs_prerequisite：将行为/Contract/验收影响返回实现 Verification"]
+    DOC_NEEDS_MEM["needs_prerequisite：Memory 能力、持久化或必需核验不可用/失败"]
     DOC_BLOCK["blocked"]
-    DOC_MEM_NA["not_applicable: no requested or triggered Memory output"]
-    DOC_OUTPUT_NA["not_applicable: no output applies, or authorized output produced no change; matching fingerprints required"]
-    DOC00 -- ready --> DOC01
-    DOC00 -- missing evidence --> DOC_NEEDS
-    DOC00 -- conflict or unsafe state --> DOC_BLOCK
-    DOC01 -- output applies; current Verification and approved scope/authority --> D_PREFLIGHT
-    DOC01 -- no output applies; current Verification and unchanged before/after fingerprints --> DOC_OUTPUT_NA
-    DOC01 -- Verification stale/missing or scope incomplete --> DOC_NEEDS
-    DOC01 -- requested/triggered output lacks required authorization/path/source --> DOC_NEEDS
-    DOC01 -- ordinary docs assigned to child or unauthorized writer --> DOC_BLOCK
-    D_PREFLIGHT -- selected; exact candidate, scope and trusted baseline current --> DOC_PREFLIGHT
-    D_PREFLIGHT -- not selected/no applicable candidate; record reason --> DOC_PREFLIGHT_NA
-    D_PREFLIGHT -- selected but candidate, scope, or baseline missing --> DOC_NEEDS_PREFLIGHT
-    DOC_PREFLIGHT -- all selected structural checks pass --> DOC02
-    DOC_PREFLIGHT -- selected check fails, is unknown, omitted, or stale --> DOC_NEEDS_PREFLIGHT
+    DOC_MEM_NA["not_applicable：无请求或触发的 Memory 输出"]
+    DOC_OUTPUT_NA["not_applicable：无适用输出或获准输出无变化；须有匹配指纹"]
+    DOC00 -- 就绪 --> DOC01
+    DOC00 -- 证据缺失 --> DOC_NEEDS
+    DOC00 -- 冲突或状态不安全 --> DOC_BLOCK
+    DOC01 -- 适用输出；当前 Verification、批准范围和授权 --> D_PREFLIGHT
+    DOC01 -- 无适用输出；当前 Verification 且前后指纹不变 --> DOC_OUTPUT_NA
+    DOC01 -- Verification 过期/缺失或范围不完整 --> DOC_NEEDS
+    DOC01 -- 请求/触发输出缺少必需授权/路径/来源 --> DOC_NEEDS
+    DOC01 -- 将普通文档分配给子代理或作者未授权 --> DOC_BLOCK
+    D_PREFLIGHT -- 已选择；准确候选、范围和可信基线当前有效 --> DOC_PREFLIGHT
+    D_PREFLIGHT -- 未选择/无适用候选；记录原因 --> DOC_PREFLIGHT_NA
+    D_PREFLIGHT -- 已选择但候选、范围或基线缺失 --> DOC_NEEDS_PREFLIGHT
+    DOC_PREFLIGHT -- 所有已选结构检查通过 --> DOC02
+    DOC_PREFLIGHT -- 已选检查失败、未知、遗漏或过期 --> DOC_NEEDS_PREFLIGHT
     DOC_PREFLIGHT_NA --> DOC02
-    DOC02 -- source-based edit or evidenced no-op complete --> D_MEMORY
-    DOC02 -- material meaning needs decision --> DOC_NEEDS_IMPL
-    D_MEMORY -- requested or triggered reusable Memory --> DOC03
-    D_MEMORY -- no such output --> DOC_MEM_NA
-    DOC03 -- write operation succeeded --> D_MEMORY_VERIFY
-    D_MEMORY_VERIFY -- no stored-content check required; record N/A --> DOC_MEM_VERIFY_NA
-    D_MEMORY_VERIFY -- owner requires stored-content verification --> DOC_MEM_VERIFY
-    DOC_MEM_VERIFY -- matching verified evidence or content comparison passes --> DOC04
-    DOC_MEM_VERIFY -- required verification fails, is unavailable, or outcome is uncertain --> DOC_NEEDS_MEM
-    DOC03 -- required capability or write fails --> DOC_NEEDS_MEM
+    DOC02 -- 基于来源编辑完成或有证据的无变化 --> D_MEMORY
+    DOC02 -- 实质含义需要决策 --> DOC_NEEDS_IMPL
+    D_MEMORY -- 请求或触发的可复用 Memory --> DOC03
+    D_MEMORY -- 无此类输出 --> DOC_MEM_NA
+    DOC03 -- 写入操作成功 --> D_MEMORY_VERIFY
+    D_MEMORY_VERIFY -- 无需存储内容检查；记录 N/A --> DOC_MEM_VERIFY_NA
+    D_MEMORY_VERIFY -- owner 要求存储内容核验 --> DOC_MEM_VERIFY
+    DOC_MEM_VERIFY -- 匹配的核验凭据或内容比较通过 --> DOC04
+    DOC_MEM_VERIFY -- 必需核验失败、不可用或结果不明 --> DOC_NEEDS_MEM
+    DOC03 -- 必需能力或写入失败 --> DOC_NEEDS_MEM
     DOC_MEM_VERIFY_NA --> DOC04
     DOC_MEM_NA --> DOC04
     DOC_OUTPUT_NA --> D_MEMORY
-    DOC04 -- only documentation dimension changed or matching no-change fingerprints --> DOC05
-    DOC04 -- executable content/Contract/acceptance changed --> DOC_NEEDS_IMPL
-    DOC04 -- impact unknown --> DOC_BLOCK
-    DOC05 -- applicable checks pass; unaffected dimensions justified --> DOC06
-    DOC05 -- required documentation check fails or unavailable --> DOC_BLOCK
+    DOC04 -- 仅文档维度改变或前后指纹匹配证明无变化 --> DOC05
+    DOC04 -- 可执行内容/Contract/验收改变 --> DOC_NEEDS_IMPL
+    DOC04 -- 影响未知 --> DOC_BLOCK
+    DOC05 -- 适用检查通过；未受影响维度有依据 --> DOC06
+    DOC05 -- 必需文档检查失败或不可用 --> DOC_BLOCK
 ```
 
-## Ordered module checklist
+## 有序模块清单
 
-1. **DOC00 — Resolve entry.** Call [Module Entry Resolution](../../layer-03-workflow-checkpoints/module-entry-resolution.md) with current Contract/scope, applicable implementation/content Verification, current epochs, known effects and before fingerprints, and continuation. Include approved paths, audience, purpose, source evidence, and writer authorization only when an output applies. Missing required evidence returns `needs_prerequisite`; contradictory scope, unsafe state, or unauthorized effects return `blocked`.
-2. **DOC01 — Confirm current state and determine applicable output.** Apply [Documentation](../../layer-02-workflow-concepts/completion-and-effects/documentation.md) and [Session Role Ownership](../../layer-01-fundamental-concepts/session-runtime/session-role-ownership.md). Confirm current Contract/scope, applicable implementation/content Verification, and before fingerprints. First decide from current Contract/user intent and owner triggers whether documentation, comments, or reusable project Memory output applies. For applicable output, require exact approved paths, audience, purpose, sources, and writer/role authorization; missing required authorization/path/source returns `needs_prerequisite` or `blocked`, never `not_applicable`. Ordinary non-Skill documentation/comments remain parent-authored. A child may author/edit Skill instructions or references only after all release gates; the parent reviews that result at Documentation and Acceptance. If required current Verification is absent or stale, return to Verification.
-3. **DOC02 — Author approved output or record an evidenced no-op.** For an authorized documentation candidate, first determine whether the optional candidate-preflight branch is genuinely selected and applicable. When selected, prepare the exact bounded candidate and capture the trusted current baseline, then run [Candidate Compliance Preflight](../../layer-01-fundamental-concepts/execution-planning/candidate-compliance.md) on that pair before applying the candidate. If the selected branch lacks a candidate or baseline, return `needs_prerequisite` at DOC02 until it is prepared; do not mark the selected branch `not_applicable`. Use the Skill-maintenance scope only for Skill maintenance; use the generic project scope otherwise. Resolve every selected failed, unknown, omitted, truncated, or stale result before applying the candidate. Only when the branch is genuinely unselected or its trigger is absent/inapplicable, record `not_applicable` with why and continue under the authorized direct documentation path. A passing preflight is limited candidate evidence; it cannot replace DOC05's post-write checks, semantic mirror review, or current Verification. Edit only authorized Markdown/comment paths using verified sources; keep required English/Chinese mirrors aligned. Do not encode behavior, policy, Contract, acceptance, scope, or Git changes as documentation. Return a material semantic choice to the caller's Contract/Decision path. If no output applies, or authorized output has no actual difference, record `not_applicable` only with matching before/after fingerprints. Preserve already completed effects so resumption does not replay them.
-4. **DOC03 — Persist only authorized project Memory.** If the user requested reusable Agent project knowledge or an owner-defined trigger applies, use [LSP MCP Tools](../../layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.md), [Content Memo](../../layer-01-fundamental-concepts/context-exchange/content-memo.md), and [Content Memo Lifecycle](../../layer-01-fundamental-concepts/context-exchange/content-memo-lifecycle.md) as applicable: retain the authorized name/path, write through the exposed Memory capability, and confirm the operation succeeded. Perform stored-content verification only when the applicable owner requires it; use its matching verified evidence when available, or perform the necessary content comparison. A normal successful write does not trigger an immediate full readback. A `write_content_memo: false` dispatch value does not establish that project Memory is not applicable. If no project Memory output was requested or triggered, record `not_applicable` with reason. If required capability, write, or owner-required verification is unavailable or fails, keep the requested output incomplete; do not use a file as fallback.
-5. **DOC04 — Classify post-write impact.** Apply [Documentation Impact](../../layer-03-workflow-checkpoints/documentation-impact.md) and [Verification Epoch](../../layer-02-workflow-concepts/verification-and-repair/verification-epoch.md) with before/after fingerprints, after any requested Memory write and any owner-required content verification. Advance the documentation epoch for actual maintained docs/comments/Memory changes. If fingerprints match and no output changed, do not advance the epoch and record `not_applicable` with evidence. Advance only affected dimensions and preserve evidence for unaffected dimensions. If executable content, Contract, or acceptance conditions changed, also classify implementation/content impact and return it to current Verification. Unknown impact blocks.
-6. **DOC05 — Run documentation checks and assess evidence reuse.** Run applicable Markdown, link, whitespace, multilingual, and scope checks after all documentation and Memory writes. For documentation-only impact, retain unaffected current evidence only with a fingerprint rationale and rerun changed documentation checks. With no changed output, record checks `not_applicable` with matching fingerprints. Behavior/Contract/acceptance impact returns for implementation/content Verification; do not complete while required re-verification is unresolved.
-7. **DOC06 — Return documentation evidence.** Return changed paths, source basis, current documentation fingerprint/epoch, checks and results, before/after dimension classification, rationale for reused unaffected evidence, and any Memory result or reasoned `not_applicable`. Complete only when all applicable checks pass or are justified `not_applicable`, Memory persistence is confirmed and any owner-required stored-content verification passes or is justified `not_applicable`, and all content-affecting re-verification has a resolved continuation/result. This does not authorize Git or overall Acceptance.
+1. **DOC00 — 解析入口。** 调用[模块入口解析](../../layer-03-workflow-checkpoints/module-entry-resolution.md)，提供当前 Contract/范围、适用的 implementation/content Verification、当前 epoch、已知效果、写前指纹和 continuation。仅在适用输出时提供批准路径、读者、目的、来源证据和作者授权。缺少必需证据时返回 `needs_prerequisite`；范围矛盾、状态不安全或效果未授权时返回 `blocked`。
+2. **DOC01 — 核验状态并判断适用输出。** 应用[Documentation](../../layer-02-workflow-concepts/completion-and-effects/documentation.md)和[Session 职责归属](../../layer-01-fundamental-concepts/session-runtime/session-role-ownership.md)。确认当前 Contract/范围、适用的 implementation/content Verification 和写前指纹。首先依据当前 Contract/用户意图及 owner triggers 判断是否适用文档、注释或可复用项目 Memory 输出。输出适用时，必须具备准确批准路径、读者、目的、来源及作者/职责授权；缺少必需授权/路径/来源时返回 `needs_prerequisite` 或 `blocked`，不得标为 `not_applicable`。普通非 Skill 文档/注释由 parent 编写。只有通过全部 release gates 后，才可将 Skill 指令/参考文档分配给 child；parent 在 Documentation 和 Acceptance 阶段审查。必需 Verification 缺失或过期时返回 Verification。
+3. **DOC02 — 编写获准输出或记录有证据的无变化。** 对已授权文档候选，先确认可选候选预检分支确实已选择且适用。已选择时，先准备准确的有界候选并捕获当前可信基线，再对该候选/基线运行[候选合规预检](../../layer-01-fundamental-concepts/execution-planning/candidate-compliance.md)，然后才能应用候选。所选分支缺少候选或基线时，在 DOC02 返回 `needs_prerequisite`，直至准备完成；不得将已选分支标为 `not_applicable`。仅在 Skill 维护时使用 Skill-maintenance 范围；其他情况使用 generic project 范围。应用候选前，解决每项已选检查返回的失败、未知、遗漏、截断或过期结果。只有分支确实未选择，或其触发条件不存在/不适用时，才记录有原因的 `not_applicable` 并在授权的直接文档路径下继续。预检通过只是有限候选证据，不能替代 DOC05 写后检查、中文语义审阅或当前 Verification。仅根据已验证来源编辑授权 Markdown/注释路径，维护唯一的中文权威正文。不得以文档名义引入行为、政策、Contract、验收、范围或 Git 变化。实质语义选择返回调用方 Contract/Decision 路径。无适用输出或获准输出实际无差异时，只有前后指纹匹配才可记录 `not_applicable`。保留已完成效果，恢复时不得重放。
+4. **DOC03 — 仅持久化已授权项目 Memory。** 用户要求可复用 Agent 项目知识，或 owner 定义的触发条件适用时，按适用情况应用[LSP MCP Tools](../../layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.md)、[Content Memo](../../layer-01-fundamental-concepts/context-exchange/content-memo.md)及[Content Memo Lifecycle](../../layer-01-fundamental-concepts/context-exchange/content-memo-lifecycle.md)：保留获准名称/路径，通过暴露的 Memory 能力写入并确认操作成功。仅当适用 owner 要求时核验存储内容；有匹配核验凭据时使用该凭据，否则进行必要的内容比较。普通成功写入不会触发立即全文读回。派发字段 `write_content_memo: false` 不代表项目 Memory 不适用。未请求且未触发项目 Memory 输出时记录带原因的 `not_applicable`。必需能力、写入或 owner 要求的核验不可用/失败时，保持请求输出未完成；不得以文件替代。
+5. **DOC04 — 分类写后影响。** 在任何请求的 Memory 写入和 owner 要求的内容核验之后，结合前后指纹应用[Documentation Impact](../../layer-03-workflow-checkpoints/documentation-impact.md)及[Verification Epoch](../../layer-02-workflow-concepts/verification-and-repair/verification-epoch.md)。实际维护文档/注释/Memory 变化推进 documentation epoch。若无输出变化且指纹匹配，不推进 epoch，并以证据记录 `not_applicable`。仅推进受影响维度，保留未受影响证据理由。可执行内容、Contract 或验收变化还须分类为 implementation/content 影响，并返回当前 Verification。影响未知时阻塞。
+6. **DOC05 — 运行文档检查并评估证据复用。** 所有文档和 Memory 写入后，运行适用的 Markdown、链接、空白、多语言和范围检查。仅文档影响时，凭指纹理由保留未受影响的当前证据，并重跑变更的文档检查。没有变更输出时，以匹配指纹将检查标为 `not_applicable`。行为/Contract/验收影响返回 implementation/content Verification；必需重验未解决时不得完成。
+7. **DOC06 — 返回文档证据。** 返回变更路径、来源依据、当前 documentation fingerprint/epoch、检查及结果、前后维度分类、复用未变证据的理由，以及 Memory 结果或有原因的 `not_applicable`。所有适用检查通过或有依据地 `not_applicable`、Memory 持久化已确认且 owner 要求的存储内容核验通过或有依据地 `not_applicable`，并且内容影响重新验证均已解决后，才返回 `complete`。这不授权 Git 或整体验收。
 
-## Related concepts
+## 相关概念
 
 - [Documentation](../../layer-02-workflow-concepts/completion-and-effects/documentation.md)
 - [Documentation Impact](../../layer-03-workflow-checkpoints/documentation-impact.md)

@@ -1,77 +1,38 @@
 # Coding Execution Control
 
-[English](execution-control.md) | [简体中文](execution-control_zh_cn.md)
 
-This module owns Interaction Slice control: slice release fields, boundary behavior, and Control Checkpoint choices. It assumes that planning, decision gates, stage feedback, role/session context, runtime capabilities, context transport, and delegation lifecycle are supplied by their owning concepts. It does not define those policies.
+本文档负责 Interaction Slice 控制：slice 放行字段、边界行为和 Control Checkpoint 选择。它假定规划、决策门禁、阶段反馈、角色/Session 上下文、运行环境能力、上下文传输和委派生命周期由各自 owner 概念提供，不定义这些策略。
 
-## General rules
+## 通用规范
 
 ### Interaction Slice
 
-Release one **Interaction Slice** at a time for non-simple work. Every slice states:
+对于非简单工作，每次只放行一个 **Interaction Slice**。每个 slice 必须写明：
 
-- `Objective`: the result it must produce;
-- `Authorized scope/mutations`: paths, behavior, and writes allowed;
-- `Return conditions`: the evidence or milestone that ends it;
-- `Unreleased boundary`: the next subsystem, risk domain, semantic choice, or mutation that remains blocked.
+- `Objective`：必须产出的结果；
+- `Authorized scope/mutations`：允许的路径、行为和写入；
+- `Return conditions`：结束 slice 的证据或里程碑；
+- `Unreleased boundary`：仍被阻塞的下一个子系统、风险域、语义选择或变更。
 
-A slice is a control unit, not a command-by-command script. The executor may continue through low-decision-density mechanics while the Contract and boundary remain unchanged. It must pause at the return conditions or before crossing the unreleased boundary. A simple fast-path task may remain one slice through implementation and focused checks.
+Slice 是控制单元，不是逐命令脚本。只要 Contract 和边界未变，执行者可以继续处理低决策密度的机械步骤；到达 return conditions 或跨越未放行边界前必须暂停。简单的快路径任务可以将实现和聚焦检查保留在一个 slice 中。
 
-### Slice ordering
+### Slice 顺序
 
-Release slices in parallel only when they are independent and non-conflicting. Dependencies, shared write targets, or ordered results require sequential release. Context transport and parent-only feedback follow their respective owner protocols and are not defined here.
+只有相互独立且不冲突的 slice 才可并行放行。存在依赖、共享写入目标或有序结果时必须顺序放行。上下文传输和仅限父级的反馈遵循各自 owner 协议，本文档不定义这些内容。
 
 ### Control Checkpoint
 
-At a material boundary, consume the Progress Signal owned by [execution stage feedback](execution-stage-feedback.md), append the current `Unreleased boundary`, and make one final control choice: `Continue`, `Amend`, or `Stop`. Focus Control on material deviation, new evidence, or an actual boundary; do not turn a released slice into per-command approvals or repeat unchanged status. `Continue` releases only the next bounded slice; `Amend` changes the Contract or boundary before work resumes. `Evidence-on-Demand` is an intermediate evidence request that pauses release and returns to this checkpoint; it is not a fourth final authorization outcome. In a Single-Agent route, this is an internal reasoning pause, not a simulated self-message.
+到达实质性边界时，消费[执行阶段反馈](execution-stage-feedback.md)定义的 Progress Signal，附加当前 `Unreleased boundary`，再选择一个最终控制结果：`Continue`、`Amend` 或 `Stop`。Control 聚焦实质偏离、新证据或真实边界；不要把已放行 slice 变成逐命令审批，也不要重复无变化状态。`Continue` 只放行下一个有界 Slice；`Amend` 必须先修改 Contract 或边界再恢复执行。`Evidence-on-Demand` 是暂停放行并请求证据的中间动作，取得证据后重新经过本检查点；它不是第四种最终授权结果。单代理路线中这是内部推理暂停，不模拟发给自己的消息。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-Where enabled, Codex `PreToolUse` can deny a supported `Bash`, edit, or MCP call before it executes; `PostToolUse` is observation **after** the call. Codex's plan/read-only or other permission modes are tool controls, not this Skill's `Continue` decision. Coverage has exceptions, so do not use a hook as the only proof of a filesystem or semantic authorization boundary. [OpenAI: hooks](https://learn.chatgpt.com/docs/hooks).
+Pi 没有内置 Plan、subagent 或持久子代理消息机制；不得将工具/会话行为描述成这些能力。按通用 Slice、阶段反馈及授权边界执行；使用当前实际可用的工具结果作为证据，不以 Hook 或宿主特性替代语义判断。
 
-### Native approvals and focused review
+## 相关概念
 
-Before relying on a non-managed Codex hook, inspect and trust its exact definition; in a CLI session that exposes it, run `/hooks` to review or trust configured hooks. A `PreToolUse` command hook denies a supported local call by writing this JSON to stdout:
-
-```json
-{
-  "hookSpecificOutput": {
-    "hookEventName": "PreToolUse",
-    "permissionDecision": "deny",
-    "permissionDecisionReason": "Explain the blocked operation."
-  }
-}
-```
-
-For this event, `continue: false` is unsupported and the tool call continues after the hook error; `PostToolUse` runs after the effect and cannot retroactively approve it. At a stage boundary, an Agent must inspect the actual working-tree diff with an authorized read-only diff tool, or invoke `/diff` in a Codex CLI session that exposes the command. `/diff` includes staged, unstaged, and untracked changes. The parent still makes the semantic `Continue`/`Amend`/`Stop` choice under the general rules. [OpenAI: PreToolUse output contract](https://learn.chatgpt.com/docs/hooks), [OpenAI: code review](https://learn.chatgpt.com/docs/code-review), [OpenAI: CLI diff](https://learn.chatgpt.com/docs/developer-commands).
-
-## Claude Code CLI / Claude Desktop optimizations
-
-### Tool-boundary guard versus semantic Control
-
-An authorized Claude Code `PreToolUse` hook runs after tool parameters are formed and before the call. It receives JSON on stdin with `tool_name`, `tool_input`, and `tool_use_id`; the hook group's `matcher` filters `tool_name`. To deny a call, write this JSON to stdout:
-
-```json
-{
-  "hookSpecificOutput": {
-    "hookEventName": "PreToolUse",
-    "permissionDecision": "deny",
-    "permissionDecisionReason": "Explain the blocked operation."
-  }
-}
-```
-
-Exit code 0 with no output leaves the normal permission flow in place; it does not approve the call. A `Stop` hook can request a final evidence check before the current agent finishes. These are *guards*, not an alternate authority for deciding `Continue`, `Amend`, or `Stop`: the parent must still consume the Progress Signal and authorize each new slice under the general rules. Hook decisions or an MCP connector must not silently enlarge the Contract or child budget. Use native Hooks only in a Claude Code runtime where they are actually exposed and authorized.
-
-Official reference: [Claude Code Hooks and decisions](https://code.claude.com/docs/en/hooks).
-
-In Claude Code, `PostToolUse` reports observations after an action; it cannot authorize that action retroactively. [Anthropic: hooks](https://code.claude.com/docs/en/hooks).
-
-## Related concepts
-
-- [Coding Execution Planning](../execution-planning/execution-planning.md) — locate bounded planning and reconnaissance-to-implementation relations.
-- [Coding Execution Decision Gate](../execution-planning/execution-decision-gate.md) — locate Decision Brief and decision-release rules.
-- [Coding Execution Stage Feedback](execution-stage-feedback.md) — locate bounded-stage feedback rules.
-- [Coding Context Exchange](../context-exchange/context-exchange.md) — locate context transport ownership.
-- [Coding Child Lifecycle](../delegation/delegation-child-lifecycle.md) — locate delegation lifecycle ownership for released slices.
-- [Coding Session Audit Visibility](../session-runtime/session-audit-visibility.md) — locate audit configuration and summary cadence.
+- [Coding Execution Planning](../execution-planning/execution-planning.md) — 定位有界规划和 reconnaissance 到实现放行的关系。
+- [Coding Execution Decision Gate](../execution-planning/execution-decision-gate.md) — 定位 Decision Brief 和决策放行规则。
+- [Coding Execution Stage Feedback](execution-stage-feedback.md) — 定位有界阶段反馈规则。
+- [Coding Context Exchange](../context-exchange/context-exchange.md) — 定位上下文传输归属。
+- [Coding 子 Agent 生命周期](../delegation/delegation-child-lifecycle.md) — 定位已放行 slice 的委派生命周期归属。
+- [Coding Session 审计可见性](../session-runtime/session-audit-visibility.md) — 定位审计配置和摘要频率。

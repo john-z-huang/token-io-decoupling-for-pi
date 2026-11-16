@@ -1,54 +1,53 @@
 ---
 name: token-io-decoupling-skill
-description: "High-volume Agent Token I/O decoupling for Coding. Coding separates high-value input-side reasoning, implementation output, independent change verification, and the Documentation/Comments & Git Operations role for approved documentation/comments and non-trivial repository Git work, while keeping Core role and Session rules independent of any specific Code Agent product or model; runtime-environment bindings and capability checks are declared in the Coding workflow."
+description: "面向 Coding 的高体量 Agent Token I/O 解耦：将输入侧高价值推理、实现输出、独立改动验证，以及负责获准文档/注释与非简单仓库 Git 工作的 Documentation/Comments & Git Operations 角色分离，面向 Pi Coding Agent 的实际工具与可选扩展运行；MCP Server 的 Pi 接入另行迁移。"
 ---
 
 # Token I/O Decoupling
 
-[English](SKILL.md) | [简体中文](SKILL_zh_cn.md)
 
-This Skill maintains one executable workflow: Coding. It separates high-value semantic decisions from high-volume project-state consumption and output materialization. Multimodal and Mixed concepts are not maintained as executable workflows in this repository.
+当前本 Skill 只维护一套可执行工作流：Coding。它用于把高价值语义决策与高体量项目状态消费、输出物化分离。Multimodal 和 Mixed 内容目前不作为本仓库中的可执行工作流维护。
 
-Coding delegation and Session-topology rules are split into atomic references: the state record, mode/count gate, and conditional child dispatch/lifecycle policy. The Mode checkpoint composes and validates them before route selection; the parent-controlled record stores a conversation-wide mode/count decision and current task state. Model and reasoning-effort binding checks are limited to child creation; the child never inspects or reports its settings, and the parent does not re-check them in later child operations.
+Coding 的委派和 Session 拓扑规则拆分为原子 reference：状态记录、模式/数量门禁，以及按条件加载的子代理派发/生命周期策略。模式检查点在路线选择前组合并验证这些 reference；父级控制的记录保存会话级模式/数量选择和当前任务状态。模型和 reasoning-effort 绑定核验仅限创建子代理时；子代理不自查或报告这些设置，父级也不在后续子代理操作中重新核验。
 
-The Skill defines orchestration conventions only. It cannot bypass higher-priority permissions, user authorization, product limitations, repository instructions, or safety rules, and it must not present unmeasured claims about price, cache hits, quota savings, latency, or runtime quality as facts.
+本 Skill 只定义调度约定，不能绕过更高优先级的权限、用户授权、产品限制、仓库指令或安全规则，也不把价格、缓存命中、额度节省、延迟或 Runtime 质量表述为未经实测的事实。
 
-Every Coding task uses a shared task plan by default under [Task Plan Memory Lifecycle](references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md). Existing and future routes consume the same owner: confirm storage scope and repository isolation, analyze current facts, persist the plan before implementation, and complete any verification the owner requires. Record material updates at the owner's applicable phase, handoff, pause, or completion boundaries; record changes affecting authorization, scope, acceptance, direction, or dependent actions before those actions. Shared global plans and archives use one stable local repository key across the main checkout and linked worktrees; other repositories remain separate. That owner also defines the configured deterministic lifecycle-tool path, legacy local compatibility, and verified receipts; tool discovery alone does not establish backend availability or permission. Explicit persistence restrictions follow that owner; a plan never grants authority.
+每项 Coding 任务默认按[任务计划 Memory 生命周期](references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md)使用共享任务计划。现有及未来路线消费同一 owner：确认存储 scope 与仓库隔离、分析当前事实，并在实施前持久化计划及完成 owner 要求的核验。在 owner 规定的阶段、交接、暂停和完成边界记录实质更新；影响授权、范围、验收、方向或依赖动作的变化，仍须在该动作前记录。共享全局规划及归档在主工作区与 linked worktrees 之间使用同一个稳定本机仓库 key，其他仓库保持隔离。该 owner 也负责已配置的确定性生命周期工具路径、旧版本地兼容行为及核验回执；仅发现工具不证明后端可用或具备权限。明确持久化限制按该 owner 处理；计划绝不授予授权。
 
-## MCP support boundary
+## MCP 支持边界
 
-Use this project's MCP Server only from local Codex CLI, including local ChatGPT Work through local Codex CLI. Other Code Agents, cloud ChatGPT chats, and remote ChatGPT Work are not direct MCP clients. They may use the server only after installing Codex CLI in their own environment and following this project's installation instructions for that CLI. This remains Codex CLI use, without separate host or cloud compatibility. Codex CLI tool calls do not run an environment-identification checkpoint; verify the actual capabilities, identity, permissions, and guards required by each operation. See the [MCP client boundary](../../mcp/AGENTS.md).
+本 Skill 面向 Pi Coding Agent。当前只迁移指令，不修改 MCP Server、安装器或调用身份协议；不得将文档更新视为 Server 已支持 Pi 的证明。
 
-Other Code Agents may follow the Skill as documents without this MCP Server. Continue maintaining compatible instruction descriptions for those Agents while developing the MCP Server exclusively for Codex CLI. The general document workflow and its capability checks remain available for document-only use.
+Pi 可通过文档 owner 直接执行获授权的路线，并按实际暴露的扩展使用子代理或 Memory。每项 MCP 操作都须核实 Schema、调用方契约、角色、权限和守卫；尚未适配的身份事务和子代理 effort 不适用于 Pi。能力缺失只暂停依赖它的分支，不伪造旧身份或绕过守卫。MCP Tools 内部继续使用 OpenAI API，凭据、端点与固定 API 模型约束保持不变。
 
-## Start here
+## 从这里开始
 
-Follow these steps in order. Confirm each checkpoint's outcome before advancing; if a conditional step does not apply, record why instead of silently skipping it.
+按以下顺序逐项执行。确认当前检查点的结果后才能进入下一项；条件步骤不适用时，记录原因，不得默默跳过。
 
-1. Read the [Coding workflow](workflows/coding.md) and complete its Contract checkpoint; confirm the task constraints and acceptance criteria.
-2. Complete the Environment checkpoint; establish or load the Environment capability inventory and confirm the capabilities needed by this task.
-3. Complete the Mode checkpoint using that inventory. On this conversation's first Coding directive, honor an explicit valid mode/count or custom-instruction mapping without asking again. Otherwise present the four-option menu in the Mode reference. Only when the Mode gate must be released and no valid user choice is available, select option 1, `mode_source: default`, and `child_count: 1`; explicit no-preference selects the same default. Do not infer a choice from a pending prompt or a preselected option. Invalid option 3 or ambiguous/invalid option 4 input requires one focused follow-up and keeps Mode unreleased. This reserves capacity only: do not initialize a child when presenting the menu, selecting a mode, or locking the count. Later directives reuse the locked mode/count.
-4. Load [Session Audit Visibility](references/coding/layer-01-fundamental-concepts/session-runtime/session-audit-visibility.md) for preference values and display semantics. Apply explicit user preferences or its defaults immediately; do not prompt, wait, or make visibility configuration a prerequisite.
-5. After Contract, Environment, capability inventory, and Mode pass, call [Route Entry](references/coding/layer-03-workflow-checkpoints/route-entry.md) and select exactly its authorized route: [Single-Agent](references/coding/layer-04-workflows/coding-single-agent.md) for released `mode: Single-Agent Coding`, or [Multi-Agent](references/coding/layer-04-workflows/coding-multi-agent.md) for released `mode: Multi-Agent Coding` with a locked positive `child_count`.
-6. Follow the selected route's numbered checkpoint sequence one step at a time. Load only the references needed for the current step; complete or explicitly disposition each step before moving to the next.
-7. Return to the [Coding workflow](workflows/coding.md) when the task changes direction or before final acceptance; confirm the route's completion evidence before reporting `COMPLETE`.
+1. 读取 [Coding 工作流](workflows/coding.md)并完成 Contract 检查点；确认任务约束和验收条件。
+2. 完成运行环境检查点；建立或加载运行环境能力清单，确认本任务所需能力。
+3. 使用该清单完成模式检查点。本次会话首次 Coding 指令遵循用户明确给出的有效模式/数量选择或自定义指令映射，不再询问。否则呈现 Mode reference 中的四项菜单。只有必须放行 Mode gate 且没有有效用户选择时，才选择选项 1，记录 `mode_source: default` 和 `child_count: 1`；明确表示无偏好时也选择该缺省值。不得从待回复的提问或预选项推断用户已作选择。选项 3 数量无效，或选项 4 输入有歧义/无效时，只提出一个聚焦补问并保持 Mode 未放行。这只预留容量：展示菜单、选择模式或锁定数量均不得初始化子代理。后续指令沿用已锁定模式/数量。
+4. 加载[会话审计可见性](references/coding/layer-01-fundamental-concepts/session-runtime/session-audit-visibility.md)，了解偏好值和可见性语义。立即应用用户显式偏好或其缺省值；不得提问、等待或将可见性配置设为前置条件。
+5. Contract、Environment、能力清单和 Mode 通过后，调用[路线入口](references/coding/layer-03-workflow-checkpoints/route-entry.md)，只选择其授权路线：已释放的 `mode: Single-Agent Coding` 使用[单代理路线](references/coding/layer-04-workflows/coding-single-agent.md)；已释放的 `mode: Multi-Agent Coding` 且已锁定正整数 `child_count` 时使用[多代理路线](references/coding/layer-04-workflows/coding-multi-agent.md)。
+6. 按所选路线的编号检查点顺序逐项执行。只加载当前步骤需要的 reference；每项完成或明确处置后才能进入下一项。
+7. 任务改变方向或最终验收前，返回 [Coding 工作流](workflows/coding.md)；报告 `COMPLETE` 前确认路线的完成证据。
 
-## Scope
+## 适用范围
 
-Use Coding for repository or project exploration, implementation, refactoring, debugging, tests, documentation, developer-tool output, and non-trivial Git work. The Coding workflow owns the common queue, module composition, runtime-environment selection, mode routing, checkpoints, verification boundaries, documentation/Git boundaries, and acceptance.
+仓库或项目探索、实现、重构、调试、测试、文档、开发工具输出以及非简单 Git 工作均使用 Coding。Coding 工作流负责共用队列、模块组合、运行环境选择、模式路由、checkpoint、验证边界、文档/Git 边界和验收。
 
-The local stateless workflow tools and their limits are described in [Workflow Architecture](WORKFLOW_ARCHITECTURE.md). Read the Markdown owners as the policy authority; navigation results and hashes do not establish identity, permission, checkpoint completion, sequencing, or acceptance.
+本地无状态工作流工具及其限制见[工作流架构](WORKFLOW_ARCHITECTURE.md)。以 Markdown owner 作为策略权威；导航结果和 Hash 不能证明身份、权限、检查点完成、顺序或验收。
 
-## Hard constraints
+## 硬约束
 
-- Record hard user, runtime environment, repository, permission, safety, and Session constraints before acting.
-- A task-level prohibition, such as “do not create subagents” or “do not use a browser,” remains active for the whole task.
-- Computer Use is categorically forbidden: never control a computer, browser, or desktop app through its graphical interface — no screenshots to locate controls, mouse or keyboard simulation, clicking, accessibility APIs, window automation, remote-desktop control, or GUI scripting — and do not route such interaction through an API, CLI, MCP server, helper, or another Agent. Treat this as a blacklist rather than a list of allowed channels: every other tool, command, or capability actually exposed to and authorized for the current Session remains permitted. If a required step needs a forbidden operation, stop and report the blocker instead of attempting, delegating, or skipping it.
-- Before route selection or any delegation/Session-topology work, the Mode checkpoint must compose and validate the delegation references; those references own conversation-level mode selection with a default Multi-Agent route and one-child budget, child counts, conditional creation, allocation, reuse, replacement, exceptions, and limits at their respective atomic boundaries. A reserved budget never initializes or authorizes a child by itself.
-- Never invent authorization, capability, evidence, product support, or an executable route for an unmaintained scenario.
-- Keep Core rules independent of product details; read [Runtime and Model Provider Support](references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md) for supported runtime branches and model bindings.
-- Read references on demand. Do not preload the entire Skill, `references/`, or raw project state merely because it may become useful.
+- 采取行动前记录用户、运行环境、仓库、权限、安全和 Session 硬约束。
+- “不要创建子代理”“不要使用浏览器”等任务级禁止条件在整个任务中持续有效。
+- 绝对禁止 Computer Use：不得通过图形界面控制计算机、浏览器或桌面应用——包括以操纵控件为目的的截图、鼠标／键盘模拟、点击、辅助功能 API、窗口自动化、远程桌面控制或 GUI 脚本——也不得把此类交互包装为 API、CLI、MCP Server、辅助程序或其他 Agent 调用来绕过。本节是黑名单而非允许渠道清单：当前 Session 实际暴露且已获授权的其他工具、命令或能力仍然允许。若必需步骤需要借助被禁止的操作，应停止并报告阻塞，而不是尝试、委派或跳过。
+- 路线选择或任何委派/Session 拓扑工作前，模式检查点必须组合并验证委派 references；这些 references 在各自的原子边界内规定会话级模式选择及默认多代理路线和单个子代理预算、子代理数量、条件创建、分配、复用、替换、例外和限制。预留预算本身不会初始化或授权创建子代理。
+- 不得虚构授权、能力、证据、产品支持，或为未维护场景推导可执行路线。
+- Core 的通用职责不依赖模型；本 Skill 面向 Pi Coding Agent，实际工具、扩展与模型设置边界见[运行时与能力边界](references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md)。
+- 按需读取 reference。不要仅因为可能以后有用，就预加载整个 Skill、`references/` 或原始项目状态。
 
-## Completion
+## 完成
 
-Follow the selected Coding workflow and return `COMPLETE` only after its final acceptance gate has explicit evidence. Report skipped or unavailable checks, assumptions, residual risks, and unauthorized effects clearly.
+遵循选定的 Coding 工作流，只有其最终验收门禁拥有明确证据后才能返回 `COMPLETE`。清楚报告跳过或不可用的检查、假设、剩余风险和未授权效果。

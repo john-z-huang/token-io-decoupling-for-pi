@@ -1,36 +1,23 @@
-# Coding Agent Reasoning Summary Visibility
+# Coding Agent 推理摘要可见性
 
-[English](reasoning-summary-visibility.md) | [简体中文](reasoning-summary-visibility_zh_cn.md)
 
-This module defines the safe, concise summary an Agent makes visible at the end of a completed reasoning turn. It does not require disclosure of private internal reasoning or replace decision, stage-feedback, verification, or message-visibility owners.
+本模块定义 Agent 在一轮推理结束时向会话展示的安全、简洁摘要；不要求披露私有内部推理，也不替代决策、阶段反馈、验证或消息可见性 owner。
 
-## General rules
+## 通用规范
 
-### Summary boundary and contents
+### 摘要边界与内容
 
-A completed Agent reasoning turn is a visible conversation boundary where the Agent is about to return to the user or parent, pause, yield control, or hand off work. Internal tool calls and continued work within the same turn do not each require a separate summary.
+“已完成的 Agent 推理回合”指 Agent 即将向用户或父级返回、暂停、让出控制或交接工作的可见会话边界。同一回合内的内部工具调用及继续处理无需逐项输出摘要。
 
-At such boundaries, follow the configured cadence in [session audit visibility](session-audit-visibility.md). `full` uses the summary below at every completed boundary. `milestone_only` uses it at material decisions, authorization changes, verification failures, blockers, and stage acceptance; ordinary unchanged waits and mechanics do not create repeated summary blocks. `off` suppresses this optional block. Required Progress Signals, evidence, control deltas, verification reports, and higher-level periodic updates remain required.
+在此类边界按[会话审计可见性](session-audit-visibility.md)配置的频率执行。`full` 在每个已完成边界使用下文格式；`milestone_only` 仅在实质决策、授权变化、验证失败、阻塞和阶段验收时使用，普通无变化等待和机械步骤不重复生成摘要块；`off` 不输出此可选摘要。必需的 Progress Signal、证据、控制增量、验证报告和更高层周期更新仍须执行。
 
-### Fixed visible format
+### 固定可见格式
 
-Enclose the summary using these exact ASCII markers, each on its own line: `[[REASONING_SUMMARY_BEGIN]]` and `[[REASONING_SUMMARY_END]]`. Keep ordinary replies, status updates, and all other non-summary content outside the markers; do not place an unmarked reasoning summary outside them. Use the conversation language and fill every field in this fixed order: conclusion/progress; key evidence and source; brief rationale; material assumptions/uncertainty/blockers; next step.
+摘要必须使用以下精确 ASCII 标记包围，并让每个标记各自独占一行：`[[REASONING_SUMMARY_BEGIN]]` 和 `[[REASONING_SUMMARY_END]]`。普通答复、状态说明及其他非摘要内容均放在标记之外；不得在标记外输出未标记的推理摘要。使用会话语言，并按固定顺序完整填写以下字段：结论/进展；关键证据及来源；简短依据；重要假设/不确定性/阻塞；下一步。
 
-When cadence requires a summary and there is no material change, retain both markers and every field. State “No material change,” say there is no new evidence, decision, or assumption, and give the next step; do not emit an empty block. Do not emit an empty marker block when a reasoning turn has not ended.
+需要输出摘要且没有实质变化时，仍保留两个标记及所有字段。写明“无实质变化”、无新增证据、决定或假设，并给出下一步；不得输出空块。推理回合尚未结束时，不输出空标记块。
 
-English example:
-
-```text
-[[REASONING_SUMMARY_BEGIN]]
-Conclusion / progress: No material change.
-Key evidence and source: No new evidence.
-Brief rationale: No new decision.
-Material assumptions / uncertainty / blockers: No new assumptions or blockers.
-Next step: Continue the released task.
-[[REASONING_SUMMARY_END]]
-```
-
-Simplified Chinese example:
+示例：
 
 ```text
 [[REASONING_SUMMARY_BEGIN]]
@@ -42,26 +29,23 @@ Simplified Chinese example:
 [[REASONING_SUMMARY_END]]
 ```
 
-The markers identify only a safe summary. They do not permit private step-by-step internal reasoning, hidden chain of thought, or raw scratchpad.
+标记只标识安全摘要，不允许输出私有逐步内部推理、隐藏思维链或原始 scratchpad。
 
-Do not include private step-by-step internal reasoning, hidden chain of thought, raw scratchpad, exhaustive internal process, secrets, or unverified claims. Do not present the summary as a complete record of internal reasoning.
+不得包含私有逐步内部推理、隐藏思维链、原始 scratchpad、穷尽式内部过程、秘密或未核实断言。不得将摘要描述为完整的内部推理记录。
 
-### Relationship to other evidence
+### 与其他证据的关系
 
-The summary does not replace a Decision Brief, a Progress Signal at a declared stage boundary, verification evidence, or message-body evidence. When a completed turn coincides with a stage boundary, combine the required information into one concise visible summary rather than repeating it. A Worker final result that is already complete in its conversation is the outbound copy; do not duplicate it. Root still reads the complete actual return before relying on it, while the visible Root copy follows the configured message preset. If required evidence is unavailable, report the limitation and block dependent action.
+摘要不能替代 Decision Brief、声明的阶段边界所需的 Progress Signal、验证证据或消息正文证据。推理回合结束与阶段边界重合时，将两者所需信息合并为一个简洁可见摘要，避免重复。Worker 已在自身会话完整可见的最终结果就是出站副本，不重复打印。Root 仍须完整读取实际返回正文后再依赖；Root 的可见副本遵循配置的消息预设。必需证据不可用时，报告限制并阻塞依赖动作。
 
-## Codex CLI / ChatGPT Desktop optimizations
+## Pi Coding Agent 优化指令
 
-Apply the configured Root or Worker cadence from [session audit visibility](session-audit-visibility.md). This Skill setting is not a native parameter and never permits private reasoning disclosure.
+Pi 的 thinking 展示或隐藏不改变安全摘要规则。使用正常会话输出展示简明结果摘要，工具调用中无需逐步重复；不得读取或输出内部推理来满足审计。
 
-## Claude Code CLI / Claude Desktop optimizations
 
-No provider-specific optimization instructions at present; follow the general rules above using only conversation output available to the current Session.
+## 相关概念
 
-## Related concepts
-
-- [Coding Session Role Ownership](session-role-ownership.md) — locate role responsibilities and semantic ownership.
-- [Coding Execution Stage Feedback](../execution-control/execution-stage-feedback.md) — locate Progress Signal boundaries.
-- [Coding Child Message Visibility](../delegation/delegation-child-message-visibility.md) — locate complete message-body visibility requirements.
-- [Coding Session Audit Visibility](session-audit-visibility.md) — locate configured cadence and defaults.
-- [Coding Execution Decision Gate](../execution-planning/execution-decision-gate.md) — locate Decision Brief and decision ownership.
+- [Coding Session 职责归属](session-role-ownership.md)——定位职责及语义所有权。
+- [Coding 执行阶段反馈](../execution-control/execution-stage-feedback.md)——定位 Progress Signal 边界。
+- [Coding 子代理消息可见性](../delegation/delegation-child-message-visibility.md)——定位完整消息正文可见性要求。
+- [Coding Session 审计可见性](session-audit-visibility.md)——定位配置频率和默认值。
+- [Coding 执行决策门](../execution-planning/execution-decision-gate.md)——定位 Decision Brief 及决策职责。

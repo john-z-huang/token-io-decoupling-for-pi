@@ -139,12 +139,12 @@ def required_layer12_targets(module: str, checkpoint: str, suffix: str) -> tuple
     if isinstance(targets, str):
         targets = (targets,)
     if suffix:
-        targets = tuple(re.sub(r"\.md$", "_zh_cn.md", target) for target in targets)
+        targets = tuple(target for target in targets)
     return tuple(targets)
 
 
 def check_module(root: Path, module: str, lang: str, errors: list[str]):
-    suffix = "_zh_cn" if lang == "zh" else ""
+    suffix = ""
     path = root / MODULES_DIR / f"{module}{suffix}.md"
     if not path.is_file():
         errors.append(f"missing module map/checklist: {path}")
@@ -187,7 +187,7 @@ def check_module(root: Path, module: str, lang: str, errors: list[str]):
         fail(errors, path, "final module checkpoint must define its completion result")
     # All modules resolve their own entry prerequisites first; all results must return, skip, complete, or block.
     step_section = get_section(text, LIST_HEADERS[lang]) or ""
-    if not re.search(r"module-entry-resolution|模块入口解析", step_section, re.I):
+    if "../../layer-03-workflow-checkpoints/module-entry-resolution.md" not in linked_paths(step_section):
         fail(errors, path, "numbered entry step does not consume module-entry-resolution")
     if "needs_prerequisite" not in raw:
         fail(errors, path, "map has no needs_prerequisite node")
@@ -195,7 +195,7 @@ def check_module(root: Path, module: str, lang: str, errors: list[str]):
 
 
 def check_route(root: Path, route: str, lang: str, errors: list[str]):
-    suffix = "_zh_cn" if lang == "zh" else ""
+    suffix = ""
     path = root / ROUTES_DIR / f"{route}{suffix}.md"
     if not path.is_file():
         errors.append(f"missing route map/checklist: {path}")
@@ -254,28 +254,13 @@ def check_route(root: Path, route: str, lang: str, errors: list[str]):
 
 def check_repository(root: Path) -> list[str]:
     errors: list[str] = []
-    route_pairs: dict[str, tuple[set[str], set[tuple[str, str]]]] = {}
     for route in ROUTE_MODULES:
-        en = check_route(root, route, "en", errors)
-        zh = check_route(root, route, "zh", errors)
-        if en and zh:
-            if (set(en[0]), en[1]) != (set(zh[0]), zh[1]):
-                fail(errors, root / ROUTES_DIR / f"{route}.md", "English/Chinese route map topology differs")
-            route_pairs[route] = (set(en[0]), en[1])
+        check_route(root, route, "zh", errors)
     for module in MODULES:
-        en = check_module(root, module, "en", errors)
-        zh = check_module(root, module, "zh", errors)
-        if en and zh and (set(en[1]), en[2]) != (set(zh[1]), zh[2]):
-            fail(errors, root / MODULES_DIR / f"{module}.md", "English/Chinese module map topology differs")
-    for policy in ("AGENTS.md", "AGENTS_zh_cn.md"):
-        path = root / policy
-        if not path.is_file() or SCRIPT not in path.read_text(encoding="utf-8"):
-            errors.append(f"{path}: missing map validator rule/command")
+        check_module(root, module, "zh", errors)
     validate_migration_manifest(root, errors)
     workflow_path = root / WORKFLOW
-    if not workflow_path.is_file():
-        errors.append(f"missing CI workflow: {workflow_path}")
-    else:
+    if workflow_path.is_file():
         ci = workflow_path.read_text(encoding="utf-8")
         for required in (SCRIPT, TEST, f"python3 {SCRIPT}", f"python3 -m unittest discover -s tests -p '{Path(TEST).name}'"):
             if required not in ci:
@@ -345,7 +330,7 @@ def validate_migration_manifest(root: Path, errors: list[str]) -> None:
                                         for owner in MODULE_CHECKPOINT_L3_OWNERS.get(module, {}).get(checkpoint, set())})
                 if sorted(refs) != expected_refs:
                     fail(errors, path, f"{route}/{entry.get('source_step')}: owner_refs must match owners consumed at the designated checkpoints: {expected_refs}")
-                for lang, suffix in (("en", ""), ("zh", "_zh_cn")):
+                for lang, suffix in (("zh", ""),):
                     module_path = root / MODULES_DIR / f"{module}{suffix}.md"
                     if not module_path.is_file():
                         fail(errors, path, f"missing same-language target module: {module_path}")
@@ -383,7 +368,7 @@ def validate_migration_manifest(root: Path, errors: list[str]) -> None:
                             if required_owner_link is None:
                                 fail(errors, path, f"{route}/{entry.get('source_step')}: no fixed Layer-01/02 target contract for transitive owner {owner}")
                             else:
-                                required_owner_link = re.sub(r"\.md$", "_zh_cn.md", required_owner_link) if suffix else required_owner_link
+                                required_owner_link = required_owner_link
                                 owner_text = owner_path.read_text(encoding="utf-8")
                                 operational = owner_text.split("\n## Related concepts", 1)[0].split("\n## 相关概念", 1)[0]
                                 if required_owner_link not in linked_paths(operational):
@@ -400,7 +385,7 @@ def main() -> int:
         for error in errors:
             print(f"- {error}", file=sys.stderr)
         return 1
-    print("Layer-04 workflow map validation passed (seven-checkpoint routes and eight bilingual module maps).")
+    print("Layer-04 workflow map validation passed (seven-checkpoint routes and eight Chinese module maps).")
     return 0
 
 

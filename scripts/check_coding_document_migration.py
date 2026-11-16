@@ -12,14 +12,14 @@ from pathlib import Path, PurePosixPath
 
 MAP = Path("docs/coding-document-migration.json")
 LAYERS = ("layer-01-fundamental-concepts", "layer-02-workflow-concepts")
-NAVIGATION = {"README.md", "README_zh_cn.md", "INDEX.md", "INDEX_zh_cn.md"}
+NAVIGATION = {"README.md", "INDEX.md"}
 MARKDOWN_LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 # Issue #164 broadens this owner from opt-in planning to the default task plan.
 # Keep the exact bilingual migration explicit; unrelated moves retain basename checks.
 OWNER_RENAMES = {
     f"docs/skill/references/coding/layer-01-fundamental-concepts/planning-intent-plan-memory-lifecycle{suffix}.md":
     f"docs/skill/references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle{suffix}.md"
-    for suffix in ("", "_zh_cn")
+    for suffix in ("",)
 }
 OWNER_RENAMES.update({
     f"docs/skill/references/coding/layer-01-fundamental-concepts/enhanced-rule-context{suffix}.md":
@@ -61,20 +61,11 @@ def _owner_files(directory: Path) -> list[Path]:
 
 
 def _check_navigation(directory: Path, root: Path, errors: list[str]) -> None:
-    for name, mirror_name in (("README.md", "README_zh_cn.md"), ("INDEX.md", "INDEX_zh_cn.md")):
-        english, chinese = directory / name, directory / mirror_name
-        for path in (english, chinese):
-            if not path.is_file():
-                errors.append(f"navigation file missing: {path.relative_to(root)}")
-        if not english.is_file() or not chinese.is_file():
-            continue
-        switch = f"[English]({name}) | [简体中文]({mirror_name})"
-        if switch not in english.read_text(encoding="utf-8"):
-            errors.append(f"incorrect or missing English language switch: {english.relative_to(root)}")
-        if switch not in chinese.read_text(encoding="utf-8"):
-            errors.append(f"incorrect or missing Chinese language switch: {chinese.relative_to(root)}")
+    for name in ("README.md", "INDEX.md"):
+        if not (directory / name).is_file():
+            errors.append(f"navigation file missing: {(directory / name).relative_to(root)}")
 
-    for filename, target_name in (("README.md", "INDEX.md"), ("README_zh_cn.md", "INDEX_zh_cn.md")):
+    for filename, target_name in (("README.md", "INDEX.md"),):
         path = directory / filename
         if path.is_file():
             targets = _targets(path, root)
@@ -82,11 +73,11 @@ def _check_navigation(directory: Path, root: Path, errors: list[str]) -> None:
             if targets.count(expected) != 1:
                 errors.append(f"README must link exactly once to its same-language index: {path.relative_to(root)}")
 
-    english_index, chinese_index = directory / "INDEX.md", directory / "INDEX_zh_cn.md"
+    english_index = directory / "INDEX.md"
     # Ignore physically empty directories left behind by deleted owners. Git
     # does not preserve them, but local validation must match the committed tree.
     direct_children = sorted(path for path in directory.iterdir() if path.is_dir() and any(path.iterdir()))
-    for index, suffix in ((english_index, ""), (chinese_index, "_zh_cn")):
+    for index, suffix in ((english_index, ""),):
         if not index.is_file():
             continue
         targets = _targets(index, root)
@@ -158,25 +149,6 @@ def validate(root: Path) -> list[str]:
         if (root / old).exists():
             errors.append(f"old owner path still exists: {old}")
 
-    for old, item in moves_by_old.items():
-        mirror_old = (
-            old.removesuffix("_zh_cn.md") + ".md"
-            if old.endswith("_zh_cn.md")
-            else old.removesuffix(".md") + "_zh_cn.md"
-        )
-        if old > mirror_old:
-            continue
-        mirror = moves_by_old.get(mirror_old)
-        if mirror is None:
-            errors.append(f"migration is missing language counterpart: {old} -> {mirror_old}")
-            continue
-        status = item.get("status", "active")
-        mirror_status = mirror.get("status", "active")
-        if status != mirror_status:
-            errors.append(f"language-pair migration statuses differ: {old} / {mirror_old}")
-        if status == "retired" and item.get("reason") != mirror.get("reason"):
-            errors.append(f"language-pair retirement reasons differ: {old} / {mirror_old}")
-
     for layer in LAYERS:
         base = root / "docs/skill/references" / "coding" / layer
         if not base.is_dir():
@@ -185,10 +157,6 @@ def validate(root: Path) -> list[str]:
         directories = [base, *(path for path in base.rglob("*") if path.is_dir() and any(path.iterdir()))]
         for directory in sorted(directories):
             _check_navigation(directory, root, errors)
-            for owner in _owner_files(directory):
-                mirror = owner.with_name(owner.stem + "_zh_cn.md") if not owner.name.endswith("_zh_cn.md") else owner.with_name(owner.name.removesuffix("_zh_cn.md") + ".md")
-                if not mirror.is_file():
-                    errors.append(f"owner is missing language pair: {owner.relative_to(root)}")
 
     return errors
 

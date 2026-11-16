@@ -1,25 +1,24 @@
-# Verification Independence Checkpoint
+# 验证独立性检查点
 
-[English](verification-independence.md) | [简体中文](verification-independence_zh_cn.md)
 
-This checkpoint owns the distinction between an independent Change Verification Session and same-Session logical verification. It does not define check contents, evidence collection, result classification, or repair.
+本检查点负责区分独立 Change Verification Session 和同一 Session 的逻辑验证。不定义检查内容、证据收集、结果分类或修复。
 
-## Actions
+## 动作
 
-1. For material changes, use an independent Change Verification Session when the Contract requires it.
-2. Label same-Session checks as logical verification; do not call them independent verification.
+1. 对实质性修改，在 Contract 要求时使用独立的 Change Verification Session。
+2. 将同一 Session 中的检查标记为逻辑验证，不称为独立验证。
 
-## Pass condition
+## 通过条件
 
-Independence status is explicitly classified: the required independent Session has verified the change, or same-Session checks are labeled logical and independence unavailable. The latter is a recorded limitation, **not** satisfaction of a Contract that requires independent verification; dependent effects remain blocked.
+独立性状态已明确分类：必需的独立 Session 已完成验证，或同 Session 检查标记为逻辑验证且独立验证不可用。后一种只是记录限制，**不**代表满足 Contract 所要求的独立验证；依赖影响继续阻塞。
 
-## Boundary
+## 边界
 
-This checkpoint does not choose holistic or targeted checks, capture fingerprints, classify results, invalidate epochs, repair failures, or perform Git effects.
+本检查点不选择整体或定向检查，不捕获指纹，不分类结果，不使 epoch 失效，不修复失败，也不产生 Git 影响。
 
-## Related concepts
+## 相关概念
 
-- [Coding Session Role Ownership](../../layer-01-fundamental-concepts/session-runtime/session-role-ownership.md) — locate Change Verification role ownership.
-- [Coding Session Context Firewall](../../layer-01-fundamental-concepts/session-runtime/session-context-firewall.md) — locate Session state-ingress boundaries.
-- [Coding Delegation State Record Worker Boundary](../../layer-01-fundamental-concepts/delegation/delegation-worker-boundary.md) — locate verifier evidence access boundaries.
-- [Coding Execution Decision Gate](../../layer-01-fundamental-concepts/execution-planning/execution-decision-gate.md) — locate Contract-dependent verification conditions.
+- [Coding Session 职责归属](../../layer-01-fundamental-concepts/session-runtime/session-role-ownership.md) — 定位 Change Verification 职责归属。
+- [Coding Session Context Firewall](../../layer-01-fundamental-concepts/session-runtime/session-context-firewall.md) — 定位 Session 状态进入边界。
+- [Coding Delegation State Record Worker Boundary](../../layer-01-fundamental-concepts/delegation/delegation-worker-boundary.md) — 定位 verifier 证据访问边界。
+- [Coding Execution Decision Gate](../../layer-01-fundamental-concepts/execution-planning/execution-decision-gate.md) — 定位依赖 Contract 的验证条件。
