@@ -17,7 +17,11 @@ token-io-decoupling-tools skills update
 
 38 个工具的权威清单为 `packages/token_io_decoupling_core/src/token_io_decoupling_core/server_tools.py`。包括 Git/GitHub 操作、内容生成与输入检查、会话事实辅助，以及规则上下文查询、合规预检、Serena Memory 检查和输出材料化。
 
-原 MCP workflow 调度、checkpoint 评估、模型/执行者/子代理选择及 task-plan 生命周期已删除。Pi Extension 的宿主流程独立保留；规则查询只读、不执行流程。上游带 workflow 名称的通用内容建议工具不管理本项目的流程状态。Codex 来源辅助仅接受其真实来源，不把 Pi 会话伪装成 Codex 来源。
+原 MCP workflow 调度、checkpoint 评估、模型/执行者/子代理选择及 task-plan 生命周期已删除。Pi Extension 的宿主流程独立保留；规则查询只读、不执行流程。上游带 workflow 名称的通用内容建议工具不管理本项目的流程状态。
+
+### 调用方上下文
+
+可选的请求上下文匹配仅在显式启用并注入可信 `BindingProvider` 时运行；请求元数据中的 `threadId` 必须与当前已验证会话 ID 一致。其他元数据不选择身份、角色或授权。标准 stdio 启动及工具发现本身不建立可信绑定。详见[调用方上下文与受保护能力](CALLER_CONTEXT.md)。
 
 ## 包结构与验证
 

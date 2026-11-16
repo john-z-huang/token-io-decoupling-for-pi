@@ -12,7 +12,7 @@
 | `serena_memory_tail_read` | `memory_path`、`tail_lines` | 有界文件尾部及行数/范围信息。 |
 | `serena_memory_write_check` | `memory_path`、`changed_content`、`tail_lines` | 预期文本是否出现在该尾部；未匹配时说明原因。 |
 
-从目标项目根目录启动 Codex。MCP 进程在启动时捕获工作目录作为项目根，只读取该目录下的 `.serena/memories/`。它不会搜索父级或兄弟目录。Memory 目录和所请求的文件必须已存在；缺失时返回非成功结果，不创建任何内容。
+从目标项目根目录启动使用此 MCP 的宿主进程。MCP 进程在启动时捕获工作目录作为项目根，只读取该目录下的 `.serena/memories/`。它不会搜索父级或兄弟目录。Memory 目录和所请求的文件必须已存在；缺失时返回非成功结果，不创建任何内容。
 
 `tail_lines` 必须是 0 到 10000 的整数。设为 0 时返回空内容，但仍可返回行数。所选尾部和 `changed_content` 各最多 64000 字符；`changed_content` 必须非空。
 
@@ -40,5 +40,5 @@ Windows 运行尚未经过独立验证。
 ## 相关文档
 
 - [MCP 开发指南](DEVELOPMENT.md) — 安装和 workspace 工具。
-- [MCP 可执行程序与注册指南](TOOLS_REGISTRATION.md) — 当前可执行程序清单和 Codex 注册。
+- [MCP 可执行程序与注册指南](TOOLS_REGISTRATION.md) — 当前可执行程序清单和宿主注册。
 - [任务计划 Memory 生命周期](../docs/skill/references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md) — 内容保全和归档要求。

@@ -30,7 +30,7 @@ PAIR_ROOTS = (
     "docs/skill/WORKFLOW_ARCHITECTURE.md",
     "EXTERNAL_REFERENCES.md",
     "mcp/AGENTS.md",
-    "mcp/CODEX_CALLER_CONTEXT.md",
+    "mcp/CALLER_CONTEXT.md",
     "mcp/CANDIDATE_COMPLIANCE.md",
     "mcp/OUTPUT_MATERIALIZATION.md",
     "mcp/DEVELOPMENT.md",

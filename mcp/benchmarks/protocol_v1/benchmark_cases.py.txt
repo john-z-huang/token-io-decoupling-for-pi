@@ -460,15 +460,15 @@ def _preflight_service(
         english = (
             f"[English]({Path(en_path).name}) | [简体中文]({Path(zh_path).name})\n\n"
             "# Owner\n\n## General rules\nRules.\n\n"
-            "## Codex CLI / ChatGPT Desktop optimizations\nNone.\n\n"
-            "## Claude Code CLI / Claude Desktop optimizations\nNone.\n\n"
+            "## CLI and desktop-client optimizations\nNone.\n\n"
+            "## Additional desktop-client optimizations\nNone.\n\n"
             f"## Related concepts\n- [Invalid cross-language target]({Path(zh_path).name})\n"
         )
         chinese = (
             f"[English]({Path(en_path).name}) | [简体中文]({Path(zh_path).name})\n\n"
             "# Owner\n\n## 通用规范\n规范。\n\n"
-            "## Codex CLI / ChatGPT Desktop 特别优化指令\n无。\n\n"
-            "## Claude Code CLI / Claude Desktop 特别优化指令\n无。\n\n"
+            "## 终端和桌面客户端特别优化指令\n无。\n\n"
+            "## 其他桌面客户端特别优化指令\n无。\n\n"
             "## 相关概念\n无。\n"
         )
         candidates = [

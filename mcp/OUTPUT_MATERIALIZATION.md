@@ -1,7 +1,7 @@
 # Worker 输出材料化
 
 
-本文负责 `materialize_decoupled_output` Worker 工具契约：prepare、inspect、apply 生命周期，可信操作员授权，有界模板，结果解释与恢复边界。[MCP 可执行程序与注册指南](TOOLS_REGISTRATION.md)负责当前可执行程序清单与 Codex 注册；[MCP workspace 开发指南](DEVELOPMENT.md)负责安装和启动 factory 索引。
+本文负责 `materialize_decoupled_output` Worker 工具契约：prepare、inspect、apply 生命周期，可信操作员授权，有界模板，结果解释与恢复边界。[MCP 可执行程序与注册指南](TOOLS_REGISTRATION.md)负责当前可执行程序清单与宿主注册；[MCP workspace 开发指南](DEVELOPMENT.md)负责安装和启动 factory 索引。
 
 ## 目的与权限
 
