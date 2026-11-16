@@ -273,11 +273,17 @@ def test_workspace_builds_four_wheels_with_disjoint_files(tmp_path: Path) -> Non
                     )
                     owners[name] = wheel_path
     assert "token_io_decoupling_core/models.py" in owners
-    assert "token_io_decoupling_workflow/checkpoint_evaluation.py" in owners
+    assert "token_io_decoupling_tools/output_materialization.py" in owners
+    assert not any(name.startswith("token_io_decoupling_workflow/") for name in owners)
     assert "token_io_decoupling_transport/registration.py" in owners
     assert not any(name.startswith("token_io_decoupling_state/") for name in owners)
     assert "token_io_decoupling/cli.py" in owners
-    assert "token_io_decoupling_mcp/__init__.py" in owners
+    core_wheel = owners["token_io_decoupling_core/models.py"]
+    for compatibility_module in (
+        "__init__", "binding", "codex_context", "models", "project_identity",
+        "registry_contract", "rules",
+    ):
+        assert owners[f"token_io_decoupling_mcp/{compatibility_module}.py"] == core_wheel
     for facade in ("cli", "cli_commands", "decisions", "server", "setup_codex"):
         assert f"token_io_decoupling_mcp/{facade}.py" not in owners
     assert not any(name.startswith("token_io_mcp/") for name in owners)
@@ -290,8 +296,6 @@ def test_workspace_builds_four_wheels_with_disjoint_files(tmp_path: Path) -> Non
         entries = wheel.read("token_io_decoupling-0.1.0.dist-info/entry_points.txt").decode()
         assert set(entries.splitlines()) == {
             "[console_scripts]",
-            "token-io-decoupling = token_io_decoupling.cli:main",
-            "token-io-decoupling-workflow = token_io_decoupling.cli:workflow_main",
             "token-io-decoupling-tools = token_io_decoupling.cli:tools_main",
         }
         skill_bundle = wheel.read("token_io_decoupling/skill_bundle.zip")

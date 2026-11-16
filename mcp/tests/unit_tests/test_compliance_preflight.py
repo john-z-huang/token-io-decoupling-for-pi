@@ -16,11 +16,11 @@ from token_io_decoupling_core.compliance_core import (
     evaluate_candidate_checks,
     validate_candidate_list,
 )
-from token_io_decoupling_workflow.compliance_preflight import (
+from token_io_decoupling_tools.compliance_preflight import (
     CompliancePreflightService,
     validate_decoupling_compliance,
 )
-from token_io_decoupling_workflow.payloads import _COMPLIANCE_PREFLIGHT
+from token_io_decoupling_tools.payloads import _COMPLIANCE_PREFLIGHT
 
 
 def _candidate(
@@ -45,8 +45,7 @@ def _request(*candidates: dict[str, object], scope: str = "skill_maintenance") -
 def _content(language: str, peer: str) -> str:
     return (
         "## 通用规范\n规范。\n"
-        "## Codex CLI / ChatGPT Desktop 特别优化指令\n暂无。\n"
-        "## Claude Code CLI / Claude Desktop 特别优化指令\n暂无。\n"
+        "## Pi Coding Agent 优化指令\n暂无。\n"
         "## 相关概念\n导航。\n"
     )
 

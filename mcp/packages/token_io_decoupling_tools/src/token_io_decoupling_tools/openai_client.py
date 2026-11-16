@@ -1,4 +1,4 @@
-"""Shared OpenAI SDK client construction for workflow tools."""
+"""Shared OpenAI SDK client construction for utility tools."""
 
 import httpx2
 from openai import DefaultHttpx2Client, OpenAI

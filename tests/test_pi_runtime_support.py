@@ -45,16 +45,16 @@ class PiRuntimeSupportTests(unittest.TestCase):
         self.assertTrue(CORE.layer01_section_issues(OWNER, empty))
         self.assertTrue(CORE.layer01_section_issues(OWNER, reversed_sections))
 
-    def test_all_owners_use_pi_structure_without_changing_server_contract(self):
+    def test_all_owners_share_pi_structure_with_server_contract(self):
         directory = (ROOT / OWNER).parent.parent
         owners = CHECKER["discover_owner_documents"](directory)
         self.assertEqual(len(owners), 41)
         for owner in owners:
             with self.subTest(owner=owner):
                 self.assertEqual(CHECKER["check_document"](owner, ROOT), [])
-        # Server remains intentionally unchanged and still rejects other Pi owners.
+        # CLI 与 Server 统一使用 Pi 合同，不再对单个 owner 特判。
         other = OWNER.replace("runtime-provider-support.md", "session-model.md")
-        self.assertTrue(CORE.layer01_section_issues(other, self.text))
+        self.assertEqual(CORE.layer01_section_issues(other, self.text), [])
 
     def test_local_validator_rejects_missing_duplicate_empty_and_reordered_modules(self):
         check = CHECKER["layer01_section_issues"]

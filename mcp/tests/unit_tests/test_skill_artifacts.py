@@ -120,12 +120,12 @@ def test_detached_sdist_cli_installs_without_checkout(tmp_path):
         *map(str, wheels.glob("*.whl")),
     )
     home = tmp_path / "home"
-    legacy = home / ".agents/skills/token-io-decoupling"
+    legacy = home / ".pi/agent/skills/token-io-decoupling"
     (legacy / ".git").mkdir(parents=True)
     (legacy / "uncommitted.txt").write_text("preserve me")
     env = {**os.environ, "HOME": str(home)}
     env.pop("PYTHONPATH", None)
-    cli = str(venv / "bin/token-io-decoupling")
+    cli = str(venv / "bin/token-io-decoupling-tools")
     config = home / ".codex/config.toml"
     config.parent.mkdir()
     config.write_text('[mcp_servers.preserved]\ncommand = "existing-mcp"\n')

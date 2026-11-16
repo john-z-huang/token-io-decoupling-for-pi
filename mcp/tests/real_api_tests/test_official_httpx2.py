@@ -9,7 +9,7 @@ from typing import Any, cast
 import httpx2
 import pytest
 from openai import APIConnectionError, APIStatusError, APITimeoutError
-from token_io_decoupling_workflow.openai_client import make_openai_client
+from token_io_decoupling_tools.openai_client import make_openai_client
 
 _OPT_IN_NAME = "TOKEN_IO_RUN_OFFICIAL_API"
 _OPTED_IN = os.environ.get(_OPT_IN_NAME) == "1"

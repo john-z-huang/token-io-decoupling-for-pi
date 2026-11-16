@@ -16,7 +16,7 @@ from token_io_decoupling_core.workflow_models import (
     SessionRole,
 )
 
-from token_io_decoupling.server import create_workflow_server
+from token_io_decoupling.server import create_tools_server
 
 
 def _meta(thread_id: object, session_id: object = "opaque-session") -> RequestParamsMeta:
@@ -124,4 +124,4 @@ def test_request_scope_is_task_local_nested_and_reset_on_exit() -> None:
 
 def test_unbound_server_cannot_enable_codex_context() -> None:
     with pytest.raises(BindingError, match="usable bound identity"):
-        create_workflow_server(DenyingBindingProvider(), require_codex_context=True)
+        create_tools_server(DenyingBindingProvider(), require_codex_context=True)

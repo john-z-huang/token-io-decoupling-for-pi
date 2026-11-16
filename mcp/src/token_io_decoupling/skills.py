@@ -35,11 +35,11 @@ def install_skill(*, name: str = DEFAULT_NAME, update: bool = False) -> Path:
     if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name) or name == LEGACY_NAME:
         raise ValueError("choose a new lower-case Skill name; the legacy name is protected")
     home = Path.home()
-    root = home / ".agents/skills"
+    root = home / ".pi/agent/skills"
     legacy = root / LEGACY_NAME
     target = root / name
     # Reject redirected roots too: do not write through a skills-root symlink into a checkout.
-    for path in (home / ".agents", root, target):
+    for path in (home / ".pi", home / ".pi/agent", root, target):
         if path.is_symlink():
             raise ValueError("symbolic links in the installation path are refused")
     resolved = target.resolve()

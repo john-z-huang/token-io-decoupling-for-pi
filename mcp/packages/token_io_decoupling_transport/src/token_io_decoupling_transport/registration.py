@@ -147,20 +147,14 @@ class ToolRegistrar:
         if codex_guard:
 
             def handler(context: MCPContext) -> Any:
-                enforce_role = name != "workflow_capabilities"
                 return self.with_codex_context(
                     context,
-                    lambda: self._call_safely(
-                        lambda: self.check_operation_role(role, callback, enforce=enforce_role)
-                    ),
+                    lambda: self._call_safely(lambda: self.check_operation_role(role, callback)),
                 )
         else:
 
             def handler() -> Any:
-                enforce_role = name != "workflow_capabilities"
-                return self._call_safely(
-                    lambda: self.check_operation_role(role, callback, enforce=enforce_role)
-                )
+                return self._call_safely(lambda: self.check_operation_role(role, callback))
 
         handler.__name__ = name
         handler.__doc__ = tool_description(name)

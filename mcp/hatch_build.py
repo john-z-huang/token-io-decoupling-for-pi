@@ -128,9 +128,20 @@ class SkillBuildHook(BuildHookInterface):
                         raise RuntimeError(f"Skill attachment escapes authored sources: {base}")
                     if not target.exists():
                         raise RuntimeError(f"missing Skill attachment: {base}")
-                    if target.is_file() and target not in files:
-                        files.add(target)
-                        pending.append(target)
+                    attachments = [target] if target.is_file() else list(target.rglob("*"))
+                    for attachment in attachments:
+                        if attachment.is_symlink():
+                            raise RuntimeError(f"symlinked Skill attachment: {attachment}")
+                        if (
+                            attachment.is_file()
+                            and attachment not in files
+                            and not any(
+                                part.startswith(".") or part in ("__pycache__", "dist", "build")
+                                for part in attachment.relative_to(repo).parts
+                            )
+                        ):
+                            files.add(attachment)
+                            pending.append(attachment)
 
             def destination(path):
                 if path.is_relative_to(source):

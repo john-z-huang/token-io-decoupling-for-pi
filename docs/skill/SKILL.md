@@ -1,11 +1,15 @@
 ---
 name: token-io-decoupling-skill
-description: "用于代码理解、实现、重构、调试、验证、文档和 Git 工作的 Coding 调度入口。优先消费已启用的 Pi Coding Workflow Extension 与条件 Hooks；未启用时按中文 owner 执行单代理或多代理路线。MCP Server 的 Pi 接入另行迁移。"
+description: "用于代码理解、实现、重构、调试、验证、文档和 Git 工作的 Coding 调度入口。优先消费已启用的 Pi Coding Workflow Extension 与条件 Hooks；未启用时按中文 owner 执行单代理或多代理路线。通过 token-io-decoupling-tools 调用通用工具并更新 Pi Skill。"
 ---
 
 # Token I/O Decoupling
 
 把语义决策与高体量状态消费、输出物化分离。当前仅维护 Coding 可执行工作流；Multimodal/Mixed 仅为参考。
+
+## 适用范围
+
+适用于 Pi Coding Agent 的 Coding 任务；宿主 Extension 负责流程与调度，MCP 仅提供通用工具，不保存流程状态。
 
 ## 从这里开始
 
@@ -32,7 +36,7 @@ description: "用于代码理解、实现、重构、调试、验证、文档和
 
 ## MCP 支持边界
 
-此扩展仅实现宿主侧流程与 Hooks，**本轮不修改 MCP Server**、安装器或调用身份协议。可选导航/咨询不适用时直接依据 owner；必需能力缺失只阻断依赖分支。不得伪造旧身份、grant、事务或服务器适配。
+宿主 Extension 独立负责流程与 Hooks；MCP 仅保留 `token-io-decoupling-tools`，不提供 workflow 调度、决策或 task-plan 服务。Skill 使用 `token-io-decoupling-tools skills install` 安装、`token-io-decoupling-tools skills update` 更新，目标为 `~/.pi/agent/skills/token-io-decoupling-skill/`，更新后在 Pi 执行 `/reload`。可选导航/咨询不适用时直接依据 owner；必需能力缺失只阻断依赖分支。不得伪造旧身份、grant、事务或服务器适配。
 
 MCP Tools 内部仍用 OpenAI API；每次真实调用读取非空 `OPENAI_API_KEY` 与 `OPENAI_BASE_URL`，固定模型 `gpt-6-luna`，不输出凭据。默认 Mock，真实出站仍须授权；Pi 会话/子任务模型与此 API 模型独立。
 

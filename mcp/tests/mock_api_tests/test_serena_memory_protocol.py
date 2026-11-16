@@ -7,9 +7,9 @@ from typing import Any
 from mcp import Client
 from mcp.shared.exceptions import MCPError
 from mcp.types import TextContent
-from token_io_decoupling_workflow.serena_memory import SerenaMemoryReadService
+from token_io_decoupling_tools.serena_memory import SerenaMemoryReadService
 
-from token_io_decoupling.server import create_workflow_server
+from token_io_decoupling.server import create_tools_server
 
 
 def receipt(result: Any) -> dict[str, Any]:
@@ -40,7 +40,7 @@ class Reader(SerenaMemoryReadService):
 def test_flat_wire_contract_and_configured_dispatch() -> None:
     async def run() -> None:
         reader = Reader()
-        async with Client(create_workflow_server(serena_memory_service=reader)) as client:
+        async with Client(create_tools_server(serena_memory_service=reader)) as client:
             tools = {tool.name: tool for tool in (await client.list_tools()).tools}
             for name, fields in (
                 ("serena_memory_tail_read", {"memory_path", "tail_lines"}),
@@ -51,8 +51,6 @@ def test_flat_wire_contract_and_configured_dispatch() -> None:
                 assert set(schema["properties"]) == set(schema["required"]) == fields
                 assert tool.annotations is not None and tool.annotations.read_only_hint
                 assert tool.description is not None and "payload envelope" in tool.description
-            caps = receipt(await client.call_tool("workflow_capabilities", {}))
-            assert caps["serena_memory_reads"] == "configured"
             tail = receipt(
                 await client.call_tool(
                     "serena_memory_tail_read", {"memory_path": "mem:plans/test", "tail_lines": 2}
@@ -81,9 +79,7 @@ def test_flat_wire_contract_and_configured_dispatch() -> None:
 def test_unconfigured_tools_are_discoverable_but_unavailable(tmp_path, monkeypatch) -> None:
     monkeypatch.chdir(tmp_path)  # 不读取开发者检出中的真实 .serena 配置。
     async def run() -> None:
-        async with Client(create_workflow_server()) as client:
-            caps = receipt(await client.call_tool("workflow_capabilities", {}))
-            assert caps["serena_memory_reads"] == "unavailable"
+        async with Client(create_tools_server()) as client:
             for name, args in (
                 ("serena_memory_tail_read", {"memory_path": "mem:notes", "tail_lines": 1}),
                 (
@@ -99,7 +95,7 @@ def test_unconfigured_tools_are_discoverable_but_unavailable(tmp_path, monkeypat
 def test_wire_validation_rejects_invalid_windows_and_empty_expected_text() -> None:
     async def run() -> None:
         reader = Reader()
-        async with Client(create_workflow_server(serena_memory_service=reader)) as client:
+        async with Client(create_tools_server(serena_memory_service=reader)) as client:
             invalid_calls = [
                 ("serena_memory_tail_read", {"memory_path": "notes", "tail_lines": value})
                 for value in (-1, True, "2", 10001)

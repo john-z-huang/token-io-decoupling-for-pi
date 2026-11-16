@@ -19,7 +19,7 @@ Extension 状态使用实际 Pi Session 的 custom entry，不是 Memory 后端�
 
 工作流 server 提供对当前规则上下文的有界访问、规则导航，以及对调用方所供事实的结构检查。规则文档仍具权威性。工具结果、Hash 和调用方声明不能认证调用方、证明权限或来源、判定语义真实性、通过检查点、建立跨调用顺序或验收工作。调用方必须阅读当前 owner、独立解释证据，并在对话上下文中保留父级控制任务记录。
 
-无状态规则与工作流路径无需 SQLite 数据库、API 凭据或网络请求。可选语义建议可以依据开发指南中的独立 API 授权和凭据规则，发送显式配置的 API 请求；其结果仍仅供建议，不能授权工作。两个独立 MCP 可执行程序继续保留；其支持的客户端及工具清单见[MCP 开发指南](../../mcp/DEVELOPMENT.md)。
+无状态规则与工作流路径无需 SQLite 数据库、API 凭据或网络请求。可选语义建议可以依据开发指南中的独立 API 授权和凭据规则，发送显式配置的 API 请求；其结果仍仅供建议，不能授权工作。MCP 仅保留 `token-io-decoupling-tools`；其支持的客户端及工具清单见[MCP 开发指南](../../mcp/DEVELOPMENT.md)。
 
 ## 受保护的输出物化
 
@@ -27,7 +27,7 @@ Extension 状态使用实际 Pi Session 的 custom entry，不是 Memory 后端�
 
 ## 实现包
 
-MCP workspace 包含独立构建的 `core`、`transport` 和 `workflow` 分发包。Core 负责稳定契约、清单、规则和打包资源；transport 负责 MCP 注册、请求范围和 schema；workflow 负责规则查找、无状态评估、导航/建议及可选物化服务。根分发包提供两个 MCP 可执行程序及管理 setup。[开发指南](../../mcp/DEVELOPMENT.md)负责当前工具数量、包命令、构建和验证流程。
+MCP workspace 包含独立构建的 `core`、`transport` 和 `tools` 分发包。Core 负责稳定契约、清单、只读规则和打包资源；transport 负责 MCP 注册、请求范围和 schema；tools 提供通用工具及可选物化服务。根分发包仅提供 `token-io-decoupling-tools`，兼具 stdio 与 Skill 安装更新命令；workflow 专属调度、评估、决策和 task-plan 实现已移除。[开发指南](../../mcp/DEVELOPMENT.md)负责当前工具数量、包命令、构建和验证流程。
 
 ```mermaid
 flowchart TD

@@ -1,27 +1,13 @@
-"""Fixed tool inventories exposed by the two local Codex MCP servers."""
+"""Fixed tool inventory exposed by the single local tools MCP server."""
 
-WORKFLOW_SERVER_NAME = "token-io-decoupling-workflow"
 TOOLS_SERVER_NAME = "token-io-decoupling-tools"
 
-WORKFLOW_TOOLS = frozenset(
+UTILITY_TOOLS = frozenset(
     {
-        "workflow_capabilities",
-        "task_plan_update",
-        "task_plan_complete",
-        "task_plan_archive",
         "serena_memory_tail_read",
         "serena_memory_write_check",
         "rules_get_context",
         "validate_decoupling_compliance",
-        "decide_decoupling_workflow",
-        "workflow_select_child_effort",
-        "workflow_generate_decision_context",
-        "workflow_select_child_role",
-        "workflow_select_executor",
-        "workflow_select_child",
-        "workflow_assess_output_tokens",
-        "workflow_evaluate",
-        "evaluate_control_checkpoint",
     }
 )
 
@@ -69,7 +55,7 @@ DEV_WORKFLOW_TOOLS = frozenset(
     }
 )
 
-TOOLS_SERVER_TOOLS = WORKER_TOOLS | DEV_WORKFLOW_TOOLS
+TOOLS_SERVER_TOOLS = UTILITY_TOOLS | WORKER_TOOLS | DEV_WORKFLOW_TOOLS
 
-if len(WORKFLOW_TOOLS) != 17 or len(TOOLS_SERVER_TOOLS) != 34:
+if len(TOOLS_SERVER_TOOLS) != 38:
     raise RuntimeError("fixed MCP server tool inventories do not match their contract")

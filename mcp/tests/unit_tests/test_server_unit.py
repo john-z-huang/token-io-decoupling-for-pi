@@ -1,8 +1,8 @@
 from typing import Any, cast
 
-from token_io_decoupling_core.server_tools import TOOLS_SERVER_TOOLS, WORKFLOW_TOOLS
+from token_io_decoupling_core.server_tools import TOOLS_SERVER_TOOLS
 
-from token_io_decoupling.server import create_tools_server, create_workflow_server
+from token_io_decoupling.server import create_tools_server
 
 
 def _names(server: object) -> set[str]:
@@ -10,13 +10,11 @@ def _names(server: object) -> set[str]:
 
 
 def test_fixed_servers_expose_only_current_stateless_contracts() -> None:
-    workflow = create_workflow_server()
     tools = create_tools_server()
 
-    assert _names(workflow) == set(WORKFLOW_TOOLS)
     assert _names(tools) == set(TOOLS_SERVER_TOOLS)
-    assert len(WORKFLOW_TOOLS) == 17
-    assert len(TOOLS_SERVER_TOOLS) == 34
+    assert len(TOOLS_SERVER_TOOLS) == 38
+    assert not any(name.startswith(("workflow_", "task_plan_")) for name in _names(tools))
     retired = {
         "database_schema_status",
         "state_get",

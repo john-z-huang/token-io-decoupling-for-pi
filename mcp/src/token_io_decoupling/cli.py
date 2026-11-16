@@ -1,4 +1,4 @@
-"""Management CLI and fixed workflow/tools stdio entry points."""
+"""唯一 tools stdio 入口及 Pi Skill 管理命令。"""
 
 from __future__ import annotations
 
@@ -15,57 +15,7 @@ from token_io_decoupling.output_materializer_factory import (
     OutputMaterializerFactoryError,
     load_output_materializer_config,
 )
-from token_io_decoupling.server import create_tools_server, create_workflow_server
-from token_io_decoupling.task_plan_factory import (
-    TaskPlanFactoryError,
-    load_task_plan_service,
-)
-
-
-def _run_workflow(prog: str, argv: list[str]) -> int:
-    parser = argparse.ArgumentParser(prog=prog, description="Start the workflow MCP server.")
-    try:
-        package_version = version("token-io-decoupling")
-    except PackageNotFoundError:
-        package_version = "0.1.0"
-    parser.add_argument("--version", action="version", version=f"{prog} {package_version}")
-    parser.add_argument(
-        "--task-plan-factory",
-        metavar="MODULE:CALLABLE",
-        help="explicitly load trusted operator code that returns a configured TaskPlanService",
-    )
-    parser.add_argument(
-        "--compliance-factory",
-        metavar="MODULE:CALLABLE",
-        help="explicitly load trusted operator code that returns a read-only compliance service",
-    )
-    args = parser.parse_args(argv)
-
-    compliance_service = None
-    server = None
-    try:
-        try:
-            task_plan_service = load_task_plan_service(args.task_plan_factory)
-        except TaskPlanFactoryError as exc:
-            print(f"{prog}: task-plan startup factory failed ({exc.reason})", file=sys.stderr)
-            return 2
-        try:
-            compliance_service = load_compliance_service(args.compliance_factory)
-        except ComplianceFactoryError as exc:
-            print(f"{prog}: compliance startup factory failed ({exc.reason})", file=sys.stderr)
-            return 2
-        server = create_workflow_server(
-            task_plan_service=task_plan_service,
-            compliance_service=compliance_service,
-        )
-        server.run(transport="stdio")
-    except Exception:
-        print(f"{prog}: server startup failed", file=sys.stderr)
-        return 2
-    finally:
-        if compliance_service is not None:
-            compliance_service.close()
-    return 0
+from token_io_decoupling.server import create_tools_server
 
 
 def _run_tools(prog: str, argv: list[str]) -> int:
@@ -126,17 +76,12 @@ def _run_tools(prog: str, argv: list[str]) -> int:
     return 0
 
 
-def main() -> int:
-    return dispatch_command("token-io-decoupling", sys.argv[1:])
-
-
-def workflow_main() -> int:
-    return _run_workflow("token-io-decoupling-workflow", sys.argv[1:])
-
-
 def tools_main() -> int:
-    return _run_tools("token-io-decoupling-tools", sys.argv[1:])
+    argv = sys.argv[1:]
+    if argv and argv[0] == "skills":
+        return dispatch_command("token-io-decoupling-tools", argv)
+    return _run_tools("token-io-decoupling-tools", argv)
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(tools_main())

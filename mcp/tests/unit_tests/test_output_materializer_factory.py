@@ -1,15 +1,10 @@
 from __future__ import annotations
 
-import asyncio
-import json
 from pathlib import Path
 from types import ModuleType
-from typing import cast
 
-from mcp import Client
-from mcp.types import TextContent
-from token_io_decoupling_workflow.materialization_storage import MaterializationStorage
-from token_io_decoupling_workflow.output_materialization import OutputMaterializerConfig
+from token_io_decoupling_tools.materialization_storage import MaterializationStorage
+from token_io_decoupling_tools.output_materialization import OutputMaterializerConfig
 
 from token_io_decoupling import cli
 from token_io_decoupling import output_materializer_factory as factory_module
@@ -96,17 +91,8 @@ def test_worker_capability_is_unavailable_without_factory_or_path_probe(monkeypa
         raise AssertionError("unconfigured materialization must not probe storage roots")
 
     monkeypatch.setattr(MaterializationStorage, "__init__", forbidden_storage_init)
-    from token_io_decoupling.server import create_workflow_server
+    from token_io_decoupling.server import create_tools_server
 
-    server = create_workflow_server()
+    server = create_tools_server()
 
-    async def run() -> None:
-        async with Client(server, mode="auto") as client:
-            result = await client.call_tool("workflow_capabilities", {})
-            assert not result.is_error
-            data = json.loads(cast(TextContent, result.content[0]).text)
-            assert data["output_materialization"] == "unavailable"
-            details = data["capability_details"]["configuration"]["output_materialization"]
-            assert details["reason_code"] == "output_materializer_not_configured"
-
-    asyncio.run(run())
+    assert server._output_materializer is None

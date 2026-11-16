@@ -5,7 +5,7 @@ import os
 import stat
 
 import pytest
-from token_io_decoupling_workflow.materialization_storage import (
+from token_io_decoupling_tools.materialization_storage import (
     MaterializationStorage,
     MaterializationStorageError,
 )

@@ -5,28 +5,22 @@ build-backend = "hatchling.build"
 [project]
 name = "token-io-decoupling"
 version = "0.1.0"
-description = "Local workflow and tools MCP servers"
+description = "Pi Coding Agent 通用工具 MCP Server 与 Skill 管理"
 requires-python = ">=3.11"
 dependencies = [
   "dev-workflow-standards-tools @ git+https://github.com/john-z-huang/dev-workflow-standards.git@ba5ecc95d9f9da77aca22c17e712d6c8d2a05987#subdirectory=mcp-server",
   "token-io-decoupling-core==0.1.0",
   "token-io-decoupling-transport==0.1.0",
-  "token-io-decoupling-workflow==0.1.0",
-  "tomlkit>=0.15,<1",
+  "token-io-decoupling-tools==0.1.0",
 ]
 
 [project.scripts]
-token-io-decoupling = "token_io_decoupling.cli:main"
-token-io-decoupling-workflow = "token_io_decoupling.cli:workflow_main"
 token-io-decoupling-tools = "token_io_decoupling.cli:tools_main"
 
 [tool.hatch.metadata]
 allow-direct-references = true
 
 [dependency-groups]
-codex-test = [
-    "openai-codex==0.163.0",
-]
 dev = ["hatchling>=1.27,<2", "pytest>=8,<9", "ruff>=0.14,<1", "ty>=0.0.1a0"]
 
 [tool.hatch.build.targets.wheel]
@@ -65,4 +59,4 @@ members = ["packages/*"]
 [tool.uv.sources]
 token-io-decoupling-core = { workspace = true }
 token-io-decoupling-transport = { workspace = true }
-token-io-decoupling-workflow = { workspace = true }
+token-io-decoupling-tools = { workspace = true }

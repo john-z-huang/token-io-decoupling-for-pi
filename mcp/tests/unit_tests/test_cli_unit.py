@@ -4,12 +4,10 @@ import tomllib
 from pathlib import Path
 
 
-def test_package_installs_admin_and_two_fixed_mcp_entrypoints() -> None:
+def test_package_installs_only_tools_entrypoint() -> None:
     project = Path(__file__).parents[2] / "pyproject.toml"
     scripts = tomllib.loads(project.read_text(encoding="utf-8"))["project"]["scripts"]
     assert scripts == {
-        "token-io-decoupling": "token_io_decoupling.cli:main",
-        "token-io-decoupling-workflow": "token_io_decoupling.cli:workflow_main",
         "token-io-decoupling-tools": "token_io_decoupling.cli:tools_main",
     }
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""检查 Pi 指令的 Layer-01 模块；与尚未迁移的 Server 校验契约分离。"""
+"""使用共享校验核心检查 Pi 指令的 Layer-01 模块。"""
 
 from __future__ import annotations
 
@@ -18,21 +18,8 @@ top_level_sections = _COMPLIANCE_CORE.top_level_sections
 
 
 def layer01_section_issues(path: str, content: str) -> list[str]:
-    """Validate authored Pi owners without changing the MCP Server's contract."""
-    sections = top_level_sections(content)
-    errors: list[str] = []
-    expected = (*HEADINGS, NAVIGATION)
-    found = [heading for _line, heading, _offset in sections]
-    if found != list(expected):
-        errors.append(f"{path}: 二级标题必须唯一且按序为 " + " → ".join(expected))
-    for index, (line, heading, offset) in enumerate(sections):
-        start = content.find("\n", offset)
-        start = len(content) if start < 0 else start + 1
-        end = sections[index + 1][2] if index + 1 < len(sections) else len(content)
-        if heading in expected and not content[start:end].strip():
-            errors.append(f"{path}:{line}: 模块 `## {heading}` 为空")
-    return errors
-
+    """CLI 与 MCP 使用同一份 Pi 文档结构合同。"""
+    return _COMPLIANCE_CORE.layer01_section_issues(path, content)
 
 def check_document(path: Path, root: Path) -> list[str]:
     content = path.read_text(encoding="utf-8")

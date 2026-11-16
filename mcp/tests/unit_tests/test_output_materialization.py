@@ -40,9 +40,9 @@ from token_io_decoupling_core.workflow_models import (
 from token_io_decoupling_core.workflow_models import (
     HostGuard as Guard,
 )
-from token_io_decoupling_workflow.compliance_preflight import CompliancePreflightService
-from token_io_decoupling_workflow.materialization_storage import MaterializationStorageError
-from token_io_decoupling_workflow.output_materialization import (
+from token_io_decoupling_tools.compliance_preflight import CompliancePreflightService
+from token_io_decoupling_tools.materialization_storage import MaterializationStorageError
+from token_io_decoupling_tools.output_materialization import (
     MaterializationAssignment,
     MaterializationAuthorizationContext,
     OutputMaterializationService,
@@ -966,7 +966,7 @@ def test_responses_ordering_is_fake_api_only_and_materializes_source_facts(
             config.authorization_provider,
         )
         materializer.close()
-        from token_io_decoupling_workflow.output_materialization import (
+        from token_io_decoupling_tools.output_materialization import (
             OutputMaterializationService as Service,
         )
 

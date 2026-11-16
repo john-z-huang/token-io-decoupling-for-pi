@@ -10,31 +10,15 @@ from typing import Any
 import httpx2
 import pytest
 from openai import APIConnectionError, OpenAI
-from token_io_decoupling_workflow import (
-    child_effort,
-    decision_context,
-    decisions,
-    delegation_decisions,
-    materialization_templates,
-    workflow_routing,
-)
-from token_io_decoupling_workflow.openai_client import make_openai_client
+from token_io_decoupling_tools import materialization_templates
+from token_io_decoupling_tools.openai_client import make_openai_client
 
 _FACTORIES = (
-    (child_effort.ChildEffortSelector, child_effort.DECISIONS_TIMEOUT_SECONDS, True),
-    (decision_context.DecisionContextGenerator, decision_context.GENERATION_TIMEOUT_SECONDS, True),
-    (decisions.DecisionsAdvisor, decisions.DECISIONS_TIMEOUT_SECONDS, True),
-    (
-        delegation_decisions.DelegationDecisionSelector,
-        delegation_decisions.DECISIONS_TIMEOUT_SECONDS,
-        True,
-    ),
     (
         materialization_templates.MaterializationTemplateRenderer,
         materialization_templates.TIMEOUT_SECONDS,
         False,
     ),
-    (workflow_routing.WorkflowRouter, workflow_routing.DECISIONS_TIMEOUT_SECONDS, True),
 )
 _PROXY_ENV_NAMES = (
     "HTTP_PROXY",
@@ -145,7 +129,7 @@ def test_each_default_factory_uses_httpx2_and_preserves_sdk_options(
 
 
 def test_openai_constructor_failure_closes_http_client(monkeypatch: pytest.MonkeyPatch) -> None:
-    import token_io_decoupling_workflow.openai_client as client_module
+    import token_io_decoupling_tools.openai_client as client_module
 
     class TrackedClient:
         closed = False

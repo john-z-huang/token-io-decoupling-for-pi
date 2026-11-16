@@ -1,26 +1,9 @@
 # MCP Server 开发指令
 
+本目录面向 Pi Coding Agent。修改前阅读 [文档语言规范](../MULTI_LINGUAL.md)。
 
-本文负责 `mcp/` 下 MCP Server、各包、测试、元数据和文档的客户端支持边界。修改文档前，先读取仓库的[文档语言规范](../MULTI_LINGUAL.md)。
+仅发布 `token-io-decoupling-tools` 一个可执行入口，通过 uv tool 安装；默认 stdio，附带 Skill 安装和更新命令。不要恢复 workflow MCP 服务或双入口安装器。宿主 Extension 独立保留。
 
-## 支持的客户端
+保留通用工具原有的授权、可信绑定、路径与外发检查。不得将 Pi 会话冒充 Codex 来源，或为了适配宿主而降低材料化等操作的保护要求。Skill 仅安装至 `~/.pi/agent/skills/` 下受管理目录，不覆盖未知目录、本地改动或符号链接。
 
-- MCP Server 面向本地可用的 Codex CLI，包括本地 Work 使用的本地 Codex CLI/app-server 路径。云端 ChatGPT 对话和远端 Work 不是直接客户端；其他 Code Agent 也不作为直接客户端受支持。
-- 如果其他 Agent 在自己的环境安装 Codex CLI，并按本仓库说明在该环境配置 MCP Server，则受支持的调用路径仅为该环境内的本地 Codex CLI；这不会增加对其他 Agent 或云端界面的适配器或直接支持。Server 不要求调用者选择或分类运行环境。
-- 修改 `mcp/` 下的代码时，考虑上述场景中的 Codex CLI 行为。不得为其他 Code Agent 添加兼容分支、适配器、配置、示例、测试或工具指令。仓库级跨厂商对应能力核验不适用于本目录。
-- 删除过时的不受支持客户端路径和声明，不将其保留为回退路线。共享协议或操作系统抽象不能证明支持额外客户端。
-- 无状态导航和结构评估不要求身份绑定，也不持久化分配状态。对于受保护操作，使用本地 stdio 请求范围，并执行当前角色、分配、应用路径和操作授权检查。不要求特权宿主集成，不声明独立身份认证；受保护的材料化操作仍保留可信绑定、授权和路径检查。
-
-## 范围与权限
-
-### Codex SDK 仅限测试
-
-遵守仓库的 Codex SDK 最终测试边界（以当前会话实际授权与测试约束为准）。`openai-codex` 只能放在 `codex-test` 中，禁止加入运行依赖或由生产代码导入。`tests/support/codex_sdk.py` 是唯一的 SDK 导入／启动适配器；仅允许 `tests/support/final_codex_check.py` 在其他所有检查及本次构建的 `uv tool` 安装成功后调用真实最终查看。普通单测可使用 fake 验证这些边界，但不得启动 SDK。全新 CLI 仅执行版本、发现、能力和规则查看，模型回合数必须为零。保留根目录指令强制要求的环境变量复用、固定模型／推理强度、配置隔离及失败边界。
-
-
-此限制适用于 MCP Server，不删除 `mcp/` 之外的原生运行时指令，也不增加文件系统、网络、凭据、Agent 创建或 Git 授权。
-
-## 相关文档
-
-- [MCP 开发指南](DEVELOPMENT.md)
-- [Codex 调用者匹配](CODEX_CALLER_CONTEXT.md)
+开发与测试见 [开发指南](DEVELOPMENT.md)。普通测试不启动真实模型或真实 API。

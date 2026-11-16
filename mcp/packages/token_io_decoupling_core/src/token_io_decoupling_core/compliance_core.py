@@ -45,13 +45,11 @@ _PAIR_ROOT_ZH_NAMES = frozenset(f"{PurePosixPath(path).stem}{ZH_SUFFIX}" for pat
 LAYER01_HEADINGS = {
     "en": (
         "General rules",
-        "Codex CLI / ChatGPT Desktop optimizations",
-        "Claude Code CLI / Claude Desktop optimizations",
+        "Pi Coding Agent optimizations",
     ),
     "zh": (
         "通用规范",
-        "Codex CLI / ChatGPT Desktop 特别优化指令",
-        "Claude Code CLI / Claude Desktop 特别优化指令",
+        "Pi Coding Agent 优化指令",
     ),
 }
 LAYER01_NAVIGATION = {"en": "Related concepts", "zh": "相关概念"}
@@ -599,68 +597,18 @@ def top_level_sections(content: str) -> list[tuple[int, str, int]]:
 
 
 def layer01_section_issues(path: str, content: str) -> list[str]:
-    relative = path
-    language = "zh"
-    expected = (
-        ("通用规范", "Pi Coding Agent 优化指令")
-        if path.removeprefix("docs/skill/") == (
-            "references/coding/layer-01-fundamental-concepts/"
-            "session-runtime/runtime-provider-support.md"
-        )
-        else LAYER01_HEADINGS[language]
-    )
+    expected = ("通用规范", "Pi Coding Agent 优化指令", "相关概念")
     sections = top_level_sections(content)
     errors: list[str] = []
-    for heading in expected:
-        occurrences = [(line, offset) for line, found, offset in sections if found == heading]
-        if not occurrences:
-            errors.append(f"{relative}: 缺少必需标题 `## {heading}`")
-        elif len(occurrences) > 1:
-            lines = ", ".join(str(line) for line, _ in occurrences)
-            errors.append(f"{relative}: 标题 `## {heading}` 重复出现于第 {lines} 行")
-    positions = [
-        next((i for i, (_, found, _) in enumerate(sections) if found == heading), None)
-        for heading in expected
-    ]
-    known_positions = [position for position in positions if position is not None]
-    if len(known_positions) == len(positions) and known_positions != sorted(known_positions):
-        errors.append(f"{relative}: 必需标题顺序错误；应为" + " → ".join(expected))
-    allowed = {*expected, LAYER01_NAVIGATION[language]}
-    for line, heading, _offset in sections:
-        if heading not in allowed:
-            errors.append(
-                f"{relative}:{line}: 非模块二级标题 `## {heading}`；概念子主题应使用 `###`"
-            )
-    for heading in expected:
-        match = next(
-            (
-                (index, offset)
-                for index, (_, found, offset) in enumerate(sections)
-                if found == heading
-            ),
-            None,
-        )
-        if match is None:
-            continue
-        index, offset = match
-        line_end = content.find("\n", offset)
-        start = line_end + 1 if line_end >= 0 else len(content)
+    found = [heading for _line, heading, _offset in sections]
+    if found != list(expected):
+        errors.append(f"{path}: 二级标题必须唯一且按序为 " + " → ".join(expected))
+    for index, (line, heading, offset) in enumerate(sections):
+        start = content.find("\n", offset)
+        start = len(content) if start < 0 else start + 1
         end = sections[index + 1][2] if index + 1 < len(sections) else len(content)
-        if not content[start:end].strip():
-            errors.append(
-                f"{relative}:{sections[index][0]}: 模块 `## {heading}` 为空；"
-                "无特别优化时也须明确写明没有"
-            )
-    navigation = next(
-        (
-            index
-            for index, (_, heading, _) in enumerate(sections)
-            if heading == LAYER01_NAVIGATION[language]
-        ),
-        None,
-    )
-    if navigation is not None and positions[-1] is not None and navigation < positions[-1]:
-        errors.append(f"{relative}: 导航章节必须位于必需内容模块之后")
+        if heading in expected and not content[start:end].strip():
+            errors.append(f"{path}:{line}: 模块 `## {heading}` 为空")
     return errors
 
 

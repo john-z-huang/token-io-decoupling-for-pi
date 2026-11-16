@@ -26,14 +26,14 @@
 | Apple 对端凭据 | https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/getpeereid.3.html | [MCP 开发](mcp/DEVELOPMENT.md) | 独立核验原生 macOS 对端凭据认证，不假设 Python socket API 暴露相同能力。 |
 | Codex MCP | https://learn.chatgpt.com/docs/extend/mcp?surface=cli | [增强架构](docs/skill/WORKFLOW_ARCHITECTURE.md) | 核验本地传输控制，不据此推断可信的逐 Agent 身份或文件系统隔离。 |
 | Codex stdio 注册 | https://learn.chatgpt.com/docs/extend/mcp | [MCP 开发](mcp/DEVELOPMENT.md) | 核验一个绝对入口通过不同 profile 参数分别注册四个 MCP 服务；配置与工具发现不证明 Session 身份或操作守卫。 |
-| Codex stdio 环境转发 | https://learn.chatgpt.com/docs/extend/mcp?surface=cli | [MCP 开发](mcp/DEVELOPMENT.md#codex-stdio-环境变量转发) | 核验自动 setup 和定向修复所需的逐服务 `env_vars` 转发，并与 API 启用及宿主绑定区分。 |
-| TOML Kit 解析与文档编辑 | https://tomlkit.readthedocs.io/en/latest/quickstart/ | [MCP 开发](mcp/DEVELOPMENT.md#codex-stdio-环境变量转发) | 核验 `parse`/`dumps` 及保留风格的文档编辑；针对锁定包版本的本地测试另行检查定向合并、错误处理和文件写入行为。 |
-| TOML Kit 格式限制 | https://github.com/python-poetry/tomlkit/blob/master/README.md | [MCP 开发](mcp/DEVELOPMENT.md#codex-stdio-环境变量转发) | 本地缓存的上游 README 指出了乱序数组子表的规范化行为；针对锁定版本复现，并在写入前拒绝意外的排版变化。 |
+| Codex stdio 环境转发 | https://learn.chatgpt.com/docs/extend/mcp?surface=cli | [MCP 开发](mcp/DEVELOPMENT.md#工具边界) | 核验自动 setup 和定向修复所需的逐服务 `env_vars` 转发，并与 API 启用及宿主绑定区分。 |
+| TOML Kit 解析与文档编辑 | https://tomlkit.readthedocs.io/en/latest/quickstart/ | [MCP 开发](mcp/DEVELOPMENT.md#工具边界) | 核验 `parse`/`dumps` 及保留风格的文档编辑；针对锁定包版本的本地测试另行检查定向合并、错误处理和文件写入行为。 |
+| TOML Kit 格式限制 | https://github.com/python-poetry/tomlkit/blob/master/README.md | [MCP 开发](mcp/DEVELOPMENT.md#工具边界) | 本地缓存的上游 README 指出了乱序数组子表的规范化行为；针对锁定版本复现，并在写入前拒绝意外的排版变化。 |
 | Serena Codex setup 实现 | https://github.com/oraios/serena/blob/main/src/serena/config/client_setup.py | [MCP 开发](mcp/DEVELOPMENT.md) | 研究显式启动/setup 分离与官方客户端注册，将模式用于单一安装入口，不根据 context 或 cwd 推断身份。 |
 | uv workspace | https://docs.astral.sh/uv/concepts/projects/workspaces/ | [实现包](docs/skill/WORKFLOW_ARCHITECTURE.md#实现包) | 核验独立成员元数据、继承的 workspace sources 与共享 lockfile；源码根项目的 tool 安装另行验证。 |
 | uv tool 环境 | https://docs.astral.sh/uv/concepts/tools/ | [MCP 开发](mcp/DEVELOPMENT.md) | 核验已安装可执行程序的环境、本地工具安装，以及统一入口的依赖/可执行程序边界。 |
-| uv tool 命令参考 | https://docs.astral.sh/uv/reference/cli/#uv-tool-install | [MCP 开发](mcp/DEVELOPMENT.md#uv-tool-安装与-codex-setup) | 核验单次调用安装入口使用 `--force` 安装工具、选择托管 Python，并通过 `uv tool dir --bin` 定位入口，无须将其目录加入 PATH。 |
-| uv 本地依赖缓存 | https://docs.astral.sh/uv/concepts/cache/ | [MCP 开发](mcp/DEVELOPMENT.md#uv-tool-安装与-codex-setup) | 核验安装入口为何同时使用 `--reinstall`，确保只修改源码或规则资源后也会更新本地 workspace 依赖。 |
+| uv tool 命令参考 | https://docs.astral.sh/uv/reference/cli/#uv-tool-install | [MCP 开发](mcp/DEVELOPMENT.md#安装与更新) | 核验单次调用安装入口使用 `--force` 安装工具、选择托管 Python，并通过 `uv tool dir --bin` 定位入口，无须将其目录加入 PATH。 |
+| uv 本地依赖缓存 | https://docs.astral.sh/uv/concepts/cache/ | [MCP 开发](mcp/DEVELOPMENT.md#安装与更新) | 核验安装入口为何同时使用 `--reinstall`，确保只修改源码或规则资源后也会更新本地 workspace 依赖。 |
 | OpenAI Decisions 创建接口 | https://developers.openai.com/api/reference/resources/decisions/methods/create | [运行环境与模型支持](docs/skill/references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md) | 核验子代理强度选择的 choice 请求、answers 中的 choice/refusal、固定 API 模型及输出边界；不授权创建 Agent。 |
 | Codex 子代理配置 | https://learn.chatgpt.com/docs/agent-configuration/subagents | [运行环境与模型支持](docs/skill/references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md)、[子代理创建](docs/skill/references/coding/layer-01-fundamental-concepts/delegation/delegation-child-creation.md) | 核验创建时模型与推理强度控制，以及自定义配置的优先级；实际调用仍以当前 Session 暴露的控制为准。 |
 | Claude 原生子代理 effort | https://code.claude.com/docs/en/sub-agents#choose-an-effort-level | [运行环境与模型支持](docs/skill/references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md)、[子代理创建](docs/skill/references/coding/layer-01-fundamental-concepts/delegation/delegation-child-creation.md) | 仅为 MCP 目录外的原生 Skill 指令核验 effort 调用、版本边界、恢复与环境优先级；MCP Server 不支持该客户端。 |
