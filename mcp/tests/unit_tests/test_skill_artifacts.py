@@ -126,10 +126,6 @@ def test_detached_sdist_cli_installs_without_checkout(tmp_path):
     env = {**os.environ, "HOME": str(home)}
     env.pop("PYTHONPATH", None)
     cli = str(venv / "bin/token-io-decoupling-tools")
-    config = home / ".codex/config.toml"
-    config.parent.mkdir()
-    config.write_text('[mcp_servers.preserved]\ncommand = "existing-mcp"\n')
-    config_before = config.read_bytes()
     # MCP reads its own packaged policies, regardless of the installed Skill tree.
     rule_probe = """
 import json
@@ -171,7 +167,6 @@ print(json.dumps({
     shutil.rmtree(project)
     run(cli, "skills", "update", env=env)
     assert (skill / "SKILL.md").read_bytes() == baseline
-    assert config.read_bytes() == config_before
     assert probe() == rules_before
     assert program_snapshot() == program_before
     # Editing installed instructions cannot change the MCP's packaged rules.

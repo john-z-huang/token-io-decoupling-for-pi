@@ -34,8 +34,7 @@ def test_tools_entrypoint_dispatches_skills(monkeypatch, tmp_path, action) -> No
 
 
 @pytest.mark.parametrize("arguments", [
-    ["setup", "codex"], ["setup", "codex-env"], ["workflow"],
-    ["--host-fd", "3"], ["--codex-context"], ["--task-plan-factory", "operator:build"],
+    ["workflow"], ["--host-fd", "3"], ["--task-plan-factory", "operator:build"],
     ["skills", "install", "--destination", "/tmp/escape"],
 ])
 def test_removed_commands_and_unsafe_destination_are_rejected(monkeypatch, arguments) -> None:

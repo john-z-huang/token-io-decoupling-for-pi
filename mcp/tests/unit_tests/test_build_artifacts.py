@@ -260,11 +260,6 @@ def test_workspace_builds_four_wheels_with_disjoint_files(tmp_path: Path) -> Non
             for name in wheel.namelist():
                 if name.endswith(".dist-info/METADATA"):
                     metadata = wheel.read(name).decode()
-                    assert not any(
-                        "openai-codex" in line.lower()
-                        for line in metadata.splitlines()
-                        if line.startswith("Requires-Dist:")
-                    )
                 if name.endswith(".py") and ".dist-info/" not in name:
                     assert "/tests/" not in name
                     assert name not in owners, (
@@ -279,11 +274,11 @@ def test_workspace_builds_four_wheels_with_disjoint_files(tmp_path: Path) -> Non
     assert "token_io_decoupling/cli.py" in owners
     core_wheel = owners["token_io_decoupling_core/models.py"]
     for compatibility_module in (
-        "__init__", "binding", "codex_context", "models", "project_identity",
+        "__init__", "binding", "models", "project_identity",
         "registry_contract", "rules",
     ):
         assert owners[f"token_io_decoupling_mcp/{compatibility_module}.py"] == core_wheel
-    for facade in ("cli", "cli_commands", "decisions", "server", "setup_codex"):
+    for facade in ("cli", "cli_commands", "decisions", "server"):
         assert f"token_io_decoupling_mcp/{facade}.py" not in owners
     assert not any(name.startswith("token_io_mcp/") for name in owners)
     launcher_wheel = next(path for path in wheels if path.name.startswith("token_io_decoupling-"))

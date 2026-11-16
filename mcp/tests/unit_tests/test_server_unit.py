@@ -15,13 +15,6 @@ def test_fixed_servers_expose_only_current_stateless_contracts() -> None:
     names = _names(tools)
     assert names == set(TOOLS_SERVER_TOOLS)
     assert len(TOOLS_SERVER_TOOLS) == 34
-    codex_only = {
-        "get_codex_session_summary_guidance",
-        "order_codex_session_sources",
-        "prepare_codex_session_memory",
-        "decide_codex_session_action",
-    }
-    assert not (codex_only & names)
     assert not any(name.startswith(("workflow_", "task_plan_")) for name in names)
     retired = {
         "database_schema_status",

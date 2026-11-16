@@ -41,27 +41,6 @@ class TestOnlyBindingProvider:
 
 
 def main() -> None:
-    if (
-        len(sys.argv) in {4, 5}
-        and sys.argv[1] in {"bridge", "bridge-codex"}
-        and sys.argv[2] in {"root", "worker"}
-    ):
-        output_materializer_factory = sys.argv[4] if len(sys.argv) == 5 else None
-        require_codex_context = sys.argv[1] == "bridge-codex"
-        role = SessionRole.PARENT if sys.argv[2] == "root" else SessionRole.WORKER
-        provider = TestOnlyBindingProvider(role)
-        from token_io_decoupling.compliance_factory import load_compliance_service
-        from token_io_decoupling.output_materializer_factory import load_output_materializer_config
-
-        materializer = load_output_materializer_config(output_materializer_factory)
-        server = create_tools_server(
-            provider,
-            require_codex_context=require_codex_context,
-            output_materializer_config=materializer,
-            compliance_service=load_compliance_service(None),
-        )
-        server.run(transport="stdio")
-        return
     if len(sys.argv) != 3 or sys.argv[1] not in {"root", "worker"}:
         raise SystemExit("usage is private to tests")
     role = SessionRole.PARENT if sys.argv[1] == "root" else SessionRole.WORKER
