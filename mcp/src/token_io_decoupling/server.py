@@ -20,7 +20,6 @@ from token_io_decoupling_tools.output_materialization import (
     OutputMaterializerConfig,
 )
 from token_io_decoupling_tools.serena_memory import SerenaMemoryReadService
-from token_io_decoupling_tools.tools import register_tools
 from token_io_decoupling_transport.identity import (
     bound_role as _bound_role,
 )
@@ -29,6 +28,8 @@ from token_io_decoupling_transport.tool_metadata import (
     tools_server_description,
     tools_server_instructions,
 )
+
+from token_io_decoupling.tool_registry import register_tools
 
 
 def create_tools_server(
@@ -65,7 +66,7 @@ def create_tools_server(
     if require_codex_context and not embedded and not local:
         raise BindingError("Codex caller matching requires a usable bound identity")
 
-    # Upstream owns validation-error redaction and development tool registrations.
+    # Upstream owns validation-error redaction, not tool registration.
     from dev_workflow_standards_tools import server as development
 
     server_type = development._SafeMCPServer
@@ -104,15 +105,6 @@ def create_tools_server(
         provider=provider,
         output_materializer=output_materializer,
     )
-    if development is not None:
-        for register in (
-            development.register_git_tools,
-            development.register_repository_tools,
-            development.register_github_tools,
-            development.register_ai_workflow_tools,
-        ):
-            register(server)
-        server.remove_tool("decide_codex_session_action")
     discovered = [tool.name for tool in server._tool_manager.list_tools()]
     actual = set(discovered)
     if len(discovered) != len(actual) or actual != TOOLS_SERVER_TOOLS:

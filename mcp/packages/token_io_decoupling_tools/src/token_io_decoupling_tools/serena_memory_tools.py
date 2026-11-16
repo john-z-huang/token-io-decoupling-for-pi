@@ -4,10 +4,7 @@ from __future__ import annotations
 
 from typing import Annotated, Any
 
-from mcp.types import ToolAnnotations
 from pydantic import Field
-from token_io_decoupling_transport.registration import ToolRegistrar
-from token_io_decoupling_transport.tool_metadata import tool_description
 
 from token_io_decoupling_tools.serena_memory import SerenaMemoryReadService
 
@@ -43,9 +40,7 @@ ChangedContent = Annotated[
 ]
 
 
-def register_serena_memory_tools(
-    registrar: ToolRegistrar, service: SerenaMemoryReadService
-) -> None:
+def create_memory_callbacks(service: SerenaMemoryReadService) -> dict[str, Any]:
     """Expose only the tools server's two public, configured-scope read operations."""
 
     def tail_read(memory_path: MemoryPath, tail_lines: TailLines) -> dict[str, Any]:
@@ -56,19 +51,7 @@ def register_serena_memory_tools(
     ) -> dict[str, Any]:
         return service.write_check(memory_path, changed_content, tail_lines)
 
-    for name, callback in (
-        ("serena_memory_tail_read", tail_read),
-        ("serena_memory_write_check", write_check),
-    ):
-        if registrar.include(name):
-            registrar.server.tool(
-                name=name,
-                description=tool_description(name),
-                annotations=ToolAnnotations(
-                    read_only_hint=True,
-                    destructive_hint=False,
-                    idempotent_hint=True,
-                    open_world_hint=False,
-                ),
-                structured_output=False,
-            )(callback)
+    return {
+        "serena_memory_tail_read": tail_read,
+        "serena_memory_write_check": write_check,
+    }
