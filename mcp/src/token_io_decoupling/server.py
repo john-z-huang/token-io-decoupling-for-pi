@@ -109,10 +109,10 @@ def create_tools_server(
             development.register_git_tools,
             development.register_repository_tools,
             development.register_github_tools,
-            development.register_codex_session_fact_tools,
             development.register_ai_workflow_tools,
         ):
             register(server)
+        server.remove_tool("decide_codex_session_action")
     discovered = [tool.name for tool in server._tool_manager.list_tools()]
     actual = set(discovered)
     if len(discovered) != len(actual) or actual != TOOLS_SERVER_TOOLS:

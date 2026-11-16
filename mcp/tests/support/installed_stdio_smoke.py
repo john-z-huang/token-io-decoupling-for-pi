@@ -35,7 +35,7 @@ async def _exercise(cli_path: Path) -> None:
             tools = (await client.list_tools()).tools
             names = {tool.name for tool in tools}
             assert names == set(TOOLS_SERVER_TOOLS)
-            assert len(names) == 38
+            assert len(names) == 34
             assert all(tool.description for tool in tools)
             assert not any(name.startswith(("workflow_", "task_plan_")) for name in names)
             result = await client.call_tool(

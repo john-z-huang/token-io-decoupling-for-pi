@@ -45,11 +45,7 @@ DEV_WORKFLOW_TOOLS = frozenset(
         "create_github_pull_request",
         "merge_github_pull_request",
         "push_fork_main_fast_forward",
-        "get_codex_session_summary_guidance",
-        "order_codex_session_sources",
-        "prepare_codex_session_memory",
         "decide_skill_workflow",
-        "decide_codex_session_action",
         "generate_skill_content",
         "check_api_input",
     }
@@ -57,5 +53,5 @@ DEV_WORKFLOW_TOOLS = frozenset(
 
 TOOLS_SERVER_TOOLS = UTILITY_TOOLS | WORKER_TOOLS | DEV_WORKFLOW_TOOLS
 
-if len(TOOLS_SERVER_TOOLS) != 38:
+if len(TOOLS_SERVER_TOOLS) != 34:
     raise RuntimeError("fixed MCP server tool inventories do not match their contract")
