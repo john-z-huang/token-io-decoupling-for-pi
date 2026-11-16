@@ -21,6 +21,12 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi
 
 默认不接管会话，也不创建子代理。模式/预算选择不授予写入、Memory、网络或 Git 权限。安装、四个协调工具、真实事件/语义信号、离线验证及适配器限制见 [Pi Extension 使用说明](docs/skill/PI_EXTENSION.md) 和 [Hooks 目录](docs/skill/hooks/README.md)。本轮没有自动安装到用户/项目配置，也没有真实客户端/API/后端端到端验收。未启用 Extension 时从 [Skill 入口](docs/skill/SKILL.md) 走原有 owner 回退路线。
 
+## 现有Pi子代理描述与Root选型
+
+中文代理描述源在 [agents/](agents/)：worker、reviewer、scout分别适配Primary、独立验证、Context职责；planner保留只读兼容边界，git-operator仅提供受阻断的专用职责描述。模型不固定到角色：Root依据三份官方模型卡和当前任务，在Sol、Terra、Luna之间选择模型及推理水平。
+
+说明、模型卡核对记录与对现有subagent的最小每任务选型补丁见 [Pi子代理适配](integrations/pi-subagent/README.md)。加载本package不自动覆盖用户配置；本机部署与普通package加载是两件事，不能把描述文件存在当作Git专用适配器、权限隔离或模型身份能力已实现。
+
 ## 仅安装 Skill（不包含 Extension）
 
 将开发仓库放在用户 Skill 目录之外。安装构建后的 CLI（参见 MCP 安装指南）后运行：

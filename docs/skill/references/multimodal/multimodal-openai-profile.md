@@ -1,21 +1,20 @@
 # Multimodal OpenAI Deployment Profile
 
-本文件用于在根 `SKILL.md` 移除具体部署细节后，继续保留 Multimodal Flow 当前部署专属的 OpenAI 模型绑定。它有意保持为小型部署专属文档，不尝试建立通用 Multimodal Runtime 抽象，也不属于当前维护的 Coding 工作流。
+本文件保留非Coding多模态部署的模型选择参考，不选择视觉工作流、不创建代理、不授予权限，不宣称本项目已有可执行多模态/持久代理适配器。
 
-本 Profile 对下面列出的具体 OpenAI 绑定保持自包含。它不选择视觉工作流，也不从其他文档导入架构规则。
+## 按任务选择，不再固定Luna
 
-## 当前绑定
+- **Decision Agent**仍为当前父级，保留语义/创作决策和最终验收，不因子代理选择改变Root模型。
+- **Primary Observation Agent**由Root在GPT-6.1 Sol、GPT-6.1 Terra、GPT-6 Luna中按输入/任务选型。参考：复杂静态视觉/技术图纸可考虑Terra medium/high，聚焦提取和大批量已定义筛选可考虑Luna low/medium，复杂专业推理可考虑Sol medium/high。
+- **Optional Primary Output Agent**同样按任务选型：清晰文本起草/修订可考虑Terra low/medium，聚焦高体量结构化输出可考虑Luna low/medium，复杂专业内容可考虑Sol medium/high。
+- 上述不是固定角色绑定、官方对比测试或质量保证。两个子角色仍是不同职责与Session Affinity，不能因同模型合并高体量上下文；模型不同也不证明独立性。
 
-- **Decision Agent**：当前高级父模型。
-- **Primary Observation Agent**：`gpt-6-luna`；默认使用 `reasoning_effort=medium`，包括实质性图片、视频帧、Computer Use Observation 分析。
-- **Optional Primary Output Agent**：`gpt-6-luna`；实质性长输出与其他高体量物化默认使用 `reasoning_effort=medium`。
-- Primary Observation 与 Optional Primary Output 是不同职责和不同 Session Affinity；即使两者都绑定到 Luna，也不默认合并各自的高体量上下文。
+## 档位与能力边界
 
-## 部署约束
+三份[官方模型卡与通用选型参考](../coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md#子代理模型与推理强度参考)说明能力、支持档位和provider/API限制。一般多步工作medium、简单确定任务low、复杂/高风险任务可high；xhigh/max须具体必要性，Root可按当前任务调整而非强制阶梯。Sol支持low/medium/high/xhigh/max；Terra/Luna另有none；Pi用实际支持的thinking（关闭意图为off），不使用minimal，不静默钳制/换模型。
 
-- 不得把本 Profile 要求使用 Luna 的 Multimodal 角色静默替换为其他模型。
-- 只有具体复杂性或验证失败证据足以支持时，才将受影响任务局部提高至 `reasoning_effort=high`，随后恢复 `medium`。
-- 若需要独立 Luna 角色但无法确认 `gpt-6-luna` 身份、无法显式选择该模型，或宿主不能满足 Profile 默认或有证据支持的 reasoning-effort 档位，则停止对应实质性 Multimodal 工作并简短报告 capability block。
-- 纯只读、严格有界的诊断或 Observation，在能够确认 Luna 身份但宿主无法设置 reasoning effort 时可以继续；不得因此把复杂高体量 Observation/物化回退给高级父模型，也不得静默替换模型或推理强度。
+模型卡支持不等于宿主支持：三者为文本/图像输入、文本输出；不能由此推断原生视频/音频能力。视频帧必须由获准工具准备，图像输入、工具API、数据出站与格式都须核验。**本Skill禁止Computer Use**；卡片提到该能力不授权GUI截图定位、点击或Shell/MCP包装的同类操作。
 
-本 Profile 只保留当前部署行为，不声明对其他 Code Agent 产品或模型族具有可移植性。未来 Multimodal 的跨产品工作应以真实测试为基础，而不是从 Coding Runtime 架构推断。
+Root在创建前核验真实可用模型、参数控制和授权，保留选择依据；不能用task文字假装已配置，不能要求Worker自报身份作证明。缺少任务必需能力/选型控制时停止受影响工作；可选优化缺失只记录限制。已创建身份不能为换模型而替换/重建；未知效果先读回不重放。
+
+此策略不修改MCP内部固定gpt-6-luna API模型，也不替代输入审核、Mock默认、真实出站授权及相应多模态合同。非Coding模块仍仅为参考，不能从Coding Extension加载成功推断实现完成。

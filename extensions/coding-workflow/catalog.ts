@@ -65,7 +65,7 @@ const OVERRIDES: Record<string, HookId[]> = {
   "candidate-compliance": ["materialization"], "output-materialization": ["materialization"],
   "decisions-advisory": ["advisory"], "decision-context-generation": ["advisory", "planning"],
   "workflow-routing-advice": ["navigation", "advisory"], "workflow-module-contract": ["recovery"],
-  "LSP-MCP-Tools": ["context", "session"], "runtime-provider-support": ["foundation", "session"],
+  "LSP-MCP-Tools": ["context", "session"], "runtime-provider-support": ["foundation", "session", "delegation"],
   "session-context-firewall": ["context"], "reasoning-summary-visibility": ["audit"], "session-audit-visibility": ["audit"],
 };
 export function classifySource(path: string): Catalog["coverage"][number] {
@@ -115,7 +115,7 @@ function markdownFiles(root: string): string[] {
 export function loadCatalog(root = SKILL_ROOT): Catalog {
   const modules: Record<string, Module> = {};
   const hash = createHash("sha256");
-  for (const file of ["catalog.ts", "engine.ts", "runtime.ts", "index.ts"]) hash.update(file).update(readFileSync(new URL(file, import.meta.url)));
+  for (const file of ["catalog.ts", "engine.ts", "runtime.ts", "index.ts", "model-selection.ts"]) hash.update(file).update(readFileSync(new URL(file, import.meta.url)));
   for (const name of MODULES) {
     const path = `references/coding/layer-04-workflows/modules/${name}.md`;
     const text = readFileSync(join(root, path), "utf8");

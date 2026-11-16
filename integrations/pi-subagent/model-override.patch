@@ -1,0 +1,63 @@
+--- a/index.ts
++++ b/index.ts
+@@ -21,1 +21,1 @@
+-import { StringEnum } from "@earendil-works/pi-ai";
++import { getSupportedThinkingLevels } from "@earendil-works/pi-ai";
+@@ -32,0 +33,1 @@
++import { CHILD_MODELS, dispatchModelArgs, parseModelSelection, validateChildSelection } from "./model-selection.ts";
+@@ -155,0 +157,1 @@
++	requestedModel?: string;
+@@ -280,0 +283,1 @@
++	requestedModel?: string,
+@@ -307,6 +310,2 @@
+-	const inheritsDispatchConfig = !agent.model;
+-	const model = agent.model ?? dispatchDefaults.model;
+-	if (model) args.push("--model", model);
+-	if (inheritsDispatchConfig && dispatchDefaults.thinkingLevel) {
+-		args.push("--thinking", dispatchDefaults.thinkingLevel);
+-	}
++	const { model, args: modelArgs } = dispatchModelArgs(requestedModel, agent.model, dispatchDefaults);
++	args.push(...modelArgs);
+@@ -326,1 +325,1 @@
+-		model,
++		requestedModel: model,
+@@ -383,1 +382,1 @@
+-						if (!currentResult.model && msg.model) currentResult.model = msg.model;
++						if (msg.model) currentResult.model = `${msg.provider}/${msg.model}`;
+@@ -447,0 +447,4 @@
++const ModelSelection = Type.Optional(Type.String({ minLength: 5, maxLength: 256,
++	description: "Root按任务选择精确provider/model:thinking，例如openai/gpt-6.1-sol:medium。覆盖agent固定值且不改变Root。Sol复杂编码；Terra视觉/文字；Luna聚焦高吞吐。low/medium常规，high复杂；xhigh/max仅有必要时。缺省沿用agent或父级。",
++}));
++
+@@ -448,0 +452,1 @@
++	model: ModelSelection,
+@@ -454,0 +459,1 @@
++	model: ModelSelection,
+@@ -460,1 +465,1 @@
+-const AgentScopeSchema = StringEnum(["user", "project", "both"] as const, {
++const AgentScopeSchema = Type.Union([Type.Literal("user"), Type.Literal("project"), Type.Literal("both")], {
+@@ -465,0 +471,1 @@
++	model: ModelSelection,
+@@ -483,0 +490,1 @@
++			"Root selects optional model=provider/id:thinking per task; each parallel/chain item overrides the top-level value. Role, authorization and model choice are separate.",
+@@ -523,0 +531,14 @@
++			}
++
++			// Validate every explicit selection before starting any task, including later chain steps.
++			try {
++				const requested = [params.model, ...(params.tasks ?? []).map(t => t.model), ...(params.chain ?? []).map(t => t.model)];
++				for (const value of requested) {
++					if (value === undefined) continue;
++					const selection = parseModelSelection(value);
++					if (CHILD_MODELS.some(id => id === selection.id.split("/").at(-1))) validateChildSelection(value);
++					const model = ctx.modelRegistry.getAvailable().find(m => m.provider === selection.provider && m.id === selection.id);
++					if (!model || !getSupportedThinkingLevels(model).includes(selection.thinking)) throw new Error("Requested model/thinking is unavailable; no fallback or clamping.");
++				}
++			} catch (error) {
++				return { content: [{ type: "text", text: String(error) }], details: makeDetails(hasChain ? "chain" : hasTasks ? "parallel" : "single")([]), isError: true };
+@@ -589,0 +611,1 @@
++						step.model ?? params.model,
+@@ -668,0 +691,1 @@
++						t.model ?? params.model,
+@@ -705,0 +729,1 @@
++					params.model,

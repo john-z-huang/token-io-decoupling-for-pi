@@ -36,7 +36,17 @@ DE05只作真实能力与创建前置核验；DE06通过同一次实际工具调
 
 只在已分别放行、互不冲突的任务间并行；Chain 中每一步仍须各自满足授权、职责和范围，不能作为同一 Session 复用证据。已创建代理不能因不满意而替换；对获准修复优先复用同一稳定身份，仅当真实扩展支持续接才可 follow-up。一次性返回后身份不可继续派发。无法安全续接时报告阻塞并由 Root 判断合法路线，不静默创建同职责 successor；增加名额也不允许替换或重复职责。
 
-### 4. 结果、生命周期与未知效果
+### 4. Root选择模型与推理强度
+
+不再把所有子代理固定为Luna；职责和模型独立。Root依据输入类型、任务复杂度/依赖、不确定性、风险、验证充分性、输入量与延迟/成本，在实际可用的三个模型中选择，并给出简短依据：
+- Sol：模型卡面向复杂编码/专业工作，复杂实现、修复、独立反例检查可优先考虑medium/high。
+- Terra：模型卡面向视觉推理与清晰写作，获准静态图像/图纸证据或Skill文档可考虑low/medium；不是Computer Use授权。
+- Luna：模型卡面向聚焦高吞吐，有界事实提取、机械改动、规则明确的实现/检查可考虑low/medium。
+这些仅是参考起点，任何职责均不强制某一模型；普通文档仍由Root。一般多步任务medium，简单确定任务low，复杂/高风险任务可high；xhigh/max须有具体必要性，不是固定升级阶梯。卡片支持Sol的low/medium/high/xhigh/max，Terra/Luna另有none；Pi使用off而非none，三者不选minimal，且须核对真实provider映射。更大推理量不弥补缺失授权/证据，独立性也不由不同模型证明。
+
+先核对真实Schema。在增强版subagent中用精确 `model: "provider/id:thinking"`；coding_delegate每项job传 `model` 与 `modelReason`，仅目标工具确有model字段才转交，不能默默忽略。未提供控制的旧工具仅能记录实际默认/继承值和限制，不假装task文字已选模型；任务必需选择无法落实则阻断。不要改父级模型、全局默认或MCP内部API模型来代替子任务设置。创建前核验即可，不要求Worker自查/自报；已创建身份不因换模型而重建、替换或回收。详见[模型卡事实、档位与路由参考](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md#子代理模型与推理强度参考)。
+
+### 5. 结果、生命周期与未知效果
 
 派发后取得真实返回内容。工具状态、调用卡片、送达回执、摘要、Hash 或“完成”字样不替代正文。依赖结果前完整读取所有实际结果；过长则逐页/分段读取至末尾，不以摘要验收。确认并审阅完整结果中的改动路径、执行/检查证据、失败、遗漏、未决项及与授权范围的偏差；对实际仓库状态做必要核对。结果与已确认前提冲突、超出范围或不完整时停止依赖工作，返回 Root 重决策，不自行扩大授权。子代理结果不是应用改动或继续操作的授权。最终验证仍属后续独立工作流，不把初步检查冒充验证。
 
@@ -66,6 +76,7 @@ DE05只作真实能力与创建前置核验；DE06通过同一次实际工具调
 | [delegation-mode-confirmation.md](../references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-confirmation.md) | 初始模式菜单、默认值及 Single-Agent 限制 |
 | [delegation-child-creation.md](../references/coding/layer-01-fundamental-concepts/delegation/delegation-child-creation.md) | Pi 能力核对、创建前置和一次性调用适配 |
 | [delegation-worker-boundary.md](../references/coding/layer-01-fundamental-concepts/delegation/delegation-worker-boundary.md) | Worker 读取、贡献、边界及 Root 记录权威 |
+| [runtime-provider-support.md](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md) | Root按模型卡自主选择三模型/推理档位、真实参数能力与API边界 |
 | [session-role-ownership.md](../references/coding/layer-01-fundamental-concepts/session-runtime/session-role-ownership.md) | Root 前置职责、四类角色与职责界限 |
 | [executor-selection.md](../references/coding/layer-03-workflow-checkpoints/executor-selection.md) | 先选 Root/当前执行者，再判断是否需要新执行者 |
 | [role-reservation.md](../references/coding/layer-03-workflow-checkpoints/role-reservation.md) | new-executor-needed 后预留角色；不在本步创建/放行 Slice |

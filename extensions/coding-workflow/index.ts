@@ -32,6 +32,8 @@ export default function codingWorkflow(pi: ExtensionAPI): void {
     run: Type.Object({ revision, tool: string(), input: Type.Record(Type.String(), Type.Unknown()), effect, rationale: string(), evidence }, { additionalProperties: false }),
     delegate: Type.Object({ revision, tool: string(), evidence, jobs: Type.Array(Type.Object({
       role: enumeration(ROLES), agent: string(128), task: string(8000), paths: Type.Array(string(4096), { maxItems: 64 }),
+      model: Type.Optional(Type.String({ minLength: 5, maxLength: 256, description: "Root按任务与模型卡选择精确provider/model:thinking；Sol复杂编码，Terra视觉/文字，Luna聚焦高吞吐。推理档位按任务选择，不按角色固定。" })),
+      modelReason: Type.Optional(string()),
     }, { additionalProperties: false }), { minItems: 1, maxItems: 4 }) }, { additionalProperties: false }),
   });
 }

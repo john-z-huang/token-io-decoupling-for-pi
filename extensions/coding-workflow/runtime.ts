@@ -6,6 +6,8 @@ import type { TSchema } from "typebox";
 import { currentModule, loadCatalog, phaseHooks, signalHooks, resolveDocumentLink, rewriteDocumentLinks, type Catalog, type HookId, type Mode } from "./catalog.ts";
 import { exactPath, makeState, restoreState, ROLES, Workflow, type Effect, type Role, type State } from "./engine.ts";
 
+import { validateChildSelection } from "./model-selection.ts";
+
 const STATE_TYPE = "token-io.coding-workflow.v1";
 const CONTEXT_TYPE = "token-io.coding-hooks.v1";
 const INTERNAL = new Set(["coding_checkpoint", "coding_slice", "coding_run", "coding_delegate"]);
@@ -269,6 +271,11 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
         const paths = new Set<string>();
         for (const job of p.jobs) {
           if (!ROLES.includes(job.role) || !job.agent?.trim() || !job.task?.trim()) throw new Error("职责、扩展 agent 配置名和真实任务必须明确");
+          if (job.model !== undefined) {
+            validateChildSelection(job.model);
+            const properties = (tool.parameters as { properties?: Record<string, { type?: string }> }).properties;
+            if (properties?.model?.type !== "string" || !job.modelReason?.trim()) throw new Error("显式模型选择须有真实 model 参数能力及 Root 任务依据；不静默忽略设置");
+          } else if (job.modelReason !== undefined) throw new Error("模型选择依据必须对应实际 model 请求");
           if (job.paths.length && !["Primary Output", "Documentation/Comments & Git Operations"].includes(job.role)) throw new Error("只读职责不能取得写入路径");
           for (const path of job.paths) {
             if (scopedPath(ctx.cwd, path) !== path || !w.state.slice?.paths.includes(path) || paths.has(path)) throw new Error("子任务写入必须在 Slice 内且并行任务路径不冲突");
@@ -282,7 +289,7 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
         const results = await Promise.allSettled(p.jobs.map(async (job: any, i: number) => {
           const scope = job.paths.length ? `仅获准写入这些精确路径：${job.paths.join(", ")}。` : "此任务只读，不准写项目文件。";
           const task = `父级逻辑 allocation=${allocations[i].id}；职责=${job.role}；这是一次性真实任务，不是可恢复会话。${scope}\n禁止创建/派发其他代理，禁止 Computer Use；未授权 Git/Memory/网络或扩大范围。工具/路径限制是任务合同，不是OS沙箱。先读必要上下文，只返回有界实际结果、证据、失败与未决项；不得只给状态词。\n${job.task}`;
-          const outcome = await ctx.executeTool(p.tool, { agent: job.agent, task, cwd: ctx.cwd }, { signal });
+          const outcome = await ctx.executeTool(p.tool, { agent: job.agent, task, cwd: ctx.cwd, ...(job.model !== undefined ? { model: job.model } : {}) }, { signal });
           const slot = w.state.allocations.find(a => a.id === allocations[i].id)!;
           const notRun = outcome.isError && outcome.durationMs === undefined;
           slot.status = signal?.aborted ? "uncertain" : outcome.isError ? "failed" : "completed";

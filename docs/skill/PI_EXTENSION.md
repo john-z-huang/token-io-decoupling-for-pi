@@ -85,6 +85,16 @@ Agent 应提交实际证据而非逐步请求用户审批；同模块内连续�
 - 此版没有持久子会话复用、任意异步扩展、Git 专用子代理或 OS/进程级隔离适配器；需要这些能力的分支明确阻断。外部 worker 的工具链是否继承限制须单独核验，提示词不是沙箱。
 - 大结果可分页读取，不能只接受状态/摘要。分页缓存仅当前进程；重载后需从真实来源读回，不能重派任务来恢复丢失结果。
 
+### 角色描述与按任务选型
+
+仓库 `agents/*.md` 为中文描述源：worker对应Primary Output，reviewer对应Change Verification，scout对应Context Bootstrap/Refresh；planner保留名称但不产生第五职责，在Coding仅可作获准中性Context整理的别名，Root前置决策/计划不能外包。git-operator描述第四职责及阻断条件，不代表本适配器支持Git委派。
+
+这些描述不固定model，已部署用户目录时由Root按[三模型卡参考](references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md#子代理模型与推理强度参考)为具体任务选择。新工具Schema加载后，增强版subagent支持顶层及parallel/chain每项 `model: "provider/id:thinking"`，每项优先，随后配置文件，最后父级模型/thinking；显式选择不改Root。它在任何任务启动前校验所有显式模型和真实支持档位，失败不钳制/回退。
+
+通过本协调器派发时，`coding_delegate.jobs[]` 可提供 `model` 与简短 `modelReason`。有显式选择而目标Schema不支持时，在预留前拒绝，不降级为仅在task里写模型名；省略时保留旧工具的真实默认/继承行为，Root须如实记录能力限制。modelReason只是Root依据，不证明选型充分。精确模型/档位由宿主调用记录核验，不要求Worker自报。
+
+源描述和宿主适配补丁、模型卡核对记录位于仓库 `agents/`、`integrations/pi-subagent/`。加载本package不自动覆盖用户代理/安装补丁；部署属于单独明确授权的用户级文件修改，更新后需用户 `/reload` 或新会话，重新发现Schema。不能把磁盘变化当作当前会话已生效。MCP固定API模型与未迁移身份/effort合同不变。
+
 ## 规则迁移边界
 
 16份 Hook 合同提供明确触发、执行、退出/阻断、重核和来源。原 Markdown owner 仍为详细权威，不删除；它们的来源/导航/参考归属经catalog登记；新增 [逐篇来源整合对照](hooks/SOURCE_COVERAGE.md) 依据每份Hook的“来源—合同落点”表生成，89份实质规则与2份仅参考文章均需显式关联，29份导航与实质规则分开统计。**路径覆盖与 Hash 不证明压缩合同和所有 owner 的语义等价**；细节冲突以 owner 及更高优先级规则为准，不能因 Hook 未提及而豁免。
