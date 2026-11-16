@@ -5,6 +5,8 @@
 
 ## 入口
 
+已启用 Pi Coding Extension 时，由状态机推进同一套模块/检查点，消费自动注入的 Hooks，不再额外读取两条完整路线或维护第二套游标；详细 owner 仍为权威。以下为未启用扩展时的手动回退入口，原有模式默认值和门禁保持不变。
+
 1. 在路线选择前完成 Contract 检查点。
 2. 识别真实运行环境，完成运行环境检查点，并建立或加载[运行环境能力清单](../references/coding/layer-02-workflow-concepts/entry-and-context/environment-capability-inventory.md)进行能力检查。
 3. 通过消费已建立的运行环境能力清单的模式检查点，组合根指令模式门禁所需的委派 references。

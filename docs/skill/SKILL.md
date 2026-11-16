@@ -1,53 +1,39 @@
 ---
 name: token-io-decoupling-skill
-description: "面向 Coding 的高体量 Agent Token I/O 解耦：将输入侧高价值推理、实现输出、独立改动验证，以及负责获准文档/注释与非简单仓库 Git 工作的 Documentation/Comments & Git Operations 角色分离，面向 Pi Coding Agent 的实际工具与可选扩展运行；MCP Server 的 Pi 接入另行迁移。"
+description: "用于代码理解、实现、重构、调试、验证、文档和 Git 工作的 Coding 调度入口。优先消费已启用的 Pi Coding Workflow Extension 与条件 Hooks；未启用时按中文 owner 执行单代理或多代理路线。MCP Server 的 Pi 接入另行迁移。"
 ---
 
 # Token I/O Decoupling
 
-
-当前本 Skill 只维护一套可执行工作流：Coding。它用于把高价值语义决策与高体量项目状态消费、输出物化分离。Multimodal 和 Mixed 内容目前不作为本仓库中的可执行工作流维护。
-
-Coding 的委派和 Session 拓扑规则拆分为原子 reference：状态记录、模式/数量门禁，以及按条件加载的子代理派发/生命周期策略。模式检查点在路线选择前组合并验证这些 reference；父级控制的记录保存会话级模式/数量选择和当前任务状态。模型和 reasoning-effort 绑定核验仅限创建子代理时；子代理不自查或报告这些设置，父级也不在后续子代理操作中重新核验。
-
-本 Skill 只定义调度约定，不能绕过更高优先级的权限、用户授权、产品限制、仓库指令或安全规则，也不把价格、缓存命中、额度节省、延迟或 Runtime 质量表述为未经实测的事实。
-
-每项 Coding 任务默认按[任务计划 Memory 生命周期](references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md)使用共享任务计划。现有及未来路线消费同一 owner：确认存储 scope 与仓库隔离、分析当前事实，并在实施前持久化计划及完成 owner 要求的核验。在 owner 规定的阶段、交接、暂停和完成边界记录实质更新；影响授权、范围、验收、方向或依赖动作的变化，仍须在该动作前记录。共享全局规划及归档在主工作区与 linked worktrees 之间使用同一个稳定本机仓库 key，其他仓库保持隔离。该 owner 也负责已配置的确定性生命周期工具路径、旧版本地兼容行为及核验回执；仅发现工具不证明后端可用或具备权限。明确持久化限制按该 owner 处理；计划绝不授予授权。
-
-## MCP 支持边界
-
-本 Skill 面向 Pi Coding Agent。当前只迁移指令，不修改 MCP Server、安装器或调用身份协议；不得将文档更新视为 Server 已支持 Pi 的证明。
-
-Pi 可通过文档 owner 直接执行获授权的路线，并按实际暴露的扩展使用子代理或 Memory。每项 MCP 操作都须核实 Schema、调用方契约、角色、权限和守卫；尚未适配的身份事务和子代理 effort 不适用于 Pi。能力缺失只暂停依赖它的分支，不伪造旧身份或绕过守卫。MCP Tools 内部继续使用 OpenAI API，凭据、端点与固定 API 模型约束保持不变。
+把语义决策与高体量状态消费、输出物化分离。当前仅维护 Coding 可执行工作流；Multimodal/Mixed 仅为参考。
 
 ## 从这里开始
 
-按以下顺序逐项执行。确认当前检查点的结果后才能进入下一项；条件步骤不适用时，记录原因，不得默默跳过。
+### 已启用 Coding Extension
 
-1. 读取 [Coding 工作流](workflows/coding.md)并完成 Contract 检查点；确认任务约束和验收条件。
-2. 完成运行环境检查点；建立或加载运行环境能力清单，确认本任务所需能力。
-3. 使用该清单完成模式检查点。本次会话首次 Coding 指令遵循用户明确给出的有效模式/数量选择或自定义指令映射，不再询问。否则呈现 Mode reference 中的四项菜单。只有必须放行 Mode gate 且没有有效用户选择时，才选择选项 1，记录 `mode_source: default` 和 `child_count: 1`；明确表示无偏好时也选择该缺省值。不得从待回复的提问或预选项推断用户已作选择。选项 3 数量无效，或选项 4 输入有歧义/无效时，只提出一个聚焦补问并保持 Mode 未放行。这只预留容量：展示菜单、选择模式或锁定数量均不得初始化子代理。后续指令沿用已锁定模式/数量。
-4. 加载[会话审计可见性](references/coding/layer-01-fundamental-concepts/session-runtime/session-audit-visibility.md)，了解偏好值和可见性语义。立即应用用户显式偏好或其缺省值；不得提问、等待或将可见性配置设为前置条件。
-5. Contract、Environment、能力清单和 Mode 通过后，调用[路线入口](references/coding/layer-03-workflow-checkpoints/route-entry.md)，只选择其授权路线：已释放的 `mode: Single-Agent Coding` 使用[单代理路线](references/coding/layer-04-workflows/coding-single-agent.md)；已释放的 `mode: Multi-Agent Coding` 且已锁定正整数 `child_count` 时使用[多代理路线](references/coding/layer-04-workflows/coding-multi-agent.md)。
-6. 按所选路线的编号检查点顺序逐项执行。只加载当前步骤需要的 reference；每项完成或明确处置后才能进入下一项。
-7. 任务改变方向或最终验收前，返回 [Coding 工作流](workflows/coding.md)；报告 `COMPLETE` 前确认路线的完成证据。
+1. 以每次上下文中最新的 **Coding Hooks、revision 和当前检查点**为准；不要再读取整条路线或预加载全部 references，也不要在扩展之外维护第二份流程状态。
+2. 消费当前模块清单与自动注入的 Hook，执行已授权工作，用 `coding_checkpoint` 上报真实证据；同模块连续已完成项可批量上报，不能跨模块跳步。
+3. 写前使用 `coding_slice` 放行目标、精确路径/影响、返回条件及未放行边界。不透明工具通过 `coding_run` 显式分类影响；真实一次性子任务通过 `coding_delegate` 核验职责/预算和实际 Schema。
+4. 语义变化使用结构化 signal，缺前置/授权/能力使用 pause/blocked；恢复只回原位置，不重放效果。Hook 未覆盖的具体边界、歧义或冲突，定向查详细 owner；省略不构成豁免。
 
-## 适用范围
+工具出现不表示已启用。未见当前 Coding Hooks 时，不由 Agent 猜模式或自行调用命令；用户可用 `/coding single <任务>` 或 `/coding multi [数量] <任务>` 显式启用。安装与能力边界见 [Pi Extension 使用说明](PI_EXTENSION.md)。
 
-仓库或项目探索、实现、重构、调试、测试、文档、开发工具输出以及非简单 Git 工作均使用 Coding。Coding 工作流负责共用队列、模块组合、运行环境选择、模式路由、checkpoint、验证边界、文档/Git 边界和验收。
+### 未启用 Extension 的回退入口
 
-本地无状态工作流工具及其限制见[工作流架构](WORKFLOW_ARCHITECTURE.md)。以 Markdown owner 作为策略权威；导航结果和 Hash 不能证明身份、权限、检查点完成、顺序或验收。
+读取 [Coding selector](workflows/coding.md)，依次建立 Contract、Environment/能力清单、Mode 与 Route Entry，按其选择的单代理或多代理路线执行。沿用 [模式 owner](references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-confirmation.md) 的用户选择、四项菜单、默认 Multi/count=1 和会话锁定规则；缺少扩展不授权创建代理，也不免除必需门禁。
 
-## 硬约束
+## 始终有效
 
-- 采取行动前记录用户、运行环境、仓库、权限、安全和 Session 硬约束。
-- “不要创建子代理”“不要使用浏览器”等任务级禁止条件在整个任务中持续有效。
-- 绝对禁止 Computer Use：不得通过图形界面控制计算机、浏览器或桌面应用——包括以操纵控件为目的的截图、鼠标／键盘模拟、点击、辅助功能 API、窗口自动化、远程桌面控制或 GUI 脚本——也不得把此类交互包装为 API、CLI、MCP Server、辅助程序或其他 Agent 调用来绕过。本节是黑名单而非允许渠道清单：当前 Session 实际暴露且已获授权的其他工具、命令或能力仍然允许。若必需步骤需要借助被禁止的操作，应停止并报告阻塞，而不是尝试、委派或跳过。
-- 路线选择或任何委派/Session 拓扑工作前，模式检查点必须组合并验证委派 references；这些 references 在各自的原子边界内规定会话级模式选择及默认多代理路线和单个子代理预算、子代理数量、条件创建、分配、复用、替换、例外和限制。预留预算本身不会初始化或授权创建子代理。
-- 不得虚构授权、能力、证据、产品支持，或为未维护场景推导可执行路线。
-- Core 的通用职责不依赖模型；本 Skill 面向 Pi Coding Agent，实际工具、扩展与模型设置边界见[运行时与能力边界](references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md)。
-- 按需读取 reference。不要仅因为可能以后有用，就预加载整个 Skill、`references/` 或原始项目状态。
+- Root 亲自确认指令、环境、相关代码事实、决策、授权与最终验收；工具、计划、Hash、结构检查和扩展状态均不证明语义正确或授予权限。
+- 绝对禁止 Computer Use：不得用 GUI 控制、鼠标/键盘模拟、为操作控件的截图、辅助功能、窗口/远程桌面自动化，或将其包装为 API、CLI、MCP/子代理绕过。其他真实可用且已授权能力不因本黑名单被禁止。
+- 每项 Coding 默认遵循[共享任务计划生命周期](references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md)：实施/派发前使用获准 Memory、核验 scope/仓库 key、维护累积内容与单写者协调、完成后保全归档；只有用户或更高优先级明确禁止持久化才有例外。能力缺失不是例外，不能回退普通文件。
+- mode/count/allocation/当前 Slice 属于父级会话调度状态，不写入共享计划或其他 Memory。子任务只在真实扩展支持的范围内运行，不假定持久 ID、消息或会话复用。
+- 修改授权不自动包含提交、推送、合并、删除、历史重写、配置或 Memory 写入。只在验收逐项有当前证据时报告 `COMPLETE`，显式列明未执行/不可用检查、风险与未授权效果。
 
-## 完成
+## MCP 支持边界
 
-遵循选定的 Coding 工作流，只有其最终验收门禁拥有明确证据后才能返回 `COMPLETE`。清楚报告跳过或不可用的检查、假设、剩余风险和未授权效果。
+此扩展仅实现宿主侧流程与 Hooks，**本轮不修改 MCP Server**、安装器或调用身份协议。可选导航/咨询不适用时直接依据 owner；必需能力缺失只阻断依赖分支。不得伪造旧身份、grant、事务或服务器适配。
+
+MCP Tools 内部仍用 OpenAI API；每次真实调用读取非空 `OPENAI_API_KEY` 与 `OPENAI_BASE_URL`，固定模型 `gpt-6-luna`，不输出凭据。默认 Mock，真实出站仍须授权；Pi 会话/子任务模型与此 API 模型独立。
+
+[Hooks 触发目录](hooks/README.md) · [详细工作流架构](WORKFLOW_ARCHITECTURE.md) · [运行时能力边界](references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md)
