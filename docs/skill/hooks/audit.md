@@ -1,26 +1,65 @@
-# 安全摘要与实际返回正文
+# Session Audit Hook 合同
 
 ## 触发条件
 
-进入 `session`；真实子任务/结果返回；审计偏好改变或 required audit 不可用时。
+首次 Session 就绪、取得/恢复规范父级控制记录、准备依赖 Worker 返回、需展示 Root/Worker 安全摘要、发生审计偏好变化，或判断依赖完整 Worker 会话日志时触发。审计偏好属于 Skill 会话策略，不是 Pi 产品原生开关、不授予权限，也不改变模式、数量、allocation 或 Slice。偏好收集可选，不得让提问、计时器或等待回复成为 Coding 前置。
+
+输入是当前父级规范记录、可选显式用户偏好、实际消息正文及日志访问证据；输出是字段齐全的审计配置、按策略展示的安全副本、摘要频率及仅在必要时报告的证据限制。
 
 ## 执行要求
 
-1. Root 默认 reasoning_summary_visibility=balanced、reasoning_summary_frequency=milestone_only；Worker 默认 full。立即应用用户显式偏好或默认，不问无必要配置问题，不将可见性设置设成前置。
-2. full 指安全的工作/推理摘要覆盖，不是私有思维链、逐 token 思考、隐私或凭据。只展示必要事实、决定理由、变化、检查、失败和未决项；默认不重复打印完整最终返回。
-3. 父级须读完实际 Worker 最终任务正文，不以索引、提纲、Hash、usage 或笼统成功词替代；结果过大时按真实返回分页读完，不重跑任务换短摘要。
-4. 只使用平台真实暴露的父级历史/消息/日志能力；没有持久消息流的一次性扩展不伪装可见其完整会话。确有必需原文不可访问时阻断依赖，普通获准且独立工作可继续。
+### 1. 配置字段、来源与默认
+
+Root 是会话配置唯一写入者。每个可选字段单独记录来源 `explicit` 或 `default`，不把一个字段的选择推给其他字段。用户给出的有效偏好立即采用；缺省时立即使用：Root `audit_mode: balanced`、`root_reasoning_cadence: milestone_only`、Worker `worker_reasoning_cadence: full`。结构如下：
+
+```yaml
+session_audit:
+  audit_mode: balanced       # economy | balanced | full
+  root_reasoning_cadence: milestone_only # full | milestone_only | off
+  worker_reasoning_cadence: full         # full | milestone_only | off
+  source:
+    audit_mode: default      # explicit | default
+    root_reasoning_cadence: default
+    worker_reasoning_cadence: default
+  worker_log_visibility: unverified # available | unverified | unavailable | Not applicable
+  worker_log_evidence: <可核对的事实/原因>
+```
+
+Root 可接受用户更改任一字段并单独更新其来源。无效或互相冲突的显式值，仅对受影响偏好请求聚焦澄清；不能解决时用策略默认并报告限制，不阻塞无关工作。忽略旧提示、计时、迁移字段，不从它们推断偏好。session_audit 是状态记录的一部分，只由 Root 更新，不复制进策略文件或 Worker 可控状态。
+
+### 2. 实际消息正文、可见副本与日志证据
+
+必须区分三件事：安全消息实际正文（真实交付/返回载荷）、Root 主会话展示副本（按 economy/balanced/full 取预览/摘要/全文）、Worker 完整会话日志访问能力。它们不互相证明。Worker 在其会话完整展示安全入站/出站正文；Root 若要求发送全文，发送前展示安全正文并确认与载荷完全一致。Root 在依赖任何 Worker 返回前取得并完整阅读实际返回正文；活动卡片、工具事件、送达回执、状态、声称发送/收到均非正文证据。Worker 已完整可见的最终结果就是出站副本，不重复打印。按要求完整展示的长消息可编号连续分段，不概述/截断；遮蔽须标明。若正文未显示且无法由会话记录复现，不可依赖该消息。
+
+`economy`：Root 出站最多 3 项、600 Unicode 码位的 Markdown 源文本 preview，含目标/允许改动/返回条件；入站为最多 5 项、800 码位摘要，字段依次结论、证据指针、关键依据、风险/阻塞、下一步，无值省略。按展示源文本计空白、链接文字及目标，按字符非 token，无需逐消息调用计数工具。`balanced`：除确定触发外使用同样的 economy preview/摘要；仅对触发的完整相关安全消息展示全文。`full`：Root 展示完整安全出站及入站正文。所有模式都必须保持完整实际安全正文可取得并在依赖前完整读取；预设不降证据标准、不改变 Worker 可见性。不得静默截断、拆分副本规避限额；若更高优先级指令或重要授权/失败证据无法容纳，只作必要超限并说明。economy 仍须报告用户所需进度、授权、失败、验证、阶段验收、最终结果。
+
+Balanced 只有观察到以下事件才展示完整相关安全消息：批准的 Contract 目标/验收/路径/允许影响变化；明确授权授予或撤回；已执行检查失败或证据直接冲突/有争议；用户要求本次交换精确审计。既有 Contract 内新切片不是触发；无法确定时保留事实由 Root 判断，不自动升级为 full。
+
+日志字段 `worker_log_visibility` 描述当前 Session 是否可访问完整安全 Worker 入站/出站会话记录；不是最终返回正文，也不是原始加密运行日志。`available` 需能定位完整记录的直接访问证据；工具存在、最终返回可见均不足。`unverified` 包括尚未检查且没有肯定成功/失败证据；`unavailable` 要有明确能力缺失、访问失败或等价负面证据；没有创建 Worker 才可 `Not applicable`，并写原因。首次需要日志证据时检查一次；仅新访问/能力证据或失败发生时更新，不逐消息检查。任务依赖完整日志的审计判断时，unverified/unavailable 阻断该判断；否则报告限制并继续。完整实际返回正文仍不可省略。
+
+### 3. 安全摘要频率与格式
+
+Root 与 Worker 各自应用 cadence：`full` 每个已完成推理回合边界输出；`milestone_only` 仅实质决策、授权变化、验证失败、阻塞、阶段验收；`off` 仅抑制可选摘要。回合边界是即将对用户/父级返回、暂停、让出控制或交接；内部工具调用及同回合继续处理不逐项输出。Milestone 事件去重键为“事件类别 + 相关决策/证据 epoch”，同一回合合并；同一事实一次，只有事实/epoch 实质变化才再发。实质决策须改变下一切片执行方式或验收标准；普通读取、命令选择不算。授权变化需明确授予/撤回。失败是已执行检查失败或直接失败证据。阻塞是已授权下一步因必需权限、能力或证据确实缺失而无法继续。阶段验收是 Root 接受已声明证据并放行下一阶段，普通进度不算。不得依据时间或重复活动臆测里程碑。
+
+摘要按会话语言固定字段顺序：结论/进展；关键证据及来源；简短依据；重要假设/不确定性/阻塞；下一步。必须用各占一行的精确 ASCII 标记 `[[REASONING_SUMMARY_BEGIN]]` 与 `[[REASONING_SUMMARY_END]]` 包围，摘要外不放未标记摘要。需要摘要但无变化时仍填写所有字段，说明无实质变化/无新增证据或决定/假设及下一步；回合未结束不输出空块。Pi thinking 显示设置不改变规则。
+
+摘要只是安全摘要，不是思维链。严禁披露私有逐步推理、隐藏思维链、原始 scratchpad、穷尽内部过程、秘密或未经核实断言；不声称摘要是完整内部推理记录。摘要不能替代 Decision Brief、必需 Progress Signal、验证证据或消息正文。边界重合时合并所需信息避免重复。`off` 不抑制必需报告、证据、Control 更新、Progress Signal 或更高层周期更新。
 
 ## 退出与阻断
 
-摘要与实际结果边界明确，所需正文已读；日志/来源缺口须显式说明，不伪造审计事实。
+有有效配置（显式或缺省）、正文证据与展示符合策略、应有摘要/必需报告已完成时，审计结果可交付。审计偏好缺失不阻塞，立即用缺省。仅当某判断明确依赖完整安全 Worker 会话日志而证据不可用/未验证时，阻断该依赖判断；其他独立工作继续并报告限制。缺正文时不得拿摘要、回执、状态、最终卡片或日志字段代替实际返回正文，也不得依赖。任何审计配置或可见性均不构成执行授权或完成证明。
 
 ## 重新核验
 
-结果截断、压缩/恢复、可见性偏好变化或证据来源变化时重核。
+Session readiness 先核实当前身份/角色及规范父级记录，再应用审计偏好，最后仅 Multi-Agent 时只读核验容量；记录缺失、冲突或 authority/守卫/读回失败时按状态 owner 阻断相应依赖。消费前重新读取父级记录。只在用户改变偏好、实际消息/展示发生变化、相关事实或 epoch 变化、首次需要日志、或新访问/能力证据/失败时重核对应字段；不逐消息探查日志。审计证据新鲜度绑定当前 Session、记录回读、偏好来源、分配及相关 epoch。更新偏好不重开 Mode，也不改变其他控制状态。
 
 ## 规则来源
 
-- [session-audit-visibility.md](../references/coding/layer-01-fundamental-concepts/session-runtime/session-audit-visibility.md)
-- [reasoning-summary-visibility.md](../references/coding/layer-01-fundamental-concepts/session-runtime/reasoning-summary-visibility.md)
-- [delegation-child-message-visibility.md](../references/coding/layer-01-fundamental-concepts/delegation/delegation-child-message-visibility.md)
+| 来源 | 本合同落点 |
+| --- | --- |
+| [Session审计可见性](../references/coding/layer-01-fundamental-concepts/session-runtime/session-audit-visibility.md) | 默认/来源、三预设、Balanced触发及日志证据 |
+| [安全摘要可见性](../references/coding/layer-01-fundamental-concepts/session-runtime/reasoning-summary-visibility.md) | 回合边界、标记、字段、频次与禁止思维链 |
+| [子代理消息正文](../references/coding/layer-01-fundamental-concepts/delegation/delegation-child-message-visibility.md) | 依赖前全读实际正文、展示副本与方向证据 |
+| [委派状态记录](../references/coding/layer-01-fundamental-concepts/delegation/delegation-state-record.md) | session_audit结构和Root所有权 |
+| [审计解决](../references/coding/layer-03-workflow-checkpoints/session-audit-resolution.md) | 默认应用、冲突处理与日志依赖分支 |
+| [Session就绪模块](../references/coding/layer-04-workflows/modules/session-readiness.md) | 状态读回、审计顺序和新鲜度 |

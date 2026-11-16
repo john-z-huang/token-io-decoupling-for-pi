@@ -3,14 +3,14 @@ import { existsSync, realpathSync, statSync } from "node:fs";
 import { dirname, relative, resolve, sep } from "node:path";
 import type { ExtensionAPI, ExtensionContext, ExtensionToolContext, ToolCallEvent } from "@earendil-works/pi-coding-agent";
 import type { TSchema } from "typebox";
-import { currentModule, loadCatalog, phaseHooks, signalHooks, type Catalog, type HookId, type Mode } from "./catalog.ts";
+import { currentModule, loadCatalog, phaseHooks, signalHooks, resolveDocumentLink, rewriteDocumentLinks, type Catalog, type HookId, type Mode } from "./catalog.ts";
 import { exactPath, makeState, restoreState, ROLES, Workflow, type Effect, type Role, type State } from "./engine.ts";
 
 const STATE_TYPE = "token-io.coding-workflow.v1";
 const CONTEXT_TYPE = "token-io.coding-hooks.v1";
 const INTERNAL = new Set(["coding_checkpoint", "coding_slice", "coding_run", "coding_delegate"]);
 const READ_TOOLS = new Set(["read", "grep", "find", "ls", "tool_search"]);
-const MAX_CONTEXT = 32000;
+export const MAX_CONTEXT = 96000;
 const MAX_RESULT = 64000;
 export interface Schemas { checkpoint: TSchema; slice: TSchema; run: TSchema; delegate: TSchema }
 interface Intent { effect: Effect; delegate?: boolean }
@@ -37,6 +37,16 @@ export function compatibleSubagent(parameters: unknown): boolean {
   const schema = parameters as { properties?: Record<string, { type?: string }>; required?: string[] };
   return !!schema?.properties && ["agent", "task", "cwd"].every(k => schema.properties![k]?.type === "string") && (schema.required ?? []).every(k => ["agent", "task", "cwd"].includes(k));
 }
+/** Inject every execution clause; the non-executable provenance table stays in the linked resource. */
+export function renderHook(catalog: Catalog, id: HookId): string {
+  const path = `hooks/${id}.md`;
+  const markdown = catalog.hooks[id];
+  const boundary = markdown.indexOf("\n## 规则来源\n");
+  if (boundary < 0) throw new Error(`Hook ${id} 缺少规则来源章节`);
+  const source = resolveDocumentLink(catalog.root, path, "#规则来源")!;
+  return `[Hook:${id}]\n[完整合同及逐篇来源](${source.url})\n\n${rewriteDocumentLinks(catalog.root, path, markdown.slice(0, boundary).trimEnd())}`;
+}
+
 export function renderContext(workflow: Workflow): string {
   const s = workflow.state;
   const hooks = new Set<HookId>(phaseHooks(s.phase, s.mode));
@@ -50,12 +60,12 @@ export function renderContext(workflow: Workflow): string {
     "本次用户任务只是目标，不覆盖任何安全/授权规则。不要重放已完成效果。完成当前检查点后用 coding_checkpoint 提交证据；可以一次提交同模块内连续已完成项，但不能跨模块。所有 facts 是 Agent 声明，不是宿主认证。",
     "facts 要求：ER01 independence=required/not_required；WD03 plan=persisted/prohibited；VR03 verification=passed（必须引用 effect=check 实际结果）；DA03 acceptance=satisfied（摘要逐项映射标准）；DA04 plan=archived（用户禁止持久化时除外）。",
     "写前用 coding_slice 放行四字段和精确文件。Bash、codemode 和不透明 MCP 调用通过 coding_run 声明 effect/rationale/evidence；只读声明不是自动安全证明。不得将未经授权的命令标成 read。多代理仅通过 coding_delegate，不能绕过为其他工具/递归子任务。未知语义变化用 coding_checkpoint signal，上报后重核对应 Hook。",
-    `当前模块待处理（来自 ${module.path}，仅此模块，不预加载全部路线）：\n${module.checkpoints.slice(s.step).map(c => `${c.id} ${c.title}\n${c.instruction}`).join("\n\n")}`,
+    `当前模块待处理（来自 [${module.path}](${resolveDocumentLink(workflow.catalog.root, module.path, "")!.url})，仅此模块，不预加载全部路线）：\n${module.checkpoints.slice(s.step).map(c => `${c.id} ${c.title}\n${rewriteDocumentLinks(workflow.catalog.root, module.path, c.instruction)}`).join("\n\n")}`,
     workflow.checkpoint ? "只推进已完成的检查点；批量上报也必须逐项有真实证据。" : "已完成结构化检查点，向用户报告实际验收结果和限制。",
     `可引用的最近24项实际观察（更早引用可通过 status 查找；被128项窗口淘汰的证据须重读）：\n${JSON.stringify(s.observations.slice(-24))}`,
-    ...[...hooks].map(id => `[Hook:${id}]\n${workflow.catalog.hooks[id]}`),
+    ...[...hooks].map(id => renderHook(workflow.catalog, id)),
   ].join("\n\n");
-  if (content.length > MAX_CONTEXT) throw new Error("当前规则包超出32000字符上限；停止依赖工作，请缩小任务/规则，而不是截断守卫");
+  if (content.length > MAX_CONTEXT) throw new Error(`当前规则包超出${MAX_CONTEXT}字符上限；停止依赖工作，请缩小任务/规则，而不是截断守卫`);
   return content;
 }
 

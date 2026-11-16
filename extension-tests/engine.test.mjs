@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { loadCatalog, currentModule, parseModule, classifySource, phaseHooks, signalHooks, SIGNALS, PHASES } from '../extensions/coding-workflow/catalog.ts';
 import { makeState, Workflow, restoreState, exactPath, ROLES, sameEpoch } from '../extensions/coding-workflow/engine.ts';
-import { renderContext } from '../extensions/coding-workflow/runtime.ts';
+import { MAX_CONTEXT, renderContext } from '../extensions/coding-workflow/runtime.ts';
 const catalog = loadCatalog();
 export function fresh(mode = 'single', count = mode === 'single' ? 0 : 1) {
   const w = new Workflow(catalog, makeState(catalog, 'session-test', process.cwd(), mode, count, '合成测试任务；用户明确禁止持久化计划'));
@@ -180,7 +180,7 @@ test('default contexts remain bounded for both routes even with a full observati
   for (const mode of ['single', 'multi']) for (const phase of PHASES) {
     const w = fresh(mode); w.state.phase = phase;
     for (let i = 0; i < 128; i++) w.observe(`observation-${i}`, 'synthetic-read', 'read', true);
-    assert.ok(renderContext(w).length < 32000, `${mode}/${phase}`);
+    assert.ok(renderContext(w).length < MAX_CONTEXT, `${mode}/${phase}`);
   }
 });
 test('completed state rejects semantic signal mutation', () => {

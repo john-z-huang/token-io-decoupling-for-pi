@@ -1,28 +1,29 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
-import { existsSync, realpathSync } from 'node:fs';
-import { relative, sep } from 'node:path';
-import { loadCatalog, PHASES, HOOK_IDS, SKILL_ROOT, resolveHookLink } from '../extensions/coding-workflow/catalog.ts';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { loadCatalog, PHASES, HOOK_IDS, SIGNALS } from '../extensions/coding-workflow/catalog.ts';
 import { makeState, Workflow } from '../extensions/coding-workflow/engine.ts';
-import { renderContext } from '../extensions/coding-workflow/runtime.ts';
+import { MAX_CONTEXT, renderContext } from '../extensions/coding-workflow/runtime.ts';
+import { collectSourceCoverage, coverageMarkdown, validateMarkdownLinks } from './pi-hook-validation.mjs';
+
 const c = loadCatalog();
-let links = 0, largest = 0;
-for (const id of HOOK_IDS) {
-  const hook = c.hooks[id];
-  for (const match of hook.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)) {
-    const target = match[1];
-    if (/^[a-z]+:/i.test(target) || target.startsWith('#')) continue;
-    const path = resolveHookLink(SKILL_ROOT, id, target);
-    assert.ok(existsSync(path), `${id}: 不存在 ${target}`);
-    assert.ok(!relative(realpathSync(SKILL_ROOT), realpathSync(path)).startsWith('..' + sep), `${id}: 来源超出 Skill`);
-    links++;
+let links = 0, largestDefault = 0, largestConditional = 0, contexts = 0;
+for (const id of HOOK_IDS) links += validateMarkdownLinks(c.root, `hooks/${id}.md`, c.hooks[id]);
+const rows = collectSourceCoverage(c);
+const generated = coverageMarkdown(c), coveragePath = join(c.root, 'hooks/SOURCE_COVERAGE.md');
+if (process.argv.includes('--write-coverage')) writeFileSync(coveragePath, generated);
+assert.equal(readFileSync(coveragePath, 'utf8'), generated, '来源对照表过期，请运行 node scripts/check-pi-hooks.mjs --write-coverage 并审阅变化');
+for (const name of ['README', 'SOURCE_COVERAGE']) links += validateMarkdownLinks(c.root, `hooks/${name}.md`, readFileSync(join(c.root, `hooks/${name}.md`), 'utf8'));
+for (const mode of ['single', 'multi']) for (const phase of PHASES) {
+  for (const signals of [[], ...SIGNALS.map(signal => [signal]), [...SIGNALS]]) for (const status of ['active', 'paused']) {
+    const state = makeState(c, 'hook-check', process.cwd(), mode, mode === 'single' ? 0 : 1, '有界合成任务');
+    state.phase = phase; state.signals = signals; state.status = status;
+    const length = renderContext(new Workflow(c, state)).length;
+    if (!signals.length && status === 'active') largestDefault = Math.max(largestDefault, length);
+    largestConditional = Math.max(largestConditional, length); contexts++;
   }
 }
-for (const mode of ['single', 'multi']) for (const phase of PHASES) {
-  const state = makeState(c, 'hook-check', process.cwd(), mode, mode === 'single' ? 0 : 1, '有界合成任务');
-  state.phase = phase;
-  const w = new Workflow(c, state); largest = Math.max(largest, renderContext(w).length);
-}
-assert.equal(new Set(c.coverage.map(row => row.path)).size, c.coverage.length);
-const counts = Object.fromEntries(['rule', 'navigation', 'reference'].map(kind => [kind, c.coverage.filter(row => row.kind === kind).length]));
-console.log(JSON.stringify({ hooks: HOOK_IDS.length, sources: c.coverage.length, counts, sourceLinks: links, maxDefaultContextCharacters: largest, catalogHash: c.digest, note: '结构、路径归属及预算检查，不证明压缩合同与所有 owner 语义等价；owner 仍保留为详细权威。' }, null, 2));
+assert.equal(new Set(rows.map(row => row.path)).size, rows.length);
+const counts = Object.fromEntries(['rule', 'navigation', 'reference'].map(kind => [kind, rows.filter(row => row.kind === kind).length]));
+console.log(JSON.stringify({ hooks: HOOK_IDS.length, sources: rows.length, counts, explicitArticleCoverage: rows.filter(row => row.kind !== 'navigation' && row.hooks.length).length, checkedLocalLinks: links, contexts, maxDefaultContextCharacters: largestDefault, maxConditionalContextCharacters: largestConditional, contextLimit: MAX_CONTEXT, catalogHash: c.digest, note: '全文执行条款注入；逐篇来源表驻盘。链接、锚点和显式归属检查不证明所有条款语义等价、权限真实或端到端验收。外部URL未联网验证。' }, null, 2));

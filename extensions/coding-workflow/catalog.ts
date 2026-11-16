@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
-import { dirname, join, relative } from "node:path";
-import { fileURLToPath } from "node:url";
+import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 export const SKILL_ROOT = fileURLToPath(new URL("../../docs/skill/", import.meta.url));
 export const PHASES = ["entry", "session", "definition", "execution", "verification", "documentation", "delivery"] as const;
@@ -14,6 +14,7 @@ export type SemanticSignal = typeof SIGNALS[number];
 export interface Checkpoint { id: string; title: string; instruction: string; conditional: boolean }
 export interface Module { name: string; path: string; checkpoints: Checkpoint[] }
 export interface Catalog {
+  root: string;
   modules: Record<string, Module>;
   hooks: Record<HookId, string>;
   digest: string;
@@ -135,7 +136,53 @@ export function loadCatalog(root = SKILL_ROOT): Catalog {
     return classifySource(rel);
   });
   // File hashes detect drift, not semantic equivalence or policy correctness.
-  return { modules, hooks, coverage, digest: hash.digest("hex") };
+  return { root: resolve(root), modules, hooks, coverage, digest: hash.digest("hex") };
 }
 export function currentModule(catalog: Catalog, phase: Phase, mode: Mode): Module { return catalog.modules[moduleName(phase, mode)]; }
-export function resolveHookLink(root: string, hook: HookId, target: string): string { return join(dirname(join(root, "hooks", `${hook}.md`)), target.split("#")[0]); }
+/** Resolve against the resource document, never the user's unrelated working directory. */
+export function resolveDocumentLink(root: string, document: string, target: string): { path: string; fragment: string; url: string } | undefined {
+  const href = target.replace(/^<|>$/g, "");
+  if (/^[a-z][a-z0-9+.-]*:/i.test(href) || href.startsWith("//")) return undefined;
+  const [beforeHash, ...hash] = href.split("#");
+  const [file, ...query] = beforeHash.split("?");
+  const source = resolve(root, document);
+  const path = file ? resolve(dirname(source), decodeURIComponent(file)) : source;
+  const rel = relative(resolve(root), path);
+  if (rel === ".." || rel.startsWith(".." + sep) || isAbsolute(rel) || path.includes("\0")) throw new Error(`文档链接越出 Skill：${document} -> ${target}`);
+  const fragment = decodeURIComponent(hash.join("#"));
+  const url = pathToFileURL(path);
+  if (query.length) url.search = query.join("?");
+  if (hash.length) url.hash = hash.join("#");
+  return { path, fragment, url: url.href };
+}
+
+/** Repository Markdown uses inline links and reference definitions; fenced examples are not links. */
+export function mapDocumentLinks(markdown: string, transform: (target: string) => string): string {
+  let fence: { character: string; length: number } | undefined;
+  return markdown.split("\n").map(line => {
+    const marker = line.match(/^ {0,3}(`{3,}|~{3,})/);
+    if (fence) { if (marker?.[1][0] === fence.character && marker[1].length >= fence.length && !line.slice(marker[0].length).trim()) fence = undefined; return line; }
+    if (marker) { fence = { character: marker[1][0], length: marker[1].length }; return line; }
+    // Keep titles, labels and angle-bracket destination syntax intact.
+    const replace = (_match: string, prefix: string, target: string) => prefix + (target.startsWith("<") ? `<${transform(target.slice(1, -1))}>` : transform(target));
+    return line.replace(/(`+)[^\n]*?\1|(!?\[[^\]\n]*\]\()(<[^>\n]+>|[^\s)]+)(?=[ \t]*(?:\)|["']))/g,
+      (match, code: string | undefined, prefix: string | undefined, target: string) => code || !prefix ? match : replace(match, prefix, target))
+      .replace(/^( {0,3}\[[^\]\n]+\]:[ \t]*)(<[^>\n]+>|[^\s]+)(?=[ \t]|$)/, replace);
+  }).join("\n");
+}
+
+export function documentLinks(markdown: string): string[] {
+  const links: string[] = [];
+  mapDocumentLinks(markdown, target => { links.push(target); return target; });
+  return links;
+}
+
+export function rewriteDocumentLinks(root: string, document: string, markdown: string): string {
+  return mapDocumentLinks(markdown, target => resolveDocumentLink(root, document, target)?.url ?? target);
+}
+
+export function resolveHookLink(root: string, hook: HookId, target: string): string {
+  const link = resolveDocumentLink(root, `hooks/${hook}.md`, target);
+  if (!link) throw new Error(`不是本地来源链接：${target}`);
+  return link.path;
+}

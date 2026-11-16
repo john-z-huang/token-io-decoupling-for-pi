@@ -59,7 +59,7 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi \
 | `coding_run` | 经 `ctx.executeTool` 的真实宿主校验/权限/Hooks 调用不透明工具，声明 read/check/content/documentation/git/memory；不自行实现 Shell/MCP 旁路。 |
 | `coding_delegate` | 在预算、职责、任务与 Slice 门禁后，调用实际暴露且 Schema 匹配的一次性单任务扩展。 |
 
-Agent 应提交实际证据而非逐步请求用户审批；同模块内连续完成项可以批量上报，不跨模块跳过下一组 Hooks。返回仅含当前状态、少量最近证据/报告，历史状态不重复灌入上下文。每次模型请求替换此前的本扩展 Hook 包，保留其他扩展消息；默认仅注入当前模块、相关规则与最近24项观察，不加载全部 references。32,000字符是硬上限，不等于 token 数；超限停止，不截断安全合同。
+Agent 应提交实际证据而非逐步请求用户审批；同模块内连续完成项可以批量上报，不跨模块跳过下一组 Hooks。返回仅含当前状态、少量最近证据/报告，历史状态不重复灌入上下文。每次模型请求替换此前的本扩展 Hook 包，保留其他扩展消息；默认仅注入当前模块、相关规则与最近24项观察，不加载全部 references。扩写后的完整合同硬上限为96,000字符，不等于token数，也不保证任意模型的实际上下文容量；超限停止，不截断安全合同。只有非执行性的逐篇来源表留在磁盘，注入包提供原文/来源表链接，全部触发、动作、退出和重核正文均保留。本地Markdown链接注入时按资源文档位置转为真实file URL，当前模块链接同样处理，不以用户工作目录误解析。
 
 检查点 `facts` 的必需声明：ER01 的 independence；WD03 的 persisted/prohibited；VR03 的 passed；DA03 的 acceptance=satisfied；DA04 的 archived（禁止持久化例外除外）。这些是 Agent 的语义声明，不是可信身份或事实证明。WD03 必须引用真实 Memory 操作或明确禁止持久化的来源；缺少后端不是豁免。
 
@@ -87,7 +87,7 @@ Agent 应提交实际证据而非逐步请求用户审批；同模块内连续�
 
 ## 规则迁移边界
 
-16份 Hook 合同提供明确触发、执行、退出/阻断、重核和来源。原 Markdown owner 仍为详细权威，不删除；它们的来源/导航/参考归属经 catalog 全量登记。**路径覆盖与 Hash 不证明压缩合同和所有 owner 的语义等价**；细节冲突以 owner 及更高优先级规则为准，不能因 Hook 未提及而豁免。
+16份 Hook 合同提供明确触发、执行、退出/阻断、重核和来源。原 Markdown owner 仍为详细权威，不删除；它们的来源/导航/参考归属经catalog登记；新增 [逐篇来源整合对照](hooks/SOURCE_COVERAGE.md) 依据每份Hook的“来源—合同落点”表生成，89份实质规则与2份仅参考文章均需显式关联，29份导航与实质规则分开统计。**路径覆盖与 Hash 不证明压缩合同和所有 owner 的语义等价**；细节冲突以 owner 及更高优先级规则为准，不能因 Hook 未提及而豁免。
 
 引擎约束顺序、字段、已观察引用、预算、路径与 epoch。它不证明用户授权、检查输出正确、独立性、N/A 理由、内容保全或验收真的满足；不透明工具的 effect 也是声明。它不是恶意代码沙箱或 OS ACL。真实出站、Git、Memory 权限仍按原规则独立核验。
 
@@ -100,6 +100,8 @@ Agent 应提交实际证据而非逐步请求用户审批；同模块内连续�
 ```bash
 npm test
 npm run check:hooks
+# 仅在修改逐篇来源表后，显式更新对照并审阅：
+node scripts/check-pi-hooks.mjs --write-coverage
 npm run check:types -- /absolute/path/to/installed/pi-coding-agent
 npm run check:load -- /absolute/path/to/installed/pi-coding-agent
 ```

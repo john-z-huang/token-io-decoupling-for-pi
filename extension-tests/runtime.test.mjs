@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'n
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { loadCatalog } from '../extensions/coding-workflow/catalog.ts';
-import { installWorkflow, scopedPath, compatibleSubagent } from '../extensions/coding-workflow/runtime.ts';
+import { MAX_CONTEXT, installWorkflow, scopedPath, compatibleSubagent } from '../extensions/coding-workflow/runtime.ts';
 const catalog = loadCatalog();
 const subSchema = { type: 'object', properties: { agent: { type: 'string' }, task: { type: 'string' }, cwd: { type: 'string' } }, required: ['agent', 'task'] };
 const body = value => ({ content: [{ type: 'text', text: value }], details: {} });
@@ -87,7 +87,7 @@ test('context injects only relevant hooks once and preserves unrelated extension
   const first = await h.emit('context', { messages: [other] }); const second = await h.emit('context', { messages: first.messages });
   assert.equal(second.messages.length, 2); assert.equal(second.messages[0], other);
   assert.match(second.messages[1].content, /Hook:entry/); assert.doesNotMatch(second.messages[1].content, /Hook:materialization/);
-  assert.ok(second.messages[1].content.length < 32000);
+  assert.ok(second.messages[1].content.length < MAX_CONTEXT);
 });
 test('unknown direct shell and lying readOnlyHint do not pass the wrapper gate', async () => {
   const h = harness(); await h.start();
