@@ -56,7 +56,8 @@ MCP 已收敛为 `token-io-decoupling-tools`；上面的 Pi package 命令只加
 - [Skill 入口](docs/skill/SKILL.md)：轻量入口与未启用扩展的回退路线。
 - [Coding reference](docs/skill/references)：由工作流组合使用的独立 Coding 模块和共享协议模块。
 - [工作流架构](docs/skill/WORKFLOW_ARCHITECTURE.md)：无状态规则导航与结构检查，以及单独守卫的可选输出物化能力。
-- [MCP 开发指南](mcp/DEVELOPMENT.md)：本地 Python 检查与包构建。
+- [项目文档索引](docs/project/README.md)：项目规范、MCP 参考和迁移记录。
+- [MCP 开发指南](docs/project/mcp/DEVELOPMENT.md)：本地 Python 检查与包构建。
 
 无状态规则与工作流路径无需数据库、API 凭据或网络请求。可选语义建议默认关闭；每次真实 API 请求都必须读取本地 `OPENAI_API_KEY` 与 `OPENAI_BASE_URL`，缺失时不得请求。显式启用与测试方法见开发指南。公共接口包括本地 Memory 读取、合规预检、规则上下文和通用开发工具；流程调度及任务计划生命周期不再由 MCP 提供。发现工具不证明能力或授权。未配置可信启动注入式授权 provider 和独立 grant 时，可选输出物化仍不可用。
 

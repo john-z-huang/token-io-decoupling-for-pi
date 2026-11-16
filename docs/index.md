@@ -62,6 +62,7 @@ Coding Flow 覆盖仓库和开发任务：
 
 ## 仓库 reference
 
+- [项目文档索引](project/README.md) 收纳文档规范、MCP 开发参考和迁移记录。
 - [Reference library](https://github.com/john-z-huang/token-io-decoupling/tree/main/references) 包含 Coding、runtime、session 和 execution 的详细 reference。
 - [多语言规则](https://github.com/john-z-huang/token-io-decoupling/blob/main/MULTI_LINGUAL.md) 定义仓库的中文单一文档规则。
 - [GitHub 仓库](https://github.com/john-z-huang/token-io-decoupling)

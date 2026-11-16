@@ -41,4 +41,4 @@ Windows 运行尚未经过独立验证。
 
 - [MCP 开发指南](DEVELOPMENT.md) — 安装和 workspace 工具。
 - [MCP 可执行程序与注册指南](TOOLS_REGISTRATION.md) — 当前可执行程序清单和宿主注册。
-- [任务计划 Memory 生命周期](../docs/skill/references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md) — 内容保全和归档要求。
+- [任务计划 Memory 生命周期](../../skill/references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md) — 内容保全和归档要求。

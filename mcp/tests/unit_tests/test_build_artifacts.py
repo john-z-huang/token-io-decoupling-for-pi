@@ -12,16 +12,15 @@ from pathlib import Path
 from urllib.parse import unquote
 
 import pytest
-from token_io_decoupling_core.compliance_core import PAIR_ROOTS
 from token_io_decoupling_core.owner_paths import DELEGATION_POLICY_OWNERS, OWNER_PATHS
 from token_io_decoupling_core.rules import RuleLoader
 
 DETACHED_SKILL_REQUIRED_TEXT_ENTRIES = (
     "SKILL.md",
     "agents/openai.yaml",
+    "_project/docs/project/DOCUMENTATION_STANDARDS.md",
     "_project/scripts/_compliance_core.py",
     "_project/scripts/compliance_core_loader.py",
-    "_project/scripts/check-multilingual-docs.py",
 )
 
 
@@ -306,7 +305,7 @@ def test_workspace_builds_four_wheels_with_disjoint_files(tmp_path: Path) -> Non
         assert "_project/scripts/compliance_core_loader.py" in bundle.namelist()
         bundle_names = set(bundle.namelist())
         projected_guides = {
-            f"_project/mcp/{guide}{suffix}"
+            f"_project/docs/project/mcp/{guide}{suffix}"
             for guide in ("WORKFLOW_ROUTING", "CANDIDATE_COMPLIANCE", "OUTPUT_MATERIALIZATION")
             for suffix in (".md",)
         }
@@ -333,7 +332,7 @@ def test_workspace_builds_four_wheels_with_disjoint_files(tmp_path: Path) -> Non
                         assert target.endswith("_zh_cn.md") == document.endswith("_zh_cn.md")
 
 
-def test_detached_launcher_sdist_builds_offline_skill_checker(tmp_path: Path) -> None:
+def test_detached_launcher_sdist_builds_offline_skill_bundle(tmp_path: Path) -> None:
     workspace = Path(__file__).parents[2]
     sdist_output = tmp_path / "launcher-sdist"
     sdist_output.mkdir()
@@ -391,7 +390,6 @@ def test_detached_launcher_sdist_builds_offline_skill_checker(tmp_path: Path) ->
         names = set(bundle.namelist())
         helper_path = "_project/scripts/_compliance_core.py"
         loader_path = "_project/scripts/compliance_core_loader.py"
-        checker_path = "_project/scripts/check-multilingual-docs.py"
         assert helper_path in names
         canonical_core = (
             workspace
@@ -399,7 +397,10 @@ def test_detached_launcher_sdist_builds_offline_skill_checker(tmp_path: Path) ->
         ).read_bytes()
         assert bundle.read(helper_path) == canonical_core
         assert loader_path in names
-        assert checker_path in names
+        assert "SKILL.md" in names
+        assert "agents/openai.yaml" in names
+        assert "_project/docs/project/DOCUMENTATION_STANDARDS.md" in names
+        assert not any(Path(name).name == "check-multilingual-docs.py" for name in names)
         snapshot_root = tmp_path / "standalone-skill-snapshot"
         bundle.extractall(snapshot_root)
 
@@ -408,62 +409,6 @@ def test_detached_launcher_sdist_builds_offline_skill_checker(tmp_path: Path) ->
         / "_project/mcp/packages/token_io_decoupling_core/src/token_io_decoupling_core/"
         "compliance_core.py"
     ).exists()
-    target_root = tmp_path / "target-repository"
-    for english in PAIR_ROOTS:
-        for path, content in ((english, "稳定\n"),):
-            destination = target_root / path
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            destination.write_text(content, encoding="utf-8")
-    core_docs = (
-        "docs/skill/references/share/shared-protocols.md",
-        "docs/skill/references/coding/layer-01-fundamental-concepts/session-runtime/session-model.md",
-        "docs/skill/references/coding/layer-01-fundamental-concepts/execution-control/execution-control.md",
-        "docs/skill/references/coding/layer-01-fundamental-concepts/context-exchange/context-exchange.md",
-    )
-    for english in core_docs:
-        for path, content in ((english, "核心规则。\n"),):
-            destination = target_root / path
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            destination.write_text(content, encoding="utf-8")
-    (target_root / "docs/skill/SKILL.md").write_text(
-        "---\nname: test-skill\n---\n中文指令。\n", encoding="utf-8"
-    )
-    for path, content in (
-        ("docs/skill/agents/openai.yaml", 'short_description: "English | 中文"\n'),
-        ("AGENTS.md", "加载 MULTI_LINGUAL.md。\n"),
-        ("docs/index.md", "索引。\n"),
-    ):
-        destination = target_root / path
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_text(content, encoding="utf-8")
-
-    checker = snapshot_root / "_project/scripts/check-multilingual-docs.py"
-    driver = r"""
-import importlib.util
-import sys
-from pathlib import Path
-
-script = Path(sys.argv[1]).resolve()
-root = Path(sys.argv[2]).resolve()
-sys.path.insert(0, str(script.parent))
-spec = importlib.util.spec_from_file_location("detached_multilingual_checker", script)
-assert spec is not None and spec.loader is not None
-module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(module)
-expected_helper = script.parent / "_compliance_core.py"
-assert expected_helper.is_file()
-raise SystemExit(module.main(root))
-"""
-    run = subprocess.run(
-        [sys.executable, "-c", driver, str(checker), str(target_root)],
-        cwd=tmp_path,
-        check=False,
-        capture_output=True,
-        text=True,
-    )
-    assert run.returncode == 0, run.stderr
-    assert "中文单一权威文档检查通过。" in run.stdout
-
     (detached_project / "skill_bundle.zip").write_bytes(b"not a complete bundle")
     invalid_output = tmp_path / "invalid-bundle-wheel"
     failed_build = subprocess.run(
@@ -521,6 +466,9 @@ path = "hatch_build.py"
     (skill / "agents").mkdir(parents=True)
     (skill / "SKILL.md").write_text("Old Skill instructions.\n", encoding="utf-8")
     (skill / "SKILL_zh_cn.md").write_text("旧 Skill 指令。\n", encoding="utf-8")
+    documentation_standards = repo / "docs/project/DOCUMENTATION_STANDARDS.md"
+    documentation_standards.parent.mkdir(parents=True)
+    documentation_standards.write_text("Old documentation standards.\n", encoding="utf-8")
     (skill / "agents/openai.yaml").write_text("short_description: fixture\n", encoding="utf-8")
     canonical_core = (
         repo
@@ -531,18 +479,21 @@ path = "hatch_build.py"
     scripts = repo / "scripts"
     scripts.mkdir()
     (scripts / "compliance_core_loader.py").write_text("# loader\n", encoding="utf-8")
-    (scripts / "check-multilingual-docs.py").write_text("# checker\n", encoding="utf-8")
 
     stale_bundle = project / "skill_bundle.zip"
     with zipfile.ZipFile(stale_bundle, "w", zipfile.ZIP_DEFLATED) as archive:
         archive.writestr("SKILL.md", "Old Skill instructions.\n")
         archive.writestr("SKILL_zh_cn.md", "旧 Skill 指令。\n")
         archive.writestr("agents/openai.yaml", "short_description: fixture\n")
+        archive.writestr(
+            "_project/docs/project/DOCUMENTATION_STANDARDS.md",
+            "Old documentation standards.\n",
+        )
         archive.writestr("_project/scripts/_compliance_core.py", canonical_core.read_bytes())
         archive.writestr("_project/scripts/compliance_core_loader.py", "# loader\n")
-        archive.writestr("_project/scripts/check-multilingual-docs.py", "# checker\n")
 
     (skill / "SKILL.md").write_text("Updated Skill instructions.\n", encoding="utf-8")
+    documentation_standards.write_text("Updated documentation standards.\n", encoding="utf-8")
     output = tmp_path / "wheel-output"
     subprocess.run(
         [
@@ -565,6 +516,10 @@ path = "hatch_build.py"
         skill_bundle = wheel.read("token_io_decoupling/skill_bundle.zip")
     with zipfile.ZipFile(io.BytesIO(skill_bundle)) as archive:
         assert archive.read("SKILL.md") == b"Updated Skill instructions.\n"
+        assert (
+            archive.read("_project/docs/project/DOCUMENTATION_STANDARDS.md")
+            == b"Updated documentation standards.\n"
+        )
         assert archive.read("_project/scripts/_compliance_core.py") == canonical_core.read_bytes()
 
 

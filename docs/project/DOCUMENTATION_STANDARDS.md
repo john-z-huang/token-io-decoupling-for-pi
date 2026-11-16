@@ -1,4 +1,4 @@
-# 文档语言与维护规范
+# 文档标准与维护规范
 
 本文件负责当前仓库的文档语言、命名与维护要求。中文文档是唯一权威来源，不再维护英文副本或中英文镜像。
 
@@ -15,14 +15,13 @@
 - 本地 Markdown 链接必须指向实际存在的当前文件；移动文件时同步更新链接、代码中的资源路径、规则注册表和构建资源。
 - Skill 入口使用标准 `SKILL.md` 和有效的 YAML front matter，按需引用其目录内的中文说明。
 - 面向用户的元数据说明使用中文；程序字段与协议标识符保持其接口约定。
-- 本次语言迁移不改变 MCP Tools 内部使用 OpenAI API 的执行方式，也不改变操作授权与安全边界。
+- 本规范不改变 MCP Tools 内部使用 OpenAI API 的执行方式，也不改变操作授权与安全边界。
 
 ## 验证
 
 运行以下文档检查，并按修改范围运行对应测试：
 
 ```sh
-python3 scripts/check-multilingual-docs.py
 python3 scripts/check-doc-layer-links.py
 python3 scripts/check-layer-01-sections.py
 python3 scripts/check-layer-02-04-provider-neutrality.py
@@ -31,4 +30,4 @@ python3 -m unittest discover -s tests
 git diff --check
 ```
 
-`check-multilingual-docs.py` 保留原命令名以兼容已有调用，其职责已改为检查中文单一文档布局，不再要求任何语言镜像。文档层级、所有权、模块顺序、必要证据和工作流返回边界仍须保留。
+文档层级、所有权、模块顺序、必要证据和工作流返回边界仍须保留。

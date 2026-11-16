@@ -3,20 +3,20 @@
 
 本开发记录说明如何从基线 `675627dc` 中重复、完整的 Layer-04 路线清单迁移到可复用模块契约和七步路线组合。Coding 运行时不加载此文件；它不授予权限。路线仍负责模块顺序和 continuation；各模块仍负责其低层检查。
 
-机器可读的旧步骤、语义子步骤、owner 调用链和新检查点映射维护在 [workflow-module-migration.json](docs/workflow-module-migration.json)。校验器将其与实际模块清单检查点及链接核对；此开发用 manifest 不是运行时路线或授权来源。
+机器可读的旧步骤、语义子步骤、owner 调用链和新检查点映射维护在 [workflow-module-migration.json](workflow-module-migration.json)。校验器将其与实际模块清单检查点及链接核对；此开发用 manifest 不是运行时路线或授权来源。
 
 ## 路线组合
 
 | 路线检查点 | 模块 | 路线负责事项 |
 | --- | --- | --- |
-| SM01 / MM01 | [入口就绪](docs/skill/references/coding/layer-04-workflows/modules/entry-readiness.md) | 确认已释放的 Contract、Environment/能力和模式证据。 |
-| SM02 / MM02 | [Session 就绪](docs/skill/references/coding/layer-04-workflows/modules/session-readiness.md) | 完成规范状态/读回，再确认审计；Multi-Agent 还确认容量。 |
-| SM03 / MM03 | [工作定义](docs/skill/references/coding/layer-04-workflows/modules/work-definition.md) | 当前上下文、决策和规划；Multi-Agent Bootstrap、角色/执行者决策归其执行模块。 |
-| SM04 | [Single-Agent 执行](docs/skill/references/coding/layer-04-workflows/modules/single-execution.md) | Single-Agent 执行者、有界 Slice、实施、反馈和 Control。 |
-| MM04 | [委派执行](docs/skill/references/coding/layer-04-workflows/modules/delegated-execution.md) | Multi-Agent Bootstrap/任务授权、执行者/输出/角色、共用 Slice 门禁、条件式子代理生命周期、实施/结果和 Control。 |
-| SM05 / MM05 | [验证与修复](docs/skill/references/coding/layer-04-workflows/modules/verification-repair.md) | 当前状态验证、修复及变更 epoch 循环。 |
-| SM06 / MM06 | [文档](docs/skill/references/coding/layer-04-workflows/modules/documentation.md) | 适用文档/Memory 输出、读回、影响、检查，以及必要时返回验证。 |
-| SM07 / MM07 | [交付与验收](docs/skill/references/coding/layer-04-workflows/modules/delivery-acceptance.md) | 已授权 Git 效果、标准映射，以及通过验收后条件式归档计划。 |
+| SM01 / MM01 | [入口就绪](../../skill/references/coding/layer-04-workflows/modules/entry-readiness.md) | 确认已释放的 Contract、Environment/能力和模式证据。 |
+| SM02 / MM02 | [Session 就绪](../../skill/references/coding/layer-04-workflows/modules/session-readiness.md) | 完成规范状态/读回，再确认审计；Multi-Agent 还确认容量。 |
+| SM03 / MM03 | [工作定义](../../skill/references/coding/layer-04-workflows/modules/work-definition.md) | 当前上下文、决策和规划；Multi-Agent Bootstrap、角色/执行者决策归其执行模块。 |
+| SM04 | [Single-Agent 执行](../../skill/references/coding/layer-04-workflows/modules/single-execution.md) | Single-Agent 执行者、有界 Slice、实施、反馈和 Control。 |
+| MM04 | [委派执行](../../skill/references/coding/layer-04-workflows/modules/delegated-execution.md) | Multi-Agent Bootstrap/任务授权、执行者/输出/角色、共用 Slice 门禁、条件式子代理生命周期、实施/结果和 Control。 |
+| SM05 / MM05 | [验证与修复](../../skill/references/coding/layer-04-workflows/modules/verification-repair.md) | 当前状态验证、修复及变更 epoch 循环。 |
+| SM06 / MM06 | [文档](../../skill/references/coding/layer-04-workflows/modules/documentation.md) | 适用文档/Memory 输出、读回、影响、检查，以及必要时返回验证。 |
+| SM07 / MM07 | [交付与验收](../../skill/references/coding/layer-04-workflows/modules/delivery-acceptance.md) | 已授权 Git 效果、标准映射，以及通过验收后条件式归档计划。 |
 
 当模块声明的工作与效果已包含在现有用户授权范围内且其入口声明前置条件满足时，可独立进入；无需按模块名称另行授权。完整路线仍要求全部路线前置和验收。暂停模块会返回准确 owner 和 continuation 位置；路线从该位置恢复，不重放已完成效果。状态、效果或 epoch 变化只返回受影响检查点。模块不得调用同级模块。
 

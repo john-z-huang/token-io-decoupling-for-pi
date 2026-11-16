@@ -10,7 +10,7 @@ import sys
 from pathlib import Path, PurePosixPath
 
 
-MAP = Path("docs/coding-document-migration.json")
+MAP = Path("docs/project/migrations/coding-document-migration.json")
 LAYERS = ("layer-01-fundamental-concepts", "layer-02-workflow-concepts")
 NAVIGATION = {"README.md", "INDEX.md"}
 MARKDOWN_LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")

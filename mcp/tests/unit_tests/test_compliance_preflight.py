@@ -335,9 +335,18 @@ def test_result_exposes_policy_version_and_rule_id() -> None:
 @pytest.mark.parametrize(
     ("candidate_path", "mirror_path"),
     [
-        ("mcp/CANDIDATE_COMPLIANCE.md", "mcp/CANDIDATE_COMPLIANCE_zh_cn.md"),
-        ("mcp/OUTPUT_MATERIALIZATION.md", "mcp/OUTPUT_MATERIALIZATION_zh_cn.md"),
-        ("mcp/OPTIMIZATION_BENCHMARK.md", "mcp/OPTIMIZATION_BENCHMARK_zh_cn.md"),
+        (
+            "docs/project/mcp/CANDIDATE_COMPLIANCE.md",
+            "docs/project/mcp/CANDIDATE_COMPLIANCE_zh_cn.md",
+        ),
+        (
+            "docs/project/mcp/OUTPUT_MATERIALIZATION.md",
+            "docs/project/mcp/OUTPUT_MATERIALIZATION_zh_cn.md",
+        ),
+        (
+            "docs/project/mcp/OPTIMIZATION_BENCHMARK.md",
+            "docs/project/mcp/OPTIMIZATION_BENCHMARK_zh_cn.md",
+        ),
     ],
 )
 def test_new_mcp_owner_candidate_does_not_require_a_mirror(
@@ -370,16 +379,22 @@ def _delete_candidate(path: str, current: bytes) -> dict[str, object]:
 @pytest.mark.parametrize(
     ("deleted_paths", "expected_status"),
     [
-        (["mcp/CANDIDATE_COMPLIANCE.md"], "fail"),
-        (["mcp/CANDIDATE_COMPLIANCE_zh_cn.md"], "fail"),
-        (["mcp/CANDIDATE_COMPLIANCE.md", "mcp/CANDIDATE_COMPLIANCE_zh_cn.md"], "pass"),
+        (["docs/project/mcp/CANDIDATE_COMPLIANCE.md"], "fail"),
+        (["docs/project/mcp/CANDIDATE_COMPLIANCE_zh_cn.md"], "fail"),
+        (
+            [
+                "docs/project/mcp/CANDIDATE_COMPLIANCE.md",
+                "docs/project/mcp/CANDIDATE_COMPLIANCE_zh_cn.md",
+            ],
+            "pass",
+        ),
     ],
 )
 def test_delete_has_no_bilingual_pair_requirement(
     tmp_path: Path, deleted_paths: list[str], expected_status: str
 ) -> None:
-    en_path = "mcp/CANDIDATE_COMPLIANCE.md"
-    zh_path = "mcp/CANDIDATE_COMPLIANCE_zh_cn.md"
+    en_path = "docs/project/mcp/CANDIDATE_COMPLIANCE.md"
+    zh_path = "docs/project/mcp/CANDIDATE_COMPLIANCE_zh_cn.md"
     contents = {en_path: b"English\n", zh_path: "中文\n".encode()}
     for path, data in contents.items():
         target = tmp_path / path
@@ -397,7 +412,7 @@ def test_delete_has_no_bilingual_pair_requirement(
 
 
 def test_delete_does_not_probe_absent_or_unsafe_legacy_peer(tmp_path: Path) -> None:
-    en_path = "mcp/CANDIDATE_COMPLIANCE.md"
+    en_path = "docs/project/mcp/CANDIDATE_COMPLIANCE.md"
     content = b"English\n"
     target = tmp_path / en_path
     target.parent.mkdir(parents=True)
@@ -413,12 +428,13 @@ def test_delete_does_not_probe_absent_or_unsafe_legacy_peer(tmp_path: Path) -> N
 
     unknown_root = tmp_path / "unknown-root"
     unknown_root.mkdir()
-    (unknown_root / "mcp").mkdir()
+    unknown_project_mcp = unknown_root / "docs/project/mcp"
+    unknown_project_mcp.mkdir(parents=True)
     unknown_en = unknown_root / en_path
     unknown_en.write_bytes(content)
     outside = tmp_path / "outside-mirror.md"
     outside.write_bytes(b"Chinese\n")
-    (unknown_root / "mcp" / "CANDIDATE_COMPLIANCE_zh_cn.md").symlink_to(outside)
+    (unknown_project_mcp / "CANDIDATE_COMPLIANCE_zh_cn.md").symlink_to(outside)
     unknown_service = CompliancePreflightService(unknown_root, {"skill_maintenance"})
     try:
         unknown = validate_decoupling_compliance(
@@ -437,7 +453,11 @@ def test_closed_service_does_not_apply_disallowed_skill_scope(tmp_path: Path) ->
     result = validate_decoupling_compliance(
         service,
         _request(
-            _candidate("mcp/CANDIDATE_COMPLIANCE.md", "Candidate\n"), scope="skill_maintenance"
+            _candidate(
+                "docs/project/mcp/CANDIDATE_COMPLIANCE.md",
+                "Candidate\n",
+            ),
+            scope="skill_maintenance",
         ),
     )
     assert result["status"] == "unknown"

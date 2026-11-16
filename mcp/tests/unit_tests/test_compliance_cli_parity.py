@@ -1,4 +1,4 @@
-"""离线中文文档检查与 MCP 共用规则的回归。"""
+"""离线文档链接检查与 MCP 共用规则的回归。"""
 
 from __future__ import annotations
 
@@ -28,17 +28,6 @@ def _write(root: Path, relative: str, content: str) -> Path:
     return path
 
 
-def test_chinese_layout_accepts_no_mirrors_and_rejects_old_suffix(tmp_path: Path):
-    _write(tmp_path, "docs/skill/SKILL.md", "---\nname: example\n---\n中文指令。\n")
-    checker = runpy.run_path(str(SCRIPTS / "check-multilingual-docs.py"))
-    assert checker["main"](tmp_path) == 0
-    _write(tmp_path, "docs/skill/SKILL_zh_cn.md", "旧中文镜像。\n")
-    stderr = io.StringIO()
-    with contextlib.redirect_stderr(stderr):
-        assert checker["main"](tmp_path) == 1
-    assert "仍存在旧语言副本" in stderr.getvalue()
-
-
 def test_link_and_layer01_cli_helpers_match_the_shared_core(tmp_path: Path):
     source = "docs/skill/references/coding/layer-01-fundamental-concepts/a.md"
     target = "docs/skill/references/coding/layer-02-workflow-concepts/b.md"
@@ -59,6 +48,10 @@ def test_link_and_layer01_cli_helpers_match_the_shared_core(tmp_path: Path):
 
 
 def test_runtime_never_requires_an_english_or_chinese_peer():
-    for path in ("mcp/AGENTS.md", "mcp/CANDIDATE_COMPLIANCE.md", "docs/skill/SKILL.md"):
+    for path in (
+        "mcp/AGENTS.md",
+        "docs/project/mcp/CANDIDATE_COMPLIANCE.md",
+        "docs/skill/SKILL.md",
+    ):
         assert not is_bilingual_document(path)
         assert multilingual_mirror_issues([path], lambda _: False) == []

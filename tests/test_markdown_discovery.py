@@ -1,4 +1,4 @@
-"""中文唯一文档发现、布局与本地链接验证。"""
+"""Markdown 文档发现与本地链接验证。"""
 import contextlib
 import importlib.util
 import io
@@ -20,7 +20,6 @@ def load(name):
     return module
 
 
-language = load("check-multilingual-docs.py")
 links = load("check-doc-layer-links.py")
 
 
@@ -43,8 +42,7 @@ class MarkdownDiscoveryTests(unittest.TestCase):
         with contextlib.redirect_stderr(io.StringIO()), contextlib.redirect_stdout(io.StringIO()):
             return module.main(self.root)
 
-    def test_chinese_fixture_needs_no_english_mirror(self):
-        self.assertEqual(self.run_check(language), 0)
+    def test_markdown_fixture_passes_local_link_check(self):
         self.assertEqual(self.run_check(links), 0)
 
     def test_generated_and_operational_noise_is_pruned(self):
@@ -68,20 +66,9 @@ class MarkdownDiscoveryTests(unittest.TestCase):
         self.write("custom-env/noise.md", "English noise")
         self.assertEqual(len(discover_markdown(self.root)), 3)
 
-    def test_old_suffix_switch_and_english_only_prose_fail(self):
-        for name, text in (("extra_zh_cn.md", "# 中文"), ("extra.md", "[English](extra.md) | [简体中文](extra.md)\n中文"), ("extra.md", "# English only"), ("extra.md", "中文[链接](old_zh_cn.md)")):
-            with self.subTest(name=name, text=text):
-                path = self.write(name, text)
-                self.assertEqual(self.run_check(language), 1)
-                path.unlink()
-
     def test_missing_local_target_fails(self):
         self.write("mcp/TOOLS.md", "# 中文\n[丢失目标](missing.md)")
         self.assertEqual(self.run_check(links), 1)
-
-    def test_missing_frontmatter_fails(self):
-        self.write("docs/skill/SKILL.md", "# 中文技能")
-        self.assertEqual(self.run_check(language), 1)
 
 
 if __name__ == "__main__":

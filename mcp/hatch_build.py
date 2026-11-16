@@ -30,8 +30,8 @@ class SkillBuildHook(BuildHookInterface):
         source_markers = (
             source / "SKILL.md",
             source / "agents/openai.yaml",
+            repo / "docs/project/DOCUMENTATION_STANDARDS.md",
             repo / "scripts/compliance_core_loader.py",
-            repo / "scripts/check-multilingual-docs.py",
         )
         source_available = (
             expected_compliance_core is not None
@@ -46,9 +46,9 @@ class SkillBuildHook(BuildHookInterface):
                     required_entries = {
                         "SKILL.md",
                         "agents/openai.yaml",
+                        "_project/docs/project/DOCUMENTATION_STANDARDS.md",
                         "_project/scripts/_compliance_core.py",
                         "_project/scripts/compliance_core_loader.py",
-                        "_project/scripts/check-multilingual-docs.py",
                     }
                     entry_names = [item.filename for item in archive.infolist()]
                     entries = set(entry_names)

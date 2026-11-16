@@ -314,7 +314,7 @@ VERIFICATION_STEP_CONTRACTS = {
     ("multi-agent", "M12"): {"checkpoints": ("VR01", "VR02", "VR03", "VR04", "VR06"), "return": "Current successful Verification returns through VR06 before returning the result; conditional advice and verifier visibility remain owner-gated."},
 }
 TOP_PREFIXES = {"coding-single-agent": "SM", "coding-multi-agent": "MM"}
-MIGRATION_MANIFEST = Path("docs/workflow-module-migration.json")
+MIGRATION_MANIFEST = Path("docs/project/migrations/workflow-module-migration.json")
 LAYER3_OWNERS = (
     "route-entry", "workflow-navigation-selection", "session-audit-resolution",
     "session-state-resolution", "context-source-selection", "decision-context-selection",
