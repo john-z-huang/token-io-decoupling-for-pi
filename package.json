@@ -19,7 +19,8 @@
     "check:hooks": "node scripts/check-pi-hooks.mjs",
     "check:types": "node scripts/check-pi-extension-types.mjs",
     "check:load": "node scripts/check-pi-extension-load.mjs",
-    "check:subagents": "node scripts/check-pi-subagents.mjs"
+    "check:subagents": "node scripts/check-pi-subagents.mjs",
+    "check:subagent-contract": "node scripts/check-pi-subagent-contract.mjs"
   },
   "files": ["extensions/coding-workflow/*.ts", "docs/skill", "agents/*.md", "integrations/pi-subagent/*", "README.md"]
 }

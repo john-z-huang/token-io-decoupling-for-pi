@@ -7,7 +7,8 @@ import { currentModule, loadCatalog, phaseHooks, signalHooks, resolveDocumentLin
 import { exactPath, makeState, restoreState, ROLES, Workflow, type Effect, type Role, type State } from "./engine.ts";
 
 import { collectStartup, parseStartupCommand, registerStartupFlags, startupFlags, validateAnswers, type StartupAnswers, type StartupInput } from "./startup.ts";
-import { validateChildSelection } from "./model-selection.ts";
+import { compatibleSubagent, resolveSubagentAdapter, subagentInput, subagentModelInput } from "./subagent-adapter.ts";
+export { compatibleSubagent } from "./subagent-adapter.ts";
 
 const STATE_TYPE = "token-io.coding-workflow.v1";
 const CONTEXT_TYPE = "token-io.coding-hooks.v1";
@@ -36,10 +37,6 @@ export function scopedPath(cwd: string, path: unknown): string {
   return canonical;
 }
 export function fileEffect(path: string): Effect { return /\.(md|mdx|rst|txt|adoc)$/i.test(path) ? "documentation" : "content"; }
-export function compatibleSubagent(parameters: unknown): boolean {
-  const schema = parameters as { properties?: Record<string, { type?: string }>; required?: string[] };
-  return !!schema?.properties && ["agent", "task", "cwd"].every(k => schema.properties![k]?.type === "string") && (schema.required ?? []).every(k => ["agent", "task", "cwd"].includes(k));
-}
 /** Inject every execution clause; the non-executable provenance table stays in the linked resource. */
 export function renderHook(catalog: Catalog, id: HookId): string {
   const path = `hooks/${id}.md`;
@@ -287,24 +284,24 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
     },
   });
   pi.registerTool({
-    name: "coding_delegate", label: "Coding 有界委派", description: "只使用实际暴露且 Schema 匹配的 subagent 一次性单任务接口；串行预留职责预算后并行独立任务，不假装持久 Session。", parameters: schemas.delegate, executionMode: "sequential", exposure: "model-only", reachesTools: input => typeof input.tool === "string" ? [input.tool] : [],
+    name: "coding_delegate", label: "Coding 有界委派", description: "经实际 Schema 适配 agent/task/cwd 或 calls[] 一次性子任务；串行预留职责预算后并行独立任务，不传 session、不假装持久复用。", parameters: schemas.delegate, executionMode: "sequential", exposure: "model-only", reachesTools: input => typeof input.tool === "string" ? [input.tool] : [],
     async execute(id, p: any, signal, _update, ctx) {
       let w: Workflow;
       try {
         w = requireWorkflow(); w.assertRevision(p.revision);
         const tool = ctx.tools.find(t => t.name === p.tool);
-        if (!tool || !compatibleSubagent(tool.parameters) || !isDelegate(p.tool)) throw new Error("未找到可调用的单任务 subagent Schema（agent/task/cwd）。缺少扩展只阻断委派，不伪造子会话");
+        const adapter = tool && resolveSubagentAdapter(tool.parameters);
+        if (!adapter || !isDelegate(p.tool)) throw new Error("未找到可调用的 subagent Schema（agent/task/cwd 或 calls[].agent/prompt/cwd/initialContext）。缺少兼容能力只阻断委派，不伪造子会话");
         if (!p.evidence?.length || p.evidence.some((ref: string) => !w.state.observations.some(o => o.id === ref))) throw new Error("委派缺少真实授权/任务依据引用");
         if (w.state.phase === "verification" && p.jobs.some((job: any) => job.role !== "Change Verification" || job.paths.length)) throw new Error("验证边界仅允许独立只读验证任务");
         if (p.jobs.some((job: any) => job.role === "Documentation/Comments & Git Operations")) throw new Error("当前适配器不支持 Git 子任务；非简单 Git 仍须实际合格的独立扩展与单独授权，不可由本接口冒充");
         const paths = new Set<string>();
+        const modelInputs: Record<string, string>[] = [];
         for (const job of p.jobs) {
           if (!ROLES.includes(job.role) || !job.agent?.trim() || !job.task?.trim()) throw new Error("职责、扩展 agent 配置名和真实任务必须明确");
-          if (job.model !== undefined) {
-            validateChildSelection(job.model);
-            const properties = (tool.parameters as { properties?: Record<string, { type?: string }> }).properties;
-            if (properties?.model?.type !== "string" || !job.modelReason?.trim()) throw new Error("显式模型选择须有真实 model 参数能力及 Root 任务依据；不静默忽略设置");
-          } else if (job.modelReason !== undefined) throw new Error("模型选择依据必须对应实际 model 请求");
+          if (job.model !== undefined && !job.modelReason?.trim()) throw new Error("显式模型选择须有 Root 任务依据；不静默忽略设置");
+          if (job.model === undefined && job.modelReason !== undefined) throw new Error("模型选择依据必须对应实际 model 请求");
+          modelInputs.push(subagentModelInput(adapter, job.model));
           if (job.paths.length && !["Primary Output", "Documentation/Comments & Git Operations"].includes(job.role)) throw new Error("只读职责不能取得写入路径");
           for (const path of job.paths) {
             if (scopedPath(ctx.cwd, path) !== path || !w.state.slice?.paths.includes(path) || paths.has(path)) throw new Error("子任务写入必须在 Slice 内且并行任务路径不冲突");
@@ -318,7 +315,7 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
         const results = await Promise.allSettled(p.jobs.map(async (job: any, i: number) => {
           const scope = job.paths.length ? `仅获准写入这些精确路径：${job.paths.join(", ")}。` : "此任务只读，不准写项目文件。";
           const task = `会话审计偏好及每字段来源：${JSON.stringify(w.state.audit)}。仅安全摘要策略，不代表完整日志访问或私有思维链披露；不改变权限或独立验证。\n父级逻辑 allocation=${allocations[i].id}；职责=${job.role}；这是一次性真实任务，不是可恢复会话。${scope}\n禁止创建/派发其他代理，禁止 Computer Use；未授权 Git/Memory/网络或扩大范围。工具/路径限制是任务合同，不是OS沙箱。先读必要上下文，只返回有界实际结果、证据、失败与未决项；不得只给状态词。\n${job.task}`;
-          const outcome = await ctx.executeTool(p.tool, { agent: job.agent, task, cwd: ctx.cwd, ...(job.model !== undefined ? { model: job.model } : {}) }, { signal });
+          const outcome = await ctx.executeTool(p.tool, subagentInput(adapter, job.agent, task, ctx.cwd, modelInputs[i]), { signal });
           const slot = w.state.allocations.find(a => a.id === allocations[i].id)!;
           const notRun = outcome.isError && outcome.durationMs === undefined;
           slot.status = signal?.aborted ? "uncertain" : outcome.isError ? "failed" : "completed";

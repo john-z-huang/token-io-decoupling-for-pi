@@ -84,7 +84,7 @@ Agent 应提交实际证据而非逐步请求用户审批；同模块内连续�
 
 ## 多代理支持边界
 
-- Pi 不内置子代理。本适配器只支持实际暴露、可调用、以字符串 `agent`/`task`/`cwd` 为单任务输入、没有其他必需字段的真实扩展。必须先发现工具和配置名，不按产品名猜 Schema。
+- Pi 不内置子代理。本适配器按实际暴露、可调用的 Schema 区分旧版字符串 `agent`/`task`/`cwd` 与 `@mjakl/pi-subagent@3.1.0` 的 `calls[]`。新版每个 job 生成一次 `calls: [{agent, prompt, cwd, initialContext: "empty"}]` 宿主调用，不传 `session`。未知形状、额外必需字段或不能表达空上下文的接口在预留前拒绝。必须先发现工具和配置名，不按产品名猜 Schema。
 - DE05 只核验，DE06 一次调用完成创建/派发/执行/返回，DE07 审阅正文；没有持久 ID 不阻断一次性完成，也不伪造 wait/resume。VR02 可在独立职责与容量齐备时调用只读 verifier。
 - 多任务只对独立、无共享写入冲突的任务并行；不以终态回收预算。Root 必须向 task 提供准确来源、计划/Memory 名称、贡献范围及必要限制，不能把前置判断交给 worker。
 - 此版没有持久子会话复用、任意异步扩展、Git 专用子代理或 OS/进程级隔离适配器；需要这些能力的分支明确阻断。外部 worker 的工具链是否继承限制须单独核验，提示词不是沙箱。
@@ -94,9 +94,9 @@ Agent 应提交实际证据而非逐步请求用户审批；同模块内连续�
 
 仓库 `agents/*.md` 为中文描述源：worker对应Primary Output，reviewer对应Change Verification，scout对应Context Bootstrap/Refresh；planner保留名称但不产生第五职责，在Coding仅可作获准中性Context整理的别名，Root前置决策/计划不能外包。git-operator描述第四职责及阻断条件，不代表本适配器支持Git委派。
 
-这些描述不固定model，已部署用户目录时由Root按[三模型卡参考](references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md#子代理模型与推理强度参考)为具体任务选择。新工具Schema加载后，增强版subagent支持顶层及parallel/chain每项 `model: "provider/id:thinking"`，每项优先，随后配置文件，最后父级模型/thinking；显式选择不改Root。它在任何任务启动前校验所有显式模型和真实支持档位，失败不钳制/回退。
+这些描述不固定model，已部署用户目录时由Root按[三模型卡参考](references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md#子代理模型与推理强度参考)为具体任务选择。旧增强版subagent支持顶层及parallel/chain每项 `model: "provider/id:thinking"`；3.1.0则使用calls[]每项独立的model与thinking。协调器将显式选择拆为 `model: "provider/id"` 和 `thinking`，调用档位覆盖代理配置及启动默认值；不改Root。选型与对应Schema能力在任何任务预留/执行前核验，不支持时拒绝，不钳制/回退。
 
-通过本协调器派发时，`coding_delegate.jobs[]` 可提供 `model` 与简短 `modelReason`。有显式选择而目标Schema不支持时，在预留前拒绝，不降级为仅在task里写模型名；省略时保留旧工具的真实默认/继承行为，Root须如实记录能力限制。modelReason只是Root依据，不证明选型充分。精确模型/档位由宿主调用记录核验，不要求Worker自报。
+通过本协调器派发时，`coding_delegate.jobs[]` 可提供 `model` 与简短 `modelReason`。有显式选择而目标Schema不支持对应model/thinking字段或档位时，在预留前拒绝，不降级为仅在任务正文里写模型名；省略时不补model/thinking字段，保留目标工具的真实默认/继承行为，Root须如实记录能力限制。modelReason只是Root依据，不证明选型充分。精确模型/档位由宿主调用记录核验，不要求Worker自报。
 
 源描述和宿主适配补丁、模型卡核对记录位于仓库 `agents/`、`integrations/pi-subagent/`。加载本package不自动覆盖用户代理/安装补丁；部署属于单独明确授权的用户级文件修改，更新后需用户 `/reload` 或新会话，重新发现Schema。不能把磁盘变化当作当前会话已生效。MCP固定API模型与未迁移身份/effort合同不变。
 
@@ -119,6 +119,8 @@ npm run check:hooks
 node scripts/check-pi-hooks.mjs --write-coverage
 npm run check:types -- /absolute/path/to/installed/pi-coding-agent
 npm run check:load -- /absolute/path/to/installed/pi-coding-agent
+# 显式加载已有3.1.0的真实Schema/纯参数函数，不执行插件工具或启动子进程：
+npm run check:subagent-contract -- /absolute/path/to/installed/pi-coding-agent /absolute/path/to/@mjakl/pi-subagent/index.ts
 ```
 
-后两项复用已有 Pi/TypeBox/Jiti 和已有 `tsc`，不下载依赖、不开 Pi 会话、不连接 MCP、不请求模型、不修改全局配置。也可用 `PI_EXTENSION_HOST_ROOT` 指定包根，`TSC_BIN` 指定已有编译器。真实客户端、实际子代理、Memory 后端及 API 端到端验收仍需独立环境与授权。
+宿主类型/加载检查复用已有 Pi/TypeBox/Jiti 和已有 `tsc`；3.1.0契约检查使用真实注册Schema验证适配参数，并核对参数规范化、模型/thinking CLI和失败Hook。不下载依赖、不开 Pi 会话、不连接 MCP、不请求模型、不修改全局配置。也可用 `PI_EXTENSION_HOST_ROOT` 指定包根，`TSC_BIN` 指定已有编译器。真实客户端、实际子代理、Memory 后端及 API 端到端验收仍需独立环境与授权。
