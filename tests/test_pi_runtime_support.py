@@ -72,7 +72,31 @@ class PiRuntimeSupportTests(unittest.TestCase):
         forbidden = re.compile(r"codex|claude|chatgpt|\b(?:haiku|sonnet|spawn_agent|send_input|read_thread|update_plan)\b", re.I)
         for path in (ROOT / "docs/skill").rglob("*.md"):
             with self.subTest(path=path):
-                self.assertIsNone(forbidden.search(path.read_text(encoding="utf-8")))
+                # openai-codex 是 Pi provider 标识，不是旧宿主指令；仅豁免完整标识。
+                text = re.sub(r"\bopenai-codex\b", "pi-provider", path.read_text(encoding="utf-8"))
+                self.assertIsNone(forbidden.search(text))
+
+    def test_child_endpoint_follows_current_root_metadata(self):
+        for fact in (
+            "每次创建新子代理前", "PI_PROVIDER", "PI_MODEL",
+            "openai-codex", "同一 `openai` API 路由",
+            "端点继承不要求模型 ID 或 thinking 与 Root 相同",
+            "不得用陈旧启动值覆盖当前状态", "配置优先级",
+            "工具不能保证同端点", "不得静默切换 provider",
+            "端点跟随是创建必需条件", "不得读取/输出 token",
+        ):
+            with self.subTest(fact=fact):
+                self.assertIn(fact, self.text)
+        for relative in (
+            "docs/skill/references/coding/layer-01-fundamental-concepts/delegation/delegation-child-creation.md",
+            "docs/skill/hooks/delegation.md",
+            "integrations/pi-subagent/README.md",
+        ):
+            with self.subTest(path=relative):
+                text = (ROOT / relative).read_text(encoding="utf-8")
+                self.assertIn("runtime-provider-support.md#子代理端点跟随-root", text)
+                self.assertIn("创建前", text)
+                self.assertIn("同端点", text)
 
     def test_one_shot_extension_and_api_boundaries(self):
         directory = (ROOT / OWNER).parent.parent

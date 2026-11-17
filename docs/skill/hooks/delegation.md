@@ -40,6 +40,8 @@ DE05只作真实能力与创建前置核验；DE06通过同一次实际工具调
 
 ### 4. Root选择模型与推理强度
 
+创建前先执行[子代理端点跟随 Root](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md#子代理端点跟随-root)：Root 亲自确认当前有效 provider、模型 ID、可见 API/端点路由及来源；`openai-codex` 跟随 `openai-codex`，`openai` API 跟随同一 `openai` API 路由。先锁定同端点，再按任务选择该端点实际可用的模型/档位，核验真实 Schema 和配置覆盖优先级。启动环境元数据仅在仍反映当前值时有效，不以模型名、角色配置或 MCP API 配置猜端点；不读取凭据。元数据缺失/冲突、模型不可用或工具不能保证同端点时阻断创建，禁止静默跨 provider/端点回退；可选设置缺失的默认值规则不能豁免本条件。已创建身份不因此重建/重放，不要求 Worker 自报模型。
+
 不再把所有子代理固定为Luna；职责和模型独立。Root依据输入类型、任务复杂度/依赖、不确定性、风险、验证充分性、输入量与延迟/成本，在实际可用的三个模型中选择，并给出简短依据：
 - Sol：模型卡面向复杂编码/专业工作，复杂实现、修复、独立反例检查可优先考虑medium/high。
 - Terra：模型卡面向视觉推理与清晰写作，获准静态图像/图纸证据或Skill文档可考虑low/medium；不是Computer Use授权。
