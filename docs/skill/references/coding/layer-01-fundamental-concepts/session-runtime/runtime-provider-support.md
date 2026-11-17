@@ -44,7 +44,7 @@ MCP Tools 继续通过 OpenAI API 完成其既有分析、生成和决策工作�
 
 Root在创建前审阅任务目标/输入类型、复杂度、依赖、不确定性、风险/验证要求、输入量及延迟/成本约束，并简述选择依据；不按角色、文件数或名字机械选择。新任务可重新评估；已创建身份不得仅为换模型而重复创建/替换，同一子代理follow-up不重新核验模型设置。无真实续接能力时遵守一次性任务与终态名额不回收规则，错误/效果未知先读回，不通过改模型重放。
 
-仅对真实支持的Schema传参。例如本机增强版subagent在已确认 Root 使用 `openai` 时使用 `model: "openai/gpt-6.1-sol:medium"`；Root 使用 `openai-codex` 时应选择该 provider 下已核验可用的精确模型 ID，而非照抄 `openai/` 前缀。单次值覆盖配置文件，parallel/chain每项可独立选择；精确provider/model ID和受支持档位须在创建前核验，不模糊匹配、不静默钳制或回退。通用未增强工具只能继承或固定配置，不能靠task里的文字控制模型。请求值是配置意图，宿主报告值也不是受保护身份证明；不要求子代理自报。模型卡核对记录与适配边界见仓库 `integrations/pi-subagent/`；官方页面可更新，重大任务按需核对最新卡片。
+仅对真实支持的Schema传参。例如旧增强版subagent在已确认 Root 使用 `openai` 时使用 `model: "openai/gpt-6.1-sol:medium"`；`@mjakl/pi-subagent@3.1.0` 使用 `calls[]`，其每项model与thinking独立。`coding_delegate.jobs[].model` 保留前述后缀格式，适配器对新版拆成 `model: "openai/gpt-6.1-sol"` 与 `thinking: "medium"`，防止代理/启动默认档位覆盖显式选择。Root 使用 `openai-codex` 时应选择该 provider 下已核验可用的精确模型 ID，而非照抄 `openai/` 前缀。调用值覆盖配置文件；精确provider/model ID和受支持档位须在创建前核验，不模糊匹配、不静默钳制或回退。通用未增强工具只能继承或固定配置，不能靠task里的文字控制模型。请求值是配置意图，宿主报告值也不是受保护身份证明；不要求子代理自报。模型卡核对记录与适配边界见仓库 `integrations/pi-subagent/`；官方页面可更新，重大任务按需核对最新卡片。
 
 ### 不可用能力与禁止操作
 

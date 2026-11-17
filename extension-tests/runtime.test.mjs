@@ -7,6 +7,12 @@ import { loadCatalog } from '../extensions/coding-workflow/catalog.ts';
 import { MAX_CONTEXT, installWorkflow, scopedPath, compatibleSubagent } from '../extensions/coding-workflow/runtime.ts';
 const catalog = loadCatalog();
 const subSchema = { type: 'object', properties: { agent: { type: 'string' }, task: { type: 'string' }, cwd: { type: 'string' } }, required: ['agent', 'task'] };
+const callsSchema = { type: 'object', properties: { calls: { type: 'array', minItems: 1, maxItems: 8, items: {
+  type: 'object', properties: { agent: { type: 'string' }, prompt: { type: 'string' }, cwd: { type: 'string' },
+    initialContext: { type: 'string', enum: ['empty', 'parent'] }, model: { type: 'string' },
+    thinking: { type: 'string', enum: ['off', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'] }, session: { type: 'string' } },
+  required: ['agent', 'prompt'],
+} } }, required: ['calls'] };
 const body = value => ({ content: [{ type: 'text', text: value }], details: {} });
 function harness(options = {}) {
   const handlers = new Map(), definitions = new Map(), commands = new Map(), entries = structuredClone(options.entries ?? []), messages = [], calls = [];
@@ -173,6 +179,120 @@ test('real delegate adapter performs one synchronous call and records no fabrica
   assert.equal(result.isError, false); assert.equal(h.calls.filter(c => c.name === 'subagent').length, 1);
   assert.equal(h.w().state.allocations[0].status, 'completed'); assert.equal('sessionId' in h.w().state.allocations[0], false);
   assert.match(h.calls.find(c => c.name === 'subagent').input.task, /禁止创建\/派发其他代理/);
+});
+test('calls[] adapter maps prompt and explicit thinking without creating a named session', async () => {
+  const h = harness(); await h.start('multi 合成3.1接口'); position(h, 'execution', 6, true);
+  h.raw.get('subagent').parameters = callsSchema;
+  const result = await h.invoke('coding_delegate', { revision: h.w().state.revision, tool: 'subagent', evidence: [h.userRef()], jobs: [
+    { role: 'Primary Output', agent: 'worker', task: '执行新版合成任务', paths: [], model: 'openai/gpt-6.1-sol:medium', modelReason: '显式选择不可被代理默认high覆盖' },
+  ] });
+  assert.equal(result.isError, false, JSON.stringify(result));
+  const calls = h.calls.filter(c => c.name === 'subagent'); assert.equal(calls.length, 1);
+  assert.ok(calls[0].parentToolCallId);
+  const input = calls[0].input; assert.deepEqual(Object.keys(input), ['calls']); assert.equal(input.calls.length, 1);
+  const [call] = input.calls;
+  assert.equal(call.agent, 'worker'); assert.equal(call.cwd, process.cwd()); assert.equal(call.initialContext, 'empty');
+  assert.equal(call.model, 'openai/gpt-6.1-sol'); assert.equal(call.thinking, 'medium');
+  assert.match(call.prompt, /执行新版合成任务/); assert.match(call.prompt, /禁止创建\/派发其他代理/);
+  assert.equal('task' in call, false); assert.equal('session' in call, false);
+  assert.equal(h.w().state.allocations[0].status, 'completed'); assert.equal('sessionId' in h.w().state.allocations[0], false);
+});
+test('calls[] adapter preserves default model inheritance when no selection was requested', async () => {
+  const h = harness(); await h.start('multi 合成继承'); position(h, 'execution', 6, true);
+  h.raw.get('subagent').parameters = callsSchema;
+  const result = await h.invoke('coding_delegate', { revision: h.w().state.revision, tool: 'subagent', evidence: [h.userRef()], jobs: [
+    { role: 'Primary Output', agent: 'worker', task: 'inherit', paths: [] },
+  ] });
+  assert.equal(result.isError, false);
+  const [call] = h.calls.find(c => c.name === 'subagent').input.calls;
+  assert.equal('model' in call, false); assert.equal('thinking' in call, false); assert.equal('session' in call, false);
+});
+test('calls[] preflight rejects unsupported model/thinking before any reservation or execution', async () => {
+  for (const missing of ['model', 'thinking', 'unsupported-medium']) {
+    const h = harness(); await h.start('multi 2 合成新版前检'); position(h, 'execution', 6, true);
+    const schema = structuredClone(callsSchema), fields = schema.properties.calls.items.properties;
+    if (missing === 'unsupported-medium') fields.thinking.enum = ['low']; else delete fields[missing];
+    h.raw.get('subagent').parameters = schema;
+    const result = await h.invoke('coding_delegate', { revision: h.w().state.revision, tool: 'subagent', evidence: [h.userRef()], jobs: [
+      { role: 'Primary Output', agent: 'worker', task: 'valid first', paths: [] },
+      { role: 'Context Bootstrap/Refresh', agent: 'scout', task: 'unsupported later selection', paths: [], model: 'openai/gpt-6-luna:medium', modelReason: 'bounded' },
+    ] });
+    assert.equal(result.isError, true); assert.equal(h.w().state.allocations.length, 0);
+    assert.equal(h.calls.filter(c => c.name === 'subagent').length, 0);
+  }
+});
+test('calls[] jobs remain separate host calls; child failure retains occupied budgets', async () => {
+  const h = harness(); await h.start('multi 2 合成新版失败'); position(h, 'execution', 6, true);
+  h.raw.get('subagent').parameters = callsSchema;
+  h.raw.get('subagent').execute = async (_id, input) => ({ ...body('实际失败与部分结果'), isError: input.calls[0].agent === 'scout' });
+  const result = await h.invoke('coding_delegate', { revision: h.w().state.revision, tool: 'subagent', evidence: [h.userRef()], jobs: [
+    { role: 'Primary Output', agent: 'worker', task: 'first', paths: [] },
+    { role: 'Context Bootstrap/Refresh', agent: 'scout', task: 'second', paths: [] },
+  ] });
+  assert.equal(result.isError, true); assert.equal(h.calls.filter(c => c.name === 'subagent').length, 2);
+  assert.deepEqual(h.w().state.allocations.map(a => a.status), ['completed', 'failed']);
+  assert.equal(h.w().state.allocations.length, 2);
+});
+test('calls[] Schema cannot bypass direct-call and coding_run delegation guards', async () => {
+  const h = harness(); await h.start('multi 合成旁路'); position(h, 'execution', 6, true);
+  h.raw.get('subagent').parameters = callsSchema;
+  const input = { calls: [{ agent: 'worker', prompt: 'must not run' }] };
+  assert.equal((await h.invoke('subagent', input)).isError, true);
+  assert.equal((await h.run('subagent', 'read', input)).isError, true);
+  assert.equal(h.calls.filter(c => c.name === 'subagent').length, 0); assert.equal(h.w().state.allocations.length, 0);
+});
+test('calls[] recognition rejects unsupported required fields and incompatible array/context shapes', () => {
+  assert.equal(compatibleSubagent(callsSchema), true);
+  for (const change of [
+    s => s.required.push('unsupported'),
+    s => s.properties.calls.items.required.push('session'),
+    s => s.properties.calls.items.required.push('unsupported'),
+    s => { s.properties.calls.type = 'string'; },
+    s => { s.properties.calls.minItems = 2; },
+    s => { s.properties.calls.maxItems = 0; },
+    s => { s.properties.calls.items.properties.prompt.type = 'number'; },
+    s => { delete s.properties.calls.items.properties.cwd; },
+    s => { delete s.properties.calls.items.properties.initialContext; },
+    s => { s.properties.calls.items.properties.initialContext.enum = ['parent']; },
+  ]) {
+    const schema = structuredClone(callsSchema); change(schema); assert.equal(compatibleSubagent(schema), false, JSON.stringify(schema));
+  }
+});
+test('calls[] incompatible required fields fail before reserving even when a prior job is valid', async () => {
+  const h = harness(); await h.start('multi 2 合成未知必需字段'); position(h, 'execution', 6, true);
+  const schema = structuredClone(callsSchema); schema.properties.calls.items.required.push('session');
+  h.raw.get('subagent').parameters = schema;
+  const result = await h.invoke('coding_delegate', { revision: h.w().state.revision, tool: 'subagent', evidence: [h.userRef()], jobs: [
+    { role: 'Primary Output', agent: 'worker', task: 'first', paths: [] },
+    { role: 'Context Bootstrap/Refresh', agent: 'scout', task: 'second', paths: [] },
+  ] });
+  assert.equal(result.isError, true); assert.equal(h.w().state.allocations.length, 0);
+  assert.equal(h.calls.filter(c => c.name === 'subagent').length, 0);
+});
+test('calls[] still rejects single mode, Git roles, duplicate roles and conflicting paths', async () => {
+  for (const scenario of ['single', 'git', 'duplicate', 'paths']) {
+    const h = harness(); await h.start(scenario === 'single' ? 'single 合成禁止委派' : 'multi 2 合成新版门禁'); position(h, 'execution', 6, true);
+    h.raw.get('subagent').parameters = callsSchema;
+    const first = { role: 'Primary Output', agent: 'worker', task: 'first', paths: [] };
+    const jobs = scenario === 'git' ? [{ ...first, role: 'Documentation/Comments & Git Operations' }]
+      : scenario === 'duplicate' ? [first, { ...first, task: 'duplicate' }]
+      : scenario === 'paths' ? [{ ...first, paths: ['synthetic.ts', 'synthetic.ts'] }] : [first];
+    const result = await h.invoke('coding_delegate', { revision: h.w().state.revision, tool: 'subagent', evidence: [h.userRef()], jobs });
+    assert.equal(result.isError, true, scenario); assert.equal(h.w().state.allocations.length, 0);
+    assert.equal(h.calls.filter(c => c.name === 'subagent').length, 0);
+  }
+});
+test('calls[] preserves the independent read-only verification boundary and current epoch evidence', async () => {
+  const h = harness(); await h.start('multi 合成新版验证'); position(h, 'verification', 2);
+  h.raw.get('subagent').parameters = callsSchema;
+  const job = { role: 'Change Verification', agent: 'reviewer', task: 'verify actual evidence', paths: [] };
+  const blocked = await h.invoke('coding_delegate', { revision: h.w().state.revision, tool: 'subagent', evidence: [h.userRef()], jobs: [{ ...job, paths: ['synthetic.ts'] }] });
+  assert.equal(blocked.isError, true); assert.equal(h.w().state.allocations.length, 0);
+  const result = await h.invoke('coding_delegate', { revision: h.w().state.revision, tool: 'subagent', evidence: [h.userRef()], jobs: [job] });
+  assert.equal(result.isError, false);
+  assert.match(h.calls.find(c => c.name === 'subagent').input.calls[0].prompt, /只读，不准写项目文件/);
+  const evidence = h.w().state.observations.find(o => o.effect === 'check'); assert.ok(evidence?.ok);
+  assert.deepEqual(evidence.epoch, h.w().state.epoch);
 });
 test('direct subagent, single mode and incompatible Schema fail without allocating', async () => {
   const h = harness(); await h.start(); position(h, 'execution', 6, true);

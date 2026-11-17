@@ -30,7 +30,7 @@ Primary 只做已放行的代码/配置实现或本 Skill 指令/参考文档编
 
 ### 3. 创建、派发与能力适配
 
-Pi 不内置代理。当前实现仅支持实际可用、Schema 明确为 `agent`/`task`/`cwd` 的一次性任务调用；先核验真实工具/扩展 Schema、可用能力和允许字段，只传真实接受的字段。扩展配置名称不是职责或权限证明。不存在兼容能力时只阻断依赖委派的分支；不得假设隐藏工具、Pi 原生代理、持久 Session、稳定 ID、续接、消息、wait、resume、取消或异步句柄，也不得模拟 Session 或将 Root 改名为子代理。没有可选模型/effort 控制时沿用扩展默认值并记录限制；明确必需设置无法满足才阻断。已移除的 MCP 调度/effort 接口不调用、不伪造回执。
+Pi 不内置代理。当前实现按真实 Schema 适配旧版 `agent`/`task`/`cwd` 与 `@mjakl/pi-subagent@3.1.0` 的 `calls[]`：新版每次传一个 `agent`/`prompt`/`cwd` 任务，显式 `initialContext: "empty"`，不传 `session`，仍为一次性调用而非持久复用。先核验真实工具/扩展 Schema、可用能力和允许字段，只传真实接受的字段；未知接口或额外必需字段在预留前拒绝。扩展配置名称不是职责或权限证明。不存在兼容能力时只阻断依赖委派的分支；不得假设隐藏工具、Pi 原生代理、持久 Session、稳定 ID、续接、消息、wait、resume、取消或异步句柄，也不得模拟 Session 或将 Root 改名为子代理。没有可选模型/effort 控制时沿用扩展默认值并记录限制；明确必需设置无法满足才阻断。已移除的 MCP 调度/effort 接口不调用、不伪造回执。
 
 创建前再次核实 Multi-Agent 已释放、正数预算、唯一未绑定 allocation 与职责、合格输出类型、已释放 Slice、权限、上下文、来源/路径及返回条件。Worker bundle 必须清晰限定单一职责，禁止递归创建/派发、fork、自行选择handoff目标、peer协调或联系其他Session；按父级具名授权编写handoff记录不等于自行管理会话；禁止未授权网络、Git、Memory 或扩容。按实际需要提供任务计划/Memory 的准确名称和最小访问方式；Root 协调唯一计划写者，贡献不授权修改源码或扩大 Contract。显式提供 `write_content_memo: true|false`：true 才按对应生命周期处理 memo，false 不得推断或写入；它不豁免共享计划规则。
 
@@ -48,7 +48,7 @@ DE05只作真实能力与创建前置核验；DE06通过同一次实际工具调
 - Luna：模型卡面向聚焦高吞吐，有界事实提取、机械改动、规则明确的实现/检查可考虑low/medium。
 这些仅是参考起点，任何职责均不强制某一模型；普通文档仍由Root。一般多步任务medium，简单确定任务low，复杂/高风险任务可high；xhigh/max须有具体必要性，不是固定升级阶梯。卡片支持Sol的low/medium/high/xhigh/max，Terra/Luna另有none；Pi使用off而非none，三者不选minimal，且须核对真实provider映射。更大推理量不弥补缺失授权/证据，独立性也不由不同模型证明。
 
-先核对真实Schema。在增强版subagent中用精确 `model: "provider/id:thinking"`；coding_delegate每项job传 `model` 与 `modelReason`，仅目标工具确有model字段才转交，不能默默忽略。未提供控制的旧工具仅能记录实际默认/继承值和限制，不假装task文字已选模型；任务必需选择无法落实则阻断。不要改父级模型、全局默认或MCP内部API模型来代替子任务设置。创建前核验即可，不要求Worker自查/自报；已创建身份不因换模型而重建、替换或回收。详见[模型卡事实、档位与路由参考](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md#子代理模型与推理强度参考)。
+先核对真实Schema。coding_delegate每项job传精确 `model: "provider/id:thinking"` 与 `modelReason`；旧增强版按原model字段转交，3.1.0的calls[]则拆成 `model: "provider/id"` 和独立 `thinking`，确保调用档位不被代理默认值覆盖。按对应层级核验实际model/thinking字段及档位，全部job均须在预留/执行前通过，不能默默忽略。未提供控制的旧工具仅能记录实际默认/继承值和限制，不假装task文字已选模型；任务必需选择无法落实则阻断。不要改父级模型、全局默认或MCP内部API模型来代替子任务设置。创建前核验即可，不要求Worker自查/自报；已创建身份不因换模型而重建、替换或回收。详见[模型卡事实、档位与路由参考](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md#子代理模型与推理强度参考)。
 
 ### 5. 结果、生命周期与未知效果
 
