@@ -35,7 +35,9 @@
 
 需要用户在任务结束后 `/reload` 或新会话，重新发现当前真实工具Schema。省略model只是继承，不代表Root完成了按任务选型。
 
-增强版示例（是工具参数，不是Shell命令；仍需模式/预算/Slice等授权）：
+创建前 Root 必须先按[端点继承 owner](../../docs/skill/references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md#子代理端点跟随-root)确认当前有效 provider、模型 ID 及可见 API/端点路由元数据与来源，再在同端点选型。`openai-codex` 不得改成 `openai`，`openai` API 也不得改走 `openai-codex`；角色固定值和默认继承不能替代此核验。此补丁提供显式选型能力，不自动验证 Root/子代理端点一致；Root 必须核验实际路由，不能保证时停止创建，不跨端点回退。
+
+以下增强版示例仅适用于已确认 Root 当前使用 `openai` 且该模型/档位可用的情形（是工具参数，不是Shell命令；仍需模式/预算/Slice等授权）；Root 使用 `openai-codex` 时须改用该 provider 下已核验可用的精确模型 ID，不能照抄：
 
 ```json
 {
