@@ -5,15 +5,17 @@
 
 两条 Coding 路线由 YAML 绑定七个阶段。16 份条件 Hooks 提供执行合同，阶段 Hook 决定检查点顺序及适用性。Extension 负责宿主工具守卫、验证失效和暂停续接。授权和语义验收依据实际来源与结果核对。Multimodal 仅作为 reference 保留。
 
-## Pi Extension 快速入口
+## Pi 工作流插件开发状态与验证
 
-在本仓库安装 YAML 解析依赖。`npm ci` 会通过 `prepare` 调用 `uv`，生成 `docs/skill/` 中的 Skill 阅读版。请先确保 `uv` 可用。
+> **现阶段不建议在 Pi Coding Agent 中安装工作流插件（`extensions/coding-workflow/`）。** 该插件仍在开发，已有离线检查，完整测试和实际环境验证尚未完成。目前无法确认插件能否在 Pi Coding Agent 中高效运行。
+
+开发者可在测试项目中临时加载插件进行验证。先在本仓库安装 YAML 解析依赖。`npm ci` 会通过 `prepare` 调用 `uv`，生成 `docs/skill/` 中的 Skill 阅读版。请先确保 `uv` 可用。
 
 ```bash
 npm ci --legacy-peer-deps
 ```
 
-然后在目标项目运行。
+然后在测试项目中运行以下命令，临时加载插件。
 
 ```bash
 pi -e /absolute/path/to/token-io-decoupling-for-pi
@@ -28,13 +30,13 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi
 /coding multi 2 任务描述
 ```
 
-默认不接管会话，也不创建子代理。启动固定先模式/预算后审计可见性；显式有效字段不重问，缺失字段须选择默认或定制，取消/未回复不隐式默认，未完成不创建 Workflow、不执行工具。非 UI 可用 `--coding-mode single --coding-audit-defaults` 明确提交；缺答案时阻断。答案与逐字段来源在同 Session 跨任务、树导航和 reload/resume 保留，fork/new Session 重新收集；volatile 仅进程内、不追加扩展记录、不假称可从日志恢复。模式/预算或审计偏好不证明完整日志能力，也不披露私有思维链。模式/预算选择不授予写入、Memory、网络或 Git 权限。安装、四个协调工具、真实事件/语义信号、离线验证及适配器限制见 [Pi Extension 使用说明](docs/project/PI_EXTENSION.md) 和 [Hooks 目录](docs/skill/hooks/README.md)。本轮没有自动安装到用户/项目配置，也没有真实客户端/API/后端端到端验收。未启用 Extension 时从 [Skill 入口](docs/skill/SKILL.md) 走原有 owner 回退路线。
+默认不接管会话，也不创建子代理。启动固定先模式/预算后审计可见性；显式有效字段不重问，缺失字段须选择默认或定制，取消/未回复不隐式默认，未完成不创建 Workflow、不执行工具。非 UI 可用 `--coding-mode single --coding-audit-defaults` 明确提交；缺答案时阻断。答案与逐字段来源在同 Session 跨任务、树导航和 reload/resume 保留，fork/new Session 重新收集；volatile 仅进程内、不追加扩展记录、不假称可从日志恢复。模式/预算或审计偏好不证明完整日志能力，也不披露私有思维链。模式/预算选择不授予写入、Memory、网络或 Git 权限。四个协调工具、宿主事件、离线验证及适配器限制见 [Pi Extension 使用说明](docs/project/PI_EXTENSION.md#工作流路线与工具) 和 [Hooks 目录](docs/skill/hooks/README.md)。未启用 Extension 时从 [Skill 入口](docs/skill/SKILL.md) 走原有 owner 回退路线。
 
 ## 现有Pi子代理描述与Root选型
 
 中文代理描述源在 [agents/](agents/)：worker、reviewer、scout分别适配Primary、独立验证、Context职责；planner保留只读兼容边界，git-operator仅提供受阻断的专用职责描述。模型不固定到角色：Root依据三份官方模型卡和当前任务，在Sol、Terra、Luna之间选择模型及推理水平。
 
-说明、模型卡核对记录与对现有subagent的最小每任务选型补丁见 [Pi子代理适配](integrations/pi-subagent/README.md)。加载本package不自动覆盖用户配置；本机部署与普通package加载是两件事，不能把描述文件存在当作Git专用适配器、权限隔离或模型身份能力已实现。
+当前 `@mjakl/pi-subagent` 3.1.0 的接口与逐任务模型选型见 [Pi 子代理适配](integrations/pi-subagent/README.md#310-接口适配)。加载本package不自动覆盖用户配置；本机部署与普通package加载是两件事，不能把描述文件存在当作Git专用适配器、权限隔离或模型身份能力已实现。
 
 ## 仅安装 Skill（不包含 Extension）
 
@@ -55,13 +57,13 @@ Skill 从 [入口 YAML](docs/rules/SKILL.yaml) 和 `docs/rules/` 中的规则生
 
 从 Skill 入口渐进加载当前步骤的 owner。Pi 原生提供基础文件与命令工具；子代理、专用规划及 Memory 依实际暴露的扩展或服务核验，不假定内置。修改 Skill 后由用户 `/reload` 或新建会话；磁盘更新不自动替换当前已加载指令。
 
-MCP 已收敛为 `token-io-decoupling-tools`；上面的 Pi package 命令只加载宿主侧 Extension/Skill，不配置 MCP。可选导航/建议不适用时直接依据 owner 判断；必需的 Memory、身份或受保护写入能力缺失时暂停依赖工作。服务内部仍通过 OpenAI API 执行，原有授权、角色、路径与安全守卫继续有效。
+MCP 已收敛为 `token-io-decoupling-tools`，需单独配置。上面的临时加载命令只加载宿主侧 Extension/Skill。可选导航/建议不适用时直接依据 owner 判断；必需的 Memory、身份或受保护写入能力缺失时暂停依赖工作。服务内部仍通过 OpenAI API 执行，原有授权、角色、路径与安全守卫继续有效。
 
 ## 文档入口
 
 - [Pi Coding 工作流变更日志](CHANGELOG/CHANGELOG.md) 记录工作流路线、Extension 推进和模块演进。
 - [代码质量工具与规范自动化变更日志](CHANGELOG/CODE_QUALITY.md) 记录 Lint、格式化和代码规范自动化。
-- [Pi Extension](docs/project/PI_EXTENSION.md) 介绍安装、事件、Hook 推进、适配及验证边界。
+- [Pi Extension](docs/project/PI_EXTENSION.md) 介绍开发试用、事件、Hook 推进、适配及验证边界。
 - [静态代码检查](docs/project/STATIC_CODE_CHECKS.md) 说明 JS、TS 和 MJS 的自动化检查与 Code Agent 审查要求。
 - [Hooks 目录](docs/skill/hooks/README.md)：明确触发条件与执行合同。
 - [Skill 入口](docs/skill/SKILL.md)：轻量入口与未启用扩展的回退路线。
