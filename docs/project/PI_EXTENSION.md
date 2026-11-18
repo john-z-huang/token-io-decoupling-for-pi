@@ -6,11 +6,10 @@
 
 基线：Pi Coding Agent **1.5.2**、Node.js **24+**。使用 Pi 提供的 `typebox` 等宿主模块，不复制宿主依赖。仓库离线检查涵盖状态机、模拟事件、宿主声明类型及入口加载。真实会话、子代理及 Memory 端到端验收需要当前环境证据。
 
-先在本仓库安装 YAML 解析依赖并生成 Skill。
+先确保 `uv` 可用，然后在本仓库安装 YAML 解析依赖。`npm ci` 会在安装后自动生成 `docs/skill/`。
 
 ```bash
 npm ci --legacy-peer-deps
-npm run build:skill
 ```
 
 在目标项目中一次性加载本地包，无须修改用户配置。

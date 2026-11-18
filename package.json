@@ -16,8 +16,8 @@
   },
   "scripts": {
     "build:skill": "uv run --locked --script scripts/compile-reference-dsl.py",
+    "prepare": "npm run build:skill",
     "pretest": "npm run build:skill",
-    "prepack": "npm run build:skill",
     "test": "node --test extension-tests/*.test.mjs",
     "check:hooks": "node scripts/check-pi-hooks.mjs",
     "check:types": "node scripts/check-pi-extension-types.mjs",

@@ -31,7 +31,7 @@
 
 DSL 源文件之间使用相对 `.yaml` 链接。引用具体章节时使用块 ID，例如 `runtime-provider-support.yaml#subagent-models`。编译器验证目标文件及章节，再为阅读版生成相应的 `.md` 和 Markdown 标题锚点。Pi 将同一引用解析为 `coding-rule:`，按片段 ID 查询正文。`markdown_path` 字段指定阅读版的位置。
 
-修改规则、Hook 或 Skill 入口后，执行 `npm run build:skill`。编译器从 `docs/rules/` 生成完整的 `docs/skill/`，包括 Markdown 阅读版和 Skill 注册元数据。该目录由 Git 忽略，`--check` 只读核对本地生成结果。Pi Extension 启动时解析原始 YAML 并建立指纹索引，按 ID 读取当前片段。[Pi Extension 使用说明](PI_EXTENSION.md)和[工作流架构](WORKFLOW_ARCHITECTURE.md)作为项目 Markdown 维护。
+`npm ci` 和 `npm pack` 通过 `prepare` 生成 Skill；`npm test` 也会在测试前生成。只修改规则、Hook 或 Skill 入口时，可执行 `npm run build:skill` 单独重新生成。编译器从 `docs/rules/` 生成完整的 `docs/skill/`，包括 Markdown 阅读版和 Skill 注册元数据。该目录由 Git 忽略，`--check` 只读核对本地生成结果。Pi Extension 启动时解析原始 YAML 并建立指纹索引，按 ID 读取当前片段。[Pi Extension 使用说明](PI_EXTENSION.md)和[工作流架构](WORKFLOW_ARCHITECTURE.md)作为项目 Markdown 维护。
 
 ### Coding DSL 类型与模板
 

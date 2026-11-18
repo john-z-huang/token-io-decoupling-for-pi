@@ -7,11 +7,10 @@
 
 ## Pi Extension 快速入口
 
-在本仓库安装 YAML 解析依赖并生成 Skill 阅读版。
+在本仓库安装 YAML 解析依赖。`npm ci` 会通过 `prepare` 调用 `uv`，生成 `docs/skill/` 中的 Skill 阅读版。请先确保 `uv` 可用。
 
 ```bash
 npm ci --legacy-peer-deps
-npm run build:skill
 ```
 
 然后在目标项目运行。

@@ -55,7 +55,10 @@ ToolDefinition(
 - 清单必须与 `core/server_tools.py` 完全一致；未知名称、重复定义和清单漂移会报错，不允许静默过滤。调整公开清单属于接口变更，不能只改注册文件绕过契约。
 - `tests/unit_tests/test_tool_registry.py` 将 34 项完整发现元数据与改前 fixture 比对，并检查注册失败、参数说明和多服务器配置隔离。不要为让测试通过而盲目重生成 fixture；有意接口变更应单独审阅。
 
+在仓库根目录开始。先生成源码规则查询和测试所需的 `docs/skill/`，避免在依赖已缓存、`uv sync` 未重新构建包时缺少产物。
+
 ```sh
+uv run --locked --script scripts/compile-reference-dsl.py
 cd mcp
 uv sync --group dev
 uv run pytest tests/unit_tests tests/mock_api_tests
