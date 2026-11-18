@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { cpSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { loadCatalog } from '../extensions/coding-workflow/catalog.ts';
+import { pathToFileURL } from 'node:url';
+import { documentLinks, loadCatalog } from '../extensions/coding-workflow/catalog.ts';
 import { MAX_CONTEXT, installWorkflow, scopedPath, compatibleSubagent } from '../extensions/coding-workflow/runtime.ts';
 const catalog = loadCatalog();
 const subSchema = { type: 'object', properties: { agent: { type: 'string' }, task: { type: 'string' }, cwd: { type: 'string' } }, required: ['agent', 'task'] };
@@ -137,11 +138,18 @@ test('context injects only relevant hooks once and preserves unrelated extension
   assert.ok(second.messages[1].content.length < MAX_CONTEXT);
 });
 test('both routes and rule queries work with the YAML sources alone', async t => {
-  const root = mkdtempSync(join(tmpdir(), 'pi-runtime-data-'));
+  const root = realpathSync(mkdtempSync(join(tmpdir(), 'pi-runtime-data-')));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   cpSync(catalog.root, root, { recursive: true });
+  assert.ok(!existsSync(join(root, 'coding-workflows', 'README.md')));
   const installed = loadCatalog(root);
   assert.equal(installed.digest, catalog.digest);
+
+  const hookIds = ['entry', 'session', 'planning', 'execution', 'delegation', 'verification', 'documentation', 'delivery'];
+  const navigation = [
+    ['routes', ['coding-rule:coding-single-agent', 'coding-rule:coding-multi-agent']],
+    ['section-01', hookIds.map(id => pathToFileURL(join(root, 'hooks', `${id}.yaml`)).href)],
+  ];
 
   for (const [mode, step, route, owner, legacyModule, checkpoint] of [
     ['single', 3, 'SM04', 'hook-execution', 'single-execution', 'SE03'],
@@ -154,7 +162,19 @@ test('both routes and rule queries work with the YAML sources alone', async t =>
     assert.match(message.content, new RegExp(`coding-rule:coding-${mode}-agent#${route}`));
     assert.match(message.content, new RegExp(`coding-rule:${owner}#${checkpoint}`));
     const snapshot = h.w().snapshot();
-    const entries = h.entries.length;
+    const entries = structuredClone(h.entries);
+
+    for (const [fragment, links] of navigation) {
+      const document = 'layer-04-readme';
+      const query = await h.invoke('coding_checkpoint', { action: 'rules', document, fragment });
+      assert.equal(query.isError, false, query.result.content[0].text);
+      const result = JSON.parse(query.result.content[0].text);
+      assert.equal(result.document, document);
+      assert.equal(result.fragment, fragment);
+      assert.deepEqual(documentLinks(result.content), links);
+      assert.deepEqual(h.w().snapshot(), snapshot);
+      assert.deepEqual(h.entries, entries);
+    }
 
     const listing = await h.invoke('coding_checkpoint', { action: 'rules' });
     assert.equal(listing.isError, false);
@@ -183,7 +203,7 @@ test('both routes and rule queries work with the YAML sources alone', async t =>
     const invalid = await h.invoke('coding_checkpoint', { action: 'rules', document: '../references/unknown.md' });
     assert.equal(invalid.isError, true);
     assert.deepEqual(h.w().snapshot(), snapshot);
-    assert.equal(h.entries.length, entries);
+    assert.deepEqual(h.entries, entries);
   }
 });
 test('unknown direct shell and lying readOnlyHint do not pass the wrapper gate', async () => {

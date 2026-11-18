@@ -18,3 +18,4 @@
 
 - 将独立索引中的两条路线与七个阶段的八份 Hook 入口按原顺序合并到 `coding-workflows/README.yaml`。在目录中通过 `routes` 和 `section-01` 读取对应章节。Coding 选择器和维护文档指向统一入口。 [路线目录](../docs/rules/coding-workflows/README.yaml)
 - 路线目录采用同一个 `directory-guide` 模板，移除 `directory-index` 类型和模板。构建生成路线 `README.md`，并清理带原生成标记的旧路线索引。合并后共生成 115 个 Skill 文件。
+- 扩展现有 Pi 运行时测试。在仅使用原始 YAML 的隔离目录中，单代理和多代理模式都通过 `coding_checkpoint` 的 `rules` 动作读取 `layer-04-readme` 的 `routes` 和 `section-01`。测试核对两条路线和八份 Hook 入口的链接顺序，并逐次比较查询前后的工作流快照与会话记录。专项用例和 `npm test` 全部 147 项测试通过。 [运行时测试](../extension-tests/runtime.test.mjs)
