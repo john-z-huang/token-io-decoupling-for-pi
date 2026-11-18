@@ -1,3 +1,0 @@
-- [Coding Context Exchange](../../layer-01-fundamental-concepts/context-exchange/context-exchange.yaml) — 定位 Memory capsule 和新鲜度归属。
-- [Coding Session Context Firewall](../../layer-01-fundamental-concepts/session-runtime/session-context-firewall.yaml) — 定位原始状态进入和事实返回归属。
-- [项目 Memory 与代码结构能力](../../layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.yaml) — 定位可复用项目知识和结构化代码浏览。

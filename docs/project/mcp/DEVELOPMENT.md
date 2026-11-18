@@ -63,4 +63,6 @@ uv run ruff check src packages tests
 uv build --all-packages --wheel
 ```
 
+从仓库构建 MCP 包时，构建钩子先从 `docs/rules/` 生成 Skill 文档和规则摘录。独立源码分发包携带构建所需的快照。
+
 不默认运行真实 API。材料化保留可信身份、授权、路径和预检限制；Pi stdio 的连接或环境变量不会自动授予这些能力。内部 API 调用需要实际进程中的凭据，不能输出凭据或擅自外发内容。

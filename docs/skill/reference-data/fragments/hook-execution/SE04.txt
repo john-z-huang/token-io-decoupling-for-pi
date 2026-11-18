@@ -1,1 +1,0 @@
-触发时应用[执行阶段反馈](../references/coding/layer-01-fundamental-concepts/execution-control/execution-stage-feedback.yaml)，在实质阶段边界返回有界 Progress Signal。无触发条件时，记录带观察原因的 `not_applicable`。两条路径都进入 SE05；不得跳过 Control。

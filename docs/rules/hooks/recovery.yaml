@@ -116,4 +116,4 @@ blocks:
               | [委派状态记录](../references/coding/layer-01-fundamental-concepts/delegation/delegation-state-record.yaml) | 会话模式、名额与任务事实 |
               | [任务计划生命周期](../references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.yaml) | 边界更新、保全与限制 |
               | [验证epoch](../references/coding/layer-02-workflow-concepts/verification-and-repair/verification-epoch.yaml) | 当前状态和验证失效 |
-              | [Extension使用说明](../PI_EXTENSION.md) | Pi真实事件、有限续跑及DOC04/DA03恢复 |
+              | [Extension使用说明](../../project/PI_EXTENSION.md) | Pi真实事件、有限续跑及DOC04/DA03恢复 |

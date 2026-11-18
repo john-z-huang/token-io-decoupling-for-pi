@@ -1,1 +1,0 @@
-调用[入口就绪 Hook](../hooks/entry.yaml)。传入 selector 已释放的 Contract、Environment、能力、Mode 和路线证据。入口核验通过后进入 Session，补前置时保留原位置。

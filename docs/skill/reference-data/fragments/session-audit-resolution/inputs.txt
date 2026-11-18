@@ -1,1 +1,0 @@
-取得规范 parent-context 记录后，使用该记录和当前 Session 审计事实。应用[Session Audit Visibility](../layer-01-fundamental-concepts/session-runtime/session-audit-visibility.yaml)了解字段值与显示语义，并应用[委派状态记录](../layer-01-fundamental-concepts/delegation/delegation-state-record.yaml)了解记录归属和结构。

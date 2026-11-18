@@ -1,2 +1,0 @@
-- [Coding Execution Decision Gate](../../layer-01-fundamental-concepts/execution-planning/execution-decision-gate.yaml) — 定位 Decision Brief 和放行条件归属。
-- [Coding Execution Planning](../../layer-01-fundamental-concepts/execution-planning/execution-planning.yaml) — 定位有界规划归属。

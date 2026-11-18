@@ -24,5 +24,17 @@ blocks:
             kind: markdown
             text: |-
               从契约开始，再查阅建立当前门禁证据所需的检查点。
-
-              [索引](INDEX.yaml)
+  - owners:
+      kind: section
+      title: "所有者"
+      expose: true
+      blank_lines_before: 2
+      blocks:
+        - owners-body:
+            kind: markdown
+            text: |-
+              - [contract](contract.yaml)
+              - [environment](environment.yaml)
+              - [environment-capability-inventory](environment-capability-inventory.yaml)
+              - [mode](mode.yaml)
+              - [context](context.yaml)

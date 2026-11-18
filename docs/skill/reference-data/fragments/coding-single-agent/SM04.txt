@@ -1,1 +1,0 @@
-调用[Single-Agent 执行 Hook](../hooks/execution.yaml)。继续锁定的 Single-Agent 路线，带入当前计划、前序证据和已有效果。保留 Control 和下一 Slice 的继续位置。实际实施及初步检查齐备后交验证。

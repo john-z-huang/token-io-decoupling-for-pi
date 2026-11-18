@@ -1,5 +1,0 @@
-- [Candidate Compliance Preflight](candidate-compliance.yaml) — 拥有只读候选检查。
-- [Session Role Ownership](../session-runtime/session-role-ownership.yaml) — 负责角色责任；此服务仍需单独的可信绑定上下文和 grant。
-- [Workflow Navigation Availability](../workflow-navigation/navigation-availability.yaml) — 负责可选导航不可用时直接读取 owner 的回退。
-- [Coding Execution Control](../execution-control/execution-control.yaml) — 拥有释放和 Control 转换。
-- [Task Assignment](task-assignment.yaml) — 拥有执行者和输出责任选择。

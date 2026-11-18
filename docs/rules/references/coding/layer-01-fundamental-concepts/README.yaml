@@ -23,4 +23,19 @@ blocks:
         - entry-body:
             kind: markdown
             text: |-
-              从[索引](INDEX.yaml)按分类查找所有者，再只阅读当前所需的中文 owner。
+              按下方分类查找所有者，再只阅读当前所需的中文 owner。
+  - classification:
+      kind: section
+      title: "分类"
+      expose: true
+      blank_lines_before: 2
+      blocks:
+        - classification-body:
+            kind: markdown
+            text: |-
+              - [session-runtime/](session-runtime/README.yaml)
+              - [delegation/](delegation/README.yaml)
+              - [context-exchange/](context-exchange/README.yaml)
+              - [execution-planning/](execution-planning/README.yaml)
+              - [execution-control/](execution-control/README.yaml)
+              - [workflow-navigation/](workflow-navigation/README.yaml)

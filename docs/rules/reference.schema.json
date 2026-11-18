@@ -13,7 +13,16 @@
         "workflow-checkpoint", "workflow-route", "hook-contract", "hook-directory"
       ]
     },
-    "markdown_path": { "type": "string", "pattern": "^(?:references/(?:[A-Za-z0-9_-]+/)+|hooks/|coding-workflows/)[A-Za-z0-9_-]+\\.md$" },
+    "markdown_path": { "type": "string", "pattern": "^(?:SKILL|workflows/coding|(?:references/(?:[A-Za-z0-9_-]+/)+|hooks/|coding-workflows/)[A-Za-z0-9_-]+)\\.md$" },
+    "front_matter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "description"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$" },
+        "description": { "$ref": "#/$defs/title" }
+      }
+    },
     "title": { "$ref": "#/$defs/title" },
     "blank_lines_after_title": { "type": "integer", "minimum": 1 },
     "flowchart_references": {
@@ -37,6 +46,12 @@
       "properties": { "document_type": { "enum": ["hook-contract", "hook-directory"] } }
     },
     "else": { "properties": { "document_type": { "not": { "enum": ["hook-contract", "hook-directory"] } } } }
+  }, {
+    "if": { "properties": { "markdown_path": { "const": "SKILL.md" } } },
+    "then": { "required": ["front_matter"] },
+    "else": { "not": { "required": ["front_matter"] } }
+  }, {
+    "properties": { "markdown_path": { "not": { "pattern": "^references/.*/INDEX\\.md$" } } }
   }],
   "dependentSchemas": {
     "flowchart_references": {

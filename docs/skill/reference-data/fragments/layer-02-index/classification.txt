@@ -1,4 +1,0 @@
-- [entry-and-context/](entry-and-context/INDEX.yaml)
-- [decision-and-execution/](decision-and-execution/INDEX.yaml)
-- [verification-and-repair/](verification-and-repair/INDEX.yaml)
-- [completion-and-effects/](completion-and-effects/INDEX.yaml)

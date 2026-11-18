@@ -1,3 +1,0 @@
-每个已放行 bundle 都必须显式包含 `write_content_memo: true` 或 `false`；Worker 不得自行推断默认值。`true` 启用对 `context-exchange/workers/<worker-context-id>/content-memo` 的写入；`false` 只关闭该 memo。已放行 bundle 中须包含准确 Memory 名称。父级控制开关和名称，但这只是逻辑归属：Serena 不强制 Worker 级访问或只读 ACL。
-
-Memory 工具未暴露或未获授权时，报告限制并阻塞依赖 memo 的切片；不得把 memo 物化为文件。其他独立工作可以继续。

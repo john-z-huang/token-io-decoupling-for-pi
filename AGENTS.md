@@ -3,7 +3,7 @@
 ## 项目范围与权威资料
 
 - 本仓库维护面向 Pi Coding Agent 的 Extension、Skill 指令和通用 MCP 工具。以根目录 `README.md` 为项目入口；不要把 MCP 服务误当作宿主工作流引擎。
-- Skill 参考规则、Hook 合同和 Coding 路线分别维护在 `docs/rules/references/`、`docs/rules/hooks/` 和 `docs/rules/coding-workflows/`。对应的 Markdown 阅读版由构建生成。修改入口、Hook、工作流或策略时，先定位各自的 owner，保持职责边界。
+- Skill 指令维护在 `docs/rules/`。执行 `npm run build:skill` 生成 `docs/skill/`，生成目录由 Git 忽略。修改入口、Hook、工作流或策略时，先定位各自的 owner，保持职责边界。
 - 文档维护规范见 [`docs/project/DOCUMENTATION_STANDARDS.md`](docs/project/DOCUMENTATION_STANDARDS.md)。MCP 专属约束见 [`mcp/AGENTS.md`](mcp/AGENTS.md)；MCP 构建、测试和工具契约见 [`docs/project/mcp/DEVELOPMENT.md`](docs/project/mcp/DEVELOPMENT.md)。
 
 ## 修改与验证

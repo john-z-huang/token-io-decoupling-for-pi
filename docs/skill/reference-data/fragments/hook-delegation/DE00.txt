@@ -1,3 +1,0 @@
-按入口合同核验当前授权、已释放路线/mode/count、Session/审计、Context/Decision、allocation 与恢复证据。恢复已释放 Worker bundle 时提供记录的显式 memo 值，新 bundle 在 DE04 确定。补证返回缺失 owner 和原位置。冲突或已有效果无法恢复时阻断。
-
-依据 [模块入口解析](../references/coding/layer-03-workflow-checkpoints/module-entry-resolution.yaml)。

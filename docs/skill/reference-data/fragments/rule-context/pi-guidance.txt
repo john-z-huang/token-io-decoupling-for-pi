@@ -1,1 +1,0 @@
-本项目 MCP 的 `rules_get_context` 提供已登记节点的只读 owner 摘录。`context_version=1` 可请求有界片段及已声明依赖；当 `complete=false`、存在 `missing_fragments` 或返回 `remaining_owner_refs` 时，按当前判断补读所需 owner。使用实际 Schema 和返回来源核验；旧会话身份无需填入规则读取参数。

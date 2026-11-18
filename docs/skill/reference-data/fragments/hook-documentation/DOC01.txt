@@ -1,3 +1,0 @@
-按 Contract 和 owner 触发条件判断文档、注释或项目 Memory 是否适用。适用时确认批准路径、读者、目的、来源和作者职责。普通文档由 parent 编写；只有通过全部 release gates 才可把 Skill 文档分配给 child，并由 parent 在 Documentation 和 Acceptance 审查。必需授权或证据缺失按阻断或补证处理，内容验证过期返回 Verification。
-
-依据 [Documentation](../references/coding/layer-02-workflow-concepts/completion-and-effects/documentation.yaml)、[Session 职责归属](../references/coding/layer-01-fundamental-concepts/session-runtime/session-role-ownership.yaml)。

@@ -1,1 +1,0 @@
-根父 Agent 负责当前请求的父级控制通道。每个 Worker 都必须非递归，只能通过运行环境的仅限父级通道、控制边界或最终 result 返回。越界事项只返回非空的 `Status`、`Issue`、`Need` 和 `Parent action`。Worker 不得选择兄弟、任意 thread 或其他编排路径。运行环境不能强制该边界时，Worker 视为阻塞。

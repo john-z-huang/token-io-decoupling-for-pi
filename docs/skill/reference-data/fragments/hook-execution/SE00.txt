@@ -1,3 +1,0 @@
-用当前授权、路线及模式、Session/审计读回、Context/Decision 和已有效果核对入口。按入口合同返回缺失证据的 owner 和原暂停位置；冲突或已有效果无法安全恢复时阻断。
-
-依据 [模块入口解析](../references/coding/layer-03-workflow-checkpoints/module-entry-resolution.yaml)。

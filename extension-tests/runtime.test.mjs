@@ -108,7 +108,7 @@ function position(h, phase, step, slice = false) {
 test('package declares one extension and excludes local Serena metadata by a narrow files allowlist', () => {
   const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
   assert.deepEqual(manifest.pi.extensions, ['./extensions/coding-workflow/index.ts']);
-  assert.deepEqual(manifest.files, ['extensions/coding-workflow/*.ts', 'docs/skill', 'agents/*.md', 'integrations/pi-subagent/*', 'README.md']);
+  assert.deepEqual(manifest.files, ['extensions/coding-workflow/*.ts', 'docs/rules', 'docs/project', 'docs/skill', 'agents/*.md', 'integrations/pi-subagent/*', 'README.md']);
   assert.equal(manifest.peerDependencies.typebox, '*');
 });
 test('extension is passive before explicit opt-in and does not write configuration or state', async () => {
@@ -136,10 +136,10 @@ test('context injects only relevant hooks once and preserves unrelated extension
   assert.match(second.messages[1].content, /Hook:entry/); assert.doesNotMatch(second.messages[1].content, /Hook:materialization/);
   assert.ok(second.messages[1].content.length < MAX_CONTEXT);
 });
-test('both routes and rule queries work with only the compiled resources installed', async t => {
+test('both routes and rule queries work with the YAML sources alone', async t => {
   const root = mkdtempSync(join(tmpdir(), 'pi-runtime-data-'));
   t.after(() => rmSync(root, { recursive: true, force: true }));
-  cpSync(join(catalog.root, 'reference-data'), join(root, 'reference-data'), { recursive: true });
+  cpSync(catalog.root, root, { recursive: true });
   const installed = loadCatalog(root);
   assert.equal(installed.digest, catalog.digest);
 

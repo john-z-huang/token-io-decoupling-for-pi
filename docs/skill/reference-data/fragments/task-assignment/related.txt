@@ -1,8 +1,0 @@
-- [子代理职责选择](../delegation/child-role-selection.yaml) — 负责职责选择及其兜底。
-- [Session 职责归属](../session-runtime/session-role-ownership.yaml) — 负责受维护职责说明。
-- [Session 模型](../session-runtime/session-model.yaml) — 负责 Session 身份和 affinity。
-- [委派状态记录](../delegation/delegation-state-record.yaml) — 负责当前 allocation 身份和状态。
-- [委派数量门禁](../delegation/delegation-mode-count-gate.yaml) — 负责锁定容量和显式预算扩展。
-- [委派模式重入](../delegation/delegation-mode-reentry.yaml) — 负责 Fork 的新模式/数量门禁。
-- [Output Token 路由](output-token-routing.yaml) — 负责独立的大输出门禁。
-- [决策上下文生成](decision-context-generation.yaml) — 负责有界决策上下文的生成与审阅。

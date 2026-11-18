@@ -18,7 +18,7 @@
         "additionalProperties": false,
         "required": ["source", "kind", "hooks", "explicit"],
         "properties": {
-          "source": { "type": "string", "pattern": "^\\.\\./.+\\.(?:yaml|md)$" },
+          "source": { "type": "string", "pattern": "^\\.\\./.+\\.yaml$" },
           "kind": { "enum": ["rule", "navigation", "reference"] },
           "hooks": {
             "type": "array",

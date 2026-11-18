@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.27,<2"]
+requires = ["hatchling>=1.27,<2", "jsonschema==4.26.0", "ruamel.yaml==0.19.1"]
 build-backend = "hatchling.build"
 
 [project]

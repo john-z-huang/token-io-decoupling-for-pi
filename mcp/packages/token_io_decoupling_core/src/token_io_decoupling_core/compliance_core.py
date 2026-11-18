@@ -28,7 +28,7 @@ PAIR_ROOTS = (
     "AGENTS.md",
     "docs/project/DOCUMENTATION_STANDARDS.md",
     "docs/skill/workflows/coding.md",
-    "docs/skill/WORKFLOW_ARCHITECTURE.md",
+    "docs/project/WORKFLOW_ARCHITECTURE.md",
     "docs/project/EXTERNAL_REFERENCES.md",
     "mcp/AGENTS.md",
     "docs/project/mcp/CALLER_CONTEXT.md",

@@ -31,7 +31,7 @@
 
 DSL 源文件之间使用相对 `.yaml` 链接。引用具体章节时使用块 ID，例如 `runtime-provider-support.yaml#subagent-models`。编译器验证目标文件及章节，再为阅读版生成相应的 `.md` 和 Markdown 标题锚点。Pi 将同一引用解析为 `coding-rule:`，按片段 ID 查询正文。`markdown_path` 字段指定阅读版的位置。
 
-修改规则 YAML、Hook YAML 或 Skill 入口后，执行 `uv run --locked --script scripts/compile-reference-dsl.py`。编译器生成供阅读和手动回退的 Markdown，以及 `docs/skill/reference-data/` 中的运行时索引、DSL 片段和 Hook 正文。评审核对源文件和生成差异，`--check` 只读检查一致性。扩展仅读取运行时资源，实例加载时使用当前索引中的规则指纹。
+修改规则、Hook 或 Skill 入口后，执行 `npm run build:skill`。编译器从 `docs/rules/` 生成完整的 `docs/skill/`，包括 Markdown 阅读版和 Skill 注册元数据。该目录由 Git 忽略，`--check` 只读核对本地生成结果。Pi Extension 启动时解析原始 YAML 并建立指纹索引，按 ID 读取当前片段。[Pi Extension 使用说明](PI_EXTENSION.md)和[工作流架构](WORKFLOW_ARCHITECTURE.md)作为项目 Markdown 维护。
 
 ### Coding DSL 类型与模板
 
@@ -39,8 +39,8 @@ Coding DSL 用 `document_type` 声明用途。类型由相对于 `docs/rules/ref
 
 | 类型 | 用途 | 标准块顺序 | 模板 |
 | --- | --- | --- | --- |
-| `directory-guide` | `README.yaml`，说明目录职责和阅读入口 | 范围与边界 → 入口 | [目录说明](../rules/templates/coding/directory-guide.yaml) |
-| `directory-index` | `INDEX.yaml`，按主题定位规则所有者 | 所有者。层级索引也可用分类或概览 | [目录索引](../rules/templates/coding/directory-index.yaml) |
+| `directory-guide` | `README.yaml`，说明目录职责和阅读入口 | 范围与边界或概览 → 入口 → 分类或所有者（参考目录） | [目录说明](../rules/templates/coding/directory-guide.yaml) |
+| `directory-index` | `coding-workflows/INDEX.yaml`，列出完整路线和阶段 Hook | 概览 → 分阶段 Hooks | [路线索引模板](../rules/templates/coding/directory-index.yaml) |
 | `fundamental-concept` | Layer-01，定义可跨工作流复用的通用规范 | 概览 → 通用规范 → Pi 优化指令 → 相关概念 | [基础概念](../rules/templates/coding/fundamental-concept.yaml) |
 | `workflow-concept` | Layer-02，描述工作流动作、通过条件和边界 | 概览 → 动作 → 通过条件 → 边界 → 相关概念 | [工作流概念](../rules/templates/coding/workflow-concept.yaml) |
 | `workflow-checkpoint` | Layer-03，定义具名检查点的输入、决策和返回 | 概览 → 触发与输入 → 决策与结果 → 失败边界 → 相关概念 | [检查点](../rules/templates/coding/workflow-checkpoint.yaml) |
@@ -54,6 +54,8 @@ uv run --locked --script scripts/compile-reference-dsl.py --check-structure
 ```
 
 结构检查会验证类型声明、章节顺序、块类型、必须发布的片段、路线阶段顺序和现有路线、模块的检查点 ID。正常导出和 `--check` 也执行这组检查，并继续核对引用和生成结果。
+
+参考目录只维护 `README.yaml`。分类或所有者章节应各引用一次直属规则和子目录的 `README.yaml`。构建会清理仍带原生成标记的旧参考目录 `INDEX.md`。
 
 ### 从流程图定位检查点
 
@@ -75,7 +77,7 @@ uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint 'r
 - [合同模板](../rules/templates/hooks/hook-contract.yaml) 按触发条件、输入与证据、执行要求、阶段路线图与有序检查点、输出与落点、退出与阻断、重新核验、规则来源排序。阶段路线图和检查点用于八份由路线绑定的合同。顶层块、执行子章节和检查点可以按稳定 ID 查询。
 - [目录模板](../rules/templates/hooks/hook-directory.yaml) 定义导语、合同与明确触发、宿主回调、链接基准和维护检查的顺序。
 - 导航引用使用相对 `.yaml#块ID`，导出时转成 Markdown 路径和标题锚点。执行要求中的 `rule_include` 用来读取所引用的底层参考规则片段。Pi 按需注入适用合同和当前检查点，路线图与来源表随阅读版发布。使用 `coding-rule:hook-entry#ER03` 等 ID 可定向查询检查点。 [入口合同示例](../rules/hooks/entry.yaml)
-- 修改规则来源后先编译，再由 `node scripts/check-pi-hooks.mjs --write-coverage` 从合同的来源表刷新 [YAML 来源对照](../rules/hooks/SOURCE_COVERAGE.yaml) 和 [Markdown 来源对照](../skill/hooks/SOURCE_COVERAGE.md)。阶段绑定在[路线索引](../skill/coding-workflows/INDEX.md)查阅。日常检查用 `npm run check:hooks` 校验两份对照、链接与注入场景。
+- 修改规则来源后先编译，再由 `node scripts/check-pi-hooks.mjs --write-coverage` 从合同的来源表刷新 [YAML 来源对照](../rules/hooks/SOURCE_COVERAGE.yaml)。再次执行 `npm run build:skill` 生成 [Markdown 来源对照](../skill/hooks/SOURCE_COVERAGE.md)。阶段绑定可在[路线索引](../rules/coding-workflows/INDEX.yaml)查阅。日常检查用 `npm run check:hooks` 校验来源对照、链接与注入场景。
 
 ```sh
 uv run --locked --script scripts/compile-reference-dsl.py --template hook-contract
@@ -88,6 +90,7 @@ uv run --locked --script scripts/compile-reference-dsl.py --check-structure
 运行以下文档检查，并按修改范围运行对应测试：
 
 ```sh
+npm run build:skill
 uv run --locked --script scripts/compile-reference-dsl.py --check
 python3 scripts/check-doc-layer-links.py
 python3 scripts/check-layer-01-sections.py

@@ -1,10 +1,12 @@
 # 项目文档
 
-本目录集中维护项目级规范、MCP 开发参考和迁移记录。运行时指令仍以各 `AGENTS.md` 与 [`docs/skill/`](../skill/) 下的 Skill 文档为准；本目录的开发记录和 manifest 不单独授予权限。
+本目录集中维护项目级规范、MCP 开发参考和迁移记录。[规则源](../rules/SKILL.yaml)经编译生成 Skill，Pi Extension 直接读取规则源。
 
 ## 项目级参考
 
 - [文档标准与维护规范](DOCUMENTATION_STANDARDS.md)
+- [Pi Extension 使用说明](PI_EXTENSION.md)
+- [工作流架构](WORKFLOW_ARCHITECTURE.md)
 - [外部资料引用登记](EXTERNAL_REFERENCES.md)
 
 ## MCP 开发参考

@@ -1,3 +1,0 @@
-对照直接权威来源核验当前 Contract、验收条件和未决边界，重点确认动作 5 要求的 task intent 与 eligible output classification 已记录。用共享协议区分事实、假设和有界增量。必需上下文或返回路径缺失时停止依赖工作。
-
-依据 [Contract](../references/coding/layer-02-workflow-concepts/entry-and-context/contract.yaml)、[共享协议](../references/share/shared-protocols.yaml)。

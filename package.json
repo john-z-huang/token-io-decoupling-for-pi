@@ -15,6 +15,9 @@
     "typebox": "*"
   },
   "scripts": {
+    "build:skill": "uv run --locked --script scripts/compile-reference-dsl.py",
+    "pretest": "npm run build:skill",
+    "prepack": "npm run build:skill",
     "test": "node --test extension-tests/*.test.mjs",
     "check:hooks": "node scripts/check-pi-hooks.mjs",
     "check:types": "node scripts/check-pi-extension-types.mjs",
@@ -22,5 +25,16 @@
     "check:subagents": "node scripts/check-pi-subagents.mjs",
     "check:subagent-contract": "node scripts/check-pi-subagent-contract.mjs"
   },
-  "files": ["extensions/coding-workflow/*.ts", "docs/skill", "agents/*.md", "integrations/pi-subagent/*", "README.md"]
+  "files": [
+    "extensions/coding-workflow/*.ts",
+    "docs/rules",
+    "docs/project",
+    "docs/skill",
+    "agents/*.md",
+    "integrations/pi-subagent/*",
+    "README.md"
+  ],
+  "dependencies": {
+    "yaml": "2.9.0"
+  }
 }

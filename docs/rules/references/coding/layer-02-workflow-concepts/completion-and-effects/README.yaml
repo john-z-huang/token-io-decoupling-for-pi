@@ -24,5 +24,15 @@ blocks:
             kind: markdown
             text: |-
               仅在适用时查阅文档和 Git 检查点，最后通过验收核对证据。
-
-              [索引](INDEX.yaml)
+  - owners:
+      kind: section
+      title: "所有者"
+      expose: true
+      blank_lines_before: 2
+      blocks:
+        - owners-body:
+            kind: markdown
+            text: |-
+              - [documentation](documentation.yaml)
+              - [git](git.yaml)
+              - [acceptance](acceptance.yaml)

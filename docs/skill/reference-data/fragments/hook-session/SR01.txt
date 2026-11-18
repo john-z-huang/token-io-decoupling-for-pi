@@ -1,1 +1,0 @@
-若当前 Contract、Context 或 Decision 发生实质变化，在依赖它们前审阅当前直接证据。不得重做规划、请求建议、重开 Mode 或启动下游效果。无实质变化时，记录有原因的 `not_applicable`。事实缺失时返回 `needs_prerequisite`；冲突或不安全事实返回 `blocked`。

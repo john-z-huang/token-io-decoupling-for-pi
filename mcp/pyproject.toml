@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling>=1.27,<2"]
+requires = ["hatchling>=1.27,<2", "jsonschema==4.26.0", "ruamel.yaml==0.19.1"]
 build-backend = "hatchling.build"
 
 [project]
@@ -21,7 +21,7 @@ token-io-decoupling-tools = "token_io_decoupling.cli:tools_main"
 allow-direct-references = true
 
 [dependency-groups]
-dev = ["hatchling>=1.27,<2", "pytest>=8,<9", "ruff>=0.14,<1", "ty>=0.0.1a0"]
+dev = ["hatchling>=1.27,<2", "jsonschema==4.26.0", "ruamel.yaml==0.19.1", "pytest>=8,<9", "ruff>=0.14,<1", "ty>=0.0.1a0"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/token_io_decoupling"]

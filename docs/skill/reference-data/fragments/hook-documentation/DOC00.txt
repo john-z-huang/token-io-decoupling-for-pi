@@ -1,3 +1,0 @@
-核验已释放 Mode、Session 身份及权限、原挂起位置和已有效果。按入口合同核对 Contract/范围、当前内容验证、epoch 和写前指纹。适用输出还须核对批准路径、读者、目的、来源及作者授权。证据缺失返回 `needs_prerequisite`，范围冲突或效果未授权返回 `blocked`。
-
-依据 [模块入口解析](../references/coding/layer-03-workflow-checkpoints/module-entry-resolution.yaml)。

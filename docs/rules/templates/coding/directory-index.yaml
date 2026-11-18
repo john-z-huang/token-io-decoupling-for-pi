@@ -20,14 +20,19 @@ document:
   schema_version: 1
   document_type: directory-index
   id: example-directory-index
-  markdown_path: references/coding/layer-01-fundamental-concepts/example/INDEX.md
-  title: 目录索引示例
+  markdown_path: coding-workflows/INDEX.md
+  title: 路线索引示例
   blocks:
-    - owners:
+    - overview:
+        kind: markdown
+        title: 概览
+        expose: true
+        text: '- [示例路线](coding-single-agent.yaml) — 说明何时读取该路线。'
+    - section-01:
         kind: section
-        title: 所有者
+        title: 分阶段 Hooks
         expose: true
         blocks:
-          - owners-body:
+          - section-01-body:
               kind: markdown
-              text: '- [示例概念](example-fundamental-concept.yaml) — 说明何时读取该规则。'
+              text: '- [入口就绪](../hooks/entry.yaml) — 按阶段读取对应合同。'

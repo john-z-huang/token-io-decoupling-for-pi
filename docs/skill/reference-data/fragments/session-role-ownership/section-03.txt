@@ -1,1 +1,0 @@
-被分配时，构建或刷新包含中性项目事实、准确 source pointer、policy-routing pointer 和 freshness 数据的有界 fingerprint capsule。它不定义任务、不修改 Contract、不实现、不验证、不物化文档，也不得递归委派。Capsule 只能补充强制指令，不能替代直接读取权威文件。

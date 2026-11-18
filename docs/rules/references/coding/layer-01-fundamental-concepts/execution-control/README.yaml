@@ -24,5 +24,14 @@ blocks:
             kind: markdown
             text: |-
               从执行控制的切片/放行规则开始；报告进展或异常时查阅阶段反馈。
-
-              [索引](INDEX.yaml)
+  - owners:
+      kind: section
+      title: "所有者"
+      expose: true
+      blank_lines_before: 2
+      blocks:
+        - owners-body:
+            kind: markdown
+            text: |-
+              - [execution-control](execution-control.yaml)
+              - [execution-stage-feedback](execution-stage-feedback.yaml)

@@ -10,7 +10,7 @@ blocks:
       text: |-
         这些文件是由 `extensions/coding-workflow` 的实际 Pi 回调选择并注入的执行合同，**不是仅因文件名叫 Hook 就自动执行的 Markdown**。每份按主题整合相关owner的前置条件、动作、条件分支、禁止项、证据、退出/阻断与重新核验，并逐篇列出“来源—本合同落点”；不是摘要或必须重新通读所有owner才能执行的目录。原owner仍保留权威，冲突/新规则需要定向核验，不能由省略推导豁免。
 
-        用户启动与安装见 [Extension 使用说明](../PI_EXTENSION.md)。不启用 Extension 时，Skill 仍通过 [Coding selector](../workflows/coding.md) 定向消费原 owner。
+        用户启动与安装见 [Extension 使用说明](../../project/PI_EXTENSION.md)。不启用 Extension 时，Skill 仍通过 [Coding selector](../workflows/coding.yaml) 定向消费原 owner。
 
         扩展默认被动。用户启用后，由 [Session 合同](session.yaml#mode-selection) 维护启动顺序、已确认答案和生命周期规则。
   - contracts:

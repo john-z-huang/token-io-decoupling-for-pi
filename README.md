@@ -7,6 +7,15 @@
 
 ## Pi Extension 快速入口
 
+在本仓库安装 YAML 解析依赖并生成 Skill 阅读版。
+
+```bash
+npm ci --legacy-peer-deps
+npm run build:skill
+```
+
+然后在目标项目运行。
+
 ```bash
 pi -e /absolute/path/to/token-io-decoupling-for-pi
 ```
@@ -20,7 +29,7 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi
 /coding multi 2 任务描述
 ```
 
-默认不接管会话，也不创建子代理。启动固定先模式/预算后审计可见性；显式有效字段不重问，缺失字段须选择默认或定制，取消/未回复不隐式默认，未完成不创建 Workflow、不执行工具。非 UI 可用 `--coding-mode single --coding-audit-defaults` 明确提交；缺答案时阻断。答案与逐字段来源在同 Session 跨任务、树导航和 reload/resume 保留，fork/new Session 重新收集；volatile 仅进程内、不追加扩展记录、不假称可从日志恢复。模式/预算或审计偏好不证明完整日志能力，也不披露私有思维链。模式/预算选择不授予写入、Memory、网络或 Git 权限。安装、四个协调工具、真实事件/语义信号、离线验证及适配器限制见 [Pi Extension 使用说明](docs/skill/PI_EXTENSION.md) 和 [Hooks 目录](docs/skill/hooks/README.md)。本轮没有自动安装到用户/项目配置，也没有真实客户端/API/后端端到端验收。未启用 Extension 时从 [Skill 入口](docs/skill/SKILL.md) 走原有 owner 回退路线。
+默认不接管会话，也不创建子代理。启动固定先模式/预算后审计可见性；显式有效字段不重问，缺失字段须选择默认或定制，取消/未回复不隐式默认，未完成不创建 Workflow、不执行工具。非 UI 可用 `--coding-mode single --coding-audit-defaults` 明确提交；缺答案时阻断。答案与逐字段来源在同 Session 跨任务、树导航和 reload/resume 保留，fork/new Session 重新收集；volatile 仅进程内、不追加扩展记录、不假称可从日志恢复。模式/预算或审计偏好不证明完整日志能力，也不披露私有思维链。模式/预算选择不授予写入、Memory、网络或 Git 权限。安装、四个协调工具、真实事件/语义信号、离线验证及适配器限制见 [Pi Extension 使用说明](docs/project/PI_EXTENSION.md) 和 [Hooks 目录](docs/skill/hooks/README.md)。本轮没有自动安装到用户/项目配置，也没有真实客户端/API/后端端到端验收。未启用 Extension 时从 [Skill 入口](docs/skill/SKILL.md) 走原有 owner 回退路线。
 
 ## 现有Pi子代理描述与Root选型
 
@@ -39,7 +48,7 @@ token-io-decoupling-tools skills update
 
 默认安装到 `~/.pi/agent/skills/token-io-decoupling-skill`；可用 `--name NEW-NAME` 指定另一个小写、连字符分隔的名称。旧名称 `token-io-decoupling` 始终被拒绝。安装器不会修改或删除旧项目，会拒绝符号链接路径及已有未知目录，只更新内容未经修改且由本工具管理的安装。更新前请将本地修改另行保存。发布失败时会恢复旧安装；进程中断可能遗留锁或暂存目录，应先检查再人工恢复。
 
-Skill 的入口位于 [docs/skill](docs/skill/SKILL.md)。参考规则用 `docs/rules/references/` 中的 YAML DSL 维护。wheel 和源码分发包携带独立快照，包含中文工作流、生成的参考文档以及支持文档和脚本。安装从该快照读取，开发改动需重新构建、安装 CLI 并显式更新 Skill 后才生效。安装后的 `_project/` 是生成的支持资料快照。通过 CLI 安装 Skill 和通过 Pi 加载 Extension 分别执行。MCP 使用唯一 tools 程序，需按实际 Pi MCP 配置显式注册。受保护写入仍要求独立可信绑定。 [维护说明](docs/project/DOCUMENTATION_STANDARDS.md#参考规则-dsl)
+Skill 从 [入口 YAML](docs/rules/SKILL.yaml) 和 `docs/rules/` 中的规则生成。编译后的入口位于 [docs/skill/SKILL.md](docs/skill/SKILL.md)，生成目录由 Git 忽略。Pi Extension 直接加载原始 YAML 并按片段 ID 查询。MCP 构建会生成独立快照，包含中文工作流、参考文档、支持文档和脚本。开发改动需重新构建、安装 CLI 并显式更新 Skill 后才生效。安装后的 `_project/` 是生成的支持资料快照。通过 CLI 安装 Skill 和通过 Pi 加载 Extension 分别执行。MCP 使用唯一 tools 程序，需按实际 Pi MCP 配置显式注册。受保护写入仍要求独立可信绑定。 [维护说明](docs/project/DOCUMENTATION_STANDARDS.md#参考规则-dsl)
 
 兼容旧安装时，请在请求中使用新 Skill 名称。已有会话可能保留旧指令：保留并迁移旧开发仓库后，使用现有配置人工停用其旧 Skill 发现入口，再启动使用新名称的新会话。安装器不删除旧项目，也不自动处理重复发现。不要再次将开发仓库本身放进 Skill 目录。
 
@@ -51,11 +60,11 @@ MCP 已收敛为 `token-io-decoupling-tools`；上面的 Pi package 命令只加
 
 ## 文档入口
 
-- [Pi Extension](docs/skill/PI_EXTENSION.md)：安装、事件、状态机、适配与验证边界。
+- [Pi Extension](docs/project/PI_EXTENSION.md)：安装、事件、状态机、适配与验证边界。
 - [Hooks 目录](docs/skill/hooks/README.md)：明确触发条件与执行合同。
 - [Skill 入口](docs/skill/SKILL.md)：轻量入口与未启用扩展的回退路线。
 - [Coding reference](docs/skill/references)：由工作流组合使用的独立 Coding 模块和共享协议模块。
-- [工作流架构](docs/skill/WORKFLOW_ARCHITECTURE.md)：无状态规则导航与结构检查，以及单独守卫的可选输出物化能力。
+- [工作流架构](docs/project/WORKFLOW_ARCHITECTURE.md)：无状态规则导航与结构检查，以及单独守卫的可选输出物化能力。
 - [项目文档索引](docs/project/README.md)：项目规范、MCP 参考和迁移记录。
 - [MCP 开发指南](docs/project/mcp/DEVELOPMENT.md)：本地 Python 检查与包构建。
 

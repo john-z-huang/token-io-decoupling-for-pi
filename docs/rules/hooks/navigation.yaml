@@ -77,4 +77,4 @@ blocks:
               | [导航选择](../references/coding/layer-03-workflow-checkpoints/workflow-navigation-selection.yaml) | 可选分支、失败与返回 |
               | [模块入口解析](../references/coding/layer-03-workflow-checkpoints/module-entry-resolution.yaml) | 前置补证、恢复、不重放 |
               | [路线入口](../references/coding/layer-03-workflow-checkpoints/route-entry.yaml) | 唯一已授权路线及缺前置 |
-              | [架构](../WORKFLOW_ARCHITECTURE.md) | 有状态宿主与无状态MCP区别 |
+              | [架构](../../project/WORKFLOW_ARCHITECTURE.md) | 有状态宿主与无状态MCP区别 |

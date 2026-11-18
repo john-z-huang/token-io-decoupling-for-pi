@@ -1,9 +1,11 @@
-"""Bundle the authored Skill snapshot in wheels and detached source distributions."""
+"""Bundle the compiled Skill snapshot in wheels and detached source distributions."""
 
 from __future__ import annotations
 
 import os
 import re
+import subprocess
+import sys
 import tempfile
 import zipfile
 from pathlib import Path, PurePosixPath
@@ -26,6 +28,12 @@ class SkillBuildHook(BuildHookInterface):
             if compliance_core.is_file() and not compliance_core.is_symlink()
             else None
         )
+        if (repo / "docs/rules/SKILL.yaml").is_file():
+            subprocess.run(
+                [sys.executable, str(repo / "scripts/compile-reference-dsl.py")],
+                cwd=repo,
+                check=True,
+            )
         source = repo / "docs/skill"
         source_markers = (
             source / "SKILL.md",

@@ -1,1 +1,0 @@
-Documentation 或获批内容变更后，判断 implementation/content、documentation 或 Contract 证据是否改变。应用[Documentation](../layer-02-workflow-concepts/completion-and-effects/documentation.yaml)和[Verification Epoch](../layer-02-workflow-concepts/verification-and-repair/verification-epoch.yaml)。

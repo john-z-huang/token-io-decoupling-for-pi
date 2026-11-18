@@ -1,4 +1,0 @@
-- [执行规划](execution-planning.yaml) — 规划方法与侦察顺序。
-- [Serena LSP 与 MCP 工具](../session-runtime/LSP-MCP-Tools.yaml) — 项目绑定与 Memory 能力。
-- [Session Context Firewall](../session-runtime/session-context-firewall.yaml) — 有界上下文进入。
-- [委派 Worker 边界](../delegation/delegation-worker-boundary.yaml) — 已释放子级范围。

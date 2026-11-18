@@ -1,1 +1,0 @@
-- [Repair Scope Gate](../layer-02-workflow-concepts/verification-and-repair/repair-scope-gate.yaml)

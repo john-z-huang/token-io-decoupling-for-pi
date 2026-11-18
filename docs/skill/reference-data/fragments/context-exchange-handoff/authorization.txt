@@ -1,1 +1,0 @@
-Context ID 或 Memory 名称本身不授权创建/替换 Agent，也不授权改变父级实时任务状态。mode/count/allocation/epoch 状态仍由其原 owner 管理。

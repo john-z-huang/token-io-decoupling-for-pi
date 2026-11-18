@@ -24,5 +24,23 @@ blocks:
             kind: markdown
             text: |-
               方向未决时从决策门禁开始。调用有界可复用模块时应用工作流模块契约；其他情况按任务选择规划或执行主体分配 owner。
-
-              [索引](INDEX.yaml)
+  - owners:
+      kind: section
+      title: "所有者"
+      expose: true
+      blank_lines_before: 2
+      blocks:
+        - owners-body:
+            kind: markdown
+            text: |-
+              - [candidate-compliance](candidate-compliance.yaml)
+              - [decision-context-generation](decision-context-generation.yaml)
+              - [decisions-advisory](decisions-advisory.yaml)
+              - [execution-decision-gate](execution-decision-gate.yaml)
+              - [execution-planning](execution-planning.yaml)
+              - [output-token-routing](output-token-routing.yaml)
+              - [output-materialization](output-materialization.yaml)
+              - [task-plan-memory-lifecycle](task-plan-memory-lifecycle.yaml)
+              - [task-assignment](task-assignment.yaml)
+              - [workflow-module-contract](workflow-module-contract.yaml)
+              - [workflow-routing-advice](workflow-routing-advice.yaml)

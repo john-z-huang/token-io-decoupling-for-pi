@@ -1,4 +1,0 @@
-- **Routine Interaction**：按明确计划执行浏览、定位、滚动、填表、菜单操作、参数调整和有界编辑。Observation 可以在自己的 Session 内保持 observe → act → observe 循环。
-- **Creative Visual Authoring**：绘制、编辑、合成、布局、设计、风格化，或下一步可能改变构图、层次、色彩/光线、材质、留白或整体视觉质量的工作。
-
-任务转为 Creative 后，必须先稳定简短的 `Creative Brief/Visual Plan`。Routine 导航和局部机械调整可以留在 Observation 内，但不能替代 Creative review。

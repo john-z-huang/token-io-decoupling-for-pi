@@ -23,4 +23,17 @@ blocks:
         - entry-body:
             kind: markdown
             text: |-
-              从[索引](INDEX.yaml)查找检查点，再阅读其同语言所有者。
+              按下方分类查找检查点，再阅读其同语言所有者。
+  - classification:
+      kind: section
+      title: "分类"
+      expose: true
+      blank_lines_before: 2
+      blocks:
+        - classification-body:
+            kind: markdown
+            text: |-
+              - [entry-and-context/](entry-and-context/README.yaml)
+              - [decision-and-execution/](decision-and-execution/README.yaml)
+              - [verification-and-repair/](verification-and-repair/README.yaml)
+              - [completion-and-effects/](completion-and-effects/README.yaml)

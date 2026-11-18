@@ -1,8 +1,0 @@
-- [Output Materialization](output-materialization.yaml) — 拥有受控候选内容准备和应用。
-- [Workflow Routing Advice](workflow-routing-advice.yaml) — 拥有可选检查点阶段建议。
-- [任务执行主体分配](task-assignment.yaml) — 负责 Root/子代理执行主体与现有子代理选择。
-- [Session 模型](../session-runtime/session-model.yaml) — 负责 Session 身份和拓扑语义。
-- [委派数量门禁](../delegation/delegation-mode-count-gate.yaml) — 负责锁定子代理容量和显式扩展。
-- [委派模式重入](../delegation/delegation-mode-reentry.yaml) — 负责 Fork 的新模式选择。
-- [委派状态记录](../delegation/delegation-state-record.yaml) — 负责当前 allocation 身份和状态。
-- [决策上下文生成](decision-context-generation.yaml) — 负责有界决策上下文的生成与审阅。

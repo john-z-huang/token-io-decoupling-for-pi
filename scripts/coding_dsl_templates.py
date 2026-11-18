@@ -57,8 +57,11 @@ def validate_coding_document(path: Path, document: dict, template: dict) -> None
     order = list(blocks)
     if len(order) != len(document["blocks"]):
         raise ValueError(f"{path} 的顶层块 ID 有重复")
-    if order not in template["layouts"]:
-        options = " 或 ".join(" → ".join(layout) for layout in template["layouts"])
+    layouts = template["layouts"]
+    if expected_type == "directory-guide" and path.parts[0] == "references":
+        layouts = [layout for layout in layouts if layout[-1] in {"classification", "owners"}]
+    if order not in layouts:
+        options = " 或 ".join(" → ".join(layout) for layout in layouts)
         raise ValueError(f"{path} 的 {expected_type} 块顺序应为 {options}")
     for block_id, block in blocks.items():
         rule = template["block_rules"][block_id]

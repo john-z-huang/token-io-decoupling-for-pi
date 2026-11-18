@@ -4,7 +4,8 @@ import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { loadReferenceData } from "./reference-data.ts";
 
-export const SKILL_ROOT = fileURLToPath(new URL("../../docs/skill/", import.meta.url));
+export const RULES_ROOT = fileURLToPath(new URL("../../docs/rules/", import.meta.url));
+export { headingSlug } from "./reference-data.ts";
 export const WORKFLOW_DIR = "coding-workflows";
 export const PHASES = ["entry", "session", "definition", "execution", "verification", "documentation", "delivery"] as const;
 export type Phase = typeof PHASES[number];
@@ -73,12 +74,12 @@ export function phaseHooks(phase: Phase, mode: Mode): HookId[] {
 export function signalHooks(signal: SemanticSignal): HookId[] {
   return ({ requirements_changed: ["entry", "planning"], decision_required: ["planning"], executor_changed: ["execution", "delegation"], repair_required: ["repair", "verification"], documentation_impact: ["documentation", "verification"], git_changed: ["delivery", "verification"], context_exchange: ["context"], advice_requested: ["advisory"], materialization_requested: ["materialization"], capability_changed: ["session", "entry"] } satisfies Record<SemanticSignal, HookId[]>)[signal];
 }
-export function loadCatalog(root = SKILL_ROOT): Catalog {
+export function loadCatalog(root = RULES_ROOT): Catalog {
   const modules: Record<string, Module> = Object.create(null);
   const hash = createHash("sha256");
   for (const file of ["catalog.ts", "engine.ts", "runtime.ts", "index.ts", "model-selection.ts", "startup.ts", "reference-data.ts"]) hash.update(file).update(readFileSync(new URL(file, import.meta.url)));
   const references = loadReferenceData(root);
-  hash.update("reference-data/manifest.json").update(references.manifest);
+  hash.update("rules-yaml").update(references.digest);
   const routes = { single: loadRoute(references, "single"), multi: loadRoute(references, "multi") };
   for (const [name, hook] of Object.entries(MODULE_HOOKS)) {
     const expected = EXPECTED_IDS[name];
@@ -142,11 +143,6 @@ export function rewriteDocumentLinks(root: string, document: string, markdown: s
   return mapDocumentLinks(markdown, target => resolveDocumentLink(root, document, target)?.url ?? target);
 }
 
-export function headingSlug(title: string): string {
-  return title.replace(/\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/<[^>]*>/g, "").toLowerCase()
-    .replace(/[^\p{L}\p{N}\p{M}_\-\s]/gu, "").replace(/ /g, "-");
-}
-
 export function ruleLink(document: string, fragment?: string): string {
   return `coding-rule:${document}${fragment ? `#${fragment}` : ""}`;
 }
@@ -158,18 +154,24 @@ export function rewriteWorkflowLinks(catalog: Catalog, source: string, markdown:
     const link = resolveDocumentLink(catalog.root, source, target);
     if (!link) return target;
     const path = relative(catalog.root, link.path).split(sep).join("/");
-    const yaml = /^(?:references|hooks|coding-workflows)\/.+\.yaml$/.test(path);
-    if (!yaml && path.startsWith("hooks/")) return link.url;
-    const document = catalog.references.documentForPath(yaml ? path.replace(/\.yaml$/, ".md") : path);
-    if (yaml) {
-      if (!document || (link.fragment && !document.fragments.some(item => item.id === link.fragment))) {
-        throw new Error(`DSL 链接缺少规则片段：${source} -> ${target}`);
-      }
-      return ruleLink(document.id, link.fragment);
-    }
+    const yaml = path.endsWith(".yaml");
+    const exportPath = yaml ? path.replace(/\.yaml$/, ".md") : path;
+    const document = catalog.references.documentForPath(exportPath);
+    if (yaml && !document) throw new Error(`DSL 链接缺少规则文档：${source} -> ${target}`);
     if (!document) return link.url;
-    const section = document.fragments.find(item => item.kind === "section" && item.anchor === link.fragment);
-    return ruleLink(document.id, section?.id);
+    const fragment = document.fragments.find(item => yaml
+      ? item.id === link.fragment
+      : item.kind === "section" && item.anchor === link.fragment);
+    if (fragment) return ruleLink(document.id, fragment.id);
+    if (!link.fragment && document.fragments.length && !exportPath.startsWith("hooks/")) return ruleLink(document.id);
+    if (yaml && link.fragment && ![...document.sectionIds.values()].includes(link.fragment)) {
+      throw new Error(`DSL 链接缺少规则片段：${source} -> ${target}`);
+    }
+    const original = new URL(link.url);
+    const rule = pathToFileURL(resolve(catalog.root, catalog.references.sourceForPath(exportPath)!));
+    rule.search = original.search;
+    rule.hash = yaml ? original.hash : document.sectionIds.get(link.fragment) ?? original.hash;
+    return rule.href;
   });
 }
 

@@ -181,4 +181,4 @@ blocks:
               | [模块入口解析](../references/coding/layer-03-workflow-checkpoints/module-entry-resolution.yaml) | 模块声明、缺前置与恢复 |
               | [路线入口](../references/coding/layer-03-workflow-checkpoints/route-entry.yaml) | 只消费已选路线 |
               | [Mode](../references/coding/layer-02-workflow-concepts/entry-and-context/mode.yaml) | 已释放拓扑证据 |
-              | [Coding selector](../workflows/coding.md) | 未启用扩展的入口回退 |
+              | [Coding selector](../workflows/coding.yaml) | 未启用扩展的入口回退 |

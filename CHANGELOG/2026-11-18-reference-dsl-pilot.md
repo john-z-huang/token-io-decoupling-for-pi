@@ -6,7 +6,7 @@
 
 ## 改动
 
-- 编译器生成原路径上的两份 Markdown、轻量索引和八个独立片段。两份 Markdown 均只插入了生成说明注释及紧随的空行，移除这两行后与迁移前逐字一致。`--check` 核对生成结果和源文件是否同步。 [验证与修复模块](../docs/skill/hooks/verification.md#有序模块清单) · [验证 Epoch 规则](../docs/skill/references/coding/layer-02-workflow-concepts/verification-and-repair/verification-epoch.md) · [运行时索引](../docs/skill/reference-data/manifest.json)
+- 编译器生成原路径上的两份 Markdown、轻量索引和八个独立片段。两份 Markdown 均只插入了生成说明注释及紧随的空行，移除这两行后与迁移前逐字一致。`--check` 核对生成结果和源文件是否同步。 [验证与修复模块](../docs/skill/hooks/verification.md#有序模块清单) · [验证 Epoch 规则](../docs/skill/references/coding/layer-02-workflow-concepts/verification-and-repair/verification-epoch.md)
 - Pi 从索引取得验证模块的检查点顺序和标题，注入时读取当前正文。Verification Hook 从同一索引读取 Epoch `actions`，两份参考规则无需反向引用 Hook。片段首次读取时校验 Hash，失配会阻断依赖操作。工作流快照继续绑定目录 Hash，恢复旧快照时按现有规则重新核验。 [运行时读取](../extensions/coding-workflow/reference-data.ts) · [Verification Hook](../docs/skill/hooks/verification.md)
 - 本地 Serena 项目配置启用了 `yaml`。新 Serena 会话用 `get_symbols_overview` 查询了 `blocks` 层级，再用 `find_symbol` 定位了 `VR03` 和 `actions`。项目忽略 `.serena/`，此设置仅保存在本地。 [验证模块 YAML](../docs/rules/hooks/verification.yaml) · [验证 Epoch YAML](../docs/rules/references/coding/layer-02-workflow-concepts/verification-and-repair/verification-epoch.yaml)
 

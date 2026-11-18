@@ -1,3 +1,0 @@
-回读已释放的 mode/count、当前真实身份和角色、逐操作权限、规范 Session 记录及适用的 allocation。结构结果和应用范围不代替身份或授权证据。证据缺失返回 `needs_prerequisite`；冲突或必需 owner 不可用返回 `blocked`。
-
-依据 [Session 状态解决](../references/coding/layer-03-workflow-checkpoints/session-state-resolution.yaml)。

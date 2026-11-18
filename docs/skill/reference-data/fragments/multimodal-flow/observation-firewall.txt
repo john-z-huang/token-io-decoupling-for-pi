@@ -1,1 +1,0 @@
-连续截图、大型图片集、视频帧集、OCR 文本、DOM/accessibility dump、Computer Use 历史和重复定位证据留在 Observation 侧。Decision 只接收下一步决策所需的发现、风险、开放问题和精选证据。严格有界的小型视觉状态如果不会造成上下文倾倒，可以由 Decision 直接检查。需要更多信息时使用定向证据请求，不转发原始集合。

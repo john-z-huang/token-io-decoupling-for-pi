@@ -1,1 +1,0 @@
-可按当前工具发现能力核验实际 Schema；暴露 codemode 时可用 `searchTools`、`describeTool` 和 `describeNamespace`。`token-io-decoupling-tools` 提供规则上下文与候选文档预检。专用工作流路由和检查点结构评估已移除。缺少可选辅助时直接读取 owner；只有缺少必需证据才暂停依赖工作。

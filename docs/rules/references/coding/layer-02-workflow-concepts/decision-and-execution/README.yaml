@@ -24,5 +24,15 @@ blocks:
             kind: markdown
             text: |-
               重大实现放行前使用决策检查点；切片放行后使用实现与控制检查点。
-
-              [索引](INDEX.yaml)
+  - owners:
+      kind: section
+      title: "所有者"
+      expose: true
+      blank_lines_before: 2
+      blocks:
+        - owners-body:
+            kind: markdown
+            text: |-
+              - [decision](decision.yaml)
+              - [implementation](implementation.yaml)
+              - [control](control.yaml)

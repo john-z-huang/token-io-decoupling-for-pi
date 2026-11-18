@@ -1,4 +1,0 @@
-- [工作流规则上下文](rule-context.yaml) — 负责有界导航至当前工作流规则。
-- [工作流导航可用性](navigation-availability.yaml) — 负责导航不可用和可选检查分支。
-- [Coding Execution Control](../execution-control/execution-control.yaml) — 负责 Slice 与 Control 判断。
-- [Decisions Advisory](../execution-planning/decisions-advisory.yaml) — 负责单独请求的可选语义建议。

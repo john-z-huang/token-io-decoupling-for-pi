@@ -1,3 +1,0 @@
-使用 `context-exchange/INDEX` 作为父级路由索引，使用 `context-exchange/workers/<worker-context-id>/INDEX` 记录 Worker 的 task、scope、status、最近一次实质更新、记录名称及 blocker/handoff 目标。Handoff 记录保留已完成状态、带证据的失败方案、当前修改和验证、阻塞、下一步动作及准确权威来源指针。只在状态/证据/handoff 实质变化时更新，不要逐命令记录。
-
-原 handoff/import 名称在 `context-exchange/` 下沿用相同 basename 和子目录意图映射。后继者只读取其已放行任务明确暴露的 Memory 名称；除非明确授权，不得写入其他 Worker 的名称。这只是指令逻辑归属，不是技术隔离；Serena 可能向任何获准 Session 暴露记录。不得重建完整 transcript。Memory 工具不可用时，报告并阻塞依赖工作；不得回退为文件。

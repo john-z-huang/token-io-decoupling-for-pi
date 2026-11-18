@@ -6,29 +6,13 @@ id: source-coverage
 markdown_path: hooks/SOURCE_COVERAGE.md
 title: Hook 来源整合对照
 rows:
-  - source: "../../skill/PI_EXTENSION.md"
-    kind: navigation
-    hooks: ["recovery"]
-    explicit: true
-  - source: "../../skill/SKILL.md"
+  - source: "../SKILL.yaml"
     kind: rule
     hooks: ["foundation"]
     explicit: true
-  - source: "../../skill/WORKFLOW_ARCHITECTURE.md"
-    kind: rule
-    hooks: ["foundation","navigation","materialization"]
-    explicit: true
-  - source: "../references/coding/layer-01-fundamental-concepts/INDEX.yaml"
-    kind: navigation
-    hooks: ["navigation"]
-    explicit: false
   - source: "../references/coding/layer-01-fundamental-concepts/README.yaml"
     kind: navigation
     hooks: ["navigation"]
-    explicit: false
-  - source: "../references/coding/layer-01-fundamental-concepts/context-exchange/INDEX.yaml"
-    kind: navigation
-    hooks: ["context"]
     explicit: false
   - source: "../references/coding/layer-01-fundamental-concepts/context-exchange/README.yaml"
     kind: navigation
@@ -58,10 +42,6 @@ rows:
     kind: rule
     hooks: ["context"]
     explicit: true
-  - source: "../references/coding/layer-01-fundamental-concepts/delegation/INDEX.yaml"
-    kind: navigation
-    hooks: ["delegation","session"]
-    explicit: false
   - source: "../references/coding/layer-01-fundamental-concepts/delegation/README.yaml"
     kind: navigation
     hooks: ["delegation","session"]
@@ -114,10 +94,6 @@ rows:
     kind: rule
     hooks: ["delegation"]
     explicit: true
-  - source: "../references/coding/layer-01-fundamental-concepts/execution-control/INDEX.yaml"
-    kind: navigation
-    hooks: ["execution"]
-    explicit: false
   - source: "../references/coding/layer-01-fundamental-concepts/execution-control/README.yaml"
     kind: navigation
     hooks: ["execution"]
@@ -130,10 +106,6 @@ rows:
     kind: rule
     hooks: ["execution"]
     explicit: true
-  - source: "../references/coding/layer-01-fundamental-concepts/execution-planning/INDEX.yaml"
-    kind: navigation
-    hooks: ["planning"]
-    explicit: false
   - source: "../references/coding/layer-01-fundamental-concepts/execution-planning/README.yaml"
     kind: navigation
     hooks: ["planning"]
@@ -182,10 +154,6 @@ rows:
     kind: rule
     hooks: ["navigation","advisory"]
     explicit: true
-  - source: "../references/coding/layer-01-fundamental-concepts/session-runtime/INDEX.yaml"
-    kind: navigation
-    hooks: ["session","audit"]
-    explicit: false
   - source: "../references/coding/layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.yaml"
     kind: rule
     hooks: ["context","documentation"]
@@ -218,10 +186,6 @@ rows:
     kind: rule
     hooks: ["session","delegation","documentation","delivery","materialization"]
     explicit: true
-  - source: "../references/coding/layer-01-fundamental-concepts/workflow-navigation/INDEX.yaml"
-    kind: navigation
-    hooks: ["navigation"]
-    explicit: false
   - source: "../references/coding/layer-01-fundamental-concepts/workflow-navigation/README.yaml"
     kind: navigation
     hooks: ["navigation"]
@@ -238,17 +202,9 @@ rows:
     kind: rule
     hooks: ["navigation","advisory"]
     explicit: true
-  - source: "../references/coding/layer-02-workflow-concepts/INDEX.yaml"
-    kind: navigation
-    hooks: ["navigation"]
-    explicit: false
   - source: "../references/coding/layer-02-workflow-concepts/README.yaml"
     kind: navigation
     hooks: ["navigation"]
-    explicit: false
-  - source: "../references/coding/layer-02-workflow-concepts/completion-and-effects/INDEX.yaml"
-    kind: navigation
-    hooks: ["documentation","delivery"]
     explicit: false
   - source: "../references/coding/layer-02-workflow-concepts/completion-and-effects/README.yaml"
     kind: navigation
@@ -266,10 +222,6 @@ rows:
     kind: rule
     hooks: ["delivery"]
     explicit: true
-  - source: "../references/coding/layer-02-workflow-concepts/decision-and-execution/INDEX.yaml"
-    kind: navigation
-    hooks: ["execution","planning"]
-    explicit: false
   - source: "../references/coding/layer-02-workflow-concepts/decision-and-execution/README.yaml"
     kind: navigation
     hooks: ["execution","planning"]
@@ -286,10 +238,6 @@ rows:
     kind: rule
     hooks: ["execution"]
     explicit: true
-  - source: "../references/coding/layer-02-workflow-concepts/entry-and-context/INDEX.yaml"
-    kind: navigation
-    hooks: ["entry","planning"]
-    explicit: false
   - source: "../references/coding/layer-02-workflow-concepts/entry-and-context/README.yaml"
     kind: navigation
     hooks: ["entry","planning"]
@@ -314,10 +262,6 @@ rows:
     kind: rule
     hooks: ["entry"]
     explicit: true
-  - source: "../references/coding/layer-02-workflow-concepts/verification-and-repair/INDEX.yaml"
-    kind: navigation
-    hooks: ["verification","repair"]
-    explicit: false
   - source: "../references/coding/layer-02-workflow-concepts/verification-and-repair/README.yaml"
     kind: navigation
     hooks: ["verification","repair"]
@@ -354,10 +298,6 @@ rows:
     kind: rule
     hooks: ["verification"]
     explicit: true
-  - source: "../references/coding/layer-03-workflow-checkpoints/INDEX.yaml"
-    kind: navigation
-    hooks: ["navigation","execution"]
-    explicit: false
   - source: "../references/coding/layer-03-workflow-checkpoints/README.yaml"
     kind: navigation
     hooks: ["navigation","execution"]
@@ -434,7 +374,7 @@ rows:
     kind: rule
     hooks: ["foundation"]
     explicit: true
-  - source: "../../skill/workflows/coding.md"
+  - source: "../workflows/coding.yaml"
     kind: rule
     hooks: ["entry"]
     explicit: true

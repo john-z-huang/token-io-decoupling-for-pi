@@ -1,0 +1,15 @@
+# 2026-11-18 参考目录合并与 Skill 构建
+
+## 参考目录导航
+
+- 将 `docs/rules/references` 下 13 份目录索引的正文和条目顺序并入同级 `README.yaml`，统一从分类或所有者章节进入直属规则和子目录。直属子目录链接改用 `README.yaml`。Layer-03 的索引列表发布为 `layer-03-readme#owners`。 [Layer-01 目录](../docs/rules/references/coding/layer-01-fundamental-concepts/README.yaml) · [Layer-03 目录](../docs/rules/references/coding/layer-03-workflow-checkpoints/README.yaml)
+- 更新 Coding 入口、Hook 来源对照、DSL 模板和 README 导航检查。Schema 拒绝参考目录的 `INDEX.md` 输出路径。构建清理带原 DSL 生成标记的旧参考目录 `INDEX.md`，`--check` 以只读方式报告陈旧产物。完整 Coding 路线继续使用独立索引。 [Coding 入口](../docs/rules/workflows/coding.yaml) · [路线索引](../docs/rules/coding-workflows/INDEX.yaml)
+
+## Skill 生成与运行时
+
+- 将 Skill 入口、Coding 选择器和注册元数据集中在 `docs/rules`。执行 `npm run build:skill` 可生成完整阅读版和注册元数据。`docs/skill` 由 Git 忽略，Pi 打包和 MCP 构建会生成所需文件。两份项目说明迁至 `docs/project`，以手写 Markdown 维护。 [Pi Extension 使用说明](../docs/project/PI_EXTENSION.md) · [工作流架构](../docs/project/WORKFLOW_ARCHITECTURE.md)
+- TS 工作流运行时直接为原始 YAML 建立快照索引，按 ID 读取当前路线、Hook 和检查点正文。移除先前生成的运行时清单和文本片段。两条路线的检查点 ID、分支和返回逻辑沿用现有合同。 [YAML 读取工具](../extensions/coding-workflow/reference-data.ts)
+
+## 验证
+
+- 对照原始 YAML 逐份核对 13 份索引的正文与顺序。导出得到 116 个文件，覆盖 93 份 Hook 来源、1,107 个本地链接和 336 个注入场景。已核对生成目录的参考路径和独立路线索引。

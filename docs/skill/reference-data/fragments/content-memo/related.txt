@@ -1,2 +1,0 @@
-- [Worker Content Memo Dispatch](content-memo-dispatch.yaml) — 定位 Memory 写入开关。
-- [Worker Content Memo Lifecycle](content-memo-lifecycle.yaml) — 定位更新与发现规则。

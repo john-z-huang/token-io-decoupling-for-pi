@@ -28,24 +28,23 @@ class CodingDocumentMigrationTests(unittest.TestCase):
         self.assertFalse(list((self.root / "docs").rglob("*_zh_cn.md")))
 
     def test_missing_navigation_is_reported(self):
-        for layer in checker.LAYERS:
-            for filename in ("README.md", "INDEX.md"):
-                path = self.root / "docs/skill/references/coding" / layer / filename
-                original = path.read_text()
-                with self.subTest(layer=layer, filename=filename):
-                    path.unlink()
-                    self.assertTrue(checker.validate(self.root))
-                path.write_text(original)
+        for layer in checker.NAVIGATION_LAYERS:
+            path = self.root / "docs/skill/references/coding" / layer / "README.md"
+            original = path.read_text()
+            with self.subTest(layer=layer):
+                path.unlink()
+                self.assertTrue(checker.validate(self.root))
+            path.write_text(original)
 
-    def test_index_requires_every_direct_owner_and_child(self):
+    def test_readme_requires_every_direct_owner_and_child(self):
         base = self.root / "docs/skill/references/coding"
-        for layer in checker.LAYERS:
-            for path in (base / layer).rglob("INDEX.md"):
+        for layer in checker.NAVIGATION_LAYERS:
+            for path in (base / layer).rglob("README.md"):
                 original = path.read_text()
                 for target in checker.MARKDOWN_LINK.findall(original):
                     if not target.endswith(".md") or target.startswith("../"):
                         continue
-                    with self.subTest(index=path, target=target):
+                    with self.subTest(readme=path, target=target):
                         path.write_text(original.replace(f"]({target})", "](removed.md)"))
                         self.assertTrue(checker.validate(self.root))
                 path.write_text(original)

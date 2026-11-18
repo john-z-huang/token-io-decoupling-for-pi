@@ -8,7 +8,7 @@
 ## 运行时读取
 
 - 编译器从 YAML 生成索引及 79 个规则片段，并从 Hook 合同生成 16 份执行正文。运行时从索引定位当前检查点和适用 Hook，只在需要时读取对应片段并核对 Hash。Entry Hook 读取锁定路线的 Mode 边界，Verification Hook 读取 Epoch 动作，引用从 Hook 单向指向 DSL。 [编译器](../scripts/compile-reference-dsl.py) · [运行时加载器](../extensions/coding-workflow/reference-data.ts)
-- 已迁移规则在上下文中通过 `coding-rule:` 引用。`coding_checkpoint` 的 `rules` 动作按 ID 返回单个片段，或列出目标文档的片段标题。规则查询不推进检查点，也不改写会话状态。Markdown 导出供阅读、离线核验及手动回退；TS 启动和渲染使用编译资源。未迁移规则的指纹在构建时记录，继续参与快照兼容校验。 [Pi 扩展用法](../docs/skill/PI_EXTENSION.md) · [Hook 来源与引用](../docs/skill/hooks/README.md#来源整合与链接基准)
+- 已迁移规则在上下文中通过 `coding-rule:` 引用。`coding_checkpoint` 的 `rules` 动作按 ID 返回单个片段，或列出目标文档的片段标题。规则查询不推进检查点，也不改写会话状态。Markdown 导出供阅读、离线核验及手动回退；TS 启动和渲染使用编译资源。未迁移规则的指纹在构建时记录，继续参与快照兼容校验。 [Pi 扩展用法](../docs/project/PI_EXTENSION.md) · [Hook 来源与引用](../docs/skill/hooks/README.md#来源整合与链接基准)
 
 ## 验证
 

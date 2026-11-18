@@ -1,5 +1,0 @@
-- [Coding Execution Control](../execution-control/execution-control.yaml) — 定位 Interaction Slice 边界。
-- [Coding Execution Planning](execution-planning.yaml) — 定位有界规划关系。
-- [Coding Execution Stage Feedback](../execution-control/execution-stage-feedback.yaml) — 定位阶段内反馈信号。
-- [Coding Session Model](../session-runtime/session-model.yaml) — 定位角色和 Session 归属。
-- [Coding 子 Agent 生命周期](../delegation/delegation-child-lifecycle.yaml) — 定位委派放行生命周期归属。

@@ -23,4 +23,16 @@ blocks:
         - entry-body:
             kind: markdown
             text: |-
-              使用 [INDEX](INDEX.yaml) 定位相关 owner。
+              从下方所有者列表定位相关 owner。
+  - owners:
+      kind: section
+      title: "Owners"
+      expose: true
+      blank_lines_before: 2
+      blocks:
+        - owners-body:
+            kind: markdown
+            text: |-
+              - [工作流导航可用性](navigation-availability.yaml)
+              - [检查点结构检查](checkpoint-structure-checks.yaml)
+              - [工作流规则上下文](rule-context.yaml)

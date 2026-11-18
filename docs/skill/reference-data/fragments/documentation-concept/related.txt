@@ -1,5 +1,0 @@
-- [Coding Content Memo](../../layer-01-fundamental-concepts/context-exchange/content-memo.yaml) — 定位可复用 memo 内容契约归属。
-- [Coding Content Memo Lifecycle](../../layer-01-fundamental-concepts/context-exchange/content-memo-lifecycle.yaml) — 定位 memo 生命周期归属。
-- [Coding Execution Control](../../layer-01-fundamental-concepts/execution-control/execution-control.yaml) — 定位获准文档范围归属。
-- [候选合规预检](../../layer-01-fundamental-concepts/execution-planning/candidate-compliance.yaml) — 定位对拟议文档候选内容的可选只读检查。
-- [项目 Memory 与代码结构能力](../../layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.yaml) — 定位可复用项目知识的读取和写入能力。

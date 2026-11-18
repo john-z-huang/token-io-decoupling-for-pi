@@ -1,1 +1,0 @@
-负责高体量截图、图片、参考资料、渲染 UI、视频帧、Computer Use 观察、OCR、DOM/accessibility 状态，以及筛选、去重、时间定位、定向检查和临时世界状态。它返回精简 Visual/State Digest。它可以执行普通低风险 Routine Interaction 和一个已批准的有界 Creative pass，但不能重新定义创作方向或语义意图。

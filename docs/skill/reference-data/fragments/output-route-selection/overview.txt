@@ -1,1 +1,0 @@
-本检查点依据 [Output Token Routing](../layer-01-fundamental-concepts/execution-planning/output-token-routing.yaml)，独立评估每项 Root 直接输出是否应改由 Root 之外的路线提供。它不选择执行者。

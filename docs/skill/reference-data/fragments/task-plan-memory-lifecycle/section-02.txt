@@ -1,7 +1,0 @@
-优先复用用户为同一任务指定的 active plan。选择新名称前，确认获准后端使用共享全局存储还是旧版项目本地存储。共享全局存储中，活动与归档规划都必须带同一个已核验仓库 key：`global/token-io-decoupling/repos/<repository-id>/plans/PLAN-[short-english-summary]` 与 `global/token-io-decoupling/repos/<repository-id>/archive-plans/PLAN-[short-english-summary]`。可包含已核实的 Issue 编号；逻辑 Memory 名不含 `.md`。新全局规划不得直接放进共享的 `plans/` 或 `archive-plans/`，也不得用目录 basename、分支、remote URL 或 worktree 路径充当仓库 key。
-
-本存储映射的仓库 key 为 `git-v1-` 加上 `b"token-io-decoupling:git-common-dir:v1\0" + os.fsencode(str(canonical_git_common_dir))` 的十六进制 SHA-256，其中 `\0` 表示一个 NUL 字节。通过可信本地仓库事实解析实际 checkout 根目录和 canonical absolute Git common directory。主工作区和 linked worktrees 共享该目录及 key；独立仓库和独立 clone 使用不同 key，即使名称或 remote 相同。共同目录搬迁会改变 key：应停止并核对旧映射，不得静默丢弃或迁移其规划。缺少或无法确定仓库身份时，阻塞全局路径。这是本机仓库身份，不是跨机器可移植标识。复用旧共同目录路径会复用其 key；在该路径接受新建仓库前，须确认归属并核对已有历史。
-
-明确保留项目本地后端时，使用 `plans/PLAN-[short-english-summary]` 和 `archive-plans/PLAN-[short-english-summary]`；默认物理根为 `<project-root>/.serena/memories/`。该兼容模式不提供跨 worktree 共享。遵从实际配置的 Memory 根和映射，包括获准的数据目录覆盖；不得另建存储或虚构全局根。选定共享全局存储后，身份、根目录、映射或权限不可用时阻塞该路径，不得静默回退项目本地存储。用户自定名称的对应归档映射须在既有授权内明确。已有规划/归档保留原映射，除非另行获准的迁移确认归属、检查碰撞、保留全部字节并核验结果；不得自动收编其他项目未分层的数据或改写已有归档。
-
-确认准确项目/worktree 绑定、存储 scope、全局模式的仓库 key 和有效的记忆维护说明。复用已授权任务已提供或当前上下文已有的计划名称；只有需要发现名称时，才列出所选仓库的规划 topic。仅在需要且当前上下文没有有效内容时读取已存在的匹配计划。全局列表可能暴露其他仓库；可见不构成读取或修改它们的授权。仅复用同一进行中任务的计划；保留无关计划，碰撞时选择不同名称。写入前审阅具体计划，并在依赖工作前确认持久化操作成功。只有为解决信息缺口、上下文过期或失效、写者变化、疑似并发变化、冲突、结果不明或明确内容验证要求时，才刷新存储全文。必需 Memory 能力缺失、必需内容不可访问、持久化失败或必需核验失败时，阻塞依赖工作；报告准确操作并保留最后确认的计划。

@@ -1,6 +1,0 @@
-- [Coding Execution Planning](../execution-planning/execution-planning.yaml) — 定位有界规划和 reconnaissance 到实现放行的关系。
-- [Coding Execution Decision Gate](../execution-planning/execution-decision-gate.yaml) — 定位 Decision Brief 和决策放行规则。
-- [Coding Execution Stage Feedback](execution-stage-feedback.yaml) — 定位有界阶段反馈规则。
-- [Coding Context Exchange](../context-exchange/context-exchange.yaml) — 定位上下文传输归属。
-- [Coding 子 Agent 生命周期](../delegation/delegation-child-lifecycle.yaml) — 定位已放行 slice 的委派生命周期归属。
-- [Coding Session 审计可见性](../session-runtime/session-audit-visibility.yaml) — 定位审计配置和摘要频率。

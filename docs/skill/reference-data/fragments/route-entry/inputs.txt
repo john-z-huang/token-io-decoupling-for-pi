@@ -1,1 +1,0 @@
-Coding 入口在[Contract 检查点](../layer-02-workflow-concepts/entry-and-context/contract.yaml)、[Environment 检查点](../layer-02-workflow-concepts/entry-and-context/environment.yaml)、[能力清单](../layer-02-workflow-concepts/entry-and-context/environment-capability-inventory.yaml)和[Mode 检查点](../layer-02-workflow-concepts/entry-and-context/mode.yaml)通过后调用本检查点。输入为各项当前结果，包括已释放的 mode/count 及未解决的失败。

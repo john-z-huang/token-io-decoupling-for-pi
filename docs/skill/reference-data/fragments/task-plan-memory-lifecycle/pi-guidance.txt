@@ -1,1 +1,0 @@
-计划依赖实际获准的 Memory 后端。本项目 MCP 的 `serena_memory_tail_read` 和 `serena_memory_write_check` 只读启动项目的本地 Memory；后者仅检查所选尾部窗口中的文本存在性。创建、更新和归档须另有可用且获授权的 Memory 能力，并核验 scope、仓库 key、准确名称及实际结果。遵守内容保全、单写者和归档要求；禁止用 bash 或普通文件写入绕过必需的 Memory 能力。

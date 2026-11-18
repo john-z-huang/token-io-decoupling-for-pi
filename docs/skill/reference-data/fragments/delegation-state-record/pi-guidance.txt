@@ -1,1 +1,0 @@
-启用协调扩展时，通过 `coding_checkpoint status` 回读 `mode`、`childCount`、`allocations`、`slice`、`audit` 和当前检查点。空闲名额由预算表示，只有实际进入委派操作才生成逻辑 allocation。扩展使用当前 Pi Session 的快照，volatile 模式使用进程状态。Root 在父级对话保留宿主字段未承载的语义证据和来源。未启用扩展时，使用本页的手动记录。调度状态只用于父级协调，逻辑 allocation 通过真实调用定位一次性任务。

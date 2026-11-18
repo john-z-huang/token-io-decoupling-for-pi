@@ -24,5 +24,24 @@ blocks:
             kind: markdown
             text: |-
               从模式确认和状态记录开始；仅在路线步骤适用时加载创建、派发和生命周期所有者。
-
-              [索引](INDEX.yaml)
+  - owners:
+      kind: section
+      title: "所有者"
+      expose: true
+      blank_lines_before: 2
+      blocks:
+        - owners-body:
+            kind: markdown
+            text: |-
+              - [child-role-selection](child-role-selection.yaml)
+              - [delegation-child-creation](delegation-child-creation.yaml)
+              - [delegation-child-dispatch](delegation-child-dispatch.yaml)
+              - [delegation-child-lifecycle](delegation-child-lifecycle.yaml)
+              - [delegation-child-message-visibility](delegation-child-message-visibility.yaml)
+              - [delegation-child-reuse-replacement](delegation-child-reuse-replacement.yaml)
+              - [delegation-child-role-allocation](delegation-child-role-allocation.yaml)
+              - [delegation-mode-confirmation](delegation-mode-confirmation.yaml)
+              - [delegation-mode-count-gate](delegation-mode-count-gate.yaml)
+              - [delegation-mode-reentry](delegation-mode-reentry.yaml)
+              - [delegation-state-record](delegation-state-record.yaml)
+              - [delegation-worker-boundary](delegation-worker-boundary.yaml)

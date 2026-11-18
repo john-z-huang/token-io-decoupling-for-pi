@@ -1,1 +1,0 @@
-调用[委派执行 Hook](../hooks/delegation.yaml)。带入锁定数量、当前计划、前序证据和已有效果。保留原调用位置、Worker bundle 和已完成的派发效果。实施或真实 Worker 结果和初步检查齐备后交验证。

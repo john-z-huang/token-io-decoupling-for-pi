@@ -1,3 +1,0 @@
-核验已释放 Mode、当前 Session 身份和权限、原挂起位置及准确效果状态。用当前 Contract/标准、实际实施或子代理结果、范围和来源进入验证。最终 Verification 从本阶段产生，独立验证须另有 owner 授权。缺少证据按入口合同返回；冲突或效果不明时暂停依赖工作。
-
-依据 [模块入口解析](../references/coding/layer-03-workflow-checkpoints/module-entry-resolution.yaml)。

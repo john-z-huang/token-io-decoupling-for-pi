@@ -1,3 +1,0 @@
-核对调用方的任务、授权、Session 和已有效果，以及 selector 已通过的 Contract、Environment、能力、Mode 和已选路线。按底层入口合同判定 `ready`、`needs_prerequisite` 或 `blocked`，在返回中保留原调用位置。直接调用方可记录 continuation。这里只复用已选路线。
-
-依据 [模块入口解析](../references/coding/layer-03-workflow-checkpoints/module-entry-resolution.yaml)、[路线入口](../references/coding/layer-03-workflow-checkpoints/route-entry.yaml)。

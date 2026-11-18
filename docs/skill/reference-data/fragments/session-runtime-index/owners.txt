@@ -1,7 +1,0 @@
-- [LSP-MCP-Tools](LSP-MCP-Tools.yaml)
-- [runtime-provider-support](runtime-provider-support.yaml)
-- [session-model](session-model.yaml)
-- [session-role-ownership](session-role-ownership.yaml)
-- [session-context-firewall](session-context-firewall.yaml)
-- [session-audit-visibility](session-audit-visibility.yaml)
-- [reasoning-summary-visibility](reasoning-summary-visibility.yaml)

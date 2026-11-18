@@ -1,3 +1,0 @@
-- [documentation](documentation.yaml)
-- [git](git.yaml)
-- [acceptance](acceptance.yaml)

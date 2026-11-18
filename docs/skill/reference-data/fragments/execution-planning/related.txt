@@ -1,7 +1,0 @@
-- [任务计划 Memory 生命周期](task-plan-memory-lifecycle.yaml) — 定位计划文档持久化与归档生命周期。
-- [Coding Execution Control](../execution-control/execution-control.yaml) — 定位 Interaction Slice 放行和边界控制。
-- [Coding Execution Decision Gate](execution-decision-gate.yaml) — 定位 Decision Brief 和实现放行决策。
-- [Coding Execution Stage Feedback](../execution-control/execution-stage-feedback.yaml) — 定位有界阶段反馈。
-- [Coding Session Model](../session-runtime/session-model.yaml) — 定位角色和 Session 归属。
-- [Coding Context Exchange](../context-exchange/context-exchange.yaml) — 定位上下文传输归属。
-- [Coding 子 Agent 生命周期](../delegation/delegation-child-lifecycle.yaml) — 定位委派生命周期归属。

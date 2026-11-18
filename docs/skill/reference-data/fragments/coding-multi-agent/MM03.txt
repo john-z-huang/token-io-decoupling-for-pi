@@ -1,1 +1,0 @@
-调用[工作定义 Hook](../hooks/planning.yaml)。取得当前 Context、Decision、未释放边界和计划证据后才进入执行。缺失或过期时回对应 owner，授权或路线事实实质变化时交调用方重核。

@@ -1,1 +1,0 @@
-本检查点负责区分独立 Change Verification Session 和同一 Session 的逻辑验证。不定义检查内容、证据收集、结果分类或修复。

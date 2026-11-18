@@ -1,1 +1,0 @@
-Serena 是实际连接的外部 MCP，不是 Pi 内置工具。通过 searchTools / describeTool / describeNamespace 核对名称和 Schema，先确认项目绑定与语言服务器。独立只读查询可批处理并检查 isError；语言服务不可用按通用规范降级为定向文本读取。Memory 不得经文件工具绕过访问限制。

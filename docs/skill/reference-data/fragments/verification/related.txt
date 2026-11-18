@@ -1,4 +1,0 @@
-- [Coding Execution Decision Gate](../../layer-01-fundamental-concepts/execution-planning/execution-decision-gate.yaml) — 定位验收条件和放行决策归属。
-- [Coding Execution Control](../../layer-01-fundamental-concepts/execution-control/execution-control.yaml) — 定位已放行范围和返回边界归属。
-- [Coding Session 职责归属](../../layer-01-fundamental-concepts/session-runtime/session-role-ownership.yaml) — 定位 Change Verification 职责归属。
-- [Coding Delegation State Record Worker Boundary](../../layer-01-fundamental-concepts/delegation/delegation-worker-boundary.yaml) — 定位最终状态证据访问边界。

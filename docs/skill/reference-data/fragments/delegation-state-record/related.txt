@@ -1,8 +1,0 @@
-- [Coding Delegation State Record Worker Boundary](delegation-worker-boundary.yaml) — 定位 Worker 快照和记录访问边界。
-- [Coding Delegation Mode Confirmation](delegation-mode-confirmation.yaml) — 定位根模式确认归属。
-- [Coding Delegation Count Gate](delegation-mode-count-gate.yaml) — 定位子 Agent 数量门禁归属。
-- [Coding Delegation Re-entry](delegation-mode-reentry.yaml) — 定位模式/数量重新进入归属。
-- [Coding Child Role Selection](child-role-selection.yaml) — 定位预留前的职责选择边界。
-- [Coding Execution Control](../execution-control/execution-control.yaml) — 定位 Interaction Slice 字段归属。
-- [Coding Child Lifecycle](delegation-child-lifecycle.yaml) — 定位子 Agent 生命周期字段归属。
-- [Coding Session 审计可见性](../session-runtime/session-audit-visibility.yaml) — 定位会话审计配置归属。

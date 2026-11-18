@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate historical owner moves and current bilingual Layer-01/02 navigation."""
+"""校验历史规则迁移和 Coding 参考目录的 README 导航。"""
 
 from __future__ import annotations
 
@@ -12,6 +12,7 @@ from pathlib import Path, PurePosixPath
 
 MAP = Path("docs/project/migrations/coding-document-migration.json")
 LAYERS = ("layer-01-fundamental-concepts", "layer-02-workflow-concepts")
+NAVIGATION_LAYERS = (*LAYERS, "layer-03-workflow-checkpoints")
 NAVIGATION = {"README.md", "INDEX.md"}
 MARKDOWN_LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)]+)\)")
 # Issue #164 broadens this owner from opt-in planning to the default task plan.
@@ -61,41 +62,21 @@ def _owner_files(directory: Path) -> list[Path]:
 
 
 def _check_navigation(directory: Path, root: Path, errors: list[str]) -> None:
-    for name in ("README.md", "INDEX.md"):
-        if not (directory / name).is_file():
-            errors.append(f"navigation file missing: {(directory / name).relative_to(root)}")
+    readme = directory / "README.md"
+    if (directory / "INDEX.md").exists():
+        errors.append(f"移除已并入 README 的索引：{(directory / 'INDEX.md').relative_to(root)}")
+    if not readme.is_file():
+        errors.append(f"缺少目录导航：{readme.relative_to(root)}")
+        return
 
-    for filename, target_name in (("README.md", "INDEX.md"),):
-        path = directory / filename
-        if path.is_file():
-            targets = _targets(path, root)
-            expected = (directory / target_name).relative_to(root).as_posix()
-            if targets.count(expected) != 1:
-                errors.append(f"README must link exactly once to its same-language index: {path.relative_to(root)}")
-
-    english_index = directory / "INDEX.md"
-    # Ignore physically empty directories left behind by deleted owners. Git
-    # does not preserve them, but local validation must match the committed tree.
+    # Git 不保留空目录，导航校验也跳过它们。
     direct_children = sorted(path for path in directory.iterdir() if path.is_dir() and any(path.iterdir()))
-    for index, suffix in ((english_index, ""),):
-        if not index.is_file():
-            continue
-        targets = _targets(index, root)
-        expected_targets = []
-        for owner in _owner_files(directory):
-            if owner.name.endswith("_zh_cn.md") != bool(suffix):
-                continue
-            expected_targets.append(owner.relative_to(root).as_posix())
-            if expected_targets[-1] not in targets:
-                errors.append(f"index omits direct owner {owner.relative_to(root)}")
-        for child in direct_children:
-            expected_targets.append((child / f"INDEX{suffix}.md").relative_to(root).as_posix())
-            if expected_targets[-1] not in targets:
-                errors.append(f"index omits direct child directory {child.relative_to(root)}")
-        for expected in expected_targets:
-            occurrences = targets.count(expected)
-            if occurrences > 1:
-                errors.append(f"index repeats target {expected}: {index.relative_to(root)}")
+    targets = _targets(readme, root)
+    expected = [*_owner_files(directory), *(child / "README.md" for child in direct_children)]
+    for path in expected:
+        target = path.relative_to(root).as_posix()
+        if targets.count(target) != 1:
+            errors.append(f"{readme.relative_to(root)} 应恰好引用一次 {target}")
 
 
 def validate(root: Path) -> list[str]:
@@ -149,7 +130,7 @@ def validate(root: Path) -> list[str]:
         if (root / old).exists():
             errors.append(f"old owner path still exists: {old}")
 
-    for layer in LAYERS:
+    for layer in NAVIGATION_LAYERS:
         base = root / "docs/skill/references" / "coding" / layer
         if not base.is_dir():
             errors.append(f"layer directory missing: {base.relative_to(root)}")

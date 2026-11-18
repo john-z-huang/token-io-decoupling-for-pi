@@ -1,1 +1,0 @@
-不得写逐命令日志、完整日志/diff、大段源码副本、秘密、私有推理、完整 transcript、无关历史或父级实时 mode/count/allocation/epoch 状态。Serena Memory 读写不可用时，报告限制并阻塞依赖该记录的工作；不得回退到文件写入该记录。独立工作可以继续。

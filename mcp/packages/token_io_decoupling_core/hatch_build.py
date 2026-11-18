@@ -1,8 +1,9 @@
-"""Generate packaged rule excerpts from canonical Markdown owners at build time."""
+"""Generate packaged rule excerpts from compiled Skill documents."""
 
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 import tempfile
 from pathlib import Path, PurePosixPath, PureWindowsPath
@@ -24,6 +25,12 @@ class RuleResourcesBuildHook(BuildHookInterface):
             source_root = sdist_sources
         else:
             registry_source = checkout_root / "mcp" / "rule-registry.json"
+            if (checkout_root / "docs/rules/SKILL.yaml").is_file():
+                subprocess.run(
+                    [sys.executable, str(checkout_root / "scripts/compile-reference-dsl.py")],
+                    cwd=checkout_root,
+                    check=True,
+                )
             if (
                 not (checkout_root / "docs/skill/references").is_dir()
                 or not (checkout_root / "docs/skill/SKILL.md").is_file()

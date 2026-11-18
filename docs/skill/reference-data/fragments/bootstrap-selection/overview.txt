@@ -1,1 +1,0 @@
-本检查点负责当前多代理任务是否消费 Bootstrap/Refresh。

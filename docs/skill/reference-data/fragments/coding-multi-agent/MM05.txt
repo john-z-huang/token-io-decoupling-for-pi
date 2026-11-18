@@ -1,1 +1,0 @@
-调用[验证与修复 Hook](../hooks/verification.yaml)。对实际当前状态和适用 epoch 验证。必需独立验证或修复未解决时暂停依赖效果。修复回本阶段重验，Contract 或 Decision 的实质变化交调用方。

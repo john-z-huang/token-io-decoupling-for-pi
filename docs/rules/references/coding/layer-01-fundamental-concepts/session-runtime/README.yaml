@@ -24,5 +24,19 @@ blocks:
             kind: markdown
             text: |-
               先从运行时支持了解环境与模型约束，再按任务直接读取相关 Session 或工具所有者。
-
-              [索引](INDEX.yaml)
+  - owners:
+      kind: section
+      title: "所有者"
+      expose: true
+      blank_lines_before: 2
+      blocks:
+        - owners-body:
+            kind: markdown
+            text: |-
+              - [LSP-MCP-Tools](LSP-MCP-Tools.yaml)
+              - [runtime-provider-support](runtime-provider-support.yaml)
+              - [session-model](session-model.yaml)
+              - [session-role-ownership](session-role-ownership.yaml)
+              - [session-context-firewall](session-context-firewall.yaml)
+              - [session-audit-visibility](session-audit-visibility.yaml)
+              - [reasoning-summary-visibility](reasoning-summary-visibility.yaml)

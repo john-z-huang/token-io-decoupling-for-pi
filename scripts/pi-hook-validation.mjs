@@ -1,8 +1,12 @@
 // Shared, offline checks for the repository's inline/reference Markdown links and provenance tables.
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
-import { isAbsolute, join, relative, sep } from 'node:path';
+import { basename, dirname, isAbsolute, join, relative, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { documentLinks, headingSlug, HOOK_IDS, WORKFLOW_DIR, resolveDocumentLink } from '../extensions/coding-workflow/catalog.ts';
+
+export const SKILL_ROOT = fileURLToPath(new URL('../docs/skill', import.meta.url));
+const PROJECT_GUIDES = new Set(['../project/PI_EXTENSION.md', '../project/WORKFLOW_ARCHITECTURE.md']);
 
 const L1_HOOKS = {
   'context-exchange': ['context'], delegation: ['delegation', 'session'],
@@ -24,7 +28,7 @@ const OVERRIDES = {
 export function classifySource(path) {
   const parts = path.split('/');
   const stem = parts.at(-1).replace(/\.md$/, '');
-  const kind = ['INDEX', 'README'].includes(stem) ? 'navigation' : 'rule';
+  const kind = stem === 'README' ? 'navigation' : 'rule';
   if (parts.includes('multimodal')) return { path, hooks: ['foundation'], kind: 'reference' };
   if (Object.hasOwn(OVERRIDES, stem)) return { path, hooks: OVERRIDES[stem], kind };
   if (parts.includes('share') || path === 'SKILL.md') return { path, hooks: ['foundation'], kind };
@@ -39,8 +43,7 @@ export function classifySource(path) {
     }
     if (number === '03') return { path, hooks: ['navigation', 'execution'], kind };
   }
-  if (path === 'PI_EXTENSION.md') return { path, hooks: ['foundation', 'navigation'], kind: 'navigation' };
-  if (path === 'workflows/coding.md' || path === 'WORKFLOW_ARCHITECTURE.md') return { path, hooks: ['foundation', 'navigation'], kind };
+  if (path === 'workflows/coding.md') return { path, hooks: ['foundation', 'navigation'], kind };
   throw new Error(`没有 Hook 归属的规则：${path}`);
 }
 
@@ -73,23 +76,37 @@ export function headingAnchors(markdown) {
   return anchors;
 }
 
+function inside(root, path) {
+  const rel = relative(root, path);
+  return rel !== '..' && !rel.startsWith('..' + sep) && !isAbsolute(rel);
+}
+
+function resolveSkillLink(root, document, target) {
+  const link = resolveDocumentLink(dirname(root), join(basename(root), document), target);
+  if (!link) return;
+  const projectGuide = PROJECT_GUIDES.has(relative(root, link.path).split(sep).join('/'));
+  assert.ok(projectGuide || inside(root, link.path), `${document}: 文档链接越出 Skill ${target}`);
+  return { ...link, projectGuide };
+}
+
 export function validateMarkdownLinks(root, document, markdown) {
   let checked = 0;
   for (const target of documentLinks(markdown)) {
     assert.ok(!/^file:/i.test(target), `${document}: 磁盘文档不得写入机器专属 file URL`);
-    const link = resolveDocumentLink(root, document, target);
+    const link = resolveSkillLink(root, document, target);
     if (!link) continue; // External URLs are not fetched or represented as online-verified.
     assert.ok(existsSync(link.path) && statSync(link.path).isFile(), `${document}: 链接目标不存在或不是文件 ${target}`);
-    const rel = relative(realpathSync(root), realpathSync(link.path));
-    assert.ok(rel !== '..' && !rel.startsWith('..' + sep) && !isAbsolute(rel), `${document}: 来源通过符号链接越出 Skill ${target}`);
+    const physical = realpathSync(link.path);
+    const allowed = link.projectGuide ? physical === link.path : inside(realpathSync(root), physical);
+    assert.ok(allowed, `${document}: 来源通过符号链接越出 Skill ${target}`);
     if (link.fragment) assert.ok(headingAnchors(readFileSync(link.path, 'utf8')).has(link.fragment), `${document}: 标题锚点不存在 ${target}`);
     checked++;
   }
   return checked;
 }
 
-export function collectSourceCoverage(catalog, hooks = readHookSources(catalog.root)) {
-  const coverage = markdownFiles(catalog.root).map(path => relative(catalog.root, path).split(sep).join('/'))
+export function collectSourceCoverage(root, hooks = readHookSources(root)) {
+  const coverage = markdownFiles(root).map(path => relative(root, path).split(sep).join('/'))
     .filter(path => !path.startsWith('hooks/') && !path.startsWith(`${WORKFLOW_DIR}/`)).map(classifySource);
   const bySource = new Map(coverage.map(row => [row.path, new Set()]));
   for (const id of HOOK_IDS) {
@@ -103,9 +120,9 @@ export function collectSourceCoverage(catalog, hooks = readHookSources(catalog.r
     assert.ok(/^\|\s*来源\s*\|\s*本合同落点\s*\|/m.test(footer), `${id}: 缺少逐篇来源与合同落点表`);
     let referenced = 0;
     for (const target of documentLinks(footer)) {
-      const link = resolveDocumentLink(catalog.root, `hooks/${id}.md`, target);
+      const link = resolveSkillLink(root, `hooks/${id}.md`, target);
       if (!link) continue;
-      const source = relative(catalog.root, link.path).split(sep).join('/');
+      const source = relative(root, link.path).split(sep).join('/');
       if (bySource.has(source)) { bySource.get(source).add(id); referenced++; }
     }
     assert.ok(referenced > 0, `${id}: 没有真实规则来源`);
@@ -113,22 +130,6 @@ export function collectSourceCoverage(catalog, hooks = readHookSources(catalog.r
   const missing = coverage.filter(row => row.kind !== 'navigation' && !bySource.get(row.path).size);
   assert.deepEqual(missing.map(row => row.path), [], '实质规则/参考文章缺少逐篇合同落点');
   return coverage.map(row => ({ ...row, hooks: [...bySource.get(row.path)], declaredHooks: row.hooks }));
-}
-
-export function coverageMarkdown(rows) {
-  const lines = [
-    '# Hook 来源整合对照', '',
-    '由 `node scripts/check-pi-hooks.mjs --write-coverage` 根据各 Hook 的“规则来源”表生成。', '',
-    '本表列出 Hook 消费的规则和导航。实质文章逐篇指向引用它的合同，各合同末尾列明主题落点。路线的阶段绑定由路线索引与静态检查核对。', '',
-    '**此表检查路径和显式归属，不证明所有条款语义等价、授权真实或验收通过。** 原 owner 保留权威；阅读正文和逐条审阅不能由数量、Hash或关键词替代。', '',
-    '| 源文档（相对 Skill） | 类型 | 合同落点或导航归属 |', '| --- | --- | --- |',
-  ];
-  for (const row of rows) {
-    const ids = row.hooks.length ? row.hooks : row.declaredHooks;
-    const label = row.kind === 'navigation' && !row.hooks.length ? '仅导航：' : row.kind === 'reference' ? '仅参考：' : '';
-    lines.push(`| [${row.path}](../${row.path}) | ${row.kind} | ${label}${ids.map(id => `[${id}](${id}.md#执行要求)`).join('、')} |`);
-  }
-  return lines.join('\n') + '\n';
 }
 
 export function coverageYaml(rows) {
@@ -143,9 +144,7 @@ export function coverageYaml(rows) {
     'rows:',
   ];
   for (const row of rows) {
-    const source = row.path.startsWith('references/')
-      ? `../${row.path.replace(/\.md$/, '.yaml')}`
-      : `../../skill/${row.path}`;
+    const source = `../${row.path.replace(/\.md$/, '.yaml')}`;
     const hooks = row.hooks.length ? row.hooks : row.declaredHooks;
     lines.push(
       `  - source: ${JSON.stringify(source)}`,

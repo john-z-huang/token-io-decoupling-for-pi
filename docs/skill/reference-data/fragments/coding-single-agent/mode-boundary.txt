@@ -1,1 +1,0 @@
-所有阶段均留在当前 Session；绝不创建其他 Session。将 Input-side Reasoning、Primary Output 和验证视为同一 Session 内的逻辑阶段。只有适用 Verification owner 通过当前证据确认要求已满足时，才可声称独立验证；必需的独立性不可用时，阻塞依赖效果。

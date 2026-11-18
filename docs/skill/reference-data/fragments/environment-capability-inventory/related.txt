@@ -1,7 +1,0 @@
-- [Coding Session Model](../../layer-01-fundamental-concepts/session-runtime/session-model.yaml) — 定位 Session 拓扑归属。
-- [Coding Session Role Ownership](../../layer-01-fundamental-concepts/session-runtime/session-role-ownership.yaml) — 定位职责责任归属。
-- [Coding Context Exchange 工作区边界](../../layer-01-fundamental-concepts/context-exchange/context-exchange-workspace-boundary.yaml) — 定位文件系统和 worktree 能力归属。
-- [Coding Delegation Mode Confirmation](../../layer-01-fundamental-concepts/delegation/delegation-mode-confirmation.yaml) — 定位模式门禁能力消费者。
-- [Coding Delegation Count Gate](../../layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.yaml) — 定位数量门禁能力消费者。
-
-- [工作流导航可用性](../../layer-01-fundamental-concepts/workflow-navigation/navigation-availability.yaml) — 定位可选导航失败处置。

@@ -1,4 +1,0 @@
-- [Coding 执行规划](execution-planning.yaml)
-- [Coding 执行决策门禁](execution-decision-gate.yaml)
-- [Coding 执行控制](../execution-control/execution-control.yaml)
-- [Coding 委派状态记录](../delegation/delegation-state-record.yaml)

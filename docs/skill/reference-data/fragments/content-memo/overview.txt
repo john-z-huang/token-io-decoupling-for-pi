@@ -1,1 +1,0 @@
-本文档定义以 Serena 项目 Memory 持久化的 Worker 执行 memo 内容契约，不定义 dispatch 开关或生命周期。

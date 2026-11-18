@@ -1,1 +1,0 @@
-调用[Session 就绪 Hook](../hooks/session.yaml)。在消费审计结果前完成规范 Session 读回。Multi-Agent 另核对锁定容量。恢复时保留已锁定的模式与已确认的启动答案。

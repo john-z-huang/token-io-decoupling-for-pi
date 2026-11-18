@@ -1,4 +1,0 @@
-- [Coding Execution Control](execution-control.yaml) — 定位 Interaction Slice 边界。
-- [Coding Execution Planning](../execution-planning/execution-planning.yaml) — 定位有界计划和阶段提纲归属。
-- [Coding Execution Decision Gate](../execution-planning/execution-decision-gate.yaml) — 定位高价值决策条件。
-- [Coding Session 审计可见性](../session-runtime/session-audit-visibility.yaml) — 定位摘要频率。

@@ -1,1 +1,0 @@
-Layer-04 维护 Single-Agent 和 Multi-Agent 两条路线。路线负责七个阶段的 Hook 绑定、跨阶段顺序、调用方位置和 epoch 变化后的回返。各阶段的执行合同、清单和图由对应 Hook 维护。

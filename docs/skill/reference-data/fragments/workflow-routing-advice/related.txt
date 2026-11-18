@@ -1,3 +1,0 @@
-- [Coding Execution Decision Gate](execution-decision-gate.yaml) — 拥有执行决策前置条件。
-- [Task Assignment](task-assignment.yaml) — 拥有执行者选择。
-- [Workflow Rule Context](../workflow-navigation/rule-context.yaml) — 拥有有界规则读取和完整性。

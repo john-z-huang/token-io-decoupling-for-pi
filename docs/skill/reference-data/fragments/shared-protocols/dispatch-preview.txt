@@ -1,9 +1,0 @@
-工作流已经授权创建子 Agent 或向独立 Worker 发送新指令后，仅当配置审计预设选择 preview 时，才在执行动作前显示极简预览；若选择 full，则展示完整安全消息正文。预览是可见摘要，不是隐藏推理，也不能替代必要的用户确认。
-
-只使用有意义的字段：
-
-```text
-Dispatch → <role> | Task: <objective>; Scope: <needed paths>; Constraints: <direct execution limits>; Runtime: <only if required>
-```
-
-配置预设选择 preview 时，最多 3 项（目标、允许改动、返回条件），总计不超过 600 个 Unicode 码位；按实际显示的 Markdown 源文本计数，包括空白和链接文字/目标。这不是 token 估算，无需逐条消息调用计数工具。优先精简措辞并指向完整正文；重要授权或失败证据无法容纳时，只允许必要超限并说明原因，不得截断或拆分以规避限制。复用 Worker 时只显示新 delta。同 Session 的职责切换和本地工作不属于 Dispatch，不得打印虚构的 self-dispatch。

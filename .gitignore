@@ -14,3 +14,6 @@ mcp/.ty_cache/
 
 # Python Project Cache files
 __pycache__
+
+# 编译生成的 Skill 文档
+/docs/skill/

@@ -1,1 +1,0 @@
-当前事实已建立且 Root 已授权当前任务范围后，判断该任务是否触发 Bootstrap/Refresh，并以此范围作为评估输入。若 Bootstrap/Refresh 提出具体辅助任务，Root 必须在执行者选择或角色预留前另行审查并授权该任务。读取[Child Role Allocation](../layer-01-fundamental-concepts/delegation/delegation-child-role-allocation.yaml)，了解其既有触发、阈值、跳过条件及角色/slot 授权。

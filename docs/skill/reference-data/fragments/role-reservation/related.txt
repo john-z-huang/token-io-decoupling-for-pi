@@ -1,4 +1,0 @@
-- [Child Role Selection](../layer-01-fundamental-concepts/delegation/child-role-selection.yaml)
-- [Delegation Count Gate](../layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.yaml)
-- [Delegation State Record](../layer-01-fundamental-concepts/delegation/delegation-state-record.yaml)
-- [Child Role Allocation](../layer-01-fundamental-concepts/delegation/delegation-child-role-allocation.yaml)

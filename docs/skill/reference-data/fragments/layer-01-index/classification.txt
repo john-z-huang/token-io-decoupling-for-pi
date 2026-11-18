@@ -1,6 +1,0 @@
-- [session-runtime/](session-runtime/INDEX.yaml)
-- [delegation/](delegation/INDEX.yaml)
-- [context-exchange/](context-exchange/INDEX.yaml)
-- [execution-planning/](execution-planning/INDEX.yaml)
-- [execution-control/](execution-control/INDEX.yaml)
-- [workflow-navigation/](workflow-navigation/INDEX.yaml)

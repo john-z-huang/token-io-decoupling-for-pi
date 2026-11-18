@@ -1,6 +1,0 @@
-应用[Control](../references/coding/layer-02-workflow-concepts/decision-and-execution/control.yaml)、[执行控制](../references/coding/layer-01-fundamental-concepts/execution-control/execution-control.yaml)、[建议选择](../references/coding/layer-03-workflow-checkpoints/advisory-selection.yaml)和[Decisions Advisory](../references/coding/layer-01-fundamental-concepts/execution-planning/decisions-advisory.yaml)。消费当前 Progress Signal 的 status、findings、change scope、verification、issue、need 和当前未释放边界证据。只消费当前可信、符合条件、已启用且已授权的建议；否则记录建议 `not_applicable` 和原因，并基于直接证据决策。保留各 continuation：
-- post-floor `Continue` 缺失/过期时，进入或恢复此 Control 检查。recovery `Continue` 返回 DE04；不得为复用的子代理重新选择或创建替代者。
-- `Evidence-on-Demand` 暂停释放并返回 `needs_prerequisite`；保留同一 Control continuation，证据到达后在此恢复。
-- `Amend` 返回 `needs_prerequisite`；按 owners 更新 Contract 和 Decision，并在需要时更新 Context，然后恢复同一 Control 检查并取得新的明确 `Continue`，再返回 DE04。先前结果不释放工作。
-- `Stop` 返回 `blocked`。
-- 普通 `Continue` 后若有下一 Slice，则返回 `needs_prerequisite`，解析当前 Context/Decision，并确认先前 `Continue` 仍覆盖新的有界 Slice 且状态/epoch 当前。若范围、Contract、授权、未释放边界或相关 epoch 变化使其失效，则恢复此 Control 检查并取得新的明确 `Continue`。若实际任务或授权变化，在 DE01 仅重核受影响决策；若执行者/输出证据变化，在 DE02 重核这些决策，且仅当仍需要新执行者时才在 DE03重核角色预留；若仅新执行者的角色证据变化，则在 DE03 重核。检查完成后从 DE04 恢复，不重放已完成效果。否则在 Context/Decision 当前后直接从 DE04 恢复，适用时复用现有子代理。若没有下一 Slice 且没有待处理恢复结果，只有当前 post-implementation/result 证据确认任务已完成后才进入 DE09。

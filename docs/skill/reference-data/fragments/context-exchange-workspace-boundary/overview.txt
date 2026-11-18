@@ -1,1 +1,0 @@
-本文档定义以 Serena 项目 Memory 持久化的 Agent 上下文记录的逻辑命名和授权，不定义代码工作区文件系统权限、capsule 内容、新鲜度或 handoff 授权。
