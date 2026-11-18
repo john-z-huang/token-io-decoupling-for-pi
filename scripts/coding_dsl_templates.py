@@ -17,13 +17,12 @@ LAYER_TYPES = {
     "layer-03-workflow-checkpoints": "workflow-checkpoint",
     "coding-workflows": "workflow-route",
 }
-NAVIGATION_TYPES = {"README": "directory-guide", "INDEX": "directory-index"}
-DOCUMENT_TYPES = (*NAVIGATION_TYPES.values(), *LAYER_TYPES.values())
+DOCUMENT_TYPES = ("directory-guide", *LAYER_TYPES.values())
 
 
 def document_type(path: Path) -> str:
-    if path.stem in NAVIGATION_TYPES:
-        return NAVIGATION_TYPES[path.stem]
+    if path.stem == "README":
+        return "directory-guide"
     layer = path.parts[2] if path.parts[:2] == ("references", "coding") else path.parts[0]
     if layer not in LAYER_TYPES:
         raise ValueError(f"{path} 所在目录没有对应的 Coding DSL 类型")
@@ -58,8 +57,9 @@ def validate_coding_document(path: Path, document: dict, template: dict) -> None
     if len(order) != len(document["blocks"]):
         raise ValueError(f"{path} 的顶层块 ID 有重复")
     layouts = template["layouts"]
-    if expected_type == "directory-guide" and path.parts[0] == "references":
-        layouts = [layout for layout in layouts if layout[-1] in {"classification", "owners"}]
+    if expected_type == "directory-guide":
+        endings = {"classification", "owners"} if path.parts[0] == "references" else {"section-01"}
+        layouts = [layout for layout in layouts if layout[-1] in endings]
     if order not in layouts:
         options = " 或 ".join(" → ".join(layout) for layout in layouts)
         raise ValueError(f"{path} 的 {expected_type} 块顺序应为 {options}")

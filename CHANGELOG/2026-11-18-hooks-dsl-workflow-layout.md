@@ -6,7 +6,7 @@
 
 ## 阶段检查点归并
 
-- 两条 Coding 路线绑定七个阶段的 Hook。原模块的 50 个检查点及八张阶段流程图并入对应 Hook，旧模块 YAML 和 Markdown 目录及旧片段移除。路线步骤聚焦阶段交接和继续条件，保留两条路线的检查点 ID、顺序、路线图、前置返回映射和 Mode 边界。 [路线索引](../docs/rules/coding-workflows/INDEX.yaml) · [验证 Hook](../docs/rules/hooks/verification.yaml)
+- 两条 Coding 路线绑定七个阶段的 Hook。原模块的 50 个检查点及八张阶段流程图并入对应 Hook，旧模块 YAML 和 Markdown 目录及旧片段移除。路线步骤聚焦阶段交接和继续条件，保留两条路线的检查点 ID、顺序、路线图、前置返回映射和 Mode 边界。 [路线目录](../docs/rules/coding-workflows/README.yaml) · [验证 Hook](../docs/rules/hooks/verification.yaml)
 - v5 运行时索引以 `hook-<ID>` 发布阶段检查点，Pi 只读取适用合同和当前检查点正文。旧模块 ID 仍可查询对应检查点。定位脚本按新 YAML 路径返回块位置，路线步骤同时返回 `hook_entry`。入口上下文读取当前路线的 Mode 边界。 [运行时目录](../extensions/coding-workflow/catalog.ts) · [检查点定位](../scripts/workflow_checkpoint_lookup.py)
 
 ## 路线目录与依赖方向

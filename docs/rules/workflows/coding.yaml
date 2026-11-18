@@ -37,7 +37,7 @@ blocks:
         | [`layer-02-workflow-concepts`](../references/coding/layer-02-workflow-concepts/README.yaml) | 通用工作流检查点动作与证据 | `layer-01-fundamental-concepts`；不得链接 layer-03/04 |
         | [`layer-03-workflow-checkpoints`](../references/coding/layer-03-workflow-checkpoints/README.yaml) | 当前任务的适用性、分支与组合决策 | layer-01、layer-02；不得链接更后的层 |
         | [`hooks`](../hooks/README.yaml) | 阶段检查点及触发合同 | 共享协议和 Layers 01–03 的规则 |
-        | [`coding-workflows`](../coding-workflows/INDEX.yaml) | 两条完整路线和跨阶段返回规则 | 绑定各阶段 Hook，按需引用前置规则 |
+        | [`coding-workflows`](../coding-workflows/README.yaml) | 两条完整路线和跨阶段返回规则 | 绑定各阶段 Hook，按需引用前置规则 |
         | `workflows/coding.md` | 路线选择器和四层索引 | 四个层级；只负责导航，不拥有策略 |
 
         如果低层文档需要由高层拥有的概念，应将其视为原子化失败：拆分低层文档，并把组合关系上移到高层。`SKILL.md`、`README.md` 和 `docs/` 等根入口文档可以向下链接到入口。使用 `python3 scripts/check-doc-layer-links.py` 检查边界；不再维护语言切换链接或平行语言版本。

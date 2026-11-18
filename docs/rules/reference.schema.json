@@ -9,7 +9,7 @@
     "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
     "document_type": {
       "enum": [
-        "directory-guide", "directory-index", "fundamental-concept", "workflow-concept",
+        "directory-guide", "fundamental-concept", "workflow-concept",
         "workflow-checkpoint", "workflow-route", "hook-contract", "hook-directory"
       ]
     },
@@ -51,7 +51,7 @@
     "then": { "required": ["front_matter"] },
     "else": { "not": { "required": ["front_matter"] } }
   }, {
-    "properties": { "markdown_path": { "not": { "pattern": "^references/.*/INDEX\\.md$" } } }
+    "properties": { "markdown_path": { "not": { "pattern": "^(?:references/.*/|coding-workflows/)INDEX\\.md$" } } }
   }],
   "dependentSchemas": {
     "flowchart_references": {

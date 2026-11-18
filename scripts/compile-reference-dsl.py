@@ -235,8 +235,11 @@ def source_notice(path: Path) -> str:
     return f"<!-- 由 {path.relative_to(ROOT).as_posix()} 生成。请在 DSL 中维护正文。 -->"
 
 
-def is_retired_reference_index(path: Path, outputs: dict[Path, str]) -> bool:
-    if (path.name != "INDEX.md" or not path.is_relative_to(SKILL / "references")
+def is_retired_index(path: Path, outputs: dict[Path, str]) -> bool:
+    navigation_directory = (
+        path.is_relative_to(SKILL / "references") or path.parent == SKILL / WORKFLOW_PATH
+    )
+    if (path.name != "INDEX.md" or not navigation_directory
             or path.resolve() != path or path.with_name("README.md") not in outputs):
         return False
     source = (SOURCE / path.relative_to(SKILL)).with_suffix(".yaml")
@@ -401,7 +404,7 @@ def main() -> int:
         outdated = [path for path, body in outputs.items() if not path.is_file() or path.read_bytes() != body.encode("utf-8")]
         unexpected = set(SKILL.rglob("*.md")) - outputs.keys()
         retired = set() if args.check else {
-            path for path in unexpected if is_retired_reference_index(path, outputs)
+            path for path in unexpected if is_retired_index(path, outputs)
         }
         unexpected -= retired
         if unexpected or (args.check and outdated):
