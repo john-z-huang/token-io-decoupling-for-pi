@@ -2,6 +2,14 @@
 
 ## 未发布
 
+### JS、TS 和 MJS 的格式化与可读性
+
+为 Extension、测试和开发脚本提供可重复的代码检查与格式化命令，并按职责组织 Pi Coding Workflow，方便逐段审查宿主调用、委派和证据处理。
+
+- `npm run lint` 检查代码规则和格式，`npm run lint:fix` 由 ESLint 调用 Prettier，只应用排版修复。同步更新 npm 开发依赖、锁文件和项目开发说明。[ESLint 配置](eslint.config.js) · [Prettier 配置](.prettierrc.json)
+- 工作流从现有 Pi 工具 Schema 推导参数类型，按职责组织工具调用和回执、委派预检与名额预留、路径守卫、Hook 上下文和检查点证据。新增模块纳入会话快照指纹，指纹变化时使用既有的人工复核机制。
+- 按启动与会话、委派、模型选型和通用工具行为整理回归测试，补充 Slice 精确路径对控制字符和通配符的边界用例。Hook 检查脚本分别核对来源、链接和上下文注入。
+
 ### Pi Coding 工作流由 Hooks 驱动
 
 让 Single-Agent 和 Multi-Agent 共用同一套推进逻辑。运行时读取路线 YAML 中按约定排列的七个阶段及主 Hook 绑定，按相应合同处理检查点、适用分支和额外触发条件。发布构建校验路线及检查点约定。

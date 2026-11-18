@@ -4,11 +4,19 @@
   "private": true,
   "type": "module",
   "description": "Pi Coding Agent 的 Coding 工作流引擎与条件规则 Hooks",
-  "keywords": ["pi-package"],
-  "engines": { "node": ">=24" },
+  "keywords": [
+    "pi-package"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
   "pi": {
-    "extensions": ["./extensions/coding-workflow/index.ts"],
-    "skills": ["./docs/skill"]
+    "extensions": [
+      "./extensions/coding-workflow/index.ts"
+    ],
+    "skills": [
+      "./docs/skill"
+    ]
   },
   "peerDependencies": {
     "@earendil-works/pi-coding-agent": "*",
@@ -19,6 +27,8 @@
     "prepare": "npm run build:skill",
     "pretest": "npm run build:skill",
     "test": "node --test extension-tests/*.test.mjs",
+    "lint": "eslint --max-warnings 0 eslint.config.js \"{extensions,extension-tests,scripts}/**/*.{js,ts,mjs}\"",
+    "lint:fix": "npm run lint -- --fix --fix-type layout",
     "check:hooks": "node scripts/check-pi-hooks.mjs",
     "check:types": "node scripts/check-pi-extension-types.mjs",
     "check:load": "node scripts/check-pi-extension-load.mjs",
@@ -36,5 +46,15 @@
   ],
   "dependencies": {
     "yaml": "2.9.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "eslint": "10.15.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-prettier": "5.5.7",
+    "globals": "17.14.0",
+    "prettier": "3.10.1",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.73.0"
   }
 }

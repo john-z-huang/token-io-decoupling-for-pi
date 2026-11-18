@@ -119,6 +119,7 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi \
 在仓库根目录：
 
 ```bash
+npm run lint
 npm test
 npm run check:hooks
 # 仅在修改逐篇来源表后，显式更新对照并审阅：
@@ -128,5 +129,7 @@ npm run check:load -- /absolute/path/to/installed/pi-coding-agent
 # 显式加载已有3.1.0的真实Schema/纯参数函数，不执行插件工具或启动子进程：
 npm run check:subagent-contract -- /absolute/path/to/installed/pi-coding-agent /absolute/path/to/@mjakl/pi-subagent/index.ts
 ```
+
+修改 JS、TS 或 MJS 后，可用 `npm run lint:fix` 应用 Prettier 格式，再用 `npm run lint` 检查规则和格式。两个命令覆盖 Extension、测试、开发脚本和 ESLint 配置。
 
 宿主类型/加载检查复用已有 Pi/TypeBox/Jiti 和已有 `tsc`；3.1.0契约检查使用真实注册Schema验证适配参数，并核对参数规范化、模型/thinking CLI和失败Hook。不下载依赖、不开 Pi 会话、不连接 MCP、不请求模型、不修改全局配置。也可用 `PI_EXTENSION_HOST_ROOT` 指定包根，`TSC_BIN` 指定已有编译器。真实客户端、实际子代理、Memory 后端及 API 端到端验收仍需独立环境与授权。

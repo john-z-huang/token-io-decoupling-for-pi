@@ -12,10 +12,10 @@ type IncludeBlock = { kind: "rule_include"; document: string; fragment: string }
 type Block = MarkdownBlock | CheckpointBlock | RouteBlock | SectionBlock | IncludeBlock;
 type Entry = { id: string; block: Block };
 type Fragment = { id: string; title: string } & (
-  { kind: "checkpoint"; applicability?: Applicability } |
-  { kind: "markdown" } |
-  { kind: "section"; anchor: string } |
-  { kind: "route_step"; phase: string; hook: string }
+  | { kind: "checkpoint"; applicability?: Applicability }
+  | { kind: "markdown" }
+  | { kind: "section"; anchor: string }
+  | { kind: "route_step"; phase: string; hook: string }
 );
 interface ReferenceDocument {
   id: string;
@@ -30,29 +30,40 @@ const BLOCK_ID = /^[A-Za-z][A-Za-z0-9-]*$/;
 const sha256 = (body: Buffer) => createHash("sha256").update(body).digest("hex");
 
 export function headingSlug(title: string): string {
-  return title.replace(/\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/<[^>]*>/g, "").toLowerCase()
-    .replace(/[^\p{L}\p{N}\p{M}_\-\s]/gu, "").replace(/ /g, "-");
+  return title
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/<[^>]*>/g, "")
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\p{M}_\-\s]/gu, "")
+    .replace(/ /g, "-");
 }
 
 function mapping(value: unknown, path: string): Record<string, unknown> {
-  if (typeof value !== "object" || value === null || Array.isArray(value)) throw new Error(`DSL 应为映射：${path}`);
+  if (typeof value !== "object" || value === null || Array.isArray(value))
+    throw new Error(`DSL 应为映射：${path}`);
   return value as Record<string, unknown>;
 }
 function string(value: unknown, path: string, pattern?: RegExp): string {
-  if (typeof value !== "string" || !value.trim() || value.includes("\0") || (pattern && !pattern.test(value))) {
+  if (
+    typeof value !== "string" ||
+    !value.trim() ||
+    value.includes("\0") ||
+    (pattern && !pattern.test(value))
+  ) {
     throw new Error(`DSL 字段无效：${path}`);
   }
   return value;
 }
 function gap(value: unknown, path: string, minimum: number): number | undefined {
   if (value === undefined) return undefined;
-  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < minimum) throw new Error(`DSL 空行数无效：${path}`);
+  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < minimum)
+    throw new Error(`DSL 空行数无效：${path}`);
   return value;
 }
 
 function readEntries(value: unknown, path: string, seen = new Set<string>()): Entry[] {
   if (!Array.isArray(value) || !value.length) throw new Error(`DSL 块列表为空或无效：${path}`);
-  return value.map(item => {
+  return value.map((item) => {
     const entries = Object.entries(mapping(item, path));
     if (entries.length !== 1) throw new Error(`DSL 块须有一个 ID：${path}`);
     const [id, raw] = entries[0];
@@ -60,35 +71,60 @@ function readEntries(value: unknown, path: string, seen = new Set<string>()): En
     if (!BLOCK_ID.test(id) || seen.has(id)) throw new Error(`DSL 块 ID 无效或重复：${key}`);
     seen.add(id);
     const data = mapping(raw, key);
-    if (data.expose !== undefined && typeof data.expose !== "boolean") throw new Error(`DSL expose 无效：${key}`);
+    if (data.expose !== undefined && typeof data.expose !== "boolean")
+      throw new Error(`DSL expose 无效：${key}`);
     let block: Block;
     switch (data.kind) {
       case "section":
-        block = { kind: data.kind, title: string(data.title, key, /^[^\r\n]+$/), children: readEntries(data.blocks, path, seen),
-          expose: data.expose === true, gap: gap(data.blank_lines_before, key, 0) };
+        block = {
+          kind: data.kind,
+          title: string(data.title, key, /^[^\r\n]+$/),
+          children: readEntries(data.blocks, path, seen),
+          expose: data.expose === true,
+          gap: gap(data.blank_lines_before, key, 0),
+        };
         break;
       case "markdown":
-        block = { kind: data.kind, text: string(data.text, key), expose: data.expose === true,
-          title: data.expose || data.title !== undefined ? string(data.title, key, /^[^\r\n]+$/) : undefined };
+        block = {
+          kind: data.kind,
+          text: string(data.text, key),
+          expose: data.expose === true,
+          title: data.expose || data.title !== undefined ? string(data.title, key, /^[^\r\n]+$/) : undefined,
+        };
         break;
       case "checkpoint": {
         const applicability = data.applicability;
         if (applicability !== undefined && applicability !== "optional" && applicability !== "sub_agent") {
           throw new Error(`检查点适用条件无效：${key}`);
         }
-        block = { kind: data.kind, text: string(data.text, key), title: string(data.title, key, /^[^\r\n]+$/), applicability };
+        block = {
+          kind: data.kind,
+          text: string(data.text, key),
+          title: string(data.title, key, /^[^\r\n]+$/),
+          applicability,
+        };
         break;
       }
       case "route_step": {
         const text = string(data.text, key);
         const hook = string(data.hook, key, DOCUMENT_ID);
-        if (!text.includes(`](../hooks/${hook}.yaml)`)) throw new Error(`路线契约变化，Hook 与 DSL 链接不一致：${key}`);
-        block = { kind: data.kind, text, title: string(data.title, key, /^[^\r\n]+$/),
-          phase: string(data.phase, key, DOCUMENT_ID), hook };
+        if (!text.includes(`](../hooks/${hook}.yaml)`))
+          throw new Error(`路线契约变化，Hook 与 DSL 链接不一致：${key}`);
+        block = {
+          kind: data.kind,
+          text,
+          title: string(data.title, key, /^[^\r\n]+$/),
+          phase: string(data.phase, key, DOCUMENT_ID),
+          hook,
+        };
         break;
       }
       case "rule_include":
-        block = { kind: data.kind, document: string(data.document, key, DOCUMENT_ID), fragment: string(data.fragment, key, BLOCK_ID) };
+        block = {
+          kind: data.kind,
+          document: string(data.document, key, DOCUMENT_ID),
+          fragment: string(data.fragment, key, BLOCK_ID),
+        };
         break;
       default:
         throw new Error(`DSL 块类型无效：${key}`);
@@ -98,11 +134,13 @@ function readEntries(value: unknown, path: string, seen = new Set<string>()): En
 }
 
 function render(entries: Entry[], level: number): string {
-  let result = "", previous: Block["kind"] | undefined, number = 0;
+  let result = "",
+    previous: Block["kind"] | undefined,
+    number = 0;
   for (const { id, block } of entries) {
     const numbered = block.kind === "checkpoint" || block.kind === "route_step";
     const defaultGap = previous === block.kind && numbered ? 0 : 1;
-    const gap = block.kind === "section" ? block.gap ?? defaultGap : defaultGap;
+    const gap = block.kind === "section" ? (block.gap ?? defaultGap) : defaultGap;
     if (result) result += "\n".repeat(1 + gap);
     if (block.kind === "section") {
       result += `${"#".repeat(level)} ${block.title}\n\n${render(block.children, level + 1)}`;
@@ -114,7 +152,9 @@ function render(entries: Entry[], level: number): string {
         number = previous === block.kind ? number + 1 : 1;
         const [first, ...rest] = text.split("\n");
         const indent = " ".repeat(String(number).length + 2);
-        result += `${number}. **${id} — ${block.title}** ${first}` + rest.map(line => "\n" + (line ? indent + line : "")).join("");
+        result +=
+          `${number}. **${id} — ${block.title}** ${first}` +
+          rest.map((line) => "\n" + (line ? indent + line : "")).join("");
       } else result += text;
     }
     previous = block.kind;
@@ -130,7 +170,8 @@ function buildFragments(title: string, entries: Entry[]) {
   function visitEntries(items: Entry[], level: number) {
     for (const { id, block } of items) {
       if (block.kind === "section") {
-        const base = headingSlug(block.title), count = counts.get(base) ?? 0;
+        const base = headingSlug(block.title),
+          count = counts.get(base) ?? 0;
         counts.set(base, count + 1);
         const anchor = count ? `${base}-${count}` : base;
         sectionIds.set(anchor, id);
@@ -174,27 +215,38 @@ export function loadReferenceData(root: string) {
     return readFileSync(path);
   }
   function yamlFiles(directory: string): string[] {
-    return readdirSync(join(rules, directory), { withFileTypes: true }).flatMap(item => {
+    return readdirSync(join(rules, directory), { withFileTypes: true }).flatMap((item) => {
       const file = `${directory}/${item.name}`;
       if (item.isSymbolicLink()) throw new Error(`规则源不允许符号链接：${file}`);
       if (item.isDirectory()) return yamlFiles(file);
-      return item.isFile() && item.name.endsWith(".yaml") && file !== "hooks/SOURCE_COVERAGE.yaml" ? [file] : [];
+      return item.isFile() && item.name.endsWith(".yaml") && file !== "hooks/SOURCE_COVERAGE.yaml"
+        ? [file]
+        : [];
     });
   }
 
-  for (const file of [...["references", "coding-workflows", "hooks"].flatMap(yamlFiles), "SKILL.yaml", "workflows/coding.yaml"].sort()) {
+  for (const file of [
+    ...["references", "coding-workflows", "hooks"].flatMap(yamlFiles),
+    "SKILL.yaml",
+    "workflows/coding.yaml",
+  ].sort()) {
     const source = read(file);
     const yaml = parseDocument(source.toString("utf8"), { uniqueKeys: true, schema: "core" });
     const issue = yaml.errors[0] ?? yaml.warnings[0];
     if (issue) throw new Error(`无效的规则 YAML：${file}：${issue.message}`);
     visit(yaml, (_key, node) => {
-      if (isAlias(node) || (isNode(node) && "anchor" in node && node.anchor)) throw new Error(`规则 YAML 不允许锚点或别名：${file}`);
+      if (isAlias(node) || (isNode(node) && "anchor" in node && node.anchor))
+        throw new Error(`规则 YAML 不允许锚点或别名：${file}`);
     });
     const raw = mapping(yaml.toJS({ maxAliasCount: 0 }), file);
     const owner = file.startsWith("hooks/");
     const id = string(raw.id, file, DOCUMENT_ID);
     const path = file.replace(/\.yaml$/, ".md");
-    if (raw.schema_version !== 1 || raw.markdown_path !== path || (owner && id !== (file === "hooks/README.yaml" ? "readme" : file.slice(6, -5)))) {
+    if (
+      raw.schema_version !== 1 ||
+      raw.markdown_path !== path ||
+      (owner && id !== (file === "hooks/README.yaml" ? "readme" : file.slice(6, -5)))
+    ) {
       throw new Error(`规则 YAML 的版本、路径或 Hook ID 不匹配：${file}`);
     }
     const title = string(raw.title, file, /^[^\r\n]+$/);
@@ -210,7 +262,7 @@ export function loadReferenceData(root: string) {
     entries.set(documentId, { file, hash: sha256(source), renderers });
     digest.update(file).update("\0").update(source).update("\0");
     if (owner && raw.document_type === "hook-contract") {
-      const execution = blocks.filter(block => !["flowchart", "checkpoints", "sources"].includes(block.id));
+      const execution = blocks.filter((block) => !["flowchart", "checkpoints", "sources"].includes(block.id));
       hookBodies.set(id, () => `# ${title}${"\n".repeat(titleGap)}${render(execution, 2)}`);
       hookTriggers.set(id, raw.activate_on);
     }
@@ -246,7 +298,10 @@ export function loadReferenceData(root: string) {
     return readBody(`hook-${id}`, `hooks/${id}`, renderer);
   }
   return {
-    digest: digest.digest("hex"), document, readFragment, readHook,
+    digest: digest.digest("hex"),
+    document,
+    readFragment,
+    readHook,
     hookActivation: (id: string) => hookTriggers.get(id),
     documentPaths: () => documentsByPath.keys(),
     documentForPath: (path: string) => documentsByPath.get(path),

@@ -10,6 +10,7 @@
 
 - 维护中的文档使用简体中文和现有文件名；不新增英文副本或旧式语言后缀镜像。本地 Markdown 链接须指向存在的当前文件，移动或重命名时同步更新引用。
 - 修改按需验证，不把结构检查当作语义验收。Extension 有关改动使用 `package.json` 中适用的 `npm test` 和检查脚本；文档变更按文档规范运行对应检查。
+- JS、TS 和 MJS 的格式化使用 `npm run lint:fix`，由 ESLint 调用 Prettier。验证代码规则及格式使用 `npm run lint`。
 - MCP 普通测试不应调用真实模型或 API。MCP 的测试、lint 和构建命令以 MCP 开发指南为准；真实 API 测试仅在明确需要且具备相应授权时运行。
 
 ## 安全与 Git
