@@ -1,0 +1,1 @@
+提供本声明、当前 Contract/标准、当前 implementation/content 与 documentation Verification、范围/指纹/epoch、准确目标/效果意图、授权和 continuation，调用[模块入口解析](../../layer-03-workflow-checkpoints/module-entry-resolution.md)。将缺少的前置送回语义对应 owner：Contract/标准交调用方解决当前 Contract；Verification 交受影响的 Verification owner；Git target/授权交 Git owner 或授权边界。冲突、状态不安全或效果无法恢复时返回 `blocked`。

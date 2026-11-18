@@ -1,0 +1,1 @@
+所有文档和 Memory 写入后，运行适用的 Markdown、链接、空白、多语言和范围检查。仅文档影响时，凭指纹理由保留未受影响的当前证据，并重跑变更的文档检查。没有变更输出时，以匹配指纹将检查标为 `not_applicable`。行为/Contract/验收影响返回 implementation/content Verification；必需重验未解决时不得完成。

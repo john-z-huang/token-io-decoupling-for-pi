@@ -1,5 +1,7 @@
 # 工作定义模块
 
+<!-- 由 docs/rules/references/coding/layer-04-workflows/modules/work-definition.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本 Layer-04 模块用当前事实建立任务上下文，并产出符合 Contract 的决策及默认共享任务计划。它不选择执行者、不评估输出路由、不预留角色、不释放 Slice，也不执行 Bootstrap。
 

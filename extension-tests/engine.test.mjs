@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { loadCatalog, currentModule, parseModule, classifySource, phaseHooks, signalHooks, SIGNALS, PHASES } from '../extensions/coding-workflow/catalog.ts';
+import { loadCatalog, currentModule, phaseHooks, signalHooks, SIGNALS, PHASES } from '../extensions/coding-workflow/catalog.ts';
 import { makeState, Workflow, restoreState, exactPath, ROLES, sameEpoch } from '../extensions/coding-workflow/engine.ts';
 import { MAX_CONTEXT, renderContext } from '../extensions/coding-workflow/runtime.ts';
 const catalog = loadCatalog();
@@ -26,19 +26,12 @@ export function until(w, checkpoint) {
 }
 const slice = { objective: '已授权的合成输出', paths: ['example.ts'], mutations: ['content'], returnConditions: '产物及检查证据返回', unreleased: 'Git、网络和扩容', evidence: ['user-1'] };
 
-test('all maintained Markdown sources have hook or navigation/reference ownership', () => {
-  assert.ok(catalog.coverage.length >= 119);
-  assert.equal(catalog.coverage.filter(c => c.path.includes('layer-01-') && c.kind === 'rule').length, 41);
-  assert.ok(catalog.coverage.every(c => c.hooks.length));
-  assert.throws(() => classifySource('references/new-policy/rule.md'), /没有 Hook/);
-});
 test('both routes share seven ordered modules and select the correct executor module', () => {
   assert.equal(PHASES.length, 7);
+  assert.deepEqual(PHASES.map(phase => catalog.routes.single.steps[phase].id), ['SM01', 'SM02', 'SM03', 'SM04', 'SM05', 'SM06', 'SM07']);
+  assert.deepEqual(PHASES.map(phase => catalog.routes.multi.steps[phase].id), ['MM01', 'MM02', 'MM03', 'MM04', 'MM05', 'MM06', 'MM07']);
   assert.equal(currentModule(catalog, 'execution', 'single').name, 'single-execution');
   assert.equal(currentModule(catalog, 'execution', 'multi').name, 'delegated-execution');
-});
-test('changed checkpoint shape is rejected instead of inferred', () => {
-  assert.throws(() => parseModule('entry-readiness.md', '## 有序模块清单\n1. **ER99 — 无效。** 不允许\n'), /检查点契约变化/);
 });
 test('single route can traverse all seven modules with actual synthetic observations', () => {
   const w = fresh(); until(w, 'DA05'); step(w);

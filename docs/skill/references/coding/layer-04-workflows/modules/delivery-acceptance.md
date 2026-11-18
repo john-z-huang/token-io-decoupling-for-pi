@@ -1,5 +1,7 @@
 # 交付与验收模块
 
+<!-- 由 docs/rules/references/coding/layer-04-workflows/modules/delivery-acceptance.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本 Layer-04 模块先核验当前内容/文档 Verification 证据；仅在用户明确要求且已授权时执行 Git 交付效果；然后将每项 Contract 标准映射到当前适用 epoch 进行 Acceptance。模块完成不会授予额外权限。
 

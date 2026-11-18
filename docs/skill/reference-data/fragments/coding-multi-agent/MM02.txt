@@ -1,0 +1,1 @@
+启动已固定先确认 single/multi 与预算，再确认审计可见性及每字段 explicit/default 来源；缺失答案须返回启动收集，不静默默认。 调用[Session 就绪模块](modules/session-readiness.md)，确认规范 authority/state、审计及适用的容量读回。恢复改变事实时，遵循模块要求的规范读回先于审计顺序；不得重开 Mode 或重复已完成提问。仅在 Session、审计和 allocation 证据当前时继续；`needs_prerequisite` 时保留暂停位置，authority 或读回失败未解决时阻塞。

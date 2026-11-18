@@ -61,12 +61,12 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi \
 
 | 工具 | 可执行内容 |
 | --- | --- |
-| `coding_checkpoint` | 查询当前状态/证据分页；按 revision 提交同模块连续结果；上报语义信号；暂停、原位恢复、读回处置未知效果；读取大结果分页。 |
+| `coding_checkpoint` | 查询当前状态、证据及规则片段。按 revision 提交同模块连续结果、上报语义信号、暂停、原位恢复、读回处置未知效果或读取大结果分页。 |
 | `coding_slice` | 放行 Objective、精确路径及影响、Return conditions、Unreleased boundary，引用当前实际证据。 |
 | `coding_run` | 经 `ctx.executeTool` 的真实宿主校验/权限/Hooks 调用不透明工具，声明 read/check/content/documentation/git/memory；不自行实现 Shell/MCP 旁路。 |
 | `coding_delegate` | 在预算、职责、任务与 Slice 门禁后，调用实际暴露且 Schema 匹配的一次性单任务扩展。 |
 
-每次模型请求注入适用 Hook 合同、当前检查点的完整指令、后续适用项的标题和模块链接，以及最近 24 项观察。批量上报前应从模块链接查阅各项指令，并引用实际证据。批次限于同一模块。Hook 合同的触发、动作、退出和重核正文完整注入，来源对照表按链接查看。注入使用以包内原文为基准的 `file:` URL。整个上下文包的硬上限为 96,000 字符，超限时停止并保留完整合同。
+每次模型请求注入适用 Hook 合同、当前检查点完整指令、后续适用项的标题以及最近 24 项观察。对 `coding-rule:文档#片段`，用 `coding_checkpoint` 的 `action=rules` 传入对应 `document` 和 `fragment`，每次读取一个片段。省略 `fragment` 时列出片段标题，省略 `document` 时定位当前模块。批量上报前逐项读过指令，并引用实际证据。批次限于同一模块。整个上下文包的硬上限为 96,000 字符，超限时停止并保留完整合同。
 
 必需的 `facts` 包括 ER01 的 independence、WD03 的 plan=persisted/prohibited、DE02 的 executor=root/sub_agent、VR03 的 verification=passed、DA03 的 acceptance=satisfied 以及适用时 DA04 的 plan=archived。Agent 须为这些语义声明提供证据。WD03 引用真实 Memory 操作或明确禁止持久化的来源。
 
@@ -104,7 +104,7 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi \
 
 ## 规则迁移边界
 
-16份 Hook 合同提供明确触发、执行、退出/阻断、重核和来源。原 Markdown owner 仍为详细权威，不删除；它们的来源/导航/参考归属经catalog登记；新增 [逐篇来源整合对照](hooks/SOURCE_COVERAGE.md) 依据每份Hook的“来源—合同落点”表生成，89份实质规则与2份仅参考文章均需显式关联，29份导航与实质规则分开统计。**路径覆盖与 Hash 不证明压缩合同和所有 owner 的语义等价**；细节冲突以 owner 及更高优先级规则为准，不能因 Hook 未提及而豁免。
+运行中的 Coding 路线、模块和已迁移的 Epoch 规则以 YAML DSL 为权威来源。编译器从 DSL 生成运行时片段，并从 16 份 Hook 合同生成可注入正文。扩展按需读取这些资源。Markdown 导出用于阅读或手动回退，来源和归属由 [逐篇来源整合对照](hooks/SOURCE_COVERAGE.md) 的离线检查核验。规则摘要和路径覆盖只能帮助核对版本及归属，细节冲突以 owner 及更高优先级规则为准。
 
 引擎约束顺序、字段、已观察引用、预算、路径与 epoch。它不证明用户授权、检查输出正确、独立性、N/A 理由、内容保全或验收真的满足；不透明工具的 effect 也是声明。它不是恶意代码沙箱或 OS ACL。真实出站、Git、Memory 权限仍按原规则独立核验。
 

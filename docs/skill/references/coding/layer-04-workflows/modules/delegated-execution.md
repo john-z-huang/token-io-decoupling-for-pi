@@ -1,5 +1,7 @@
 # Multi-Agent 委派执行模块
 
+<!-- 由 docs/rules/references/coding/layer-04-workflows/modules/delegated-execution.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本 Layer-04 模块组合 Bootstrap 评估与 Root 任务授权、执行者/输出/角色决策、所有执行者共用的当前 Slice 门禁、有条件的子代理创建与派发、实施/结果处理、阶段反馈及 Control。它返回实施状态与初步证据；最终验证属于后续验证/修复工作流。
 

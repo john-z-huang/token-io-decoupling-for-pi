@@ -1,5 +1,7 @@
 # 入口就绪模块
 
+<!-- 由 docs/rules/references/coding/layer-04-workflows/modules/entry-readiness.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本 Layer-04 模块组合建立路线就绪所需的当前任务 Contract、Environment/能力及已释放 Mode 证据。它消费现有 Layer-01 至 Layer-03 owners；不选择路线、不重新解释 Mode，也不授权实施或子代理效果。
 

@@ -1,0 +1,1 @@
+使用当前 Contract、Environment、能力清单、已释放的 Single-Agent Mode 和授权路线证据，调用[入口就绪模块](modules/entry-readiness.md)。仅在入口证据当前且一致时继续。将缺失前置送回语义对应 owner 并保留 SM01；冲突或状态不安全时阻塞。

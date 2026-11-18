@@ -1,0 +1,1 @@
+返回变更路径、来源依据、当前 documentation fingerprint/epoch、检查及结果、前后维度分类、复用未变证据的理由，以及 Memory 结果或有原因的 `not_applicable`。所有适用检查通过或有依据地 `not_applicable`、Memory 持久化已确认且 owner 要求的存储内容核验通过或有依据地 `not_applicable`，并且内容影响重新验证均已解决后，才返回 `complete`。这不授权 Git 或整体验收。

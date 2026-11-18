@@ -1,0 +1,1 @@
+提供本声明、当前授权及已释放路线/模式/count 证据、完整 Session/审计与 Context/Decision 证据、allocation、先前效果、恢复状态及 continuation，调用[模块入口解析](../../layer-03-workflow-checkpoints/module-entry-resolution.md)。恢复既有已释放 Worker bundle 时，提供其记录的显式 memo 值；新 bundle 的值在 DE04 确定。`ready` 只允许模块核验。证据缺失时连同 owner/位置返回 `needs_prerequisite`；冲突、状态不安全或效果无法恢复时返回 `blocked`。

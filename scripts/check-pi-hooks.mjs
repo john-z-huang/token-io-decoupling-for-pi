@@ -1,16 +1,25 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
-import { loadCatalog, PHASES, HOOK_IDS, SIGNALS } from '../extensions/coding-workflow/catalog.ts';
+import { join, sep } from 'node:path';
+import { documentLinks, loadCatalog, PHASES, HOOK_IDS, resolveDocumentLink, SIGNALS } from '../extensions/coding-workflow/catalog.ts';
 import { makeState, Workflow } from '../extensions/coding-workflow/engine.ts';
 import { MAX_CONTEXT, renderContext } from '../extensions/coding-workflow/runtime.ts';
-import { collectSourceCoverage, coverageMarkdown, validateMarkdownLinks } from './pi-hook-validation.mjs';
+import { collectSourceCoverage, coverageMarkdown, readHookSources, validateMarkdownLinks } from './pi-hook-validation.mjs';
 
 const c = loadCatalog();
 let links = 0, largestDefault = 0, largestConditional = 0, contexts = 0;
-for (const id of HOOK_IDS) links += validateMarkdownLinks(c.root, `hooks/${id}.md`, c.hooks[id]);
-const rows = collectSourceCoverage(c);
+const hooks = readHookSources(c.root);
+for (const id of HOOK_IDS) links += validateMarkdownLinks(c.root, `hooks/${id}.md`, hooks[id]);
+for (const path of c.references.documentPaths()) {
+  const body = readFileSync(join(c.root, path), 'utf8');
+  links += validateMarkdownLinks(c.root, path, body);
+  for (const target of documentLinks(body)) {
+    const link = resolveDocumentLink(c.root, path, target);
+    assert.ok(!link?.path.startsWith(join(c.root, 'hooks') + sep), `${path}: 规则源不能反向依赖 Hook ${target}`);
+  }
+}
+const rows = collectSourceCoverage(c, hooks);
 const generated = coverageMarkdown(rows), coveragePath = join(c.root, 'hooks/SOURCE_COVERAGE.md');
 if (process.argv.includes('--write-coverage')) writeFileSync(coveragePath, generated);
 assert.equal(readFileSync(coveragePath, 'utf8'), generated, '来源对照表过期，请运行 node scripts/check-pi-hooks.mjs --write-coverage 并审阅变化');

@@ -21,6 +21,7 @@ export default function codingWorkflow(pi: ExtensionAPI): void {
   installWorkflow(pi, {
     checkpoint: Type.Union([
       Type.Object({ action: Type.Literal("status"), offset: Type.Optional(Type.Integer({ minimum: 0, maximum: 127 })) }, { additionalProperties: false }),
+      Type.Object({ action: Type.Literal("rules"), document: Type.Optional(string(96)), fragment: Type.Optional(string(96)) }, { additionalProperties: false }),
       Type.Object({ action: Type.Literal("result"), resultId: string(), offset: Type.Optional(Type.Integer({ minimum: 0 })) }, { additionalProperties: false }),
       Type.Object({ action: Type.Literal("report"), revision, reports: Type.Array(report, { minItems: 1, maxItems: 10 }) }, { additionalProperties: false }),
       Type.Object({ action: Type.Literal("signal"), revision, signal: enumeration(SIGNALS), evidence, reason: string() }, { additionalProperties: false }),

@@ -1,5 +1,7 @@
 # Session 就绪模块
 
+<!-- 由 docs/rules/references/coding/layer-04-workflows/modules/session-readiness.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本 Layer-04 模块为有界下游工作建立当前且已核验的 Session 记录与审计结果。它组合 Session owners 并向调用方返回证据；不重开 Mode、不产生计划/决策输出，也不调度其他模块。
 

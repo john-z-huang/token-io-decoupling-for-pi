@@ -17,11 +17,13 @@
 - 面向用户的元数据说明使用中文；程序字段与协议标识符保持其接口约定。
 - 本规范不改变 MCP Tools 内部使用 OpenAI API 的执行方式，也不改变操作授权与安全边界。
 
-## 参考规则 DSL 试点
+## 参考规则 DSL
 
-验证与修复模块和验证 Epoch 规则在 `docs/rules/` 下维护。YAML 的 `blocks` 是有序列表，每项以稳定 ID 为键。`section` 生成标题及下级块，`checkpoint` 生成编号条目并供 Pi 按 ID 读取，`markdown` 保留列表、表格和 Mermaid 等正文。需独立读取的 `section` 可设置 `expose: true`。两份 YAML 均关联 [DSL Schema](../rules/reference.schema.json)。
+两条 Layer-04 Coding 路线、八个模块和验证 Epoch 规则通过 YAML 维护。源文件在 `docs/rules/` 下镜像 `docs/skill/` 中生成文档的目录和文件名，例如 `docs/rules/references/coding/layer-04-workflows/modules/entry-readiness.yaml` 导出为 `docs/skill/references/coding/layer-04-workflows/modules/entry-readiness.md`。编译器检查两者的相对路径。YAML 文件关联 [DSL Schema](../rules/reference.schema.json)。
 
-修改 YAML 后执行 `uv run --locked --script scripts/compile-reference-dsl.py`，更新原路径上的 Markdown 及 `docs/skill/reference-data/` 内的索引和片段。评审同时核对源文件和生成差异。CI 可用同一命令加 `--check` 只读检查生成产物的一致性。Pi 包携带生成资源，运行时无需 YAML 解析器。Serena 在项目的 `language_servers` 启用 `yaml` 后，可通过块 ID 定位检查点，例如 `VR03`。
+`blocks` 是有序列表，每项以稳定 ID 为键。`section` 生成标题和下级块，`checkpoint` 生成编号条目，`route_step` 另外绑定当前阶段及模块。`markdown` 保留列表、表格和 Mermaid 等正文。需由 Hook 独立读取的 `section` 用 `expose: true` 导出片段。分支和返回条件保留在对应检查点、路线图和返回映射。Serena 在项目的 `language_servers` 启用 `yaml` 后，可通过块 ID 定位检查点，例如 `VR03`。
+
+修改 YAML、Hook 正文或尚以 Markdown 维护的 Skill 规则后，执行 `uv run --locked --script scripts/compile-reference-dsl.py`。编译器生成供阅读和手动回退的 Markdown，并生成 `docs/skill/reference-data/` 下的运行时索引、DSL 片段和 Hook 正文。评审核对源文件和生成差异，`--check` 只读检查一致性。扩展仅读取运行时资源，实例加载时使用当前索引中的规则指纹。
 
 ## 验证
 

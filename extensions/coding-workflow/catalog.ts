@@ -1,10 +1,11 @@
 import { createHash } from "node:crypto";
-import { readFileSync, readdirSync } from "node:fs";
-import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
+import { readFileSync } from "node:fs";
+import { dirname, isAbsolute, relative, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { loadReferenceData } from "./reference-data.ts";
 
 export const SKILL_ROOT = fileURLToPath(new URL("../../docs/skill/", import.meta.url));
+const WORKFLOW_DIR = "references/coding/layer-04-workflows";
 export const PHASES = ["entry", "session", "definition", "execution", "verification", "documentation", "delivery"] as const;
 export type Phase = typeof PHASES[number];
 export type Mode = "single" | "multi";
@@ -14,15 +15,15 @@ export const SIGNALS = ["requirements_changed", "decision_required", "executor_c
 export type SemanticSignal = typeof SIGNALS[number];
 export interface Checkpoint { id: string; title: string; instruction: string; conditional: boolean }
 export interface Module { name: string; path: string; checkpoints: Checkpoint[] }
+interface RouteStep { id: string; title: string; module: string }
+interface Route { documentId: string; steps: Record<Phase, RouteStep> }
 export interface Catalog {
   root: string;
   modules: Record<string, Module>;
-  hooks: Record<HookId, string>;
+  routes: Record<Mode, Route>;
   references: ReturnType<typeof loadReferenceData>;
   digest: string;
-  coverage: { path: string; hooks: HookId[]; kind: "rule" | "navigation" | "reference" }[];
 }
-const MODULES = ["entry-readiness", "session-readiness", "work-definition", "single-execution", "delegated-execution", "verification-repair", "documentation", "delivery-acceptance"];
 const CONDITIONAL = new Set(["SR04", "DE03", "DE05", "DE06", "SE04", "DA02", "DOC03"]);
 const EXPECTED_IDS: Record<string, string[]> = {
   "entry-readiness": ["ER00", "ER01", "ER02", "ER03"],
@@ -34,72 +35,25 @@ const EXPECTED_IDS: Record<string, string[]> = {
   documentation: Array.from({ length: 7 }, (_, i) => `DOC0${i}`),
   "delivery-acceptance": Array.from({ length: 6 }, (_, i) => `DA0${i}`),
 };
-export function moduleName(phase: Phase, mode: Mode): string {
+// 固定引擎目前支持的拓扑，发布时用 DSL 索引校验实际路线。
+function expectedModule(phase: Phase, mode: Mode): string {
   return ({ entry: "entry-readiness", session: "session-readiness", definition: "work-definition", execution: mode === "single" ? "single-execution" : "delegated-execution", verification: "verification-repair", documentation: "documentation", delivery: "delivery-acceptance" })[phase];
 }
 
-/** Exact checkpoint IDs are deliberate: a changed route must be reviewed, not silently inferred. */
-function checkCheckpointOrder(name: string, path: string, checkpoints: Checkpoint[]) {
-  if (JSON.stringify(checkpoints.map(c => c.id)) !== JSON.stringify(EXPECTED_IDS[name])) throw new Error(`检查点契约变化，须审阅 Extension：${path}`);
-}
-
-export function parseModule(path: string, text: string): Module {
-  const name = path.split("/").pop()!.replace(/\.md$/, "");
-  const section = text.split("## 有序模块清单\n")[1]?.split(/^## /m)[0];
-  if (!section) throw new Error(`缺少有序模块清单：${path}`);
-  const starts = [...section.matchAll(/^\d+\. \*\*([A-Z]+\d+) — ([^*]+)\*\*/gm)];
-  const checkpoints = starts.map((match, i) => ({
-    id: match[1], title: match[2].trim(),
-    instruction: section.slice(match.index! + match[0].length, starts[i + 1]?.index ?? section.length).trim(),
-    conditional: CONDITIONAL.has(match[1]),
-  }));
-  checkCheckpointOrder(name, path, checkpoints);
-  if (checkpoints.some(c => !c.instruction)) throw new Error(`检查点为空：${path}`);
-  return { name, path, checkpoints };
-}
-
-const L1_HOOKS: Record<string, HookId[]> = {
-  "context-exchange": ["context"], delegation: ["delegation", "session"],
-  "execution-control": ["execution"], "execution-planning": ["planning"],
-  "session-runtime": ["session", "audit"], "workflow-navigation": ["navigation"],
-};
-const L2_HOOKS: Record<string, HookId[]> = {
-  "entry-and-context": ["entry", "planning"], "decision-and-execution": ["execution", "planning"],
-  "verification-and-repair": ["verification", "repair"], "completion-and-effects": ["documentation", "delivery"],
-};
-const OVERRIDES: Record<string, HookId[]> = {
-  "candidate-compliance": ["materialization"], "output-materialization": ["materialization"],
-  "decisions-advisory": ["advisory"], "decision-context-generation": ["advisory", "planning"],
-  "workflow-routing-advice": ["navigation", "advisory"], "workflow-module-contract": ["recovery"],
-  "LSP-MCP-Tools": ["context", "session"], "runtime-provider-support": ["foundation", "session", "delegation"],
-  "session-context-firewall": ["context"], "reasoning-summary-visibility": ["audit"], "session-audit-visibility": ["audit"],
-};
-export function classifySource(path: string): Catalog["coverage"][number] {
-  const parts = path.split("/");
-  const stem = parts.at(-1)!.replace(/\.md$/, "");
-  const kind = ["INDEX", "README"].includes(stem) ? "navigation" : "rule";
-  if (parts.includes("multimodal")) return { path, hooks: ["foundation"], kind: "reference" };
-  if (OVERRIDES[stem]) return { path, hooks: OVERRIDES[stem], kind };
-  if (parts.includes("share") || path === "SKILL.md") return { path, hooks: ["foundation"], kind };
-  const layer = parts.findIndex(p => p.startsWith("layer-"));
-  if (layer >= 0) {
-    const number = parts[layer].slice(6, 8);
-    const group = parts[layer + 1];
-    if (number === "01" || number === "02") {
-      if (!group || /\.md$/.test(group)) return { path, hooks: ["navigation"], kind };
-      const hooks = (number === "01" ? L1_HOOKS : L2_HOOKS)[group];
-      if (hooks) return { path, hooks, kind };
-    }
-    if (number === "03") return { path, hooks: ["navigation", "execution"], kind };
-    if (number === "04") {
-      const phase = PHASES.find(p => moduleName(p, "single") === stem || moduleName(p, "multi") === stem);
-      return { path, hooks: phase ? phaseHooks(phase, "multi") : ["navigation"], kind };
-    }
+function loadRoute(references: Catalog["references"], mode: Mode): Route {
+  const documentId = `coding-${mode}-agent`;
+  const document = references.document(documentId);
+  const prefix = mode === "single" ? "SM" : "MM";
+  const steps = document.fragments.filter(item => item.kind === "route_step");
+  if (document.path !== `${WORKFLOW_DIR}/${documentId}.md` || steps.length !== PHASES.length ||
+      !PHASES.every((phase, i) => steps[i].phase === phase && steps[i].id === `${prefix}0${i + 1}` && steps[i].module === expectedModule(phase, mode))) {
+    throw new Error(`路线契约变化，须审阅 Extension：${document.path}`);
   }
-  if (path === "PI_EXTENSION.md") return { path, hooks: ["foundation", "navigation"], kind: "navigation" };
-  if (path === "workflows/coding.md" || path === "WORKFLOW_ARCHITECTURE.md") return { path, hooks: ["foundation", "navigation"], kind };
-  throw new Error(`没有 Hook 归属的规则：${path}`);
+  const bindings = {} as Record<Phase, RouteStep>;
+  PHASES.forEach((phase, i) => { bindings[phase] = steps[i]; });
+  return { documentId, steps: bindings };
 }
+
 export function phaseHooks(phase: Phase, mode: Mode): HookId[] {
   const table: Record<Phase, HookId[]> = {
     entry: ["entry", "navigation"], session: ["session", "audit"], definition: ["planning", "context"],
@@ -111,53 +65,32 @@ export function phaseHooks(phase: Phase, mode: Mode): HookId[] {
 export function signalHooks(signal: SemanticSignal): HookId[] {
   return ({ requirements_changed: ["entry", "planning"], decision_required: ["planning"], executor_changed: ["execution", "delegation"], repair_required: ["repair", "verification"], documentation_impact: ["documentation", "verification"], git_changed: ["delivery", "verification"], context_exchange: ["context"], advice_requested: ["advisory"], materialization_requested: ["materialization"], capability_changed: ["session", "entry"] } satisfies Record<SemanticSignal, HookId[]>)[signal];
 }
-function markdownFiles(root: string): string[] {
-  return readdirSync(root, { withFileTypes: true }).flatMap(entry => {
-    if (entry.isSymbolicLink()) throw new Error(`规则源不允许符号链接：${entry.name}`);
-    const path = join(root, entry.name);
-    return entry.isDirectory() ? markdownFiles(path) : entry.name.endsWith(".md") ? [path] : [];
-  }).sort();
-}
 export function loadCatalog(root = SKILL_ROOT): Catalog {
   const modules: Record<string, Module> = {};
   const hash = createHash("sha256");
   for (const file of ["catalog.ts", "engine.ts", "runtime.ts", "index.ts", "model-selection.ts", "startup.ts", "reference-data.ts"]) hash.update(file).update(readFileSync(new URL(file, import.meta.url)));
   const references = loadReferenceData(root);
   hash.update("reference-data/manifest.json").update(references.manifest);
-  for (const name of MODULES) {
-    const path = `references/coding/layer-04-workflows/modules/${name}.md`;
-    if (name === "verification-repair") {
-      const document = references.document(name);
-      if (document.path !== path) throw new Error(`规则片段索引中的模块路径不匹配：${name}`);
-      const checkpoints = document.fragments.filter(item => item.kind === "checkpoint").map(({ id, title }) => ({
-        id, title, conditional: CONDITIONAL.has(id),
-        get instruction() { return references.readFragment(name, id); },
-      }));
-      checkCheckpointOrder(name, path, checkpoints);
-      modules[name] = { name, path, checkpoints };
-      continue;
+  const routes = { single: loadRoute(references, "single"), multi: loadRoute(references, "multi") };
+  for (const [name, expected] of Object.entries(EXPECTED_IDS)) {
+    const document = references.document(name);
+    const path = `${WORKFLOW_DIR}/modules/${name}.md`;
+    const checkpoints = document.fragments.filter(item => item.kind === "checkpoint").map(({ id, title }) => ({
+      id, title, conditional: CONDITIONAL.has(id),
+      get instruction() { return references.readFragment(name, id); },
+    }));
+    if (document.path !== path || checkpoints.length !== expected.length || checkpoints.some((item, i) => item.id !== expected[i])) {
+      throw new Error(`检查点契约变化，须审阅 Extension：${path}`);
     }
-    const text = readFileSync(join(root, path), "utf8");
-    modules[name] = parseModule(path, text); hash.update(path).update(text);
+    modules[name] = { name, path, checkpoints };
   }
-  const hooks = {} as Record<HookId, string>;
   for (const id of HOOK_IDS) {
-    const text = readFileSync(join(root, "hooks", `${id}.md`), "utf8");
-    for (const title of ["触发条件", "执行要求", "退出与阻断", "重新核验", "规则来源"]) {
-      if (!text.includes(`## ${title}\n`)) throw new Error(`Hook ${id} 缺少 ${title}`);
-    }
-    hooks[id] = text; hash.update(id).update(text);
+    if (!references.hasHook(id)) throw new Error(`规则片段索引缺少 Hook：${id}`);
   }
-  const sources = markdownFiles(root).filter(p => !relative(root, p).startsWith("hooks/"));
-  const coverage = sources.map(path => {
-    const rel = relative(root, path).split("\\").join("/");
-    hash.update(rel).update(references.markdownHashes.get(rel) ?? readFileSync(path));
-    return classifySource(rel);
-  });
-  // File hashes detect drift, not semantic equivalence or policy correctness.
-  return { root: resolve(root), modules, hooks, references, coverage, digest: hash.digest("hex") };
+  // 快照使用代码与规则索引的指纹，不扫描文档导出目录。
+  return { root: resolve(root), modules, routes, references, digest: hash.digest("hex") };
 }
-export function currentModule(catalog: Catalog, phase: Phase, mode: Mode): Module { return catalog.modules[moduleName(phase, mode)]; }
+export function currentModule(catalog: Catalog, phase: Phase, mode: Mode): Module { return catalog.modules[catalog.routes[mode].steps[phase].module]; }
 /** Resolve against the resource document, never the user's unrelated working directory. */
 export function resolveDocumentLink(root: string, document: string, target: string): { path: string; fragment: string; url: string } | undefined {
   const href = target.replace(/^<|>$/g, "");
@@ -198,6 +131,26 @@ export function documentLinks(markdown: string): string[] {
 
 export function rewriteDocumentLinks(root: string, document: string, markdown: string): string {
   return mapDocumentLinks(markdown, target => resolveDocumentLink(root, document, target)?.url ?? target);
+}
+
+export function headingSlug(title: string): string {
+  return title.replace(/\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/<[^>]*>/g, "").toLowerCase()
+    .replace(/[^\p{L}\p{N}\p{M}_\-\s]/gu, "").replace(/ /g, "-");
+}
+
+export function ruleLink(document: string, fragment?: string): string {
+  return `coding-rule:${document}${fragment ? `#${fragment}` : ""}`;
+}
+
+export function rewriteWorkflowLinks(catalog: Catalog, source: string, markdown: string): string {
+  return mapDocumentLinks(markdown, target => {
+    const link = resolveDocumentLink(catalog.root, source, target);
+    if (!link) return target;
+    const document = catalog.references.documentForPath(relative(catalog.root, link.path).split(sep).join("/"));
+    if (!document) return link.url;
+    const section = document.fragments.find(item => item.kind === "section" && headingSlug(item.title) === link.fragment);
+    return ruleLink(document.id, section?.id);
+  });
 }
 
 export function resolveHookLink(root: string, hook: HookId, target: string): string {

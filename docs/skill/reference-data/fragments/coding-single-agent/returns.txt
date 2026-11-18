@@ -1,0 +1,14 @@
+仅在其 producer/recheck 位置补齐缺失项。把原调用方模块/子步骤及其已完成效果保留为 continuation 栈项；若补前置本身又暂停，也保留 producer continuation。producer 完成后读回证据并重核相关 epoch/效果，然后仅恢复原调用方位置，不得恢复到 producer 位置或顺跑下一模块。不得重放效果、重开已释放 Mode 或重复已完成提问。Contract/Environment/Mode 证据缺口只在现有 owner 读取/补齐；仅路线事实实质变化时重进 Route Entry，然后保留锁定 Mode 返回原调用方。producer/位置/效果未知或循环未产生新证据时，阻塞依赖工作。
+
+| 缺失前置 | producer/recheck 位置 | 读回后恢复 |
+| --- | --- |
+| Contract 或验收范围 | Coding 工作流 Contract 检查点；仅补齐缺失证据。 | 原挂起模块/子步骤，例如 SM07；不得从 SM01 重跑。 |
+| Environment/能力清单 | Environment 和能力清单 owners；仅读取/补齐缺失清单。 | 原挂起模块/子步骤；仅当路线事实实质变化才重核 Route Entry。 |
+| Route Entry 证据或路线事实实质变化 | 仅路线事实变化时由 Route Entry owner 复核；不重复锁定 Mode。 | 同一路线仍有效则恢复原挂起模块/子步骤；否则阻塞失效路线。 |
+| 已释放 Mode 证据缺失或不一致 | 既有 Mode owner 和锁定记录读回；不得再次询问已释放选择。 | Single-Agent 证据当前后恢复原挂起模块/子步骤；冲突时阻塞。 |
+| Session state、authority 或审计 | SM02 的 SR02/SR03 及其返回的具体 Session/state/audit owner。 | Session 证据读回后恢复原挂起模块/子步骤；若 SM02 本身是调用方，则恢复其挂起的 producer 子步骤。 |
+| Context、Decision、规划输出或 advice | SM03 的 WD01–WD03 及具体 Context/Decision/planning/advice owner。 | 证据当前后恢复原挂起模块/子步骤；例如 SM07 调用方补 Context 后回 SM07，不转到 SM03。 |
+| 执行者/输出、Slice、反馈或 Control | SM04 的 SE01–SE05 及责任 owner。 | 恢复原挂起模块/子步骤；例如 SM07 调用方补齐前置后回 SM07，不转到 SM04。 |
+| Verification、修复诊断或 handoff | SM05 的 VR01–VR05 及责任 owner。 | 当前证据/handoff 完成后恢复原挂起模块/子步骤；SM06 在验证返回后恢复挂起 DOC 子步骤。 |
+| 文档影响、owner 要求的 Memory 内容核验或必需检查 | SM06 的 DOC01–DOC06 及具体 Documentation/Memory/check owner。 | 恢复原挂起模块/子步骤，包括验证返回后的 DOC 子步骤。 |
+| Git target/effect 或 Acceptance 标准/归档 | SM07 的 DA02–DA05 及 Git/Acceptance/plan owner。 | producer 证据读回后恢复原挂起 DA 子步骤。 |

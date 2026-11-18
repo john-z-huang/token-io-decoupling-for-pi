@@ -1,0 +1,14 @@
+仅在其 producer/recheck 位置补齐缺失项。保留原挂起模块/子步骤、已完成效果和相关 epoch；若 producer 也暂停，则在现有调用方上下文保留嵌套 continuation。读回结果并重核 epoch/effect 后，只恢复原调用方位置。Contract/Environment/Mode 证据缺口仅需补齐缺失证据；只有路线事实实质变化时才重核 Route Entry，然后在保留锁定 Mode/count 的情况下返回原挂起位置。不得重放前序效果或重开已释放 Mode/count。owner/位置/效果未知、无进展或效果不可恢复时阻塞依赖工作。
+
+| 缺失前置 | producer/recheck 位置 | 读回后恢复位置 |
+| --- | --- | --- |
+| Contract/验收标准 | Coding 工作流 Contract owner；仅补齐缺失证据。 | 原挂起 MM 模块/子步骤；只有路线事实实质变化时才重核 Route Entry。 |
+| Environment/能力清单 | 对应 Environment/能力 owner；仅补齐缺失证据。 | 原挂起 MM 模块/子步骤；只有路线事实实质变化时才重核 Route Entry。 |
+| Route Entry 证据或已变化的路线事实 | 仅对实质变化事实调用 Route Entry owner；保留已释放 Mode/count。 | 路线仍有效时恢复原挂起 MM 模块/子步骤；否则阻塞。 |
+| 已释放 Multi-Agent Mode/count 证据 | 使用既有 Mode owner 和锁定记录读回；不得重复已释放选择。 | 仅在当前 Multi-Agent mode 和正数数量得到确认后恢复原挂起位置；冲突时阻塞。 |
+| Session state、authority、审计或容量 | MM02 Session owners；复用审计/容量前先完成 canonical state 读回。 | 读回后恢复原挂起 MM 模块/子步骤；若调用方本身是 MM02，则恢复其记录的 producer 子步骤。 |
+| Context、Decision、plan 或 advice | MM03 WD owners；只解决缺失子步骤。 | 原挂起 MM 模块/子步骤；例如 MM07 在 WD 证据读回后仍恢复 MM07。 |
+| Bootstrap、任务授权、执行者/输出、角色、Slice 或 Control | MM04 DE01–DE08 owners；不得重放已完成的分配/派发效果。 | 结果读回并核对 effect/epoch 后恢复原挂起位置。 |
+| Verification、修复诊断或 handoff | MM05 VR owners；保留当前维度和修复效果。 | 当前证据完成后恢复原挂起位置；MM06 在验证返回后恢复其挂起 DOC 子步骤。 |
+| 文档影响、owner 要求的 Memory 内容核验或检查 | MM06 DOC owners；VR 返回后完成挂起的 DOC 子步骤。 | 读回、影响分类及检查完成后恢复原挂起位置。 |
+| Git target/effect、Acceptance 标准或计划归档 | MM07 DA owners；仅在全部标准通过并完成所需读回后归档。 | producer 证据读回后恢复原挂起 MM 模块/子步骤。 |

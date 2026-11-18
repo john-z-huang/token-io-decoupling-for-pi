@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { loadCatalog } from '../extensions/coding-workflow/catalog.ts';
@@ -33,7 +33,7 @@ function harness(options = {}) {
     getAllTools: () => [...raw].map(([name, spec]) => ({ name, parameters: spec.parameters, annotations: spec.annotations })),
   };
   const ctx = { cwd: process.cwd(), hasUI: options.hasUI ?? false, ui: { select: options.select, input: options.input, notify: () => {}, setStatus: () => {} }, sessionManager: { getSessionId: () => sessionId, getEntries: () => entries, getBranch: () => branch ?? entries } };
-  const installed = installWorkflow(pi, { checkpoint: {}, slice: {}, run: {}, delegate: {} }, catalog);
+  const installed = installWorkflow(pi, { checkpoint: {}, slice: {}, run: {}, delegate: {} }, options.catalog ?? catalog);
   async function emit(name, event = {}) { let output; for (const fn of handlers.get(name) ?? []) output = await fn({ type: name, ...event }, ctx) ?? output; return output; }
   async function invoke(name, input, id = `call-${++next}`, parentToolCallId) {
     const decision = await emit('tool_call', { toolName: name, input, toolCallId: id, parentToolCallId });
@@ -135,6 +135,47 @@ test('context injects only relevant hooks once and preserves unrelated extension
   assert.equal(second.messages.length, 2); assert.equal(second.messages[0], other);
   assert.match(second.messages[1].content, /Hook:entry/); assert.doesNotMatch(second.messages[1].content, /Hook:materialization/);
   assert.ok(second.messages[1].content.length < MAX_CONTEXT);
+});
+test('both routes and rule queries work with only the compiled resources installed', async t => {
+  const root = mkdtempSync(join(tmpdir(), 'pi-runtime-data-'));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  cpSync(join(catalog.root, 'reference-data'), join(root, 'reference-data'), { recursive: true });
+  const installed = loadCatalog(root);
+  assert.equal(installed.digest, catalog.digest);
+
+  for (const [mode, step, route, module, checkpoint] of [
+    ['single', 3, 'SM04', 'single-execution', 'SE03'],
+    ['multi', 4, 'MM04', 'delegated-execution', 'DE04'],
+  ]) {
+    const h = harness({ catalog: installed });
+    await h.start(`${mode} 合成规则请求`);
+    position(h, 'execution', step);
+    const [message] = (await h.emit('context', { messages: [] })).messages;
+    assert.match(message.content, new RegExp(`coding-rule:coding-${mode}-agent#${route}`));
+    assert.match(message.content, new RegExp(`coding-rule:${module}#${checkpoint}`));
+    const snapshot = h.w().snapshot();
+    const entries = h.entries.length;
+
+    const listing = await h.invoke('coding_checkpoint', { action: 'rules' });
+    assert.equal(listing.isError, false);
+    const index = JSON.parse(listing.result.content[0].text);
+    assert.equal(index.document, module);
+    assert.ok(index.fragments.some(item => item.id === checkpoint && item.kind === 'checkpoint' && !('content' in item)));
+
+    const match = await h.invoke('coding_checkpoint', { action: 'rules', fragment: checkpoint });
+    assert.equal(match.isError, false);
+    const rule = JSON.parse(match.result.content[0].text);
+    assert.equal(rule.fragment, checkpoint);
+    assert.ok(message.content.includes(rule.content));
+
+    const returns = await h.invoke('coding_checkpoint', { action: 'rules', document: `coding-${mode}-agent`, fragment: 'returns' });
+    assert.equal(returns.isError, false);
+    assert.match(JSON.parse(returns.result.content[0].text).content, /原挂起.*子步骤/);
+    const invalid = await h.invoke('coding_checkpoint', { action: 'rules', document: '../references/unknown.md' });
+    assert.equal(invalid.isError, true);
+    assert.deepEqual(h.w().snapshot(), snapshot);
+    assert.equal(h.entries.length, entries);
+  }
 });
 test('unknown direct shell and lying readOnlyHint do not pass the wrapper gate', async () => {
   const h = harness(); await h.start();

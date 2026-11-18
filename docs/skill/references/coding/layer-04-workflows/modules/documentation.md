@@ -1,5 +1,7 @@
 # 文档模块
 
+<!-- 由 docs/rules/references/coding/layer-04-workflows/modules/documentation.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本 Layer-04 模块基于当前已验证状态，仅编写获准的文档/注释或用户要求的可复用项目知识，然后按受影响维度分类写入后的影响。不执行最终 Verification、不决策语义变化，也不授权 Git 影响。
 

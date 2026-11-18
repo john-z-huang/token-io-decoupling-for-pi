@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=./reference.schema.json
+# yaml-language-server: $schema=../../../../reference.schema.json
 schema_version: 1
 id: verification-epoch
 markdown_path: references/coding/layer-02-workflow-concepts/verification-and-repair/verification-epoch.md
@@ -26,6 +26,7 @@ blocks:
   - pass:
       kind: section
       title: "通过条件"
+      expose: true
       blocks:
         - pass-body:
             kind: markdown
@@ -34,6 +35,7 @@ blocks:
   - boundary:
       kind: section
       title: "边界"
+      expose: true
       blocks:
         - boundary-body:
             kind: markdown

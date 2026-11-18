@@ -28,6 +28,8 @@ const valueModule = await import(pathToFileURL(requireHost.resolve('typebox/valu
 const check = valueModule.Value?.Check ?? valueModule.Check;
 assert.equal(typeof check, 'function');
 assert.equal(check(tools[0].parameters, { action: 'status' }), true);
+assert.equal(check(tools[0].parameters, { action: 'rules', document: 'verification-epoch', fragment: 'actions' }), true);
+assert.equal(check(tools[0].parameters, { action: 'rules', fragment: 3 }), false);
 assert.equal(check(tools[0].parameters, { action: 'report', revision: 0, reports: [] }), false);
 assert.equal(check(tools[2].parameters, { revision: 0, tool: 'bash', input: {}, effect: 'fake', rationale: 'test', evidence: ['source'] }), false);
 console.log(`Pi ${metadata.version} 提供的 Jiti/TypeBox：入口加载、注册及 Schema smoke 通过；非真实客户端/子代理/Memory 集成验收。`);

@@ -53,6 +53,18 @@
             "title": { "$ref": "#/$defs/title" },
             "text": { "$ref": "#/$defs/text" }
           }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "title", "phase", "module", "text"],
+          "properties": {
+            "kind": { "const": "route_step" },
+            "title": { "$ref": "#/$defs/title" },
+            "phase": { "enum": ["entry", "session", "definition", "execution", "verification", "documentation", "delivery"] },
+            "module": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+            "text": { "$ref": "#/$defs/text" }
+          }
         }
       ]
     }

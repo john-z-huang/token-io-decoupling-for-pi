@@ -1,0 +1,1 @@
+应用[Contract](../../layer-02-workflow-concepts/entry-and-context/contract.md)，确认目标、用户/运行环境/仓库/权限/安全硬约束、已授权效果、已解决的决策、开放问题和验收条件。应用[共享协议](../../../share/shared-protocols.md)，保持一个当前 Semantic Contract，区分事实与假设，以有界增量传递后续变化，并在必需上下文或返回路径不可用时停止依赖工作。未解决的问题不构成实施授权。按 Contract 动作 5，核验已释放 Contract 是否从直接权威来源记录了 task intent 和 eligible output classification；此处仅核验这些 Contract 记录。

@@ -1,5 +1,7 @@
 # Coding 工作流 — Single-Agent 模式
 
+<!-- 由 docs/rules/references/coding/layer-04-workflows/coding-single-agent.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本路线为已释放 Single-Agent Coding 模式的任务组合七个 Layer-04 模块。它安排模块入口，在前置缺失时保留调用方位置，并将状态变化返回受影响的模块。
 

@@ -1,5 +1,7 @@
 # Single-Agent 执行模块
 
+<!-- 由 docs/rules/references/coding/layer-04-workflows/modules/single-execution.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本 Layer-04 模块组合已授权 Single-Agent 任务的执行者/输出处置、当前受控 Slice、本地实施、阶段反馈和 Control。它向调用方返回实施状态与初步证据；最终验证属于后续验证/修复工作流。
 

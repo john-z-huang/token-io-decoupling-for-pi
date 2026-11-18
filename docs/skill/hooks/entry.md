@@ -42,6 +42,10 @@
 3. 核对 [Session 启动条件](session.md#1-选择并锁定模式) 的用户显式入口、模式/预算及审计答案均已满足。
 4. 通过 ER03 只证明当前路线资格，不释放 Slice、不创建代理，也不豁免计划、职责或操作守卫。
 
+按当前锁定路线的 Mode 边界核对拓扑。扩展按实际模式在此加载对应片段。
+
+<!-- rule:current-route#mode-boundary -->
+
 ## 输出与落点
 
 返回当前 Contract、环境/能力缺口、已释放 mode/count、路线和导航或 N/A 证据。按当前 revision 顺序完成 ER00–ER03；跨模块依赖交给下一模块，不一批跳过其 Hooks。
@@ -68,4 +72,6 @@
 | [模块入口解析](../references/coding/layer-03-workflow-checkpoints/module-entry-resolution.md) | 模块声明、缺前置与恢复 |
 | [路线入口](../references/coding/layer-03-workflow-checkpoints/route-entry.md) | 只消费已选路线 |
 | [Mode](../references/coding/layer-02-workflow-concepts/entry-and-context/mode.md) | 已释放拓扑证据 |
+| [Single-Agent 路线](../references/coding/layer-04-workflows/coding-single-agent.md#mode-边界) | 单代理模式边界 |
+| [Multi-Agent 路线](../references/coding/layer-04-workflows/coding-multi-agent.md#mode-边界) | 多代理模式及锁定预算边界 |
 | [Coding selector](../workflows/coding.md) | 未启用扩展的入口回退 |

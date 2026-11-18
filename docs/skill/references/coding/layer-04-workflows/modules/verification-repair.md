@@ -1,6 +1,6 @@
 # 验证与修复模块
 
-<!-- 由 docs/rules/verification-repair.yaml 生成。请在 DSL 中维护正文。 -->
+<!-- 由 docs/rules/references/coding/layer-04-workflows/modules/verification-repair.yaml 生成。请在 DSL 中维护正文。 -->
 
 
 本 Layer-04 模块捕获并验证当前最终状态、分类和报告结果，并将具体失败路由到获授权的窄范围修复，再返回当前 Verification。入口不要求已有最终 Verification 结果；本模块针对当前状态产出最终 Verification。

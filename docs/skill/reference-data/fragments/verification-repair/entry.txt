@@ -1,0 +1,7 @@
+| 字段 | 要求 |
+| --- | --- |
+| 入口前置条件 | 适用的 Single-Agent 或 Multi-Agent Mode 门禁已有当前释放证据；当前 Session 身份与 authority 已确认；调用方 continuation 和已完成效果均已知，且无未解决的效果歧义。本入口不授权独立 verifier；所需独立性须已由其 owner 授权并提供证据。 |
+| 必需输入 | 当前 Contract 和验收条件、已完成的实施或子代理实际结果、当前任务范围与来源/效果证据，以及可供捕获最终 Verification 的当前状态。 |
+| 允许效果 | 读取状态、运行已授权检查、分类/报告证据，并按直接 owners 路由已诊断的修复。修复写入仅限于另行授权的窄范围。 |
+| 结果 | 以当前最终指纹/epoch、必需检查、独立性状态、结果类别、未解决项目/阻塞报告，且无未解决必需失败返回 `complete`；否则连同 owner 和 continuation 返回 `needs_prerequisite` 或 `blocked`。 |
+| 新鲜度 | 将各结果绑定到准确的当前指纹及适用的 implementation/content、documentation 和 Git metadata epoch。任何修复或其他相关变化仅使覆盖范围内的维度失效，并返回当前 Verification。 |

@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=./reference.schema.json
+# yaml-language-server: $schema=../../../../reference.schema.json
 schema_version: 1
 id: verification-repair
 markdown_path: references/coding/layer-04-workflows/modules/verification-repair.md
@@ -11,6 +11,7 @@ blocks:
   - entry:
       kind: section
       title: "入口声明"
+      expose: true
       blocks:
         - entry-body:
             kind: markdown

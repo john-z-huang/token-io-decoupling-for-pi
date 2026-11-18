@@ -1,5 +1,7 @@
 # Coding 工作流 — Multi-Agent 模式
 
+<!-- 由 docs/rules/references/coding/layer-04-workflows/coding-multi-agent.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本路线为已释放 Multi-Agent Coding 且锁定正数 child count 的任务组合七个 Layer-04 模块。它安排模块入口，在前置缺失时保留调用方位置，并将状态变化返回受影响的模块。
 
@@ -95,6 +97,7 @@ flowchart TD
 | Verification、修复诊断或 handoff | MM05 VR owners；保留当前维度和修复效果。 | 当前证据完成后恢复原挂起位置；MM06 在验证返回后恢复其挂起 DOC 子步骤。 |
 | 文档影响、owner 要求的 Memory 内容核验或检查 | MM06 DOC owners；VR 返回后完成挂起的 DOC 子步骤。 | 读回、影响分类及检查完成后恢复原挂起位置。 |
 | Git target/effect、Acceptance 标准或计划归档 | MM07 DA owners；仅在全部标准通过并完成所需读回后归档。 | producer 证据读回后恢复原挂起 MM 模块/子步骤。 |
+
 ## Mode 边界
 
 只使用已释放的 Multi-Agent mode 和正数锁定数量。角色分配、创建、派发、复用、memo 和子代理生命周期由所调用模块组合的底层 owners 管理；本路线只负责模块顺序。

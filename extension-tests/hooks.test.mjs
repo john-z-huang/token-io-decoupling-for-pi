@@ -4,36 +4,55 @@ import fs from 'node:fs';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { syncBuiltinESMExports } from 'node:module';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { documentLinks, HOOK_IDS, loadCatalog, PHASES, resolveDocumentLink, resolveHookLink, rewriteDocumentLinks, SIGNALS } from '../extensions/coding-workflow/catalog.ts';
+import { documentLinks, HOOK_IDS, loadCatalog, PHASES, resolveDocumentLink, resolveHookLink, rewriteDocumentLinks, rewriteWorkflowLinks, SIGNALS } from '../extensions/coding-workflow/catalog.ts';
 import { makeState, Workflow } from '../extensions/coding-workflow/engine.ts';
 import { MAX_CONTEXT, renderContext, renderHook } from '../extensions/coding-workflow/runtime.ts';
-import { collectSourceCoverage, coverageMarkdown, headingAnchors, validateMarkdownLinks } from '../scripts/pi-hook-validation.mjs';
+import { classifySource, collectSourceCoverage, coverageMarkdown, headingAnchors, readHookSources, validateMarkdownLinks } from '../scripts/pi-hook-validation.mjs';
 const catalog = loadCatalog();
+const hookSources = readHookSources(catalog.root);
 
 for (const id of HOOK_IDS) test(`${id}: complete execution clauses and every portable source link survive injection`, () => {
-  const document = `hooks/${id}.md`, source = catalog.hooks[id];
+  const document = `hooks/${id}.md`, source = hookSources[id];
   assert.ok(validateMarkdownLinks(catalog.root, document, source) > 0);
   const body = source.slice(0, source.indexOf('\n## 规则来源\n')).trimEnd();
-  const injected = renderHook(catalog, id);
-  let expected = rewriteDocumentLinks(catalog.root, document, body);
-  if (id === 'verification') {
-    const owner = catalog.references.document('verification-epoch');
-    const actions = catalog.references.readFragment(owner.id, 'actions');
-    expected = expected.replace('<!-- rule:verification-epoch#actions -->', () => rewriteDocumentLinks(catalog.root, owner.path, actions));
-    assert.ok(injected.includes(rewriteDocumentLinks(catalog.root, owner.path, actions)));
+  assert.equal(catalog.references.readHook(id), body);
+  const injected = renderHook(catalog, id, 'single');
+  let expected = rewriteWorkflowLinks(catalog, document, body);
+  const include = {
+    entry: ['current-route', 'coding-single-agent', 'mode-boundary'],
+    verification: ['verification-epoch', 'verification-epoch', 'actions'],
+  }[id];
+  if (include) {
+    const [marker, sourceId, block] = include;
+    const owner = catalog.references.document(sourceId);
+    const fragment = rewriteWorkflowLinks(catalog, owner.path, catalog.references.readFragment(owner.id, block));
+    expected = expected.replace(`<!-- rule:${marker}#${block} -->`, () => fragment);
+    assert.ok(injected.includes(fragment));
   }
   assert.equal(injected.slice(injected.indexOf('\n\n') + 2), expected);
   for (const title of ['触发条件', '执行要求', '退出与阻断', '重新核验']) assert.ok(injected.includes(`\n## ${title}\n`));
   assert.ok(!injected.includes('| 来源 | 本合同落点 |'), 'only the non-executable provenance table is left on disk');
   for (const target of documentLinks(injected)) {
-    assert.match(target, /^(?:file:|https?:|mailto:|\/\/)/i, `unbased injected link: ${target}`);
+    assert.match(target, /^(?:coding-rule:|file:|https?:|mailto:|\/\/)/i, `unbased injected link: ${target}`);
     if (target.startsWith('file:')) assert.ok(existsSync(fileURLToPath(new URL(target))));
+    if (target.startsWith('coding-rule:')) {
+      const [id, fragment] = target.slice('coding-rule:'.length).split('#');
+      const owner = catalog.references.document(id);
+      if (fragment) assert.ok(owner.fragments.some(item => item.id === fragment));
+    }
   }
 });
 
-test('the DSL pilot reads only the current checkpoint and the active Epoch clause', t => {
+test('the catalog reads only selected Hooks, route rules, and current checkpoint bodies', t => {
+  const cases = [
+    ['single', 'entry', 3, 'SM01', 'entry-readiness', 'ER03', ['foundation', 'entry', 'navigation'], ['coding-single-agent', 'mode-boundary']],
+    ['multi', 'entry', 3, 'MM01', 'entry-readiness', 'ER03', ['foundation', 'entry', 'navigation'], ['coding-multi-agent', 'mode-boundary']],
+    ['single', 'execution', 3, 'SM04', 'single-execution', 'SE03', ['foundation', 'execution', 'planning']],
+    ['multi', 'execution', 4, 'MM04', 'delegated-execution', 'DE04', ['foundation', 'execution', 'delegation', 'planning', 'context', 'audit']],
+    ['single', 'verification', 3, 'SM05', 'verification-repair', 'VR03', ['foundation', 'verification', 'planning'], ['verification-epoch', 'actions']],
+  ];
   const files = [];
   const original = fs.readFileSync;
   t.mock.method(fs, 'readFileSync', (path, ...args) => {
@@ -42,20 +61,44 @@ test('the DSL pilot reads only the current checkpoint and the active Epoch claus
   });
   syncBuiltinESMExports();
   try {
-    const indexed = loadCatalog();
-    assert.ok(!files.some(file => /verification-(?:repair|epoch)\.md$/.test(file)));
-    assert.ok(!files.some(file => file.includes(join('reference-data', 'fragments'))));
-    const state = makeState(indexed, 'dsl-pilot', process.cwd(), 'single', 0, '验证按需读取');
-    state.phase = 'verification';
-    state.step = 3;
-    const context = renderContext(new Workflow(indexed, state));
-    assert.ok(context.includes('VR03 运行当前检查。'));
-    assert.ok(context.includes('VR04 分类并报告证据。'));
-    assert.deepEqual(files.filter(file => file.includes(join('reference-data', 'fragments'))).map(file => file.slice(indexed.root.length + 1)), [
-      join('reference-data', 'fragments', 'verification-epoch', 'actions.txt'),
-      join('reference-data', 'fragments', 'verification-repair', 'VR03.txt'),
-    ]);
-    assert.ok(!files.some(file => /verification-(?:repair|epoch)\.md$/.test(file)));
+    for (const [mode, phase, step, route, module, checkpoint, hooks, included] of cases) {
+      files.length = 0;
+      const indexed = loadCatalog();
+      const selected = () => files.filter(file => file.startsWith(indexed.root + sep)).map(file => file.slice(indexed.root.length + 1));
+      const manifest = join('reference-data', 'manifest.json');
+      assert.deepEqual(selected(), [manifest]);
+      const state = makeState(indexed, 'dsl-read', process.cwd(), mode, mode === 'single' ? 0 : 1, '验证按需读取');
+      Object.assign(state, { phase, step });
+      const context = renderContext(new Workflow(indexed, state));
+      assert.ok(context.includes(`当前路线 [${route} `));
+      assert.ok(context.includes(`当前检查点 [${checkpoint} `));
+      if (checkpoint === 'VR03') assert.ok(context.includes('VR04 分类并报告证据。'));
+      const expected = [manifest, ...hooks.map(id => join('reference-data', 'hooks', `${id}.txt`)), join('reference-data', 'fragments', module, `${checkpoint}.txt`)];
+      if (included) expected.push(join('reference-data', 'fragments', included[0], `${included[1]}.txt`));
+      assert.deepEqual(selected().sort(), expected.sort());
+    }
+  } finally {
+    t.mock.restoreAll();
+    syncBuiltinESMExports();
+  }
+});
+
+test('the generated catalog rejects changed route or checkpoint bindings', t => {
+  const original = fs.readFileSync;
+  let mutate;
+  t.mock.method(fs, 'readFileSync', (path, ...args) => {
+    const content = original(path, ...args);
+    if (typeof path !== 'string' || !path.endsWith(join('reference-data', 'manifest.json'))) return content;
+    const manifest = JSON.parse(content.toString('utf8'));
+    mutate(manifest.documents);
+    return Buffer.from(JSON.stringify(manifest));
+  });
+  syncBuiltinESMExports();
+  try {
+    mutate = documents => { documents.find(doc => doc.id === 'coding-single-agent').fragments.find(item => item.id === 'SM04').module = 'delegated-execution'; };
+    assert.throws(() => loadCatalog(), /路线契约变化/);
+    mutate = documents => { documents.find(doc => doc.id === 'entry-readiness').fragments.find(item => item.id === 'ER00').id = 'ER99'; };
+    assert.throws(() => loadCatalog(), /检查点契约变化/);
   } finally {
     t.mock.restoreAll();
     syncBuiltinESMExports();
@@ -81,6 +124,10 @@ test('a modified checkpoint fragment fails the digest check before use', t => {
 
 test('all substantive articles have explicit per-hook provenance and the checked-in map is current', () => {
   const rows = collectSourceCoverage(catalog);
+  assert.ok(rows.length >= 119);
+  assert.equal(rows.filter(row => row.path.includes('layer-01-') && row.kind === 'rule').length, 41);
+  assert.ok(rows.every(row => row.declaredHooks.length));
+  assert.throws(() => classifySource(catalog, 'references/new-policy/rule.md'), /没有 Hook/);
   assert.ok(rows.filter(row => row.kind === 'rule').every(row => row.hooks.length));
   assert.equal(readFileSync(join(catalog.root, 'hooks/SOURCE_COVERAGE.md'), 'utf8'), coverageMarkdown(rows));
   for (const name of ['README', 'SOURCE_COVERAGE']) validateMarkdownLinks(catalog.root, `hooks/${name}.md`, readFileSync(join(catalog.root, `hooks/${name}.md`), 'utf8'));
@@ -90,15 +137,21 @@ test('removing one unique source citation fails coverage rather than silently as
   const row = collectSourceCoverage(catalog).find(row => row.kind === 'rule' && row.hooks.length === 1);
   assert.ok(row);
   const id = row.hooks[0];
-  const changed = { ...catalog, hooks: { ...catalog.hooks, [id]: catalog.hooks[id].split('\n').filter(line => !line.includes(`](../${row.path})`)).join('\n') } };
-  assert.throws(() => collectSourceCoverage(changed), /实质规则\/参考文章缺少逐篇合同落点/);
+  const changed = { ...hookSources, [id]: hookSources[id].split('\n').filter(line => !line.includes(`](../${row.path})`)).join('\n') };
+  assert.throws(() => collectSourceCoverage(catalog, changed), /实质规则\/参考文章缺少逐篇合同落点/);
 });
 
 test('source tables reject off-table clauses and Markdown cannot contain binary NUL', () => {
   for (const suffix of ['\n必须执行隐藏动作\n', '\0']) {
-    const changed = { ...catalog, hooks: { ...catalog.hooks, foundation: catalog.hooks.foundation + suffix } };
-    assert.throws(() => collectSourceCoverage(changed), /非执行性对照表|NUL/);
+    const changed = { ...hookSources, foundation: hookSources.foundation + suffix };
+    assert.throws(() => collectSourceCoverage(catalog, changed), /非执行性对照表|NUL/);
   }
+});
+
+test('a Hook cannot render without its required fragment reference', () => {
+  const verification = catalog.references.readHook('verification').replace('<!-- rule:verification-epoch#actions -->', '');
+  const changed = { ...catalog, references: { ...catalog.references, readHook: () => verification } };
+  assert.throws(() => renderHook(changed, 'verification', 'single'), /缺少必需规则片段：verification-epoch#actions/);
 });
 
 test('local destinations are document-relative, decoded, fragment-aware and independent of the target workspace', () => {
@@ -161,9 +214,9 @@ test('context shows the current instruction and selects delegation and repair at
   const workflow = new Workflow(catalog, state);
   const context = renderContext(workflow);
   const module = catalog.modules['delegated-execution'];
-  assert.ok(context.includes(rewriteDocumentLinks(catalog.root, module.path, module.checkpoints[4].instruction)));
+  assert.ok(context.includes(rewriteWorkflowLinks(catalog, module.path, module.checkpoints[4].instruction)));
   assert.ok(context.includes('DE07'));
-  assert.ok(!context.includes(rewriteDocumentLinks(catalog.root, module.path, module.checkpoints[7].instruction)));
+  assert.ok(!context.includes(rewriteWorkflowLinks(catalog, module.path, module.checkpoints[7].instruction)));
   assert.ok(!context.includes('[Hook:delegation]'));
   workflow.state.phase = 'verification'; workflow.state.step = 3;
   assert.ok(!renderContext(workflow).includes('[Hook:repair]'));

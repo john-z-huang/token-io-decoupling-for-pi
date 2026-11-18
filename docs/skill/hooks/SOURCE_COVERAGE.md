@@ -114,8 +114,8 @@
 | [references/coding/layer-03-workflow-checkpoints/workflow-navigation-selection.md](../references/coding/layer-03-workflow-checkpoints/workflow-navigation-selection.md) | rule | [navigation](navigation.md#执行要求) |
 | [references/coding/layer-04-workflows/INDEX.md](../references/coding/layer-04-workflows/INDEX.md) | navigation | 仅导航：[navigation](navigation.md#执行要求) |
 | [references/coding/layer-04-workflows/README.md](../references/coding/layer-04-workflows/README.md) | navigation | 仅导航：[navigation](navigation.md#执行要求) |
-| [references/coding/layer-04-workflows/coding-multi-agent.md](../references/coding/layer-04-workflows/coding-multi-agent.md) | rule | [navigation](navigation.md#执行要求) |
-| [references/coding/layer-04-workflows/coding-single-agent.md](../references/coding/layer-04-workflows/coding-single-agent.md) | rule | [navigation](navigation.md#执行要求) |
+| [references/coding/layer-04-workflows/coding-multi-agent.md](../references/coding/layer-04-workflows/coding-multi-agent.md) | rule | [entry](entry.md#执行要求)、[navigation](navigation.md#执行要求) |
+| [references/coding/layer-04-workflows/coding-single-agent.md](../references/coding/layer-04-workflows/coding-single-agent.md) | rule | [entry](entry.md#执行要求)、[navigation](navigation.md#执行要求) |
 | [references/coding/layer-04-workflows/modules/delegated-execution.md](../references/coding/layer-04-workflows/modules/delegated-execution.md) | rule | [execution](execution.md#执行要求)、[delegation](delegation.md#执行要求) |
 | [references/coding/layer-04-workflows/modules/delivery-acceptance.md](../references/coding/layer-04-workflows/modules/delivery-acceptance.md) | rule | [delivery](delivery.md#执行要求) |
 | [references/coding/layer-04-workflows/modules/documentation.md](../references/coding/layer-04-workflows/modules/documentation.md) | rule | [documentation](documentation.md#执行要求) |

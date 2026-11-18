@@ -1,0 +1,1 @@
+调用[模块入口解析](../../layer-03-workflow-checkpoints/module-entry-resolution.md)，提供当前 Contract/范围、适用的 implementation/content Verification、当前 epoch、已知效果、写前指纹和 continuation。仅在适用输出时提供批准路径、读者、目的、来源证据和作者授权。缺少必需证据时返回 `needs_prerequisite`；范围矛盾、状态不安全或效果未授权时返回 `blocked`。

@@ -1,0 +1,1 @@
+最新的 implementation/content、documentation 和 Git metadata 适用 epoch 已明确，各自所需的检查或 Verification 已排队或完成，且没有任何受影响维度依赖过期证据。

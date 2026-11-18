@@ -1,8 +1,64 @@
 // Shared, offline checks for the repository's inline/reference Markdown links and provenance tables.
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs';
-import { isAbsolute, relative, sep } from 'node:path';
-import { documentLinks, HOOK_IDS, resolveDocumentLink } from '../extensions/coding-workflow/catalog.ts';
+import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
+import { isAbsolute, join, relative, sep } from 'node:path';
+import { documentLinks, headingSlug, HOOK_IDS, PHASES, phaseHooks, resolveDocumentLink } from '../extensions/coding-workflow/catalog.ts';
+
+const L1_HOOKS = {
+  'context-exchange': ['context'], delegation: ['delegation', 'session'],
+  'execution-control': ['execution'], 'execution-planning': ['planning'],
+  'session-runtime': ['session', 'audit'], 'workflow-navigation': ['navigation'],
+};
+const L2_HOOKS = {
+  'entry-and-context': ['entry', 'planning'], 'decision-and-execution': ['execution', 'planning'],
+  'verification-and-repair': ['verification', 'repair'], 'completion-and-effects': ['documentation', 'delivery'],
+};
+const OVERRIDES = {
+  'candidate-compliance': ['materialization'], 'output-materialization': ['materialization'],
+  'decisions-advisory': ['advisory'], 'decision-context-generation': ['advisory', 'planning'],
+  'workflow-routing-advice': ['navigation', 'advisory'], 'workflow-module-contract': ['recovery'],
+  'LSP-MCP-Tools': ['context', 'session'], 'runtime-provider-support': ['foundation', 'session', 'delegation'],
+  'session-context-firewall': ['context'], 'reasoning-summary-visibility': ['audit'], 'session-audit-visibility': ['audit'],
+};
+
+export function classifySource(catalog, path) {
+  const parts = path.split('/');
+  const stem = parts.at(-1).replace(/\.md$/, '');
+  const kind = ['INDEX', 'README'].includes(stem) ? 'navigation' : 'rule';
+  if (parts.includes('multimodal')) return { path, hooks: ['foundation'], kind: 'reference' };
+  if (Object.hasOwn(OVERRIDES, stem)) return { path, hooks: OVERRIDES[stem], kind };
+  if (parts.includes('share') || path === 'SKILL.md') return { path, hooks: ['foundation'], kind };
+  const layer = parts.findIndex(part => part.startsWith('layer-'));
+  if (layer >= 0) {
+    const number = parts[layer].slice(6, 8);
+    const group = parts[layer + 1];
+    if (number === '01' || number === '02') {
+      if (!group || group.endsWith('.md')) return { path, hooks: ['navigation'], kind };
+      const table = number === '01' ? L1_HOOKS : L2_HOOKS;
+      if (Object.hasOwn(table, group)) return { path, hooks: table[group], kind };
+    }
+    if (number === '03') return { path, hooks: ['navigation', 'execution'], kind };
+    if (number === '04') {
+      const phase = PHASES.find(item => ['single', 'multi'].some(mode => catalog.routes[mode].steps[item].module === stem));
+      return { path, hooks: phase ? phaseHooks(phase, 'multi') : ['navigation'], kind };
+    }
+  }
+  if (path === 'PI_EXTENSION.md') return { path, hooks: ['foundation', 'navigation'], kind: 'navigation' };
+  if (path === 'workflows/coding.md' || path === 'WORKFLOW_ARCHITECTURE.md') return { path, hooks: ['foundation', 'navigation'], kind };
+  throw new Error(`没有 Hook 归属的规则：${path}`);
+}
+
+function markdownFiles(root) {
+  return readdirSync(root, { withFileTypes: true }).flatMap(entry => {
+    assert.ok(!entry.isSymbolicLink(), `规则源不允许符号链接：${entry.name}`);
+    const path = join(root, entry.name);
+    return entry.isDirectory() ? markdownFiles(path) : entry.name.endsWith('.md') ? [path] : [];
+  }).sort();
+}
+
+export function readHookSources(root) {
+  return Object.fromEntries(HOOK_IDS.map(id => [id, readFileSync(join(root, 'hooks', `${id}.md`), 'utf8')]));
+}
 
 export function headingAnchors(markdown) {
   const anchors = new Set(), counts = new Map();
@@ -14,8 +70,7 @@ export function headingAnchors(markdown) {
     for (const match of line.matchAll(/<(?:a|h[1-6])\b[^>]*\b(?:id|name)=["']([^"']+)["']/gi)) anchors.add(match[1]);
     const heading = line.match(/^ {0,3}#{1,6}\s+(.+?)(?:\s+#+\s*)?$/);
     if (!heading) continue;
-    const base = heading[1].replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').replace(/<[^>]*>/g, '').toLowerCase()
-      .replace(/[^\p{L}\p{N}\p{M}_\-\s]/gu, '').replace(/ /g, '-');
+    const base = headingSlug(heading[1]);
     const n = counts.get(base) ?? 0;
     counts.set(base, n + 1); anchors.add(n ? `${base}-${n}` : base);
   }
@@ -37,10 +92,12 @@ export function validateMarkdownLinks(root, document, markdown) {
   return checked;
 }
 
-export function collectSourceCoverage(catalog) {
-  const bySource = new Map(catalog.coverage.map(row => [row.path, new Set()]));
+export function collectSourceCoverage(catalog, hooks = readHookSources(catalog.root)) {
+  const coverage = markdownFiles(catalog.root).map(path => relative(catalog.root, path).split(sep).join('/'))
+    .filter(path => !path.startsWith('hooks/')).map(path => classifySource(catalog, path));
+  const bySource = new Map(coverage.map(row => [row.path, new Set()]));
   for (const id of HOOK_IDS) {
-    const text = catalog.hooks[id];
+    const text = hooks[id];
     assert.ok(!text.includes('\0'), `${id}: Markdown中不得嵌入NUL字节`);
     const names = ['触发条件', '执行要求', '退出与阻断', '重新核验', '规则来源'];
     const positions = names.map(name => text.indexOf(`\n## ${name}\n`));
@@ -57,9 +114,9 @@ export function collectSourceCoverage(catalog) {
     }
     assert.ok(referenced > 0, `${id}: 没有真实规则来源`);
   }
-  const missing = catalog.coverage.filter(row => row.kind !== 'navigation' && !bySource.get(row.path).size);
+  const missing = coverage.filter(row => row.kind !== 'navigation' && !bySource.get(row.path).size);
   assert.deepEqual(missing.map(row => row.path), [], '实质规则/参考文章缺少逐篇合同落点');
-  return catalog.coverage.map(row => ({ ...row, hooks: [...bySource.get(row.path)], declaredHooks: row.hooks }));
+  return coverage.map(row => ({ ...row, hooks: [...bySource.get(row.path)], declaredHooks: row.hooks }));
 }
 
 export function coverageMarkdown(rows) {
