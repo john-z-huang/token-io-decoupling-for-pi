@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Skill 参考规则 DSL",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "id", "markdown_path", "title", "blocks"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+    "markdown_path": { "type": "string", "pattern": "^references/(?:[A-Za-z0-9_-]+/)+[A-Za-z0-9_-]+\\.md$" },
+    "title": { "$ref": "#/$defs/title" },
+    "blocks": { "$ref": "#/$defs/blocks" }
+  },
+  "$defs": {
+    "title": { "type": "string", "minLength": 1, "pattern": "^[^\\r\\n]+$" },
+    "text": { "type": "string", "minLength": 1 },
+    "blocks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "minProperties": 1,
+        "maxProperties": 1,
+        "additionalProperties": false,
+        "patternProperties": { "^[A-Za-z][A-Za-z0-9-]*$": { "$ref": "#/$defs/block" } }
+      }
+    },
+    "block": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "text"],
+          "properties": { "kind": { "const": "markdown" }, "text": { "$ref": "#/$defs/text" } }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "title", "blocks"],
+          "properties": {
+            "kind": { "const": "section" },
+            "title": { "$ref": "#/$defs/title" },
+            "expose": { "type": "boolean" },
+            "blocks": { "$ref": "#/$defs/blocks" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "title", "text"],
+          "properties": {
+            "kind": { "const": "checkpoint" },
+            "title": { "$ref": "#/$defs/title" },
+            "text": { "$ref": "#/$defs/text" }
+          }
+        }
+      ]
+    }
+  }
+}

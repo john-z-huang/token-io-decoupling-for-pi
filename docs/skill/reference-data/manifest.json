@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "documents": [
+    {
+      "id": "verification-epoch",
+      "path": "references/coding/layer-02-workflow-concepts/verification-and-repair/verification-epoch.md",
+      "sha256": "a39f59650a466cb454c16666874bc62ccc229c1e73e457d953d559530f0782e2",
+      "fragments": [
+        {
+          "id": "actions",
+          "kind": "section",
+          "title": "动作",
+          "sha256": "b1229d900ee2b91fc3b2eb7ab311a1964048ef994f8c040e3dc14f566316c9ae"
+        }
+      ]
+    },
+    {
+      "id": "verification-repair",
+      "path": "references/coding/layer-04-workflows/modules/verification-repair.md",
+      "sha256": "1cc05cbb7aeacf63ddc45f20b5031bc29d3cf306ef2aa724f3ee5d4d9965c131",
+      "fragments": [
+        {
+          "id": "VR00",
+          "kind": "checkpoint",
+          "title": "解析入口。",
+          "sha256": "1eab4364e81871c8afa9ae32be6eb47b67b0775e145fe28c84f030ee59bca52e"
+        },
+        {
+          "id": "VR01",
+          "kind": "checkpoint",
+          "title": "捕获实际当前最终状态。",
+          "sha256": "400a5dc5008514e1b222ef17bc1f8a30f9399ae3c19fb26619daea79d85db8f9"
+        },
+        {
+          "id": "VR02",
+          "kind": "checkpoint",
+          "title": "解析独立性要求。",
+          "sha256": "dec2602b2c0b596e8279226fac02b15395b30ef0171364cd1020da172545ceaa"
+        },
+        {
+          "id": "VR03",
+          "kind": "checkpoint",
+          "title": "运行当前检查。",
+          "sha256": "f3988106e470cf30c94dd7c54849460dde8bf57db8fb391b38f9ec77b9ed536e"
+        },
+        {
+          "id": "VR04",
+          "kind": "checkpoint",
+          "title": "分类并报告证据。",
+          "sha256": "5e194154ae470dfeb53da610529fa76dc66afc8e12db3f03a386a4ad76b80468"
+        },
+        {
+          "id": "VR05",
+          "kind": "checkpoint",
+          "title": "路由失败或确立 Repair N/A。",
+          "sha256": "1404befb8beb2e2034a6640bf71ee4d09beeb7886242d695dc978d7509a43b56"
+        },
+        {
+          "id": "VR06",
+          "kind": "checkpoint",
+          "title": "返回当前最终 Verification。",
+          "sha256": "c3f981d54ab8c4afdc8318293f9cec59e916b4e2344742fc12fc3ad7a8aa71a7"
+        }
+      ]
+    }
+  ]
+}

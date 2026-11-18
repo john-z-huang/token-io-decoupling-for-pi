@@ -13,9 +13,12 @@
 扩展追踪观察到的 epoch，Root 另外核验真实状态指纹和覆盖标准。VR03 需要同一当前 epoch 的实际 `check` 成功观察，并上报 `facts.verification=passed`；VR06 若发现 epoch 已变化就回 VR01。可按 owner 复用未受影响维度的证据，仍需为当前扩展验证提供有效观察并解释覆盖面。
 
 1. 以实际工作区/目标资源为准，先解决部分、冲突或不确定的应用状态，再捕获准确的最终状态指纹（fingerprint）和 epoch；预检、实施收据、候选文件、早期检查及代理声称均不是最终状态证据。若输出物料化流程提供收据，须按实际当前文件核验收据，不能以收据替代状态读取。
-2. 把每项验收标准映射到当前证据、检查及覆盖维度；至少分别追踪 `implementation/content`、`documentation`、`Git metadata`。代码、配置、测试及其他产品验证覆盖内容变化推进 implementation/content epoch；维护中的文档、注释变化推进 documentation epoch；若文档改动可执行内容、Contract 或验收条件，也推进 implementation/content epoch。commit、branch、index、history 等 Git 状态变化推进 Git metadata epoch。单纯 Git metadata 变化不自动推进前两维，但 Git 检查仍须确认 staged/committed 内容与最新已验证指纹一致；差异或包含未验证内容时返回对应维度重验。
-3. 每一维只复用指纹未变化且覆盖该标准的当前有效证据。变化只使它实际影响的维度过期；不得在受影响维度使用旧通过结论。对文档变更运行适用的Markdown、链接/标题锚点、空白、当前项目语言约定及范围检查；本仓库中文单源，不运行双语维护检查；具体内容变化运行其适用产品检查。依据直接状态证据判断覆盖维度。
-4. 路线提供的 `verification-impact` 仅为覆盖建议。须核对其适用性、授权、当前指纹和直接 owner；建议不可用、不符条件或与直接证据冲突时，记录有根据的 `not_applicable`/原因并按直接证据确定必需覆盖，既不能把建议当结论，也不能以其免除检查。
+2. 把每项验收标准映射到当前证据、检查及覆盖维度。每一维只复用指纹未变化且覆盖该标准的当前有效证据。对文档变更核对标题锚点及当前项目语言约定；本仓库使用中文单源。具体内容变化运行其适用产品检查。
+3. 使用 `verification-impact` 建议前核对适用性和授权。建议不可用、不符条件或与直接证据冲突时，记录有根据的 `not_applicable` 及原因。
+
+按[验证 Epoch 规则的动作章节](../references/coding/layer-02-workflow-concepts/verification-and-repair/verification-epoch.md#动作)决定哪些证据失效及需要重验。扩展在此加载该片段。
+
+<!-- rule:verification-epoch#actions -->
 
 ### 独立性
 

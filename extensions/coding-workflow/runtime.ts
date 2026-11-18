@@ -16,6 +16,7 @@ const INTERNAL = new Set(["coding_checkpoint", "coding_slice", "coding_run", "co
 const READ_TOOLS = new Set(["read", "grep", "find", "ls", "tool_search"]);
 export const MAX_CONTEXT = 96000;
 const MAX_RESULT = 64000;
+const EPOCH_RULE_MARKER = "<!-- rule:verification-epoch#actions -->";
 export interface Schemas { checkpoint: TSchema; slice: TSchema; run: TSchema; delegate: TSchema }
 interface Intent { effect: Effect; delegate?: boolean }
 function text(content: unknown, isError = false) { return { content: [{ type: "text" as const, text: typeof content === "string" ? content : JSON.stringify(content, null, 2) }], details: {}, isError }; }
@@ -44,7 +45,14 @@ export function renderHook(catalog: Catalog, id: HookId): string {
   const boundary = markdown.indexOf("\n## 规则来源\n");
   if (boundary < 0) throw new Error(`Hook ${id} 缺少规则来源章节`);
   const source = resolveDocumentLink(catalog.root, path, "#规则来源")!;
-  return `[Hook:${id}]\n[完整合同及逐篇来源](${source.url})\n\n${rewriteDocumentLinks(catalog.root, path, markdown.slice(0, boundary).trimEnd())}`;
+  let body = rewriteDocumentLinks(catalog.root, path, markdown.slice(0, boundary).trimEnd());
+  if (id === "verification") {
+    if (!body.includes(EPOCH_RULE_MARKER)) throw new Error("Verification Hook 缺少 Epoch 规则片段引用");
+    const document = catalog.references.document("verification-epoch");
+    const actions = catalog.references.readFragment(document.id, "actions");
+    body = body.replace(EPOCH_RULE_MARKER, () => rewriteDocumentLinks(catalog.root, document.path, actions));
+  }
+  return `[Hook:${id}]\n[完整合同及逐篇来源](${source.url})\n\n${body}`;
 }
 
 function activeHooks(workflow: Workflow): HookId[] {

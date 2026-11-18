@@ -1,6 +1,6 @@
 # 文档标准与维护规范
 
-本文件负责当前仓库的文档语言、命名与维护要求。中文文档是唯一权威来源，不再维护英文副本或中英文镜像。
+本文件负责当前仓库的文档语言、命名与维护要求。每条规则只维护一份中文源文件。
 
 ## 文件命名
 
@@ -17,11 +17,18 @@
 - 面向用户的元数据说明使用中文；程序字段与协议标识符保持其接口约定。
 - 本规范不改变 MCP Tools 内部使用 OpenAI API 的执行方式，也不改变操作授权与安全边界。
 
+## 参考规则 DSL 试点
+
+验证与修复模块和验证 Epoch 规则在 `docs/rules/` 下维护。YAML 的 `blocks` 是有序列表，每项以稳定 ID 为键。`section` 生成标题及下级块，`checkpoint` 生成编号条目并供 Pi 按 ID 读取，`markdown` 保留列表、表格和 Mermaid 等正文。需独立读取的 `section` 可设置 `expose: true`。两份 YAML 均关联 [DSL Schema](../rules/reference.schema.json)。
+
+修改 YAML 后执行 `uv run --locked --script scripts/compile-reference-dsl.py`，更新原路径上的 Markdown 及 `docs/skill/reference-data/` 内的索引和片段。评审同时核对源文件和生成差异。CI 可用同一命令加 `--check` 只读检查生成产物的一致性。Pi 包携带生成资源，运行时无需 YAML 解析器。Serena 在项目的 `language_servers` 启用 `yaml` 后，可通过块 ID 定位检查点，例如 `VR03`。
+
 ## 验证
 
 运行以下文档检查，并按修改范围运行对应测试：
 
 ```sh
+uv run --locked --script scripts/compile-reference-dsl.py --check
 python3 scripts/check-doc-layer-links.py
 python3 scripts/check-layer-01-sections.py
 python3 scripts/check-layer-02-04-provider-neutrality.py

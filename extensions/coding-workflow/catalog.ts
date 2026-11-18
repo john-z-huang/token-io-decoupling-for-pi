@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { loadReferenceData } from "./reference-data.ts";
 
 export const SKILL_ROOT = fileURLToPath(new URL("../../docs/skill/", import.meta.url));
 export const PHASES = ["entry", "session", "definition", "execution", "verification", "documentation", "delivery"] as const;
@@ -17,6 +18,7 @@ export interface Catalog {
   root: string;
   modules: Record<string, Module>;
   hooks: Record<HookId, string>;
+  references: ReturnType<typeof loadReferenceData>;
   digest: string;
   coverage: { path: string; hooks: HookId[]; kind: "rule" | "navigation" | "reference" }[];
 }
@@ -37,6 +39,10 @@ export function moduleName(phase: Phase, mode: Mode): string {
 }
 
 /** Exact checkpoint IDs are deliberate: a changed route must be reviewed, not silently inferred. */
+function checkCheckpointOrder(name: string, path: string, checkpoints: Checkpoint[]) {
+  if (JSON.stringify(checkpoints.map(c => c.id)) !== JSON.stringify(EXPECTED_IDS[name])) throw new Error(`检查点契约变化，须审阅 Extension：${path}`);
+}
+
 export function parseModule(path: string, text: string): Module {
   const name = path.split("/").pop()!.replace(/\.md$/, "");
   const section = text.split("## 有序模块清单\n")[1]?.split(/^## /m)[0];
@@ -47,7 +53,7 @@ export function parseModule(path: string, text: string): Module {
     instruction: section.slice(match.index! + match[0].length, starts[i + 1]?.index ?? section.length).trim(),
     conditional: CONDITIONAL.has(match[1]),
   }));
-  if (JSON.stringify(checkpoints.map(c => c.id)) !== JSON.stringify(EXPECTED_IDS[name])) throw new Error(`检查点契约变化，须审阅 Extension：${path}`);
+  checkCheckpointOrder(name, path, checkpoints);
   if (checkpoints.some(c => !c.instruction)) throw new Error(`检查点为空：${path}`);
   return { name, path, checkpoints };
 }
@@ -115,9 +121,22 @@ function markdownFiles(root: string): string[] {
 export function loadCatalog(root = SKILL_ROOT): Catalog {
   const modules: Record<string, Module> = {};
   const hash = createHash("sha256");
-  for (const file of ["catalog.ts", "engine.ts", "runtime.ts", "index.ts", "model-selection.ts", "startup.ts"]) hash.update(file).update(readFileSync(new URL(file, import.meta.url)));
+  for (const file of ["catalog.ts", "engine.ts", "runtime.ts", "index.ts", "model-selection.ts", "startup.ts", "reference-data.ts"]) hash.update(file).update(readFileSync(new URL(file, import.meta.url)));
+  const references = loadReferenceData(root);
+  hash.update("reference-data/manifest.json").update(references.manifest);
   for (const name of MODULES) {
     const path = `references/coding/layer-04-workflows/modules/${name}.md`;
+    if (name === "verification-repair") {
+      const document = references.document(name);
+      if (document.path !== path) throw new Error(`规则片段索引中的模块路径不匹配：${name}`);
+      const checkpoints = document.fragments.filter(item => item.kind === "checkpoint").map(({ id, title }) => ({
+        id, title, conditional: CONDITIONAL.has(id),
+        get instruction() { return references.readFragment(name, id); },
+      }));
+      checkCheckpointOrder(name, path, checkpoints);
+      modules[name] = { name, path, checkpoints };
+      continue;
+    }
     const text = readFileSync(join(root, path), "utf8");
     modules[name] = parseModule(path, text); hash.update(path).update(text);
   }
@@ -132,11 +151,11 @@ export function loadCatalog(root = SKILL_ROOT): Catalog {
   const sources = markdownFiles(root).filter(p => !relative(root, p).startsWith("hooks/"));
   const coverage = sources.map(path => {
     const rel = relative(root, path).split("\\").join("/");
-    hash.update(rel).update(readFileSync(path));
+    hash.update(rel).update(references.markdownHashes.get(rel) ?? readFileSync(path));
     return classifySource(rel);
   });
   // File hashes detect drift, not semantic equivalence or policy correctness.
-  return { root: resolve(root), modules, hooks, coverage, digest: hash.digest("hex") };
+  return { root: resolve(root), modules, hooks, references, coverage, digest: hash.digest("hex") };
 }
 export function currentModule(catalog: Catalog, phase: Phase, mode: Mode): Module { return catalog.modules[moduleName(phase, mode)]; }
 /** Resolve against the resource document, never the user's unrelated working directory. */

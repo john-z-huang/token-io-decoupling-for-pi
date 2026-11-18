@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
+import fs from 'node:fs';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { syncBuiltinESMExports } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,12 +17,65 @@ for (const id of HOOK_IDS) test(`${id}: complete execution clauses and every por
   assert.ok(validateMarkdownLinks(catalog.root, document, source) > 0);
   const body = source.slice(0, source.indexOf('\n## 规则来源\n')).trimEnd();
   const injected = renderHook(catalog, id);
-  assert.equal(injected.slice(injected.indexOf('\n\n') + 2), rewriteDocumentLinks(catalog.root, document, body));
+  let expected = rewriteDocumentLinks(catalog.root, document, body);
+  if (id === 'verification') {
+    const owner = catalog.references.document('verification-epoch');
+    const actions = catalog.references.readFragment(owner.id, 'actions');
+    expected = expected.replace('<!-- rule:verification-epoch#actions -->', () => rewriteDocumentLinks(catalog.root, owner.path, actions));
+    assert.ok(injected.includes(rewriteDocumentLinks(catalog.root, owner.path, actions)));
+  }
+  assert.equal(injected.slice(injected.indexOf('\n\n') + 2), expected);
   for (const title of ['触发条件', '执行要求', '退出与阻断', '重新核验']) assert.ok(injected.includes(`\n## ${title}\n`));
   assert.ok(!injected.includes('| 来源 | 本合同落点 |'), 'only the non-executable provenance table is left on disk');
   for (const target of documentLinks(injected)) {
     assert.match(target, /^(?:file:|https?:|mailto:|\/\/)/i, `unbased injected link: ${target}`);
     if (target.startsWith('file:')) assert.ok(existsSync(fileURLToPath(new URL(target))));
+  }
+});
+
+test('the DSL pilot reads only the current checkpoint and the active Epoch clause', t => {
+  const files = [];
+  const original = fs.readFileSync;
+  t.mock.method(fs, 'readFileSync', (path, ...args) => {
+    if (typeof path === 'string') files.push(path);
+    return original(path, ...args);
+  });
+  syncBuiltinESMExports();
+  try {
+    const indexed = loadCatalog();
+    assert.ok(!files.some(file => /verification-(?:repair|epoch)\.md$/.test(file)));
+    assert.ok(!files.some(file => file.includes(join('reference-data', 'fragments'))));
+    const state = makeState(indexed, 'dsl-pilot', process.cwd(), 'single', 0, '验证按需读取');
+    state.phase = 'verification';
+    state.step = 3;
+    const context = renderContext(new Workflow(indexed, state));
+    assert.ok(context.includes('VR03 运行当前检查。'));
+    assert.ok(context.includes('VR04 分类并报告证据。'));
+    assert.deepEqual(files.filter(file => file.includes(join('reference-data', 'fragments'))).map(file => file.slice(indexed.root.length + 1)), [
+      join('reference-data', 'fragments', 'verification-epoch', 'actions.txt'),
+      join('reference-data', 'fragments', 'verification-repair', 'VR03.txt'),
+    ]);
+    assert.ok(!files.some(file => /verification-(?:repair|epoch)\.md$/.test(file)));
+  } finally {
+    t.mock.restoreAll();
+    syncBuiltinESMExports();
+  }
+});
+
+test('a modified checkpoint fragment fails the digest check before use', t => {
+  const indexed = loadCatalog();
+  const original = fs.readFileSync;
+  t.mock.method(fs, 'readFileSync', (path, ...args) => typeof path === 'string' && path.endsWith(join('verification-repair', 'VR03.txt'))
+    ? Buffer.from('篡改的指令') : original(path, ...args));
+  syncBuiltinESMExports();
+  try {
+    const state = makeState(indexed, 'dsl-pilot', process.cwd(), 'single', 0, '验证片段完整性');
+    state.phase = 'verification';
+    state.step = 3;
+    assert.throws(() => renderContext(new Workflow(indexed, state)), /Hash 不匹配：verification-repair#VR03/);
+  } finally {
+    t.mock.restoreAll();
+    syncBuiltinESMExports();
   }
 });
 
