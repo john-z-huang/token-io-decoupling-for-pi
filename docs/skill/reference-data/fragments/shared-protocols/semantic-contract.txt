@@ -1,0 +1,8 @@
+Decision/Input-side 职责负责固化安全执行所需的最小语义：
+
+- `Goal`：最终目标；
+- `Constraints`：不可破坏的业务、兼容性、安全或用户边界；
+- `Decisions`：已批准的架构与取舍；
+- `Acceptance`：成功标准。
+
+Contract 是决策锚点，不替代原始上下文。相关上下文直接提供给负责的职责，后续只发送新增目标、变化和必要约束。更新优先使用 amendment；只有修订冲突到无法判断当前状态时才发送一次 authoritative snapshot。所需上下文无法安全共享或表达时，停止并报告上下文阻塞。

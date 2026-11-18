@@ -9,7 +9,8 @@ interface FragmentMetadata {
 }
 
 type Fragment = FragmentMetadata & (
-  | { kind: "checkpoint" | "section" }
+  | { kind: "checkpoint" | "markdown" }
+  | { kind: "section"; anchor: string }
   | { kind: "route_step"; phase: string; module: string }
 );
 
@@ -36,7 +37,7 @@ export function loadReferenceData(root: string) {
 
   const manifest = read("reference-data", "manifest.json").toString("utf8");
   const parsed = JSON.parse(manifest) as { schema_version?: unknown; documents?: ReferenceDocument[]; hooks?: Record<string, string>; legacy_rule_sha256?: unknown } | null;
-  if (parsed?.schema_version !== 3 || !Array.isArray(parsed.documents) || !parsed.hooks || typeof parsed.hooks !== "object" || Array.isArray(parsed.hooks) ||
+  if (parsed?.schema_version !== 4 || !Array.isArray(parsed.documents) || !parsed.hooks || typeof parsed.hooks !== "object" || Array.isArray(parsed.hooks) ||
       typeof parsed.legacy_rule_sha256 !== "string" || !SHA256.test(parsed.legacy_rule_sha256)) {
     throw new Error("规则片段索引版本或结构不匹配");
   }
@@ -56,9 +57,12 @@ export function loadReferenceData(root: string) {
     const seen = new Set<string>();
     for (const fragment of document.fragments) {
       if (!fragment || typeof fragment.id !== "string" || !FRAGMENT_ID.test(fragment.id) || seen.has(fragment.id) ||
-          !["checkpoint", "section", "route_step"].includes(fragment.kind) || typeof fragment.title !== "string" || !fragment.title.trim() ||
+          !["checkpoint", "section", "route_step", "markdown"].includes(fragment.kind) || typeof fragment.title !== "string" || !fragment.title.trim() ||
           typeof fragment.sha256 !== "string" || !SHA256.test(fragment.sha256)) {
         throw new Error(`规则片段索引含无效或重复的片段：${document.id}`);
+      }
+      if (fragment.kind === "section" && (typeof fragment.anchor !== "string" || !fragment.anchor)) {
+        throw new Error(`规则片段索引缺少章节锚点：${document.id}#${fragment.id}`);
       }
       if (fragment.kind === "route_step" && (typeof fragment.phase !== "string" || typeof fragment.module !== "string" || !DOCUMENT_ID.test(fragment.module))) {
         throw new Error(`规则片段索引含无效路线项：${document.id}#${fragment.id}`);

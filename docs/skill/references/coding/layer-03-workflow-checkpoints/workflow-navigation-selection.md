@@ -1,5 +1,7 @@
 # 工作流导航选择
 
+<!-- 由 docs/rules/references/coding/layer-03-workflow-checkpoints/workflow-navigation-selection.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本检查点判断当前任务是否适合使用有界工作流导航或结构输入检查。这些都是无状态辅助能力；调用方提供的事实和权威 owner 文档仍是判断策略与结果的依据。
 

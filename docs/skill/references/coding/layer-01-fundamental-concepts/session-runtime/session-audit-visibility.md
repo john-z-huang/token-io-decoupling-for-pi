@@ -1,5 +1,7 @@
 # Coding 会话审计可见性
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/session-runtime/session-audit-visibility.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档定义会话审计可见性偏好、推理摘要频率和 Worker 日志可见性。它负责偏好值及其可见性语义；适用的工作流检查点将显式值或缺省值应用于父级控制记录。
 

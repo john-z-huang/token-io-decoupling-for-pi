@@ -1,5 +1,7 @@
 # 任务计划 Memory 生命周期
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档负责共享任务计划的创建、更新、访问和归档生命周期，默认适用于有 Issue 或无 Issue 的 Coding 工作。不负责规划方法、执行授权、父级实时调度状态或权威仓库文档。
 

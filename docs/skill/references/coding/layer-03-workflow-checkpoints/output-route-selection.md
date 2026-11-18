@@ -1,5 +1,7 @@
 # 输出路线选择
 
+<!-- 由 docs/rules/references/coding/layer-03-workflow-checkpoints/output-route-selection.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本检查点依据 [Output Token Routing](../layer-01-fundamental-concepts/execution-planning/output-token-routing.md)，独立评估每项 Root 直接输出是否应改由 Root 之外的路线提供。它不选择执行者。
 

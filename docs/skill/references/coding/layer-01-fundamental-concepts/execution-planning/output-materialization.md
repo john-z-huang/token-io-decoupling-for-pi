@@ -1,5 +1,7 @@
 # 输出物化
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/execution-planning/output-materialization.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档定义通过单独授权的写入能力，对有界候选输出批次进行受控准备、检查和应用。它不拥有角色政策、授权签发、最终验证或通用文件写入。
 

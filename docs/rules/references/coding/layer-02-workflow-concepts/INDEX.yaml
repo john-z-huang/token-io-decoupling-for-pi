@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=../../../reference.schema.json
+schema_version: 1
+document_type: directory-index
+id: layer-02-index
+markdown_path: references/coding/layer-02-workflow-concepts/INDEX.md
+title: "Layer 02: Workflow Checkpoints 索引"
+blocks:
+  - classification:
+      kind: section
+      title: "分类"
+      expose: true
+      blank_lines_before: 2
+      blocks:
+        - classification-body:
+            kind: markdown
+            text: |-
+              - [entry-and-context/](entry-and-context/INDEX.yaml)
+              - [decision-and-execution/](decision-and-execution/INDEX.yaml)
+              - [verification-and-repair/](verification-and-repair/INDEX.yaml)
+              - [completion-and-effects/](completion-and-effects/INDEX.yaml)

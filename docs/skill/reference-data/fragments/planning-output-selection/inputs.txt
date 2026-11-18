@@ -1,0 +1,1 @@
+每项 Coding 任务均消费当前用户目标、存在时的 Issue/讨论、已核实项目事实、Decision 和任何明确持久化限制。应用[执行规划](../layer-01-fundamental-concepts/execution-planning/execution-planning.yaml)和[任务计划 Memory 生命周期](../layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.yaml)。

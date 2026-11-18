@@ -1,5 +1,7 @@
 # 修复执行检查点
 
+<!-- 由 docs/rules/references/coding/layer-02-workflow-concepts/verification-and-repair/repair-execution.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本检查点负责执行获准的窄范围修复及其聚焦检查。它消费范围门禁的授权；不诊断失败，不定义授权条件，也不创建验证 epoch。
 

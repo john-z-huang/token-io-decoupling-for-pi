@@ -1,5 +1,7 @@
 # 完整路线索引
 
+<!-- 由 docs/rules/references/coding/layer-04-workflows/INDEX.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 - [单代理 Coding](coding-single-agent.md)
 - [多代理 Coding](coding-multi-agent.md)

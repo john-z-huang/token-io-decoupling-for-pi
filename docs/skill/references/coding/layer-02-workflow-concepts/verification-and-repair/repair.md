@@ -1,5 +1,7 @@
 # 修复检查点
 
+<!-- 由 docs/rules/references/coding/layer-02-workflow-concepts/verification-and-repair/repair.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本检查点负责诊断失败证据、受影响路径和最小修复候选。发现候选超出已批准边界时，报告诊断结果；不授权或执行修复，也不定义验证 epoch。
 

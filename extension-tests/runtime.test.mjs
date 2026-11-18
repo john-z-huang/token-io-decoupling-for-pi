@@ -171,6 +171,13 @@ test('both routes and rule queries work with only the compiled resources install
     const returns = await h.invoke('coding_checkpoint', { action: 'rules', document: `coding-${mode}-agent`, fragment: 'returns' });
     assert.equal(returns.isError, false);
     assert.match(JSON.parse(returns.result.content[0].text).content, /原挂起.*子步骤/);
+
+    const creation = await h.invoke('coding_checkpoint', { action: 'rules', document: 'delegation-child-creation', fragment: 'rules' });
+    assert.equal(creation.isError, false);
+    assert.match(JSON.parse(creation.result.content[0].text).content, /coding-rule:runtime-provider-support#subagent-endpoint/);
+    const endpoint = await h.invoke('coding_checkpoint', { action: 'rules', document: 'runtime-provider-support', fragment: 'subagent-endpoint' });
+    assert.equal(endpoint.isError, false);
+    assert.match(JSON.parse(endpoint.result.content[0].text).content, /端点/);
     const invalid = await h.invoke('coding_checkpoint', { action: 'rules', document: '../references/unknown.md' });
     assert.equal(invalid.isError, true);
     assert.deepEqual(h.w().snapshot(), snapshot);

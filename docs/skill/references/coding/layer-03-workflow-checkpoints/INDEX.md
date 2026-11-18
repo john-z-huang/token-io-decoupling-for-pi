@@ -1,5 +1,7 @@
 # 工作流检查点索引
 
+<!-- 由 docs/rules/references/coding/layer-03-workflow-checkpoints/INDEX.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 - [路线入口](route-entry.md)
 - [工作流模块入口解析](module-entry-resolution.md)

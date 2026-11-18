@@ -1,5 +1,7 @@
 # Coding 任务执行主体分配
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/execution-planning/task-assignment.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档负责决定由 Root 还是子代理执行已放行任务，以及从当前会话合格的现有子代理中进行选择。不负责为新子代理选择职责、创建或派发子代理，也不改变 Output Token 路由。
 

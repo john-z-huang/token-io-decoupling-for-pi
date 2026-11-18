@@ -1,5 +1,7 @@
 # 修复范围门禁
 
+<!-- 由 docs/rules/references/coding/layer-02-workflow-concepts/verification-and-repair/repair-scope-gate.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本检查点负责候选修复的兼容性和授权门禁。它消费已诊断的修复候选；不诊断失败、不执行修复，也不定义验证 epoch。
 

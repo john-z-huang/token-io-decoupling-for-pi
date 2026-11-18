@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../../../../reference.schema.json
+schema_version: 1
+document_type: directory-index
+id: entry-and-context-index
+markdown_path: references/coding/layer-02-workflow-concepts/entry-and-context/INDEX.md
+title: "Entry And Context 索引"
+blocks:
+  - owners:
+      kind: section
+      title: "所有者"
+      expose: true
+      blank_lines_before: 2
+      blocks:
+        - owners-body:
+            kind: markdown
+            text: |-
+              - [contract](contract.yaml)
+              - [environment](environment.yaml)
+              - [environment-capability-inventory](environment-capability-inventory.yaml)
+              - [mode](mode.yaml)
+              - [context](context.yaml)

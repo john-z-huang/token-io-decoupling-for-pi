@@ -1,0 +1,11 @@
+### Decision Agent
+
+负责视觉/交互意图、语义和安全约束、Semantic Contract、分析重点、语义检查点、创作方向、amendment 和最终验收。在 Creative Visual Authoring 中，必须亲自检查精选证据，并负责构图、层次、风格、色彩/光线和整体质量。它不持续摄入完整截图、视频帧、OCR/DOM dump 或常规导航状态。
+
+### Primary Observation Agent
+
+负责高体量截图、图片、参考资料、渲染 UI、视频帧、Computer Use 观察、OCR、DOM/accessibility 状态，以及筛选、去重、时间定位、定向检查和临时世界状态。它返回精简 Visual/State Digest。它可以执行普通低风险 Routine Interaction 和一个已批准的有界 Creative pass，但不能重新定义创作方向或语义意图。
+
+### Optional Primary Output Agent
+
+当调用方为非 Coding 报告或产物分配独立物化职责时，它接收 Contract、Observation Digest 和定向证据。它只物化已批准的输出，不重新分析完整视觉历史。仓库或代码工作通过窄 Coding handoff 离开本模块。

@@ -1,5 +1,7 @@
 # Coding Session Context Firewall
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/session-runtime/session-context-firewall.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档负责 Context Firewall：原始状态进入限制、有界检查、事实返回边界和临时项目定位。不定义职责责任、Session 语义、Memory 上下文传输或工作流验收。
 

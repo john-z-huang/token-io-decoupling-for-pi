@@ -1,5 +1,7 @@
 # 工作流模块入口解析
 
+<!-- 由 docs/rules/references/coding/layer-03-workflow-checkpoints/module-entry-resolution.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本检查点负责解析调用一个有界工作流模块时的就绪状态。它只处理调用方声明的要求；不选择或枚举模块、不定义 Layer-04 模块契约，也不调度路线。
 

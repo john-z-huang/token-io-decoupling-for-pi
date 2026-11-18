@@ -1,0 +1,3 @@
+- [Coding Execution Decision Gate](../../layer-01-fundamental-concepts/execution-planning/execution-decision-gate.yaml) — 定位实质性决策和放行条件归属。
+- [Coding Execution Control](../../layer-01-fundamental-concepts/execution-control/execution-control.yaml) — 定位批准范围和修改边界。
+- [Coding Delegation State Record Worker Boundary](../../layer-01-fundamental-concepts/delegation/delegation-worker-boundary.yaml) — 定位父级控制的授权边界。

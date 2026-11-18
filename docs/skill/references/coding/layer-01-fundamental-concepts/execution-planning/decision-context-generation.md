@@ -1,5 +1,7 @@
 # Coding 决策上下文生成
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/execution-planning/decision-context-generation.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档负责根据调用方组织且声明了来源的事实生成有界决策上下文或具体问题。不核实所提供的事实、不选择后续分支、不授权工作、不放行切片，也不验收任务。
 

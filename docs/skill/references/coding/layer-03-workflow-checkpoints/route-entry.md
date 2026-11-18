@@ -1,5 +1,7 @@
 # Coding 路线入口
 
+<!-- 由 docs/rules/references/coding/layer-03-workflow-checkpoints/route-entry.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本检查点负责路线前验证组合及唯一获授权路线选择结果。
 

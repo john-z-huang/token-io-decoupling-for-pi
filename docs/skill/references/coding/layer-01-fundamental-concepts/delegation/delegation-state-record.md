@@ -1,5 +1,7 @@
 # Coding 委派状态记录
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/delegation/delegation-state-record.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档负责 Coding 委派使用的任务控制记录，定义记录的规范位置、ownership、结构、字段约束和分阶段字段存在语义。不决定模式，不定义 Worker 读写边界，不创建子 Agent，不分配职责，也不定义生命周期转换。Session 审计配置由[会话审计可见性](../session-runtime/session-audit-visibility.md)负责。
 

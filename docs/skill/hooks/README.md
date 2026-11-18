@@ -45,10 +45,10 @@
 
 ## 来源整合与链接基准
 
-`references/coding` 提供权威规则，Hook 将这些规则映射到当前运行时动作与证据。规则引用单向指向 owner；目录、索引和逐篇来源对照供导航。Hook 间协作以当前事件和调用边界触发，同一规则直接引用 owner，避免彼此作为规则来源。
+Coding 参考规则由 YAML DSL owner 定义，`references/coding` 提供阅读版。Hook 将规则逐篇映射到运行时动作与证据，执行引用单向指向 DSL owner。目录、索引和逐篇来源对照供导航。Hook 间协作依当前事件与调用边界触发，共用规则直接引用相应 owner。
 
 - [逐篇来源整合对照](SOURCE_COVERAGE.md) 列出全部120份非Hook文档：89份实质规则、29份导航、2份仅参考文章。实质文章必须在至少一份Hook的“规则来源”表中逐篇列出真实落点；目录归属不冒充条款整合。每份Hook末表进一步说明各来源对应的主题。
-- 磁盘 Markdown 链接相对当前文档目录解析，供源码浏览和手动回退。Pi 注入时将已迁移规则链接转换为 `coding-rule:文档#片段`，通过 `coding_checkpoint action=rules` 定向读取。其余本地链接以包内资源为基准生成 `file:` URL。
+- DSL 源引用相对 `.yaml` 文件及块 ID，阅读版引用对应的 `.md` 和标题锚点。Pi 注入时将参考规则链接转换为 `coding-rule:文档#片段`，通过 `coding_checkpoint action=rules` 定向读取。其余本地链接以包内资源为基准生成 `file:` URL。
 - 运行时按需读取编译后的 Hook 正文，注入触发、输入、执行条款、退出及重核。完整合同及“规则来源”对照表在原 Markdown 中查阅。
 - 上下文按模块、当前检查点、执行者、语义信号、恢复状态和 allocation 状态选择 Hook。每个注入包先发共享及适用合同，再发当前状态、当前指令、后续目录和观察。硬上限为 96,000 字符，超限阻断。
 - 两条 Coding 路线和八个模块从生成索引取得原有 ID、标题和模块关系。扩展按需读取当前检查点和适用 Hook，后续检查点显示标题。Entry Hook 查锁定路线的 Mode 边界，Verification Hook 查 Epoch 动作，均按片段 ID 读取。

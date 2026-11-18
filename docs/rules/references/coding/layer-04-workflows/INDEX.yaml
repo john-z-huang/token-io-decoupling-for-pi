@@ -1,0 +1,32 @@
+# yaml-language-server: $schema=../../../reference.schema.json
+schema_version: 1
+document_type: directory-index
+id: layer-04-index
+markdown_path: references/coding/layer-04-workflows/INDEX.md
+title: "完整路线索引"
+blocks:
+  - overview:
+      kind: markdown
+      title: "概览"
+      expose: true
+      text: |-
+        - [单代理 Coding](coding-single-agent.yaml)
+        - [多代理 Coding](coding-multi-agent.yaml)
+  - section-01:
+      kind: section
+      title: "可复用模块"
+      expose: true
+      blocks:
+        - section-01-body:
+            kind: markdown
+            text: |-
+              路线按序组合这些模块，并负责所有跨模块顺序和 continuation。当模块声明的工作与效果已包含在现有用户授权范围内且入口前置条件通过时，可进入该模块；无需额外按模块名称授权。模块不调用同级模块。
+
+              - [入口就绪](modules/entry-readiness.yaml)
+              - [Session 就绪](modules/session-readiness.yaml)
+              - [工作定义](modules/work-definition.yaml)
+              - [Single-Agent 执行](modules/single-execution.yaml)
+              - [委派执行](modules/delegated-execution.yaml)
+              - [验证与修复](modules/verification-repair.yaml)
+              - [文档](modules/documentation.yaml)
+              - [交付与验收](modules/delivery-acceptance.yaml)

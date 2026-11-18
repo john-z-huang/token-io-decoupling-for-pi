@@ -1,5 +1,7 @@
 # Coding Execution Stage Feedback
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/execution-control/execution-stage-feedback.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档定义有界阶段、Progress Signals 和阶段内使用 Decision Checkpoint 的方式。不定义 Decision Brief、方案选择、Contract 更新、Interaction Slice 字段、角色/Session 语义、上下文传输或委派生命周期。
 

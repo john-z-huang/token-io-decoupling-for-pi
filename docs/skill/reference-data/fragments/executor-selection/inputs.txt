@@ -1,0 +1,1 @@
+在建立当前事实、用户明确指令、已锁定模式及获授权拟议任务后运行。读取 Task Assignment owner，并核验当前 Session allocation、身份、能力、权限和可用性事实。执行者选择不决定输出体量，也不释放子代理 Slice。

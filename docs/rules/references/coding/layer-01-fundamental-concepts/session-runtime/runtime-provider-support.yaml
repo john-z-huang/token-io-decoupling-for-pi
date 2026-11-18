@@ -1,0 +1,162 @@
+# yaml-language-server: $schema=../../../../reference.schema.json
+schema_version: 1
+document_type: fundamental-concept
+id: runtime-provider-support
+markdown_path: references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md
+title: "Pi Coding Agent 运行时与能力边界"
+blank_lines_after_title: 1
+blocks:
+  - overview:
+      kind: markdown
+      title: "概览"
+      expose: true
+      text: |-
+        本文档负责本 Skill 在 Pi Coding Agent 中的运行时事实、工具可达性，以及模型与子代理控制的能力边界。它不再维护多产品运行环境分支或跨产品模型 Profile；不选择任务模式、不创建 Session，也不授予操作权限。保留现有文件路径供调用方引用。
+  - rules:
+      kind: section
+      title: "通用规范"
+      expose: true
+      blocks:
+        - section-01:
+            kind: section
+            title: "单一运行时目标"
+            expose: true
+            blocks:
+              - section-01-body:
+                  kind: markdown
+                  text: |-
+                    本 Skill 的目标运行时是 Pi Coding Agent。以当前会话明确的宿主元数据和实际暴露的工具为依据，不再要求用户从多个产品中选择运行环境，也不以模型名称、某个工具名或本地 Shell 推断宿主身份。元数据缺失或相互冲突时，记录具体缺口，只暂停依赖该事实的操作；不要使用旧的多产品分类问卷。
+
+                    能力存在、操作授权和任务模式是独立条件。工具可调用不代表获准调用；用户批准多代理模式也不代表存在子代理扩展。保留真实的身份、角色、路径、权限和操作守卫检查。
+        - section-02:
+            kind: section
+            title: "模型与 API 请求相互独立"
+            expose: true
+            blocks:
+              - section-02-body:
+                  kind: markdown
+                  text: |-
+                    沿用用户为 Pi 选择的模型与设置，不按职责强制指定模型系列、固定 thinking 档位或升级阶梯。只有当前任务明确要求某个模型能力或设置时，才核实与该要求直接相关的事实；不要读取凭据或遍历无关配置。没有设置观察工具不单独阻塞不依赖该设置的普通工作。
+
+                    Pi 会话模型、子代理扩展使用的模型，以及 MCP Tools 内部调用的 OpenAI API 模型是三个独立边界。不得把其中一个模型的能力或参数套用到另外两个，也不得以本页为由修改全局配置。
+
+                    MCP Tools 继续通过 OpenAI API 完成其既有分析、生成和决策工作。真实请求仍须显式使用进程中非空的 `OPENAI_API_KEY` 和 `OPENAI_BASE_URL`，并遵守工具既有的固定 API 模型 `gpt-6-luna`、出站授权、输入范围与失败边界。这不要求 Pi 会话或子代理使用同名模型，也不授权输出凭据或发起额外请求。
+        - subagent-endpoint:
+            kind: section
+            title: "子代理端点跟随 Root"
+            expose: true
+            blocks:
+              - subagent-endpoint-body:
+                  kind: markdown
+                  text: |-
+                    每次创建新子代理前，Root 必须先确认自身当前生效的端点元数据：provider、模型 ID，以及宿主可见的 API 类型/端点路由标识，并记录来源。优先使用当前宿主模型元数据；`PI_PROVIDER`、`PI_MODEL` 仅在确认反映当前有效设置时作为启动证据，切模、reload/resume 后不得用陈旧启动值覆盖当前状态。不得凭模型名称、角色默认值、认证配置存在或 MCP 的 `OPENAI_BASE_URL` 猜测 Root 端点，也不得读取/输出 token、API key、认证头或含凭据的 URL。
+
+                    子代理的模型节点必须跟随 Root 当前端点：Root 使用 `openai-codex` 时，子代理也使用 `openai-codex`；Root 使用 `openai` API 时，子代理也使用同一 `openai` API 路由。自定义 provider/端点同样沿用已核验的实际映射；相同模型名或相同 API 协议不代表相同路由。端点继承不要求模型 ID 或 thinking 与 Root 相同，下面的任务选型只能在该端点实际可用的模型中进行。
+
+                    创建前核对真实工具 Schema、provider/model 映射及配置优先级，确保显式参数或经核验的继承行为不会被角色配置、全局默认值或其他路由覆盖。元数据缺失、冲突、无法确认当前值、工具不能保证同端点，或所选模型/档位在该端点不可用时，暂停创建并报告缺口；不得静默切换 provider、API 路由或回退其他端点。端点跟随是创建必需条件，不适用“缺少可选模型控制时沿用默认值”的豁免；不要求子代理自查/自报，也不把这些配置元数据当作可信身份凭证。已创建身份不因 Root 后续切模而重建或重放。
+        - subagent-models:
+            kind: section
+            title: "子代理模型与推理强度参考"
+            expose: true
+            blocks:
+              - subagent-models-body:
+                  kind: markdown
+                  text: |-
+                    获准创建新子代理时，由Root按实际任务在 `gpt-6.1-sol`、`gpt-6.1-terra`、`gpt-6-luna` 中选择实际可用的模型与推理强度，不再全部固定为Luna。选择和职责分开：同一职责可因任务不同选不同模型；换模型不产生授权、独立性或新的可用名额，不改变父级模型或MCP内部固定API模型。
+
+                    以下“官方定位/支持值”来自三份官方模型卡；“任务与档位参考”是本Skill的路由启发，不是官方基准、性能保证或强制档位：
+
+                    | 模型 | 官方定位 | 任务与档位参考 |
+                    | --- | --- | --- |
+                    | [GPT-6.1 Sol](https://developers.openai.com/api/docs/models/gpt-6.1-sol) | 接近Astra的复杂工作能力、较低成本；面向复杂编码及专业工作 | 跨模块实现、复杂修复/依赖推理、高风险或并发验证通常可考虑medium/high；明确且窄的实现也可low。不是所有Primary/Verifier固定Sol。 |
+                    | [GPT-6.1 Terra](https://developers.openai.com/api/docs/models/gpt-6.1-terra) | 快速高效的视觉推理、精确computer use、清晰自然写作；例如图纸理解、文本起草修订 | 获准静态图片/图纸证据、文字/Skill文档可考虑low/medium；多约束视觉推理可high。模型卡的computer use能力不解除本Skill禁令，也不授权普通文档委派。 |
+                    | [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna) | 面向聚焦、高吞吐任务的高效模型 | 有界事实提取、分类、重复性机械修改、规则明确的实现/检查可考虑low/medium；有证据表明足够时也可承担其他职责，不以便宜代替充分性。 |
+
+                    三者卡片均支持文本/图像输入、文本输出。Sol/Terra卡片明确不支持原生音频/视频，不能把静态帧分析当原生视频能力；具体输入仍按实际provider/宿主核验。Sol/Terra工具调用要求Responses API；Luna在Chat Completions中仅none支持function calling，带推理工具任务应使用实际兼容的Responses接口。模型可用不证明当前provider/工具链满足这些条件。
+
+                    官方 `reasoning.effort`：Sol支持 `low/medium/high/xhigh/max`，Terra与Luna另外支持 `none`；三者卡片默认均为medium。Pi用 `thinking`，其 `off` 对应关闭推理意图，不把API的none直接塞进Pi参数；以实际模型的档位映射为准。三者没有minimal档。大致参考：简单、确定且容易检查的任务从low考虑；一般多步任务medium；实质复杂性、较高风险、边界/并发与困难反例可high。xhigh/max只在额外推理对当前任务确有必要且资源允许时选择；不是每次失败都依序升档，更高档不能弥补缺失证据/权限。
+
+                    Root在创建前审阅任务目标/输入类型、复杂度、依赖、不确定性、风险/验证要求、输入量及延迟/成本约束，并简述选择依据；不按角色、文件数或名字机械选择。新任务可重新评估；已创建身份不得仅为换模型而重复创建/替换，同一子代理follow-up不重新核验模型设置。无真实续接能力时遵守一次性任务与终态名额不回收规则，错误/效果未知先读回，不通过改模型重放。
+
+                    仅对真实支持的Schema传参。例如旧增强版subagent在已确认 Root 使用 `openai` 时使用 `model: "openai/gpt-6.1-sol:medium"`；`@mjakl/pi-subagent@3.1.0` 使用 `calls[]`，其每项model与thinking独立。`coding_delegate.jobs[].model` 保留前述后缀格式，适配器对新版拆成 `model: "openai/gpt-6.1-sol"` 与 `thinking: "medium"`，防止代理/启动默认档位覆盖显式选择。Root 使用 `openai-codex` 时应选择该 provider 下已核验可用的精确模型 ID，而非照抄 `openai/` 前缀。调用值覆盖配置文件；精确provider/model ID和受支持档位须在创建前核验，不模糊匹配、不静默钳制或回退。通用未增强工具只能继承或固定配置，不能靠task里的文字控制模型。请求值是配置意图，宿主报告值也不是受保护身份证明；不要求子代理自报。模型卡核对记录与适配边界见仓库 `integrations/pi-subagent/`；官方页面可更新，重大任务按需核对最新卡片。
+        - section-03:
+            kind: section
+            title: "不可用能力与禁止操作"
+            expose: true
+            blocks:
+              - section-03-body:
+                  kind: markdown
+                  text: |-
+                    区分必需能力、可选优化和尚未迁移的工具契约。必需能力缺失时，报告证据并暂停依赖的 Slice；可选优化缺失时记录 `Not applicable`，按获准的基本路径继续。不得伪造参数、身份、工具结果或能力证据，也不得绕过实际拒绝或权限失败。
+
+                    禁止 Computer Use，包括 GUI 截图定位、点击、模拟鼠标／键盘、辅助功能与窗口自动化，以及经 Shell、MCP、辅助进程或子代理包装的同类操作。必需步骤只有被禁止的路线可执行时，立即停止当前 Skill 任务并报告具体阻塞与未完成工作；不得委派、静默跳过或假设存在替代能力。
+  - pi-guidance:
+      kind: section
+      title: "Pi Coding Agent 优化指令"
+      expose: true
+      blocks:
+        - section-04:
+            kind: section
+            title: "渐进加载与工具调用"
+            expose: true
+            blocks:
+              - section-04-body:
+                  kind: markdown
+                  text: |-
+                    - Pi 默认提供 `read`、`bash`、`edit`、`write`，但当前会话可配置不同工具集；以实际声明为准。读取指令和代码只取当前步骤需要的范围，修改已有文件优先使用精确编辑。
+                    - Skill 以 `SKILL.md` 为入口，引用路径相对 Skill 所在目录解析。只加载当前步骤所需 owner，不预读整个引用目录。
+                    - MCP 工具未直接声明不等于不可用。当前暴露 `codemode` 时，用 `searchTools` 定位相关工具、用 `describeTool` 核对 Schema、用 `describeNamespace` 读取服务指令；若暴露 `tool_search`，也可通过它加载相关工具。`hidden` 工具不可调用，不得换入口绕过。
+                    - 工具前缀取决于实际注册名，不硬编码本机的注册名称。有独立调用时才用 `Promise.allSettled` 批处理；存在身份、基线或数据依赖的调用保持顺序。只返回供当前决策使用的有界结果，并检查 MCP 返回的 `isError`、状态和缺失证据。
+        - section-05:
+            kind: section
+            title: "多代理由实际扩展提供"
+            expose: true
+            blocks:
+              - section-05-body:
+                  kind: markdown
+                  text: |-
+                    Pi 不默认提供内置子代理或 Plan mode。不得直接沿用其他宿主的创建、规划、通信或等待命令，也不得仅为规划当前任务从 Shell 启动另一个 Pi Session。
+
+                    只有当前会话实际暴露且授权了子代理工具，才进入依赖它的创建操作。创建前核对扩展 Schema 和说明中的任务范围、工作目录、工具权限、返回方式、取消能力，以及是否支持可复用的会话身份。一次性任务可绑定真实调用证据执行有界切片，但一次性任务结果不能冒充持久子代理，恢复或分支操作也不自动构成新的子代理。
+
+                    在[子代理创建](../delegation/delegation-child-creation.yaml)等 owner 的通用授权、角色、数量和 Slice 条件通过后，仅使用扩展真实接受的字段。扩展没有持久身份、续接、消息或等待能力时，不得声称具备它们；当前任务确实依赖该能力时暂停对应分支。这些文档约定不证明 MCP Server 已完成 Pi 迁移；不得调用不适用的身份契约。
+        - section-06:
+            kind: section
+            title: "thinking 与子代理设置"
+            expose: true
+            blocks:
+              - section-06-body:
+                  kind: markdown
+                  text: |-
+                    Pi 使用的 thinking 控制不等于任意扩展的 effort 参数。只在用户授权和当前工具实际支持时应用设置，并确认扩展接受的值；运行时可能按模型能力收窄档位，不把请求值当作已生效值。不要求子代理自行检查或汇报其模型设置。
+
+                    依照上面的三模型参考，由Root为获准的新子代理选择模型及可选thinking设置，依据已放行任务的目标、职责、复杂度、范围与依赖、风险、不确定性、验证要求和相关失败事实，在实际受支持的值中选择足够的设置；不按文件数量或角色机械升档。缺少可选设置控制时沿用扩展默认值并记录限制；任务明确要求的设置无法落实时暂停创建，不虚构控制或改用其他模型。
+
+                    MCP 的 `workflow_select_child_effort` 已删除，不再提供服务端 effort 选择。根据真实 Pi/subagent Schema 选择模型及 thinking；缺少可选控制时记录 `Not applicable`，不得伪造运行时或子模型字段。该限制不影响其他满足契约的通用 API 工具。
+        - section-07:
+            kind: section
+            title: "加载更新与能力复核"
+            expose: true
+            blocks:
+              - section-07-body:
+                  kind: markdown
+                  text: |-
+                    Skill 修改后由用户通过 `/reload` 重新加载；不能从 Shell 模拟交互命令。若当前 Agent 没有暴露的重载控制，说明需用户重载或新建会话，不声称磁盘修改已替换当前会话加载的指令。MCP 或扩展更新后，也须根据实际连接与工具清单核对生效状态。
+
+                    Pi 的用户级 MCP 配置为 `~/.pi/agent/mcp.json`，项目级为 `.pi/mcp.json`，项目配置受信任条件约束。这里只说明配置归属，不授权读取敏感值、安装服务或修改配置。使用前仍须核对服务实际连接、工具契约和操作权限；宿主支持 MCP 不代表本项目 Server 的 Pi 接入已经完成。
+  - related:
+      kind: section
+      title: "相关概念"
+      expose: true
+      blocks:
+        - related-body:
+            kind: markdown
+            text: |-
+              - [Session 模型](session-model.yaml) — 单代理与多代理的逻辑拓扑。
+              - [Session 角色归属](session-role-ownership.yaml) — 职责与操作权限边界。
+              - [模式确认](../delegation/delegation-mode-confirmation.yaml) — 模式选择与授权门禁。
+              - [子代理创建](../delegation/delegation-child-creation.yaml) — 创建前的通用条件。
+              - [子代理复用与替代](../delegation/delegation-child-reuse-replacement.yaml) — 仅在实际扩展支持时复用。
+              - [委派状态记录](../delegation/delegation-state-record.yaml) — 父级维护的规范任务事实。
+              - [子代理生命周期](../delegation/delegation-child-lifecycle.yaml) — 观察、返回与结束边界。
+              - [上下文交换工作区边界](../context-exchange/context-exchange-workspace-boundary.yaml) — 工作目录、worktree 与文件范围。

@@ -1,0 +1,1 @@
+获授权的 Git 操作已针对准确目标完成，记录了最新适用的 content 和 documentation epoch，并与其验证指纹一致；否则报告不可用的授权、冲突、前置条件或所需的 Verification 返回。

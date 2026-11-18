@@ -1,0 +1,1 @@
+按[上下文工作区边界](../context-exchange/context-exchange-workspace-boundary.yaml)检查已放行任务授权的 Memory 名称及逻辑归属；源码和代码路径访问仍遵守单独批准的边界。通过[执行控制](../execution-control/execution-control.yaml)消费获准的 Interaction Slice，一次只派发一个 Slice，除非明确允许相互独立且不冲突的并行工作。本模块不重新定义 Memory 名称或 Slice 字段。

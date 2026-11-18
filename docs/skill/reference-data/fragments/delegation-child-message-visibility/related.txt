@@ -1,0 +1,4 @@
+- [Coding Child Creation](delegation-child-creation.yaml) — 定位新子代理提示的创建边界。
+- [Coding Child Dispatch](delegation-child-dispatch.yaml) — 定位已放行切片和后续派发要求。
+- [Coding Child Lifecycle](delegation-child-lifecycle.yaml) — 定位子代理状态及返回处理。
+- [Coding Session 审计可见性](../session-runtime/session-audit-visibility.yaml) — 定位会话可见性预设及优先级。

@@ -1,5 +1,7 @@
 # 修复验证交接检查点
 
+<!-- 由 docs/rules/references/coding/layer-02-workflow-concepts/verification-and-repair/repair-verification-handoff.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本检查点负责将改变状态的修复以新的最终状态指纹或 epoch 交回验证。它不授权修复、不定义修复内容，也不定义验证检查或结果报告。
 

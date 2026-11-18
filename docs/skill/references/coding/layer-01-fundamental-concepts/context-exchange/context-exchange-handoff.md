@@ -1,5 +1,7 @@
 # Coding Context Exchange Handoff
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/context-exchange/context-exchange-handoff.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档定义以 Serena 项目 Memory 持久化的 handoff 和 Worker context-index 记录的内容、更新与后继者暴露，不授权子 Agent 复用/替换，也不定义 capsule 新鲜度。
 

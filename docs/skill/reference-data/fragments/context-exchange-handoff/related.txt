@@ -1,0 +1,4 @@
+- [Coding Context Exchange](context-exchange.yaml) — 定位 capsule 和新鲜度规则。
+- [Coding Context Exchange Workspace Boundary](context-exchange-workspace-boundary.yaml) — 定位逻辑命名与授权。
+- [Coding Session Context Firewall](../session-runtime/session-context-firewall.yaml) — 定位原始状态输入。
+- [Coding Child Reuse and Replacement](../delegation/delegation-child-reuse-replacement.yaml) — 定位替换授权。

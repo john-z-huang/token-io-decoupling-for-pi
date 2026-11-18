@@ -1,5 +1,7 @@
 # Coding 子 Agent 职责分配
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/delegation/delegation-child-role-allocation.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档负责在 Multi-Agent count 已 locked 时进行名额和辅助职责分配。不定义子 Agent 创建、Dispatch Preview、Worker 边界、复用或替换、生命周期、上下文传输、验证或 Git 策略。
 

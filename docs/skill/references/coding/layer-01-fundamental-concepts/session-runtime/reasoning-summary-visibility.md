@@ -1,5 +1,7 @@
 # Coding Agent 推理摘要可见性
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/session-runtime/reasoning-summary-visibility.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本模块定义 Agent 在一轮推理结束时向会话展示的安全、简洁摘要；不要求披露私有内部推理，也不替代决策、阶段反馈、验证或消息可见性 owner。
 

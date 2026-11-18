@@ -1,5 +1,7 @@
 # Worker Content Memo
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/context-exchange/content-memo.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档定义以 Serena 项目 Memory 持久化的 Worker 执行 memo 内容契约，不定义 dispatch 开关或生命周期。
 

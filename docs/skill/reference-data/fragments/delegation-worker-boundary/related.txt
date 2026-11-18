@@ -1,0 +1,4 @@
+- [Coding Delegation State Record](delegation-state-record.yaml) — 定位记录 ownership 和字段约束。
+- [Coding Child Dispatch](delegation-child-dispatch.yaml) — 定位 Worker 派发边界。
+- [Coding Execution Control](../execution-control/execution-control.yaml) — 定位已放行 Interaction Slice 边界。
+- [Coding Context Exchange](../context-exchange/context-exchange.yaml) — 定位命名上下文传输归属。

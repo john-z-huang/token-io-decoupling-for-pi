@@ -1,0 +1,8 @@
+- [Coding Session Role Ownership](session-role-ownership.yaml) — 定位职责责任归属。
+- [Coding Session Context Firewall](session-context-firewall.yaml) — 定位原始状态进入边界。
+- [Coding Delegation State Record](../delegation/delegation-state-record.yaml) — 定位任务控制状态归属。
+- [Coding Delegation Mode Re-entry](../delegation/delegation-mode-reentry.yaml) — 定位 Fork 的全新模式/数量选择。
+- [Coding Child Role Selection](../delegation/child-role-selection.yaml) — 定位新子代理职责的选择判断。
+- [Coding Task Assignment](../execution-planning/task-assignment.yaml) — 定位 Root 和现有子代理的选择。
+- [Coding Context Exchange](../context-exchange/context-exchange.yaml) — 定位文件化上下文传输归属。
+- [Coding Execution Control](../execution-control/execution-control.yaml) — 定位 Interaction Slice 和 Session 边界控制。

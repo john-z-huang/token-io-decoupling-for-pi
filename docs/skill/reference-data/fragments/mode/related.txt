@@ -1,0 +1,5 @@
+- [Coding Delegation Mode Confirmation](../../layer-01-fundamental-concepts/delegation/delegation-mode-confirmation.yaml) — 定位根模式确认归属。
+- [Coding Delegation Count Gate](../../layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.yaml) — 定位子 Agent 数量门禁归属。
+- [Coding Delegation Re-entry](../../layer-01-fundamental-concepts/delegation/delegation-mode-reentry.yaml) — 定位模式/数量重新进入归属。
+- [Coding Delegation State Record](../../layer-01-fundamental-concepts/delegation/delegation-state-record.yaml) — 定位任务控制记录归属。
+- [Coding Delegation State Record Worker Boundary](../../layer-01-fundamental-concepts/delegation/delegation-worker-boundary.yaml) — 定位已放行 Worker 记录访问边界。

@@ -1,5 +1,7 @@
 # 验证报告检查点
 
+<!-- 由 docs/rules/references/coding/layer-02-workflow-concepts/verification-and-repair/verification-reporting.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本检查点负责验证结果分类、未解决项目报告和阻塞影响报告。不定义独立 Session、检查内容、证据捕获、epoch 失效或修复。
 

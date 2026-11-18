@@ -1,5 +1,7 @@
 # Context Exchange 索引
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/context-exchange/INDEX.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 ## 所有者
 

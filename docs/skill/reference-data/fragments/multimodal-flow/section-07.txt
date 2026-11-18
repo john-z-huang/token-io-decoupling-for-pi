@@ -1,0 +1,7 @@
+下一步是代码、仓库、配置或 Coding 验证时，结束视觉阶段，只传递：
+
+```text
+Goal; Required changes; Constraints; Evidence references; Acceptance
+```
+
+不得复制完整图片集、视频帧、OCR、DOM 或观察历史。Coding 完成后，尽可能复用已分配的 Observation 上下文进行视觉验证。

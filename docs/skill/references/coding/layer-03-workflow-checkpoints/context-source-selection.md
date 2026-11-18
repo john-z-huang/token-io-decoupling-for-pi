@@ -1,5 +1,7 @@
 # 上下文来源选择
 
+<!-- 由 docs/rules/references/coding/layer-03-workflow-checkpoints/context-source-selection.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本检查点负责路线级 active plan、有界规则查询、可复用项目记忆和持久交换上下文的选择与核验流程。
 

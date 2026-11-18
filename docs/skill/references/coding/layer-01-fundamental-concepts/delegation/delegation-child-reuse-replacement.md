@@ -1,5 +1,7 @@
 # Coding 子 Agent 复用与替换
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/delegation/delegation-child-reuse-replacement.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档负责已创建子 Agent 的获准 follow-up、修复 epoch 以及复用或替换关系。不定义子 Agent 创建、职责分配、Dispatch Preview、Worker 边界、生命周期状态或上下文传输。
 

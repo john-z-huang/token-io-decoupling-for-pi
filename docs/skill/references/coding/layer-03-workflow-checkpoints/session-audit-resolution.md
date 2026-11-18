@@ -1,5 +1,7 @@
 # Session 审计解决
 
+<!-- 由 docs/rules/references/coding/layer-03-workflow-checkpoints/session-audit-resolution.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本检查点负责将当前 Session 已完成启动收集的审计偏好应用于父级控制记录，并核对最终值。启动答案收集是流程前置，不是权限、独立验证或日志能力证明。
 

@@ -1,0 +1,5 @@
+- [工作流导航可用性](navigation-availability.yaml) — 负责导航不可用分支。
+- [检查点结构检查](checkpoint-structure-checks.yaml) — 负责评估调用方提供的检查点事实结构。
+- [Workflow Routing Advice](../execution-planning/workflow-routing-advice.yaml) — 负责可选阶段建议。
+- [Coding Execution Control](../execution-control/execution-control.yaml) — 负责 Slice 与 Control 决策。
+- [Coding Delegation State Record](../delegation/delegation-state-record.yaml) — 负责规范的父级控制工作流记录。

@@ -1,5 +1,7 @@
 # Coding Output Token 路由
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/execution-planning/output-token-routing.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档负责独立判断 Root 直接输出是否会产生大量 Output Token，以及由此产生的 Root/子代理执行边界。不选择执行主体或具体子代理。
 

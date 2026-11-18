@@ -1,5 +1,7 @@
 # Coding 子代理消息可见性
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/delegation/delegation-child-message-visibility.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档仅规定父级会话与子代理之间文本消息的会话可见性和正文证据，不规定消息授权或消息内容范围。
 

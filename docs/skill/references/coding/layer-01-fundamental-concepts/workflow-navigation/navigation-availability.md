@@ -1,5 +1,7 @@
 # 工作流导航可用性
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/workflow-navigation/navigation-availability.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档负责可选工作流导航或结构检查不可用时的处置；不负责策略、调用方身份、权限或检查点结果。
 

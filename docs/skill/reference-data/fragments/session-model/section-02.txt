@@ -1,0 +1,3 @@
+维持一个 Primary Execution Session：Single-Agent 模式下为当前 Session；Multi-Agent 模式下为已经创建且分配了 `Primary Output` 的子代理（如果存在）。在该子代理创建前，当前根 Session 仍是活跃决策上下文，但这不隐含创建 Primary 子代理。扩展支持持久身份与续接时，相关探索、实现、诊断、测试、修复和局部执行优先复用已分配的 Primary Session；一次性扩展不保证该能力。Session 应保持 sticky but not immortal；生命周期变化遵循当前工作流的已记录状态。
+
+Session 隔离与 Git worktree 隔离不同。工作区和文件系统隔离条件由[上下文工作区边界](../context-exchange/context-exchange-workspace-boundary.yaml)定义；不得仅因复用 Session 就声称命中缓存或获得其他运行时收益。

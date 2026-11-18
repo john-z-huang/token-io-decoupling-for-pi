@@ -1,0 +1,5 @@
+- [Coding Session 职责归属](session-role-ownership.yaml)——定位职责及语义所有权。
+- [Coding 执行阶段反馈](../execution-control/execution-stage-feedback.yaml)——定位 Progress Signal 边界。
+- [Coding 子代理消息可见性](../delegation/delegation-child-message-visibility.yaml)——定位完整消息正文可见性要求。
+- [Coding Session 审计可见性](session-audit-visibility.yaml)——定位配置频率和默认值。
+- [Coding 执行决策门](../execution-planning/execution-decision-gate.yaml)——定位 Decision Brief 及决策职责。

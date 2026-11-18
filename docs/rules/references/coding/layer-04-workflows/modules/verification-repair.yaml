@@ -1,8 +1,13 @@
 # yaml-language-server: $schema=../../../../reference.schema.json
 schema_version: 1
+document_type: workflow-module
 id: verification-repair
 markdown_path: references/coding/layer-04-workflows/modules/verification-repair.md
 title: "验证与修复模块"
+flowchart_references:
+  VR_SCOPE: '../../layer-02-workflow-concepts/verification-and-repair/repair-scope-gate.yaml#section-01'
+  VR_EXEC: '../../layer-02-workflow-concepts/verification-and-repair/repair-execution.yaml#actions'
+  VR_HANDOFF: '../../layer-02-workflow-concepts/verification-and-repair/repair-verification-handoff.yaml#actions'
 blocks:
   - overview:
       kind: markdown
@@ -92,17 +97,17 @@ blocks:
             kind: checkpoint
             title: "解析入口。"
             text: |-
-              提供本声明、当前 Contract/标准、实施或子代理实际结果、任务范围、来源/效果证据和 continuation，调用[模块入口解析](../../layer-03-workflow-checkpoints/module-entry-resolution.md)。不要求预先存在最终 Verification 结果。证据缺失时返回 `needs_prerequisite`；冲突、状态不安全或效果无法恢复时返回 `blocked`。
+              提供本声明、当前 Contract/标准、实施或子代理实际结果、任务范围、来源/效果证据和 continuation，调用[模块入口解析](../../layer-03-workflow-checkpoints/module-entry-resolution.yaml)。不要求预先存在最终 Verification 结果。证据缺失时返回 `needs_prerequisite`；冲突、状态不安全或效果无法恢复时返回 `blocked`。
         - VR01:
             kind: checkpoint
             title: "捕获实际当前最终状态。"
             text: |-
-              应用[Verification](../../layer-02-workflow-concepts/verification-and-repair/verification.md)检查实际当前状态、捕获准确指纹/epoch，并将每项 Contract 验收条件映射到覆盖维度。若先前输出使用了[输出物料化](../../layer-01-fundamental-concepts/execution-planning/output-materialization.md)，捕获前须根据实际当前文件核对其收据。先根据当前证据解决任何部分、冲突或不确定的应用；应用收据、候选预检或初步检查均不能替代实际状态指纹或最终 Verification。代码/配置/测试变化影响 implementation/content 维度；维护文档/注释变化影响 documentation 维度；改变可执行内容、Contract 或验收条件的文档还影响 implementation/content 维度。应用[Verification Epoch](../../layer-02-workflow-concepts/verification-and-repair/verification-epoch.md)，分别跟踪 implementation/content、documentation 和 Git metadata。只有指纹和 epoch 未变化的维度才能复用先前证据。当前状态或标准缺失/不确定时，返回 `needs_prerequisite` 或阻塞依赖验证。应用[任务计划 Memory 生命周期](../../layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md)：确认准确共享计划与当前读取访问，或其已记录的限制例外。独立验证者仅接收获授权计划/来源范围，可更新具名验证贡献，不得编辑被审实现。
+              应用[Verification](../../layer-02-workflow-concepts/verification-and-repair/verification.yaml)检查实际当前状态、捕获准确指纹/epoch，并将每项 Contract 验收条件映射到覆盖维度。若先前输出使用了[输出物料化](../../layer-01-fundamental-concepts/execution-planning/output-materialization.yaml)，捕获前须根据实际当前文件核对其收据。先根据当前证据解决任何部分、冲突或不确定的应用；应用收据、候选预检或初步检查均不能替代实际状态指纹或最终 Verification。代码/配置/测试变化影响 implementation/content 维度；维护文档/注释变化影响 documentation 维度；改变可执行内容、Contract 或验收条件的文档还影响 implementation/content 维度。应用[Verification Epoch](../../layer-02-workflow-concepts/verification-and-repair/verification-epoch.yaml)，分别跟踪 implementation/content、documentation 和 Git metadata。只有指纹和 epoch 未变化的维度才能复用先前证据。当前状态或标准缺失/不确定时，返回 `needs_prerequisite` 或阻塞依赖验证。应用[任务计划 Memory 生命周期](../../layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.yaml)：确认准确共享计划与当前读取访问，或其已记录的限制例外。独立验证者仅接收获授权计划/来源范围，可更新具名验证贡献，不得编辑被审实现。
         - VR02:
             kind: checkpoint
             title: "解析独立性要求。"
             text: |-
-              应用[Verification Independence](../../layer-02-workflow-concepts/verification-and-repair/verification-independence.md)和[Session 职责归属](../../layer-01-fundamental-concepts/session-runtime/session-role-ownership.md)。Contract 要求独立 Change Verification Session 时，使用该职责并仅提供给定范围证据和验收条件；否则将同 Session 检查分类为逻辑验证。在 Multi-Agent 执行中，Worker/子代理实际正文或结果是实施证据，不是独立验证；复用或完整可见也不满足必需的独立验证。必需的独立性不可用时返回 `needs_prerequisite`；不得声称满足 Contract。
+              应用[Verification Independence](../../layer-02-workflow-concepts/verification-and-repair/verification-independence.yaml)和[Session 职责归属](../../layer-01-fundamental-concepts/session-runtime/session-role-ownership.yaml)。Contract 要求独立 Change Verification Session 时，使用该职责并仅提供给定范围证据和验收条件；否则将同 Session 检查分类为逻辑验证。在 Multi-Agent 执行中，Worker/子代理实际正文或结果是实施证据，不是独立验证；复用或完整可见也不满足必需的独立验证。必需的独立性不可用时返回 `needs_prerequisite`；不得声称满足 Contract。
         - VR03:
             kind: checkpoint
             title: "运行当前检查。"
@@ -112,12 +117,12 @@ blocks:
             kind: checkpoint
             title: "分类并报告证据。"
             text: |-
-              应用[Verification Reporting](../../layer-02-workflow-concepts/verification-and-repair/verification-reporting.md)和[Verification Epoch](../../layer-02-workflow-concepts/verification-and-repair/verification-epoch.md)。报告通过、失败、不可用和假设的检查、剩余风险、未解决项目及阻塞影响。只有在启用、符合条件、相关、已授权且绑定到当前指纹/epoch 时，才可通过[建议选择](../../layer-03-workflow-checkpoints/advisory-selection.md)和[Decisions Advisory](../../layer-01-fundamental-concepts/execution-planning/decisions-advisory.md)评估可选的 verification-impact 建议。它只能建议维度，不能免除检查或宣告成功。否则记录带原因的建议 `not_applicable`，并使用直接证据。 按计划 owner 规定的边界记录新验证事实；影响依赖动作的变化须在该动作前记录。确认持久化操作成功，并在依赖动作前完成 owner 要求的内容核验；必需访问、持久化或核验失败时阻塞该边界。遵守已记录的限制例外并保留验证独立性。
+              应用[Verification Reporting](../../layer-02-workflow-concepts/verification-and-repair/verification-reporting.yaml)和[Verification Epoch](../../layer-02-workflow-concepts/verification-and-repair/verification-epoch.yaml)。报告通过、失败、不可用和假设的检查、剩余风险、未解决项目及阻塞影响。只有在启用、符合条件、相关、已授权且绑定到当前指纹/epoch 时，才可通过[建议选择](../../layer-03-workflow-checkpoints/advisory-selection.yaml)和[Decisions Advisory](../../layer-01-fundamental-concepts/execution-planning/decisions-advisory.yaml)评估可选的 verification-impact 建议。它只能建议维度，不能免除检查或宣告成功。否则记录带原因的建议 `not_applicable`，并使用直接证据。 按计划 owner 规定的边界记录新验证事实；影响依赖动作的变化须在该动作前记录。确认持久化操作成功，并在依赖动作前完成 owner 要求的内容核验；必需访问、持久化或核验失败时阻塞该边界。遵守已记录的限制例外并保留验证独立性。
         - VR05:
             kind: checkpoint
             title: "路由失败或确立 Repair N/A。"
             text: |-
-              应用[Repair Disposition](../../layer-03-workflow-checkpoints/repair-disposition.md)。具体失败必须有诊断、受影响路径和最小候选；之后依次应用[Repair Scope Gate](../../layer-02-workflow-concepts/verification-and-repair/repair-scope-gate.md)、[Repair Execution](../../layer-02-workflow-concepts/verification-and-repair/repair-execution.md)及[Repair Verification Handoff](../../layer-02-workflow-concepts/verification-and-repair/repair-verification-handoff.md)。仅执行已授权的窄范围修复，保留实际变更路径/证据，并将新指纹/受影响 epoch 返回 VR01 进行当前重验。Contract 或 Decision 实质变化时，返回 `needs_prerequisite` 给调用方进行语义审查和调度；不得把它当作修复。无具体失败时，以证据依据记录 Repair `not_applicable` 并返回 VR01，确认当前 Verification 结果。诊断、授权、有界范围、修复证据或交接缺失时，阻塞依赖工作。
+              应用[Repair Disposition](../../layer-03-workflow-checkpoints/repair-disposition.yaml)。具体失败必须有诊断、受影响路径和最小候选；之后依次应用[Repair Scope Gate](../../layer-02-workflow-concepts/verification-and-repair/repair-scope-gate.yaml)、[Repair Execution](../../layer-02-workflow-concepts/verification-and-repair/repair-execution.yaml)及[Repair Verification Handoff](../../layer-02-workflow-concepts/verification-and-repair/repair-verification-handoff.yaml)。仅执行已授权的窄范围修复，保留实际变更路径/证据，并将新指纹/受影响 epoch 返回 VR01 进行当前重验。Contract 或 Decision 实质变化时，返回 `needs_prerequisite` 给调用方进行语义审查和调度；不得把它当作修复。无具体失败时，以证据依据记录 Repair `not_applicable` 并返回 VR01，确认当前 Verification 结果。诊断、授权、有界范围、修复证据或交接缺失时，阻塞依赖工作。
         - VR06:
             kind: checkpoint
             title: "返回当前最终 Verification。"
@@ -130,6 +135,6 @@ blocks:
         - related-body:
             kind: markdown
             text: |-
-              - [Verification](../../layer-02-workflow-concepts/verification-and-repair/verification.md)
-              - [Repair Disposition](../../layer-03-workflow-checkpoints/repair-disposition.md)
-              - [Verification Epoch](../../layer-02-workflow-concepts/verification-and-repair/verification-epoch.md)
+              - [Verification](../../layer-02-workflow-concepts/verification-and-repair/verification.yaml)
+              - [Repair Disposition](../../layer-03-workflow-checkpoints/repair-disposition.yaml)
+              - [Verification Epoch](../../layer-02-workflow-concepts/verification-and-repair/verification-epoch.yaml)

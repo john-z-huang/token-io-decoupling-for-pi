@@ -1,5 +1,7 @@
 # Worker Content Memo Lifecycle
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/context-exchange/content-memo-lifecycle.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档定义 Serena Memory Worker memo 的创建、更新、清理和可发现性，不定义 memo 内容、dispatch、handoff 授权或验收。
 

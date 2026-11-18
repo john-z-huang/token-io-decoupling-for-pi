@@ -1,0 +1,2 @@
+- [Session Audit Visibility](../layer-01-fundamental-concepts/session-runtime/session-audit-visibility.yaml)
+- [Coding Delegation State Record](../layer-01-fundamental-concepts/delegation/delegation-state-record.yaml)

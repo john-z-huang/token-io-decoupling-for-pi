@@ -1,5 +1,7 @@
 # Coding Context Exchange
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/context-exchange/context-exchange.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档定义已分配 Coding Worker 的 Serena 项目 Memory 上下文 capsule 内容与新鲜度规则，不定义 Memory 命名/授权、handoff 记录、任务含义、Agent 拓扑或验收。
 

@@ -1,0 +1,33 @@
+layouts:
+  - [owners]
+  - [classification]
+  - [overview]
+  - [overview, section-01]
+block_rules:
+  owners:
+    kind: section
+    expose: true
+  classification:
+    kind: section
+    expose: true
+  overview:
+    kind: markdown
+    expose: true
+  section-01:
+    kind: section
+    expose: true
+document:
+  schema_version: 1
+  document_type: directory-index
+  id: example-directory-index
+  markdown_path: references/coding/layer-01-fundamental-concepts/example/INDEX.md
+  title: 目录索引示例
+  blocks:
+    - owners:
+        kind: section
+        title: 所有者
+        expose: true
+        blocks:
+          - owners-body:
+              kind: markdown
+              text: '- [示例概念](example-fundamental-concept.yaml) — 说明何时读取该规则。'

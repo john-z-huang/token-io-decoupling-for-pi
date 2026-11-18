@@ -1,5 +1,7 @@
 # 建议选择
 
+<!-- 由 docs/rules/references/coding/layer-03-workflow-checkpoints/advisory-selection.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本检查点负责可选建议在各阶段的适用性路由。
 

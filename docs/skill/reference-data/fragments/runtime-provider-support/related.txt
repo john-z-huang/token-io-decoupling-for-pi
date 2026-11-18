@@ -1,0 +1,8 @@
+- [Session 模型](session-model.yaml) — 单代理与多代理的逻辑拓扑。
+- [Session 角色归属](session-role-ownership.yaml) — 职责与操作权限边界。
+- [模式确认](../delegation/delegation-mode-confirmation.yaml) — 模式选择与授权门禁。
+- [子代理创建](../delegation/delegation-child-creation.yaml) — 创建前的通用条件。
+- [子代理复用与替代](../delegation/delegation-child-reuse-replacement.yaml) — 仅在实际扩展支持时复用。
+- [委派状态记录](../delegation/delegation-state-record.yaml) — 父级维护的规范任务事实。
+- [子代理生命周期](../delegation/delegation-child-lifecycle.yaml) — 观察、返回与结束边界。
+- [上下文交换工作区边界](../context-exchange/context-exchange-workspace-boundary.yaml) — 工作目录、worktree 与文件范围。

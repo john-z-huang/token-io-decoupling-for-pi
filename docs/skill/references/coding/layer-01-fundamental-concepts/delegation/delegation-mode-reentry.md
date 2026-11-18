@@ -1,5 +1,7 @@
 # Coding 委派重新进入
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-reentry.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档负责重新进入模式和数量门禁，以及更高优先级限制或能力不可用时的阻断边界。它消费模式确认和数量门禁的结果；不重复其确认或数量锁定策略，也不定义子 Agent 创建或生命周期。
 

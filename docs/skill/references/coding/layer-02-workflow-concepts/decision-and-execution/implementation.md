@@ -1,5 +1,7 @@
 # 实现检查点
 
+<!-- 由 docs/rules/references/coding/layer-02-workflow-concepts/decision-and-execution/implementation.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 ## 动作
 

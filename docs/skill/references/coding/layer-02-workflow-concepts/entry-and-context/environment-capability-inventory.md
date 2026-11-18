@@ -1,5 +1,7 @@
 # Coding 运行环境能力清单
 
+<!-- 由 docs/rules/references/coding/layer-02-workflow-concepts/entry-and-context/environment-capability-inventory.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档负责当前运行环境的能力清单：暴露能力、未知能力处理和依赖路线阻断。运行时事实与设置边界由[运行时与能力边界](../../layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md)负责。本文档不选择运行环境，不选择执行模式，不绑定角色，不授权委派，不授权实现，也不定义任务策略。
 

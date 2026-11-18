@@ -1,0 +1,24 @@
+# yaml-language-server: $schema=../../../../reference.schema.json
+schema_version: 1
+document_type: directory-index
+id: verification-and-repair-index
+markdown_path: references/coding/layer-02-workflow-concepts/verification-and-repair/INDEX.md
+title: "Verification And Repair 索引"
+blocks:
+  - owners:
+      kind: section
+      title: "所有者"
+      expose: true
+      blank_lines_before: 2
+      blocks:
+        - owners-body:
+            kind: markdown
+            text: |-
+              - [verification](verification.yaml)
+              - [verification-epoch](verification-epoch.yaml)
+              - [verification-independence](verification-independence.yaml)
+              - [verification-reporting](verification-reporting.yaml)
+              - [repair](repair.yaml)
+              - [repair-execution](repair-execution.yaml)
+              - [repair-scope-gate](repair-scope-gate.yaml)
+              - [repair-verification-handoff](repair-verification-handoff.yaml)

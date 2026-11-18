@@ -1,5 +1,7 @@
 # 文档影响
 
+<!-- 由 docs/rules/references/coding/layer-03-workflow-checkpoints/documentation-impact.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本检查点负责文档/内容变更后的路线级影响分类和返回路由。
 

@@ -1,5 +1,7 @@
 # 修复处置
 
+<!-- 由 docs/rules/references/coding/layer-03-workflow-checkpoints/repair-disposition.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本检查点负责失败或实质性决策变化后的路线级恢复和重新验证路由。
 

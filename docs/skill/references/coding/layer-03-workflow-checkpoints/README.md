@@ -1,5 +1,7 @@
 # Layer-03 工作流检查点
 
+<!-- 由 docs/rules/references/coding/layer-03-workflow-checkpoints/README.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本目录负责 Layer-04 路线或有界模块调用所需的、针对当前任务的适用性和就绪决策；不重新定义 Layer-01 政策或 Layer-02 通过条件，也不调度 Layer-04 路线或模块。
 

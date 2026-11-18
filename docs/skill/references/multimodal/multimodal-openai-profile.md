@@ -1,5 +1,7 @@
 # Multimodal OpenAI Deployment Profile
 
+<!-- 由 docs/rules/references/multimodal/multimodal-openai-profile.yaml 生成。请在 DSL 中维护正文。 -->
+
 本文件保留非Coding多模态部署的模型选择参考，不选择视觉工作流、不创建代理、不授予权限，不宣称本项目已有可执行多模态/持久代理适配器。
 
 ## 按任务选择，不再固定Luna

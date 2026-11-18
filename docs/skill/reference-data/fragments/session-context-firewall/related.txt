@@ -1,0 +1,5 @@
+- [Coding Session Model](session-model.yaml) — 定位 Session 语义和 Affinity。
+- [Coding Session Role Ownership](session-role-ownership.yaml) — 定位职责责任归属。
+- [Coding Context Exchange](../context-exchange/context-exchange.yaml) — 定位 Memory 上下文传输。
+- [Coding Delegation State Record](../delegation/delegation-state-record.yaml) — 定位任务控制状态归属。
+- [Coding Execution Control](../execution-control/execution-control.yaml) — 定位有界阶段和 slice 归属。

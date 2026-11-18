@@ -1,5 +1,7 @@
 # Context Exchange
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/context-exchange/README.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 ## 范围与边界
 

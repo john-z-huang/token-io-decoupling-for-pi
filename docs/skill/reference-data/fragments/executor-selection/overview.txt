@@ -1,0 +1,1 @@
+本检查点负责当前任务范围和模式建立后的执行者路由。[Task Assignment](../layer-01-fundamental-concepts/execution-planning/task-assignment.yaml)仍是执行者及候选选择政策的权威 owner。

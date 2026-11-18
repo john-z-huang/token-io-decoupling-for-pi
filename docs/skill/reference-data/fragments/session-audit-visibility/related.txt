@@ -1,0 +1,3 @@
+- [Coding 子代理消息可见性](../delegation/delegation-child-message-visibility.yaml) — 应用安全消息可见性规则。
+- [Coding Agent 推理摘要可见性](reasoning-summary-visibility.yaml) — 应用摘要边界和格式。
+- [Coding 委派状态记录](../delegation/delegation-state-record.yaml) — 查找会话配置记录字段。

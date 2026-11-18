@@ -104,7 +104,7 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi \
 
 ## 规则迁移边界
 
-运行中的 Coding 路线、模块和已迁移的 Epoch 规则以 YAML DSL 为权威来源。编译器从 DSL 生成运行时片段，并从 16 份 Hook 合同生成可注入正文。扩展按需读取这些资源。Markdown 导出用于阅读或手动回退，来源和归属由 [逐篇来源整合对照](hooks/SOURCE_COVERAGE.md) 的离线检查核验。规则摘要和路径覆盖只能帮助核对版本及归属，细节冲突以 owner 及更高优先级规则为准。
+参考规则以 YAML DSL 为权威来源。编译器从 DSL 生成运行时片段，并从 16 份 Hook 合同生成可注入正文。扩展按需读取这些资源。Markdown 导出用于阅读或手动回退，来源和归属由 [逐篇来源整合对照](hooks/SOURCE_COVERAGE.md) 的离线检查核验。规则摘要和路径覆盖用于核对版本及归属，细节冲突以 owner 及更高优先级规则为准。
 
 引擎约束顺序、字段、已观察引用、预算、路径与 epoch。它不证明用户授权、检查输出正确、独立性、N/A 理由、内容保全或验收真的满足；不透明工具的 effect 也是声明。它不是恶意代码沙箱或 OS ACL。真实出站、Git、Memory 权限仍按原规则独立核验。
 

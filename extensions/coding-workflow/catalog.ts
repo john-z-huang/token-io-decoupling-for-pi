@@ -146,9 +146,17 @@ export function rewriteWorkflowLinks(catalog: Catalog, source: string, markdown:
   return mapDocumentLinks(markdown, target => {
     const link = resolveDocumentLink(catalog.root, source, target);
     if (!link) return target;
-    const document = catalog.references.documentForPath(relative(catalog.root, link.path).split(sep).join("/"));
+    const path = relative(catalog.root, link.path).split(sep).join("/");
+    const yaml = path.startsWith("references/") && path.endsWith(".yaml");
+    const document = catalog.references.documentForPath(yaml ? path.replace(/\.yaml$/, ".md") : path);
+    if (yaml) {
+      if (!document || (link.fragment && !document.fragments.some(item => item.id === link.fragment))) {
+        throw new Error(`DSL 链接缺少规则片段：${source} -> ${target}`);
+      }
+      return ruleLink(document.id, link.fragment);
+    }
     if (!document) return link.url;
-    const section = document.fragments.find(item => item.kind === "section" && headingSlug(item.title) === link.fragment);
+    const section = document.fragments.find(item => item.kind === "section" && item.anchor === link.fragment);
     return ruleLink(document.id, section?.id);
   });
 }

@@ -1,0 +1,5 @@
+1. 加载[状态记录](../../layer-01-fundamental-concepts/delegation/delegation-state-record.yaml)、[模式确认](../../layer-01-fundamental-concepts/delegation/delegation-mode-confirmation.yaml)、[数量门禁](../../layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.yaml)和[重新进入](../../layer-01-fundamental-concepts/delegation/delegation-mode-reentry.yaml) owner。不得在实际执行步骤前预先加载子代理创建、派发、生命周期或复用的完整策略。
+2. 核对父级记录：Single-Agent 使用 `child_count: 0`、`allocations: []`；Multi-Agent 数量已锁定，已占用名额不超过预算，按状态记录 owner 核实容量表达和现有分配。若有初始 `mode_source: default` 记录，核实其为 Multi-Agent、预算 1。如果 `mode_source: timeout-default`，仅为兼容旧记录而接受，并核实 Single-Agent、`child_count: 0` 和 `allocations: []`；新会话不再使用此来源。本门禁放行**不**等于具体 Interaction Slice 已放行，也不授权创建子代理。
+3. 后续指令沿用已锁定 mode/count，只更新任务专属证据，不重新打开模式/数量门禁。记录或必需能力证据缺失时阻塞依赖路线。职责分配和子代理操作在路线指定的执行阶段核验。
+
+4. 核验已记录获授权的模式/数量及本门禁所需证据。建议输出不能改变已锁定模式/数量或重开本门禁；建议政策遵循[Decisions 建议](../../layer-01-fundamental-concepts/execution-planning/decisions-advisory.yaml)。

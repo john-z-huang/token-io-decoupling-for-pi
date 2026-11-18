@@ -1,5 +1,7 @@
 # 角色预留
 
+<!-- 由 docs/rules/references/coding/layer-03-workflow-checkpoints/role-reservation.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本检查点负责已授权 Multi-Agent 任务的职责预留决策。[Child Role Selection](../layer-01-fundamental-concepts/delegation/child-role-selection.md)、[Count Gate](../layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.md)、[State Record](../layer-01-fundamental-concepts/delegation/delegation-state-record.md)和[Child Role Allocation](../layer-01-fundamental-concepts/delegation/delegation-child-role-allocation.md)分别是角色选择、容量、身份/状态及预留政策的权威 owner。
 

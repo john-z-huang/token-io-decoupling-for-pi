@@ -7,9 +7,34 @@
   "properties": {
     "schema_version": { "const": 1 },
     "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+    "document_type": {
+      "enum": [
+        "directory-guide", "directory-index", "fundamental-concept", "workflow-concept",
+        "workflow-checkpoint", "workflow-route", "workflow-module"
+      ]
+    },
     "markdown_path": { "type": "string", "pattern": "^references/(?:[A-Za-z0-9_-]+/)+[A-Za-z0-9_-]+\\.md$" },
     "title": { "$ref": "#/$defs/title" },
+    "blank_lines_after_title": { "type": "integer", "minimum": 1 },
+    "flowchart_references": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^[A-Z][A-Z0-9_]*$": {
+          "type": "string",
+          "pattern": "^(?:[A-Za-z0-9_-]+/|\\.\\./)*[A-Za-z0-9_-]+\\.yaml#[A-Za-z][A-Za-z0-9-]*$"
+        }
+      }
+    },
     "blocks": { "$ref": "#/$defs/blocks" }
+  },
+  "if": { "properties": { "markdown_path": { "pattern": "^references/coding/" } } },
+  "then": { "required": ["document_type"] },
+  "dependentSchemas": {
+    "flowchart_references": {
+      "required": ["document_type"],
+      "properties": { "document_type": { "enum": ["workflow-route", "workflow-module"] } }
+    }
   },
   "$defs": {
     "title": { "type": "string", "minLength": 1, "pattern": "^[^\\r\\n]+$" },
@@ -31,7 +56,14 @@
           "type": "object",
           "additionalProperties": false,
           "required": ["kind", "text"],
-          "properties": { "kind": { "const": "markdown" }, "text": { "$ref": "#/$defs/text" } }
+          "properties": {
+            "kind": { "const": "markdown" },
+            "text": { "$ref": "#/$defs/text" },
+            "title": { "$ref": "#/$defs/title" },
+            "expose": { "type": "boolean" }
+          },
+          "if": { "required": ["expose"], "properties": { "expose": { "const": true } } },
+          "then": { "required": ["title"] }
         },
         {
           "type": "object",
@@ -41,6 +73,7 @@
             "kind": { "const": "section" },
             "title": { "$ref": "#/$defs/title" },
             "expose": { "type": "boolean" },
+            "blank_lines_before": { "type": "integer", "minimum": 0 },
             "blocks": { "$ref": "#/$defs/blocks" }
           }
         },

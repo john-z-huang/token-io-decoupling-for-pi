@@ -1,5 +1,7 @@
 # Decisions 建议
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/execution-planning/decisions-advisory.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本模块负责五个固定注册节点的有界语义建议如何可选地参与判断。它不拥有这些节点的政策，不选择或确认 Core 分支，不授权工作、不释放 Slice、不决定验证结果或任务验收。
 

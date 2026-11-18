@@ -1,5 +1,7 @@
 # 决策上下文选择
 
+<!-- 由 docs/rules/references/coding/layer-03-workflow-checkpoints/decision-context-selection.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本检查点负责决定下游决策是否需要生成背景，以及该背景是否当前且可用；不代替执行主体、输出路由、职责、建议资格或其他下游决策。
 

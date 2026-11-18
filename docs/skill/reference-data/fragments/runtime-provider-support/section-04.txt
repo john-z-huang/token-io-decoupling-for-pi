@@ -1,0 +1,4 @@
+- Pi 默认提供 `read`、`bash`、`edit`、`write`，但当前会话可配置不同工具集；以实际声明为准。读取指令和代码只取当前步骤需要的范围，修改已有文件优先使用精确编辑。
+- Skill 以 `SKILL.md` 为入口，引用路径相对 Skill 所在目录解析。只加载当前步骤所需 owner，不预读整个引用目录。
+- MCP 工具未直接声明不等于不可用。当前暴露 `codemode` 时，用 `searchTools` 定位相关工具、用 `describeTool` 核对 Schema、用 `describeNamespace` 读取服务指令；若暴露 `tool_search`，也可通过它加载相关工具。`hidden` 工具不可调用，不得换入口绕过。
+- 工具前缀取决于实际注册名，不硬编码本机的注册名称。有独立调用时才用 `Promise.allSettled` 批处理；存在身份、基线或数据依赖的调用保持顺序。只返回供当前决策使用的有界结果，并检查 MCP 返回的 `isError`、状态和缺失证据。

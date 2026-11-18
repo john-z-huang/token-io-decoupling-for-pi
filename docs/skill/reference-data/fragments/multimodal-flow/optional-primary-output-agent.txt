@@ -1,0 +1,1 @@
+当调用方为非 Coding 报告或产物分配独立物化职责时，它接收 Contract、Observation Digest 和定向证据。它只物化已批准的输出，不重新分析完整视觉历史。仓库或代码工作通过窄 Coding handoff 离开本模块。

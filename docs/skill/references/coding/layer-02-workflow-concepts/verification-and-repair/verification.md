@@ -1,5 +1,7 @@
 # 验证检查点
 
+<!-- 由 docs/rules/references/coding/layer-02-workflow-concepts/verification-and-repair/verification.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本检查点负责捕获当前最终状态证据、绑定验收条件、执行适用的整体和定向检查，并判断必需证据是否完整。不定义独立 Session、结果分类或后续 epoch 的失效规则。
 

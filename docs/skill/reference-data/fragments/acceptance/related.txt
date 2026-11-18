@@ -1,0 +1,2 @@
+- [Coding Execution Decision Gate](../../layer-01-fundamental-concepts/execution-planning/execution-decision-gate.yaml) — 定位决策和验收条件归属。
+- [Coding Execution Control](../../layer-01-fundamental-concepts/execution-control/execution-control.yaml) — 定位已放行范围和返回边界归属。

@@ -1,5 +1,7 @@
 # Coding 工作流模块契约
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/execution-planning/workflow-module-contract.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本 owner 定义调用和恢复一个有界工作流模块的可复用契约。它不选择路线、不调度其他模块、不授予授权，也不定义模块专属政策。
 

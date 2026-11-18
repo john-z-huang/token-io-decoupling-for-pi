@@ -1,5 +1,7 @@
 # 候选变更合规预检
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/execution-planning/candidate-compliance.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档定义对拟议仓库变更进行可选只读结构预检的规范。它不拥有写入授权、完整验证或最终验收。
 

@@ -1,5 +1,7 @@
 # 工作流规则上下文
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/workflow-navigation/rule-context.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档负责有界导航至当前工作流规则；不负责检查点结构评估、底层规则、调用方身份或工作授权。
 

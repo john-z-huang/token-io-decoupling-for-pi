@@ -1,0 +1,8 @@
+- [Session 职责归属](../session-runtime/session-role-ownership.yaml) — 负责受维护的职责说明。
+- [Session 模型](../session-runtime/session-model.yaml) — 负责 Session 身份和 affinity。
+- [委派数量门禁](delegation-mode-count-gate.yaml) — 负责锁定预算和获批扩展。
+- [委派模式重入](delegation-mode-reentry.yaml) — 负责 Fork 的新门禁。
+- [委派状态记录](delegation-state-record.yaml) — 负责当前会话 allocation 状态。
+- [Coding 子代理职责分配](delegation-child-role-allocation.yaml) — 负责在已批准名额中预留已选职责。
+- [Coding 子代理创建](delegation-child-creation.yaml) — 负责子代理创建能力及前置条件。
+- [决策上下文生成](../execution-planning/decision-context-generation.yaml) — 负责有界决策上下文的生成与审阅。

@@ -1,0 +1,3 @@
+- [Output Token Routing](../layer-01-fundamental-concepts/execution-planning/output-token-routing.yaml)
+- [Delegation State Record](../layer-01-fundamental-concepts/delegation/delegation-state-record.yaml)
+- [Delegation Count Gate](../layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.yaml)

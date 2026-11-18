@@ -1,0 +1,4 @@
+- [Coding Context Exchange Workspace Boundary](context-exchange-workspace-boundary.yaml) — 定位逻辑命名和授权。
+- [Coding Context Exchange Handoff](context-exchange-handoff.yaml) — 定位 handoff 记录内容。
+- [Coding Session Context Firewall](../session-runtime/session-context-firewall.yaml) — 定位有界输入规则。
+- [Coding Child Dispatch](../delegation/delegation-child-dispatch.yaml) — 定位已放行任务授权。

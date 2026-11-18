@@ -1,5 +1,7 @@
 # Coding Context Exchange 工作区边界
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/context-exchange/context-exchange-workspace-boundary.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档定义以 Serena 项目 Memory 持久化的 Agent 上下文记录的逻辑命名和授权，不定义代码工作区文件系统权限、capsule 内容、新鲜度或 handoff 授权。
 

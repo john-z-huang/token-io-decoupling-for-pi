@@ -1,0 +1,1 @@
+负责视觉/交互意图、语义和安全约束、Semantic Contract、分析重点、语义检查点、创作方向、amendment 和最终验收。在 Creative Visual Authoring 中，必须亲自检查精选证据，并负责构图、层次、风格、色彩/光线和整体质量。它不持续摄入完整截图、视频帧、OCR/DOM dump 或常规导航状态。

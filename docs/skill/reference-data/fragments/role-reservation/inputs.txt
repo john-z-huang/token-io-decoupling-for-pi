@@ -1,0 +1,1 @@
+仅当 Executor Selection 针对获授权拟议任务返回 `new-executor-needed`，且 Output Route Selection 已独立处置 Root 直接输出后运行。读取四个已链接的 L1 owner 及当前 Session 角色/allocation/容量事实。

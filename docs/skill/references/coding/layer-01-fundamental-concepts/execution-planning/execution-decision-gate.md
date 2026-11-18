@@ -1,5 +1,7 @@
 # Coding Execution Decision Gate
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/execution-planning/execution-decision-gate.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档定义 Decision Brief、阻塞式 Decision Checkpoint、方案选择、Contract 更新和实现放行的决策条件。不定义规划提纲、Interaction Slice 字段、阶段反馈、角色/Session 语义、上下文传输或委派生命周期。
 

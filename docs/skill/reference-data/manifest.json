@@ -1,29 +1,4140 @@
 {
-  "schema_version": 3,
+  "schema_version": 4,
   "documents": [
     {
-      "id": "verification-epoch",
-      "path": "references/coding/layer-02-workflow-concepts/verification-and-repair/verification-epoch.md",
-      "title": "验证 Epoch 检查点",
-      "source_sha256": "9306c5da7a921a96140658e3e2e09944df6a1d34fd1b4bcd403962966ab5ae7f",
+      "id": "layer-01-index",
+      "path": "references/coding/layer-01-fundamental-concepts/INDEX.md",
+      "title": "Layer 01: Fundamental Concepts 索引",
+      "source_sha256": "7c8b8229fc3c20e985083c15ff589eea1d961c0974cf8cbbaa208c686e2928ea",
+      "fragments": [
+        {
+          "id": "classification",
+          "kind": "section",
+          "title": "分类",
+          "anchor": "分类",
+          "sha256": "651fe1227107a4f6b34bceb91320b44d4d1cc7c968a985ca353e1eed65a44708"
+        }
+      ]
+    },
+    {
+      "id": "layer-01-readme",
+      "path": "references/coding/layer-01-fundamental-concepts/README.md",
+      "title": "Layer 01: Fundamental Concepts",
+      "source_sha256": "6d611b7d7219aca5091ae8f65d25e860701e89b7bf30c1984a93a6a8fedd213a",
+      "fragments": [
+        {
+          "id": "scope-and-boundary",
+          "kind": "section",
+          "title": "范围与边界",
+          "anchor": "范围与边界",
+          "sha256": "de34014b988eb76083ce8b2c38f9995b410e8e9325b4f9d52506a8dd98353aeb"
+        },
+        {
+          "id": "entry",
+          "kind": "section",
+          "title": "入口",
+          "anchor": "入口",
+          "sha256": "9280fbeb6e3fa45f6c62082e232be76e941237cf1bb82307ba7dbe093e5ebc0f"
+        }
+      ]
+    },
+    {
+      "id": "context-exchange-index",
+      "path": "references/coding/layer-01-fundamental-concepts/context-exchange/INDEX.md",
+      "title": "Context Exchange 索引",
+      "source_sha256": "fd13dcc07db5a2a0fe70d5d471953210d5d66bf6665d1bd86de36b2268a3d088",
+      "fragments": [
+        {
+          "id": "owners",
+          "kind": "section",
+          "title": "所有者",
+          "anchor": "所有者",
+          "sha256": "d11e85aa68b863898469bb097c26a1b98268471b778edbf7333505af3ba4c5f0"
+        }
+      ]
+    },
+    {
+      "id": "context-exchange-readme",
+      "path": "references/coding/layer-01-fundamental-concepts/context-exchange/README.md",
+      "title": "Context Exchange",
+      "source_sha256": "d73c4db0d95ba0351171e76280422719c22e9a4643e565693a2a7f551eeaa7ad",
+      "fragments": [
+        {
+          "id": "scope-and-boundary",
+          "kind": "section",
+          "title": "范围与边界",
+          "anchor": "范围与边界",
+          "sha256": "4ed226afa4a2fdd520fd9dc2f50bb21d9e1690b99a69a6d00c2edc6cc28424c6"
+        },
+        {
+          "id": "entry",
+          "kind": "section",
+          "title": "入口",
+          "anchor": "入口",
+          "sha256": "050fa4488e153545c534a35d664dfba77703fc13a696ac706837cdf502cc3a0d"
+        }
+      ]
+    },
+    {
+      "id": "content-memo-dispatch",
+      "path": "references/coding/layer-01-fundamental-concepts/context-exchange/content-memo-dispatch.md",
+      "title": "Worker Content Memo Dispatch",
+      "source_sha256": "6e618057cbd6502d4fbcad6513685ce3640ab33c3b0ad42ff5e7f7c7a7e9fcfc",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "1f2152e8f8867b26052c2c878014d3ea9c8555a64115d5a9c4d879ea71f7e0f1"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "420137ea348ae2c98b33e47457aa2193895faf62d32af2a0f8e340bf07df29b0"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "Dispatch 开关",
+          "anchor": "dispatch-开关",
+          "sha256": "41d389fb57fdbe4536ffde55887423b8b84f9b5adf26c87c6a00b49604437ef9"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "53522b653dc93c93f97fe88ccbb56874bbd065036d42af0e07570caba731e16c"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "f72d8c081723398dce3e81f3dab9d4103f73fb710f3df190e56fad71cf514fd0"
+        }
+      ]
+    },
+    {
+      "id": "content-memo-lifecycle",
+      "path": "references/coding/layer-01-fundamental-concepts/context-exchange/content-memo-lifecycle.md",
+      "title": "Worker Content Memo Lifecycle",
+      "source_sha256": "a99a02814d9b9ce780c7fd6ce9d20393668f21938c7a26d9aaa03570c23078a0",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "1625b23c847136a9c7500cc17e26824d20ffe55ff47e171bd017a1e0c8e21114"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "c8ea5f931520549708e32e53f2773fd06bcf33e964b57d25c50ad9837f169647"
+        },
+        {
+          "id": "lifecycle",
+          "kind": "section",
+          "title": "创建、更新与发现",
+          "anchor": "创建更新与发现",
+          "sha256": "fad246ab2edff463f8c27b69319ec43896baa0a523b4f7a5e330f709d7a6a38b"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "53522b653dc93c93f97fe88ccbb56874bbd065036d42af0e07570caba731e16c"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "4d596f5957f9b147ef2d85b77e606bf58c783001e0d3efa6b91e57bf5d569608"
+        }
+      ]
+    },
+    {
+      "id": "content-memo",
+      "path": "references/coding/layer-01-fundamental-concepts/context-exchange/content-memo.md",
+      "title": "Worker Content Memo",
+      "source_sha256": "b63b6ec719abdbbc43b80a8d7e5ea69717b696f8f2b56dd686ed1d93d55cd53a",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "1a1cd24f90b2b55f3f9c1cf61fae75478258f197612e3ac0e7e06bf03a0e2d58"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "366ed3f14c461e8bfe7bdefba2859d675177590c9fd45434b31e4d41caff29f2"
+        },
+        {
+          "id": "purpose-and-content",
+          "kind": "section",
+          "title": "用途与内容",
+          "anchor": "用途与内容",
+          "sha256": "8220989e0974573dcd6139428ef57748c1e891e4bb19c22c06636c1724be65e6"
+        },
+        {
+          "id": "restricted-content-and-availability",
+          "kind": "section",
+          "title": "禁止材料和能力不可用",
+          "anchor": "禁止材料和能力不可用",
+          "sha256": "8a040a9dcc2a183a64bc731109171c5cc46810b58f998e6c5fff93a8d2b48d83"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "53522b653dc93c93f97fe88ccbb56874bbd065036d42af0e07570caba731e16c"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "5602e8866b8340ee1ce5184332261c4738510eba67c7285d441591fb4aa2f050"
+        }
+      ]
+    },
+    {
+      "id": "context-exchange-handoff",
+      "path": "references/coding/layer-01-fundamental-concepts/context-exchange/context-exchange-handoff.md",
+      "title": "Coding Context Exchange Handoff",
+      "source_sha256": "2b320229d706dce26380d14fc12f6181e0b6fa05c69436e386d243f7d5a5d80d",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "c46ae31451a7a6a96d82e05b6729b4eab71159cf6df34d4972e5f4fb4dc442b3"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "ab3caa89232b550f30851aca11be288346b05ca6f62415b2c53db2b60cf5cac0"
+        },
+        {
+          "id": "index-and-handoff",
+          "kind": "section",
+          "title": "Context index 与 handoff 记录",
+          "anchor": "context-index-与-handoff-记录",
+          "sha256": "2d098e6780c24a94583a593958bf4b7ce6fdcd6faf0c28b5732eb54bee1f5eac"
+        },
+        {
+          "id": "authorization",
+          "kind": "section",
+          "title": "授权边界",
+          "anchor": "授权边界",
+          "sha256": "500faa8f4ec92c20fec1952adb5e9db76a6b7511b338ada4b6ad2d4e55912e68"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "53522b653dc93c93f97fe88ccbb56874bbd065036d42af0e07570caba731e16c"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "5b6ce0447e208ddf595b860c607e75f89265f8cbd9340a21dd5055c10e172eda"
+        }
+      ]
+    },
+    {
+      "id": "context-exchange-workspace-boundary",
+      "path": "references/coding/layer-01-fundamental-concepts/context-exchange/context-exchange-workspace-boundary.md",
+      "title": "Coding Context Exchange 工作区边界",
+      "source_sha256": "bac4f15d44e6eaf2cfb2a9eba4438a52e5635c20c4774bae62f3e74c90a87cbf",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "861ac1f7690028698e960af465f78f690f0e559b87277da049919ba28f2058f6"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "e7e7ccc20346da40769ddd21f4d83f201266b33a188d0e61e234677e123b882a"
+        },
+        {
+          "id": "memory-ownership",
+          "kind": "section",
+          "title": "Memory 名称与逻辑归属",
+          "anchor": "memory-名称与逻辑归属",
+          "sha256": "89ef3a26601d30366485b06fabe594bfd9fd36151c4831f3c4053449ee361343"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "53522b653dc93c93f97fe88ccbb56874bbd065036d42af0e07570caba731e16c"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "963d39748cd9533c1e25e505ef6eacf3e7ca490682216a55c966c3dd501d00e0"
+        }
+      ]
+    },
+    {
+      "id": "context-exchange",
+      "path": "references/coding/layer-01-fundamental-concepts/context-exchange/context-exchange.md",
+      "title": "Coding Context Exchange",
+      "source_sha256": "acd5181455a29632c1f83de16b83c0309c90f4c6e7ef78ab2a2f6eb02a2adce2",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "5d095d56e5036638aa192364ae6d4ad9437327ce895d11ae3df059fbe2cd868b"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "7857e4ff0f54820ba7d4063c3a034ff1a65447ae1a8d53313a11801776aeecfe"
+        },
+        {
+          "id": "capsule-authority",
+          "kind": "section",
+          "title": "Capsule 内容与权威来源",
+          "anchor": "capsule-内容与权威来源",
+          "sha256": "8898fe2b5b54bc662f72e63c8cadb7acca62fd6208391ec662d0b007800ba6e3"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "53522b653dc93c93f97fe88ccbb56874bbd065036d42af0e07570caba731e16c"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "43ea9aac000b4fd077ba7012a27d00e3db2173a02c7ef6ec3f775ee8b9dbfc00"
+        }
+      ]
+    },
+    {
+      "id": "delegation-index",
+      "path": "references/coding/layer-01-fundamental-concepts/delegation/INDEX.md",
+      "title": "Delegation 索引",
+      "source_sha256": "ec8d1b59de9303fa0d319cde2b3812ac5d4a98697812c7c368447f54f460ef15",
+      "fragments": [
+        {
+          "id": "owners",
+          "kind": "section",
+          "title": "所有者",
+          "anchor": "所有者",
+          "sha256": "c1e213114b3c60280b5e016ec3e7d434a7404a92955afe1d244b0244bb9314f0"
+        }
+      ]
+    },
+    {
+      "id": "delegation-readme",
+      "path": "references/coding/layer-01-fundamental-concepts/delegation/README.md",
+      "title": "Delegation",
+      "source_sha256": "394dbc6c34dd46adda654eef74c0dff9fdb1447d4779c09907f8ae4f8e00b571",
+      "fragments": [
+        {
+          "id": "scope-and-boundary",
+          "kind": "section",
+          "title": "范围与边界",
+          "anchor": "范围与边界",
+          "sha256": "7e3dc3f87f7f644db21769bdbedb4036a0268e703e7dc7bbf74bcba6380a55e3"
+        },
+        {
+          "id": "entry",
+          "kind": "section",
+          "title": "入口",
+          "anchor": "入口",
+          "sha256": "37f6e0413e9f2c1aeb5955a907029bf245b9e7659595e090b9613d8789653eed"
+        }
+      ]
+    },
+    {
+      "id": "child-role-selection",
+      "path": "references/coding/layer-01-fundamental-concepts/delegation/child-role-selection.md",
+      "title": "Coding 子代理职责选择",
+      "source_sha256": "68801fe74b108964be5eaf295626c7eed68975e67e94f48170a95d2b29c39c32",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "e6a1ee950352ceda910e911fb0baab1896e9ab39ee10f895a68ada9db2cc3dd4"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "564025580d94195ac42396742c0b7aff3b5e95dd54681e748a1d001e624a53d5"
+        },
+        {
+          "id": "role-request",
+          "kind": "section",
+          "title": "职责请求边界",
+          "anchor": "职责请求边界",
+          "sha256": "8b1cc9269fdb25684f5910730a43a8b7a5ca5484e3699abf38d9f0983c63dfd2"
+        },
+        {
+          "id": "role-advice",
+          "kind": "section",
+          "title": "职责 Decisions 指令",
+          "anchor": "职责-decisions-指令",
+          "sha256": "63f6b7535acd8fc89777139619f5d22293e1a3a8c3e43d409c055aa2f01b8307"
+        },
+        {
+          "id": "role-options",
+          "kind": "section",
+          "title": "职责选项说明",
+          "anchor": "职责选项说明",
+          "sha256": "e88dad88c4093197afa0f38aa3250b81cc92f5ba9369b66adcaa94475d63de84"
+        },
+        {
+          "id": "primary-output",
+          "kind": "section",
+          "title": "Primary Output",
+          "anchor": "primary-output",
+          "sha256": "fadf4680ac37842b68d1f020434fd18b9b3b9132b54e4cb33a199db028ffb58f"
+        },
+        {
+          "id": "change-verification",
+          "kind": "section",
+          "title": "Change Verification",
+          "anchor": "change-verification",
+          "sha256": "4e717172a9de5494c94ab902a47a97781f0a2f5d3b65ed9d41877ec35662e33f"
+        },
+        {
+          "id": "context-bootstraprefresh",
+          "kind": "section",
+          "title": "Context Bootstrap/Refresh",
+          "anchor": "context-bootstraprefresh",
+          "sha256": "f6c5005764bfeb06085ad8456a5a14b3a65c30e5899c7577c78e42420a859da2"
+        },
+        {
+          "id": "documentationcomments-git-operations",
+          "kind": "section",
+          "title": "Documentation/Comments & Git Operations",
+          "anchor": "documentationcomments--git-operations",
+          "sha256": "d48f6d92a6e862857c6c81b9bc2cdfbb521f8a26cbedd2bf38f6a3e1cbbca7a0"
+        },
+        {
+          "id": "insufficient-evidence",
+          "kind": "section",
+          "title": "insufficient_evidence",
+          "anchor": "insufficient_evidence",
+          "sha256": "dc67db0fd29d0d1ad632dac1bcc914d291d73dc2b0a5d14bee0ca02046ddfc94"
+        },
+        {
+          "id": "review-and-fallback",
+          "kind": "section",
+          "title": "审阅与兜底",
+          "anchor": "审阅与兜底",
+          "sha256": "874e79eb6c06feaf0119ee169fa286cf098b2ca3ba1ffbf4ba7c494b0d31d5e0"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "78bd5b2115c3c80e189089996cd7a296c3fe3867db758607627edf3ddd7c2266"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "6be6948c8422309a35fe5a213a21491b0626beae0be643392322baa0b1cc364d"
+        }
+      ]
+    },
+    {
+      "id": "delegation-child-creation",
+      "path": "references/coding/layer-01-fundamental-concepts/delegation/delegation-child-creation.md",
+      "title": "Coding 子 Agent 创建",
+      "source_sha256": "35e20415b87107b0bf4f77b90ab5e227ecbd5f26ab5cd4c70ebba22ef20a6366",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "d93b9dbaeeeeb11b08724ee1dcf006d90a71b8b92736a3d9b5fc6de32a775bbd"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "b30db40e4a474a2d60074ea338979a6d3a9ce32908dc20bbe748b9e180124fd1"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "创建能力",
+          "anchor": "创建能力",
+          "sha256": "9a1bdd57946c47395fcca679354705409924b790fc8ae1f3f3214004bdc3135f"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "a0684afbf92be60f195d8f016b14e4f72ad9dc8858dc1107557e3354bbe3d6cb"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "c4519884cf8a7e326a1b939282cd2261a770400b983917e4a81376a937cc4b53"
+        }
+      ]
+    },
+    {
+      "id": "delegation-child-dispatch",
+      "path": "references/coding/layer-01-fundamental-concepts/delegation/delegation-child-dispatch.md",
+      "title": "Coding 子 Agent 派发",
+      "source_sha256": "cc0fb774abe0069912b919b85456b33531a85b249b5c904286ec1338f52862de",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "5d5bef31070bb7786388334da2bd7ffb2a6689c32e4efb266804660452469d58"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "e433ccc18050de70f15090aab73bf9e7466d049e9e798a423fd5abfed338a089"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "Dispatch Preview 和返回边界",
+          "anchor": "dispatch-preview-和返回边界",
+          "sha256": "061dd6197cd3d3e331a3559cb7e4542c2ac115e396121ef43a1b938465a38190"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "Named path 和 slice 放行",
+          "anchor": "named-path-和-slice-放行",
+          "sha256": "24d4650f945c433419cd6bded91ef998a931efe2a51b21060ee35cb56de6d386"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "67ba4b5f158190ec9f979b679eee74f8b78124691d5ffd9c671a70e725291007"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "d725138401f71aa972575572b5a2afa43c932fccad3a70e6a6a7335abf132de8"
+        }
+      ]
+    },
+    {
+      "id": "delegation-child-lifecycle",
+      "path": "references/coding/layer-01-fundamental-concepts/delegation/delegation-child-lifecycle.md",
+      "title": "Coding 子 Agent 生命周期",
+      "source_sha256": "f97d6f13ed01617fd8bb5743ec4fef55ae5f73dfbc43244f39b7a5e582e59f07",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "b4c3bc1652c3d90a663674fe7442ffe34eb1aa47a39c6bcc39d903e0e3626abc"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "a4ecc871acef1a4016aaf191cb5890e3706392f425c54e4fedc8d7b8b23db3b2"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "生命周期状态",
+          "anchor": "生命周期状态",
+          "sha256": "0be93d8a2b32a2e9fd99589e90322ed644e8b9291679f0a8a9317aef910a0fd3"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "错误与中断",
+          "anchor": "错误与中断",
+          "sha256": "bec0639d63047e36d0464de7f82cc4ca67ff469e976e7dd9d5f56cb564e4d62e"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "14b296cca540cb8806c478eaa74d7b9d0d4b998bd66da788566476d76adfaaa9"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "180793f268115e0638cbccb6dae2b91c136f0dc2e139384d77e721b46d1e4643"
+        }
+      ]
+    },
+    {
+      "id": "delegation-child-message-visibility",
+      "path": "references/coding/layer-01-fundamental-concepts/delegation/delegation-child-message-visibility.md",
+      "title": "Coding 子代理消息可见性",
+      "source_sha256": "6aa017fbb7d55f08a3344280c7e588016da8ed8f5d055d20c200d6cd57b0e737",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "cc2a9419c0c1581f90363f8a6313f4c9cec78fd70fdb1126a966b10e52d9d4cd"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "7917c9a16f4af21b8f4d852977ce61eade4589a17fbfaf81a67c4156019a6934"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "按配置展示；依赖前取得完整正文",
+          "anchor": "按配置展示依赖前取得完整正文",
+          "sha256": "9f94a3f52852112d4b3a3c0b2387aa9e0a166151f42a969dac43f0984ae8b0fb"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "保留方向与证据",
+          "anchor": "保留方向与证据",
+          "sha256": "7c314e949629d73e4bb26fe6cbf6b517238b092a7b26dc865d8f425a06136378"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "da33ed373f6a5cb07ec94aae87c29fc1279c0301119954df6bf35e87ee081112"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "b626b8025bbeaf74acdf2c97df593e0db88c5c0c142cd68232fefa6597cc56c0"
+        }
+      ]
+    },
+    {
+      "id": "delegation-child-reuse-replacement",
+      "path": "references/coding/layer-01-fundamental-concepts/delegation/delegation-child-reuse-replacement.md",
+      "title": "Coding 子 Agent 复用与替换",
+      "source_sha256": "e2dd672728d3ee4c4a8f2d4616ba9062b8bf23aa044c9dd3279bdee0b305ae2e",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "4cf02af1c7f06eba6a53574533eb0c13361931ba0b96ed935f0c1a8cd3174299"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "4c4faa4af431c4436347a1c2c81f41185269b352327fc390b9ce412d9bb90e5f"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "获准复用",
+          "anchor": "获准复用",
+          "sha256": "8548a96da46682b22d7776dc7f66ddcdbbe9cea64ff01a1837e08f83d52fa997"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "替换关系",
+          "anchor": "替换关系",
+          "sha256": "058dadea311a64a149286dca88a440c952a35c00b81aefa4adc49c9ccfbfb8ce"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "b09ce07e9a3d3e5a64d8e6875cec4e9a909a2ba165337a4ae148515891cc26d9"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "23f16afe9c3d2dd9a58546e53d0b1b5bc9a81a699cf8baa21a2bfa1d37094cc6"
+        }
+      ]
+    },
+    {
+      "id": "delegation-child-role-allocation",
+      "path": "references/coding/layer-01-fundamental-concepts/delegation/delegation-child-role-allocation.md",
+      "title": "Coding 子 Agent 职责分配",
+      "source_sha256": "3196fd4ec99eeb2ef32dacb4ae9961ee18618fabf6c9c6fa7bc45be5acd3fe87",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "26acdf1f201b80b31a90663fe836874372c177b3d7cf1a87dcf78c2a8054cb30"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "eb462c7d9bbdb7096e6b1c40cacb179322e908badb32fa3785b05320869eaa19"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "职责分配",
+          "anchor": "职责分配",
+          "sha256": "57236ccb08305f7cb967085c1412d01e1a5669dfb8b531fe84a08a2e94204b76"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "Context Bootstrap/Refresh 分配",
+          "anchor": "context-bootstraprefresh-分配",
+          "sha256": "05ca0d213a3f3d903fca4b32f056f623ac7bb4f474e4f50320be889515e17057"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "08b373ee4626c4353c3b5fa1b71c3d3bfcc7c6eda25d36e6f0b88fdf5692d463"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "1383b313ec91621d72d675a30fe88492d47cc88eae6dd99b1ca063935caffa06"
+        }
+      ]
+    },
+    {
+      "id": "delegation-mode-confirmation",
+      "path": "references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-confirmation.md",
+      "title": "Coding 委派模式确认",
+      "source_sha256": "d6b51707efd9b4d6f14085ad66bb92d1701425369fce4954e8269f1282bcf9a8",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "23cf127c224a76140b1bdc5df1f767d9f213b53643e9b8b74243d769c2328eed"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "e7037a4cc3b32ef208197193fee04ba4f06f70331521dbef49d077f9ab8fcc73"
+        },
+        {
+          "id": "mode-selection",
+          "kind": "section",
+          "title": "会话模式选择",
+          "anchor": "会话模式选择",
+          "sha256": "dc92b748aedf6587a317e8b324366b0db2aad161f80d734609313efa6e5dc3ad"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "单代理 Coding",
+          "anchor": "单代理-coding",
+          "sha256": "0cbddb991cfa93628b90e1df928ee24dc12aa8d9a6db16fa26084751ae75faa8"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "f42e70aed2e1f64ed60da3e18e24f6b17bd1301a3b315330e3d96e653efae8fc"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "7ad62c65e5156e1c2f5d4b24c6ca4be5091791a97c7b119feea468500b382071"
+        }
+      ]
+    },
+    {
+      "id": "delegation-mode-count-gate",
+      "path": "references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.md",
+      "title": "Coding 委派数量门禁",
+      "source_sha256": "237e354597934255a2af4ca3a073a36eade67e6469f9f4329e04bbc8e2a71879",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "7ac4b20eaad10f5897d04ba58eb093083d6c68d91d7145c6b25771ff1aea7c1b"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "7109ee01da3f269aa493cf013bec11cca6ffd2d2fde0834b71fa0b627d140721"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "数量选择和锁定",
+          "anchor": "数量选择和锁定",
+          "sha256": "0822c58af8f4bf8f88306628dbe909e107954b48e3fa72a3e4d6896ddf3f5eb6"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "用户明确批准增加一个名额",
+          "anchor": "用户明确批准增加一个名额",
+          "sha256": "2bda881b5674e95d977e8fc48a6f93c97930324032bf94453fc492a34e4f4239"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "6d1f9314217e966741fe27ff458f00d39848ce0b9a403b23d7e6048506289e87"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "2cb5b2e0717de17bd9988e31541c747134bbe752654b71c898dd9704016af5ae"
+        }
+      ]
+    },
+    {
+      "id": "delegation-mode-reentry",
+      "path": "references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-reentry.md",
+      "title": "Coding 委派重新进入",
+      "source_sha256": "d94d2b68b4eb6fc7b19ff1f017d52942049ee5be8b88501c527876dd94fb0fbb",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "aad2ec6b736e274f9732f3c43458bcedc40391a614d536a82cb74200fdbd2166"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "fd11aa6d646c541b0bd4d0165db0516be78812bfd0b058aa5da00e301bced78b"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "门禁重新进入",
+          "anchor": "门禁重新进入",
+          "sha256": "867239f1c03af2ba4b0a1f843a5d7e7463841bfbf0eeceae9be5c2ef8513ddda"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "更高优先级限制和能力阻断",
+          "anchor": "更高优先级限制和能力阻断",
+          "sha256": "3ba6f78a80736fa497fcba15ace3849740a7133bd1da715ad4b15fd6d3abbf5c"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "6f41a4c7a7995fa6c43e19b76f5dbb58b5df83291a1a5c126b3bc5ad6a610e7e"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "70ae27e890dba06d77fb4143f9322d96e52ed8e2953a52170095a69518dbfede"
+        }
+      ]
+    },
+    {
+      "id": "delegation-state-record",
+      "path": "references/coding/layer-01-fundamental-concepts/delegation/delegation-state-record.md",
+      "title": "Coding 委派状态记录",
+      "source_sha256": "2f4c145e6a78068351cde3bf9c17490366a7cb8e3ee310698d2e082d4420a12f",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "f0e627120e3c3aa08433e6310dbc8ad64cd0d17dd3a03c8d02e8ac5e04c3b5fe"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "7862ca7972c10524cac511fb4747d390e09c7239422c75b477ed900184199ae5"
+        },
+        {
+          "id": "ownership",
+          "kind": "section",
+          "title": "Ownership",
+          "anchor": "ownership",
+          "sha256": "2d7ac9a05cc203a7d59fe43c79aa1834afb47ec0655384a9bde709cf554872b3"
+        },
+        {
+          "id": "record-shape",
+          "kind": "section",
+          "title": "记录结构",
+          "anchor": "记录结构",
+          "sha256": "371f0e4327091da6344f36a4ee3dd0147a75467d8d6c3c649cb55042f9c2195b"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "cd5f3f17b42910b59be771876c0d99f1c7010adc8de7598e805898bb4b825234"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "13c2becef55543fd20a6a859fae0a33d2e8ed34e82507151d929f6e1f389645e"
+        }
+      ]
+    },
+    {
+      "id": "delegation-worker-boundary",
+      "path": "references/coding/layer-01-fundamental-concepts/delegation/delegation-worker-boundary.md",
+      "title": "Coding 委派 Worker 边界",
+      "source_sha256": "af24a220aece3b307d504cd40daea4dec92b7662c8ccd358d59ec2d3e983be95",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "96571bc798b5a03f23634d76d144c5d416cd708e473928305848f3e0f6b70b0e"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "dbc13b250e8137efc42c7997737ef0ecb85262c44636f0cf568b2983e103f005"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "Worker 快照和访问边界",
+          "anchor": "worker-快照和访问边界",
+          "sha256": "f9ea329590a25c09318705d5f29bc13f1dcc2e35de065957043c2f7e5fa835f2"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "Dispatch 进入和持久化阻断",
+          "anchor": "dispatch-进入和持久化阻断",
+          "sha256": "b6bbb84882da05605f6ea121589b418c0a2a80b7a126d30e69631f2d7b34356b"
+        },
+        {
+          "id": "section-03",
+          "kind": "section",
+          "title": "共享任务计划贡献",
+          "anchor": "共享任务计划贡献",
+          "sha256": "27c92e0f5bf8dfda80ed7a736bf91a3bfb9e2fe7595f1b9a1afafcc48d67ebfa"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "ae04a07b51d477df7b70e6f8cfb2c87c16b2f5a1c56f992c6eb8a13041e6f0a1"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "b6b23d8afed72eefc72324235adcdd598dc188b6813b3569250e95b7f7f79a94"
+        }
+      ]
+    },
+    {
+      "id": "execution-control-index",
+      "path": "references/coding/layer-01-fundamental-concepts/execution-control/INDEX.md",
+      "title": "Execution Control 索引",
+      "source_sha256": "b56fca653091d253d89d4e98a7e3fd1343523ce40e50b3e8b27ca3e6ebb001fd",
+      "fragments": [
+        {
+          "id": "owners",
+          "kind": "section",
+          "title": "所有者",
+          "anchor": "所有者",
+          "sha256": "6262e4366c0c54377ebff87d89b7fdbcc40f1cb93b6faaeada7fed7020ce5a20"
+        }
+      ]
+    },
+    {
+      "id": "execution-control-readme",
+      "path": "references/coding/layer-01-fundamental-concepts/execution-control/README.md",
+      "title": "Execution Control",
+      "source_sha256": "3623413d46d2fa43273365cb06dae70d5254e65ba83ace350466ebbc005cdfc2",
+      "fragments": [
+        {
+          "id": "scope-and-boundary",
+          "kind": "section",
+          "title": "范围与边界",
+          "anchor": "范围与边界",
+          "sha256": "70d31a1b24b369eb593662880092134ce4b239fdbcd3c9b731fb53162f8c3731"
+        },
+        {
+          "id": "entry",
+          "kind": "section",
+          "title": "入口",
+          "anchor": "入口",
+          "sha256": "e8ca71af38f2a679efb9ef04d412e024c40dca79055e53241a813bca773b6a8f"
+        }
+      ]
+    },
+    {
+      "id": "execution-control",
+      "path": "references/coding/layer-01-fundamental-concepts/execution-control/execution-control.md",
+      "title": "Coding Execution Control",
+      "source_sha256": "2024d1952117c7d87f70f91f50e96edb0bd3dc109dc96aa871bf6bdd30c66de2",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "c8da72a98487cbd344fa4d057ee21c538a8fa908cec4212e38a8adcea87ace3d"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "80797ce6028f3a9e80d333123c42c52ef1b304319d8d3e7dc29df8f133bc0e1e"
+        },
+        {
+          "id": "interaction-slice",
+          "kind": "section",
+          "title": "Interaction Slice",
+          "anchor": "interaction-slice",
+          "sha256": "98b4afa0cfb2f1c083ba1a9475d96f85932d86a8f52db0145d622ab60a5f9f66"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "Slice 顺序",
+          "anchor": "slice-顺序",
+          "sha256": "133239db9c9818e0b7f0fb2e0be1b34cd5ef6e76b4b64d8a1e161a1ab3187d8c"
+        },
+        {
+          "id": "control-checkpoint",
+          "kind": "section",
+          "title": "Control Checkpoint",
+          "anchor": "control-checkpoint",
+          "sha256": "dd4311c2482c46f2b118c9de2fe14fb8ec7f5cf36ff9b62d17f6dc0a13c4e014"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "bb807f4693a0b58ce5257d076da099764e93d9039cab0f8a7791a70784923040"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "73da9a3dc14f44044c245748612b0ea45e6ef2f28cb84781190487b7c81d9e7f"
+        }
+      ]
+    },
+    {
+      "id": "execution-stage-feedback",
+      "path": "references/coding/layer-01-fundamental-concepts/execution-control/execution-stage-feedback.md",
+      "title": "Coding Execution Stage Feedback",
+      "source_sha256": "db2efde6409a9ef7f18a872d3dc709285b3266c030487092a838ea4aa3ae18db",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "f0d2a6b131fe2bbcc8e83ab6a7bf0e76ba5d382abcd26f16802cec7c26ffcb5a"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "2615893f997f336d4e74e782084a48d16865a93208b0b2e285ac6f134469d3fa"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "有界阶段",
+          "anchor": "有界阶段",
+          "sha256": "0201c2f918ee6878538578d8f3a00a60b9952e162bcc09520f26218b35804a8c"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "Progress Signals 与阶段反馈",
+          "anchor": "progress-signals-与阶段反馈",
+          "sha256": "b6f72a9770e7efacbb53fa5f4e916c7024327263b732654afee2d2c6c1732dbd"
+        },
+        {
+          "id": "section-03",
+          "kind": "section",
+          "title": "反馈使用的共享计划证据",
+          "anchor": "反馈使用的共享计划证据",
+          "sha256": "9a5ffa3b1083dad89e767c0e7d106958dd035013a2d6baaf09dad51d0c96d173"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "bb807f4693a0b58ce5257d076da099764e93d9039cab0f8a7791a70784923040"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "8409168c06a8a7c8b1ade001cfd4de82203775f99706b8307de2fdddaa2cc395"
+        }
+      ]
+    },
+    {
+      "id": "execution-planning-index",
+      "path": "references/coding/layer-01-fundamental-concepts/execution-planning/INDEX.md",
+      "title": "Execution Planning 索引",
+      "source_sha256": "30f8ac182d2846c771cf6b2d1cd96ad58d13cbe63dfa58e3be95795ae3ffcc72",
+      "fragments": [
+        {
+          "id": "owners",
+          "kind": "section",
+          "title": "所有者",
+          "anchor": "所有者",
+          "sha256": "3f19ef082f8c0a1dd75c6e8150da99ba27f7b91622525e8576ac504d9255cbb5"
+        }
+      ]
+    },
+    {
+      "id": "execution-planning-readme",
+      "path": "references/coding/layer-01-fundamental-concepts/execution-planning/README.md",
+      "title": "Execution Planning",
+      "source_sha256": "a7a3f7d3c6120fb3e03b1b8b1001395890683ae90bb93e22a521f3c61a73e6d7",
+      "fragments": [
+        {
+          "id": "scope-and-boundary",
+          "kind": "section",
+          "title": "范围与边界",
+          "anchor": "范围与边界",
+          "sha256": "04b043e146eb24c68812c6c2e37bf8d3c9522dfe76ef2468ef25e7a95b8cb868"
+        },
+        {
+          "id": "entry",
+          "kind": "section",
+          "title": "入口",
+          "anchor": "入口",
+          "sha256": "16fdb7d44b3a635b1b9ecce98922fee9f0e041d854913f5b29106c94bfbade74"
+        }
+      ]
+    },
+    {
+      "id": "candidate-compliance",
+      "path": "references/coding/layer-01-fundamental-concepts/execution-planning/candidate-compliance.md",
+      "title": "候选变更合规预检",
+      "source_sha256": "2057c0eb1062c9ddeebf1850c9632ca2583ba7b66f13cccf6a6a2294a2aab999",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "ec1b691f391ce51f7e50ef1bf573eff27c1ebee00df82d310d49d20520aec014"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "b21be8b00bae49dca266ccf8dcc1c273e96bc70474b29c9305c0c4d659c235ce"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "对照可信的当前状态检查候选内容",
+          "anchor": "对照可信的当前状态检查候选内容",
+          "sha256": "3e1d81c7b99a789ee531d33046699c151d859b0b5193bafd7603c7b6abc254a9"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "c9ba2f6f9791cf2ebf071c1b0ef3632325e09dee59e92f2abc1bb2ee5991b47a"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "a92f87d07eb2a016d54ef055bc27de2a2c2b2d3be111dd61871c8ee9228f01e0"
+        }
+      ]
+    },
+    {
+      "id": "decision-context-generation",
+      "path": "references/coding/layer-01-fundamental-concepts/execution-planning/decision-context-generation.md",
+      "title": "Coding 决策上下文生成",
+      "source_sha256": "8600a614daf76f03c69bf3a45632658c218d63f765bd5aa38f8262dd8665553f",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "50c76a0be033bdd95f6c928b65b48e03da4320e8e7cb9e79afa410066dd48c19"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "3bd188173cde1fc1cffb75e9bd924df3197aca02303d585ed27f17e9bebde377"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "来源和 provenance 边界",
+          "anchor": "来源和-provenance-边界",
+          "sha256": "84be7032f91a5c2590c15e0049a39aafefbb670841c4e50c4d8effd7b7965fb8"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "输出形式与审阅",
+          "anchor": "输出形式与审阅",
+          "sha256": "0d6e28e54b1dda402b25ae18f86576587cf798d81e7c1928895a4b2d012f0bfa"
+        },
+        {
+          "id": "section-03",
+          "kind": "section",
+          "title": "生成指令",
+          "anchor": "生成指令",
+          "sha256": "1e8e7853d6ef1b38fd8463b7e7dd7e21ce5bad775716db2a2946d55a9054a6d7"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "529fbc54a5b808ff8aeff5b2ca98c0f9c508c042af4b8fc7f3ae98c38cb0846c"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "a3883e0f9ecbe21882a21330e4613bdd2194f9f2a348d1a79016b54516e86c9e"
+        }
+      ]
+    },
+    {
+      "id": "decisions-advisory",
+      "path": "references/coding/layer-01-fundamental-concepts/execution-planning/decisions-advisory.md",
+      "title": "Decisions 建议",
+      "source_sha256": "94fa67cc0e8b3a81dc7cb51b3ad60b8fb2671f4906c310eeb6d9f4e012837921",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "5bf60dbc52d7d032bc4dbc42bfda2bb0d34ce0cdfe686dcc708f75354fef990d"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "cfff73aa68c831cf23f5f95573fbb3ea07b8035962ea3affe23b55932520dcfb"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "保持建议与判断和授权分离",
+          "anchor": "保持建议与判断和授权分离",
+          "sha256": "8afd13db2d2fa950cc10259ff05b37b8fea8300a3304f5005d7b166830954a2d"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "保持 API 选择加入且配置按调用读取",
+          "anchor": "保持-api-选择加入且配置按调用读取",
+          "sha256": "d87553d2dabb89cfcd56bdc3d516477f1981ea37748d340ef68b58f98b6a75fa"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "9f26a8d01299becadb3256199fbec70550a2deb8222755ea70f0a9b5ff0f1287"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "ba08e7ddd71e3b85f28bd688b740ed06f8f6d90e2eb4a48502f4fc80e7d42ba8"
+        }
+      ]
+    },
+    {
+      "id": "execution-decision-gate",
+      "path": "references/coding/layer-01-fundamental-concepts/execution-planning/execution-decision-gate.md",
+      "title": "Coding Execution Decision Gate",
+      "source_sha256": "3292a4d966b2ac5ef78db958903a8d4f53b4628c064819f290ee09ace8fe4d65",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "485c9a46f1bc882b33c1dab5ace156a8fd0f28176d393b33ab37735f28d8afb9"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "7cea776ee9e52d6eec72f4d86c2db908310b92c4ae10ad4b45102f9643d4fcd9"
+        },
+        {
+          "id": "decision-brief",
+          "kind": "section",
+          "title": "Decision Brief",
+          "anchor": "decision-brief",
+          "sha256": "cdaa86ba9c85be6596e91ad845181c5040724883c801aaca24be6b1ed8984597"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "Decision Checkpoint 与实现放行",
+          "anchor": "decision-checkpoint-与实现放行",
+          "sha256": "679309659d48133fc8c33114a3aedf213fb4593a31ed34a13b1ed0ad51df3c2a"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "aae21fe3010f3de454a31d26ab92880fb7c1aa07eab2ccdd71720da911ad7ad1"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "d53997af10c625ce5ba900cfdf16569ea985570355090ad19164e908c820993e"
+        }
+      ]
+    },
+    {
+      "id": "execution-planning",
+      "path": "references/coding/layer-01-fundamental-concepts/execution-planning/execution-planning.md",
+      "title": "Coding Execution Planning",
+      "source_sha256": "7a1590e13cba8caaed3d4b29a410fd9a1afbba256543225a446f87b2291f6299",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "99bfd532c335faeadd85846d6295037476f63f97d71b0d7f5430f2f5f14b4b0c"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "8093dbb5dbb47eba8074a1093738c42c8708e998ba1214decac093ba873ce988"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "两级规划",
+          "anchor": "两级规划",
+          "sha256": "a7f6123e1c5a4f0b9f3737c2908894c0d5257f357d8ac325a39b5dfea9af4281"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "从 reconnaissance 到实现放行",
+          "anchor": "从-reconnaissance-到实现放行",
+          "sha256": "60a516d97d8e62fe43b0d99dbf60519b512c2bf183b0ede5f44e86425c2f2e96"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "1860b96c56a0054bba169c4f8cd91fedf16a773ed21137e09707fad3f0a11efb"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "f366aa2a4b5a8823e71df36ead2872074b875a20e13d48847088acf950f0c8fd"
+        }
+      ]
+    },
+    {
+      "id": "output-materialization",
+      "path": "references/coding/layer-01-fundamental-concepts/execution-planning/output-materialization.md",
+      "title": "输出物化",
+      "source_sha256": "035f36e447237049a61f89849b4ea5645b03e81b14053335ebb54800fdec73a3",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "fab693daa58d8d7a12c1eadd955907192071d54e92f8816d54d02f7f9cf61089"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "d60a4ae0beb1c96cd1b18b00c51b13c21beaf0cfd79a653c39b905122dd6c493"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "区分准备、审阅和应用",
+          "anchor": "区分准备审阅和应用",
+          "sha256": "becc8c4b8eba56c358733cc1ff962ef910d82dcc693c8b2569f2e10ceb28b422"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "6567cfaf1fc0dcdf62bad0b1fb8d0e062ec28828a927b333953018ada5e09591"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "2ca551342f5dc7a6f7ca85d5f78c6c3e4f802ef51324ff210636fe2b45be51dc"
+        }
+      ]
+    },
+    {
+      "id": "output-token-routing",
+      "path": "references/coding/layer-01-fundamental-concepts/execution-planning/output-token-routing.md",
+      "title": "Coding Output Token 路由",
+      "source_sha256": "0715335b6225d6e9cc2f9e176a920053e8b86855976d3f035fe73681b009212c",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "b1e6971c7bf9db9ca76b7e4f10e553ee98d6a344713ccc1ff71cba6de574a196"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "0aa5a5dd7986aee045ff189baaf19126b61161d307f68e4147abaf9e5ae50a97"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "独立的大输出判断",
+          "anchor": "独立的大输出判断",
+          "sha256": "0887a43d51e8051daae22d500af70db78869a6b0d8d3f7c017edfd42910eda32"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "Output Token Decisions 指令",
+          "anchor": "output-token-decisions-指令",
+          "sha256": "cf028ddc7ef461245634fd56984ddd23e121fd552f8a2a3ce3334c6df58bf79b"
+        },
+        {
+          "id": "section-03",
+          "kind": "section",
+          "title": "Output Token 选项说明",
+          "anchor": "output-token-选项说明",
+          "sha256": "24cf4dc91d5f557792324a0079e4364b8195afc71e69681e3f176370d2900efa"
+        },
+        {
+          "id": "yes",
+          "kind": "section",
+          "title": "yes",
+          "anchor": "yes",
+          "sha256": "72a7770f9a5c9b0fe6b372fe307bef71c13b5bfd519dc5c1bc37b6019b4ef005"
+        },
+        {
+          "id": "no",
+          "kind": "section",
+          "title": "no",
+          "anchor": "no",
+          "sha256": "45eedb6675148095a72c89a9bf3e6e2c003976e92f94e2657290af94cacd1979"
+        },
+        {
+          "id": "insufficient-evidence",
+          "kind": "section",
+          "title": "insufficient_evidence",
+          "anchor": "insufficient_evidence",
+          "sha256": "19a5948af15d7b8e8b54141ef7ae3b30b6e3342160baff18ad45d7806077776f"
+        },
+        {
+          "id": "section-04",
+          "kind": "section",
+          "title": "操作边界",
+          "anchor": "操作边界",
+          "sha256": "5b93eb57201afb73586232f2caf07cc0c7c3e05b9db1c2a94e0486ee4c5ae31c"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "d196ca5741cd88de8cdd95c0e6c16d06af1a0c8e7e1d83a0d5472ced659b3e0e"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "4746eaa6d303c3f9ac18b6f9243544733caee520be2c105bc0118d6cb06983cf"
+        }
+      ]
+    },
+    {
+      "id": "task-assignment",
+      "path": "references/coding/layer-01-fundamental-concepts/execution-planning/task-assignment.md",
+      "title": "Coding 任务执行主体分配",
+      "source_sha256": "3c40f836f971435ae9e11b1d63d34d8b92fb4fd2e23c8b649274868005ef7bf0",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "76e0c56960c2fdc257bcb3d548f23a59c5332e3ccdd832572ff763d5ed5910cb"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "0d903bcca93dad275bcd4c871cb757255c49b77580232f84ec744c660ec2cb2e"
+        },
+        {
+          "id": "assignment-boundary",
+          "kind": "section",
+          "title": "分配边界",
+          "anchor": "分配边界",
+          "sha256": "c9c9fe7306d662fa7a0e3f42f11da0a128080bf624d9dd6e65260bf23048d8f2"
+        },
+        {
+          "id": "executor-advice",
+          "kind": "section",
+          "title": "执行主体 Decisions 指令",
+          "anchor": "执行主体-decisions-指令",
+          "sha256": "96e326885acf301c5126f8b8194a6853b6ca91317d04b19b0e5c2fef69aedd28"
+        },
+        {
+          "id": "executor-options",
+          "kind": "section",
+          "title": "执行主体选项说明",
+          "anchor": "执行主体选项说明",
+          "sha256": "40873bb8bf96b6d3fd343ff3b9de147c119b635dba81997cce8f398bdd5d55a7"
+        },
+        {
+          "id": "root",
+          "kind": "section",
+          "title": "root",
+          "anchor": "root",
+          "sha256": "329f545e80d8d971ec5d6a1d2208c9c4ef53e321c696fe14472349ee36da66f8"
+        },
+        {
+          "id": "sub-agent",
+          "kind": "section",
+          "title": "sub_agent",
+          "anchor": "sub_agent",
+          "sha256": "a8b4989f88f3d194758f91b7b2665051c02a2364676687ed5b1a58716315b715"
+        },
+        {
+          "id": "insufficient-evidence",
+          "kind": "section",
+          "title": "insufficient_evidence",
+          "anchor": "insufficient_evidence",
+          "sha256": "fd491db357ed05a7c27a91086540b693f221a97f865f321dc21ae5e0e8d9e01b"
+        },
+        {
+          "id": "subagent-advice",
+          "kind": "section",
+          "title": "子代理选择 Decisions 指令",
+          "anchor": "子代理选择-decisions-指令",
+          "sha256": "537b770549dc73614fc25d0759a86fd729ed78ab38393c8fb14d59b0f018cd9c"
+        },
+        {
+          "id": "subagent-options",
+          "kind": "section",
+          "title": "子代理选项说明",
+          "anchor": "子代理选项说明",
+          "sha256": "35a1b124bd05e8fc7fa5ddfa338b09974792c6954394556a90d9ab4f14224fdd"
+        },
+        {
+          "id": "insufficient-evidence-2",
+          "kind": "section",
+          "title": "insufficient_evidence",
+          "anchor": "insufficient_evidence-1",
+          "sha256": "7f3f0773e816c46f170634e09238f5bb70cc3dbf364e45fcd28afcc590efa397"
+        },
+        {
+          "id": "review-boundary",
+          "kind": "section",
+          "title": "审阅与操作边界",
+          "anchor": "审阅与操作边界",
+          "sha256": "4f4f923cd0f791c78e44764566d3eed62347aabef34f50770caeabf18290893e"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "285db5fd75e05e4f1bdc20fd7c03dd0d34494643283caa2d84cfe60468a7879d"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "67f1d9fa3251b8d98c58339e131880d792b7c3e54533361607e5bad4a71ea111"
+        }
+      ]
+    },
+    {
+      "id": "task-plan-memory-lifecycle",
+      "path": "references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md",
+      "title": "任务计划 Memory 生命周期",
+      "source_sha256": "88703d01b8d0e10c70fbd7118610a80a4a2af03a08bd19901b0a09314a1b8777",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "44c0b7b5b43f8838045e31e04cf670ef22bd3cdc40a80c25346c08c444bc7446"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "6913c79af999ccbd09c878fbb734fad66d3acdbb58c32b328cb6c7ceb5525d77"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "默认任务计划",
+          "anchor": "默认任务计划",
+          "sha256": "5794f6e64b026c8dd2768260f2947edb09b3298a2d39ca6c7bc54b9943dbd4e3"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "名称、存储和初始证据",
+          "anchor": "名称存储和初始证据",
+          "sha256": "14ed930eb43d16953c664241b639170b56c30e2c6c8608b491e0ebca0eab43fd"
+        },
+        {
+          "id": "section-03",
+          "kind": "section",
+          "title": "计划内容",
+          "anchor": "计划内容",
+          "sha256": "77d1a805bbdf18cd52bb0f9cbc1c3b7f5873bfae1eb69eff9cce4978729081e9"
+        },
+        {
+          "id": "section-04",
+          "kind": "section",
+          "title": "计划更新的内容保留检查",
+          "anchor": "计划更新的内容保留检查",
+          "sha256": "4943e3fa651af92eff596aa3ea38abeaba74cb70f9d95fb87882bad9f621514a"
+        },
+        {
+          "id": "section-05",
+          "kind": "section",
+          "title": "更新边界与依赖动作",
+          "anchor": "更新边界与依赖动作",
+          "sha256": "60d3b34ada6f3202c6992e7cdde7bc5a9e9cb7af92b3dbbf4762b1ed0652073f"
+        },
+        {
+          "id": "section-06",
+          "kind": "section",
+          "title": "共享访问与更新协调",
+          "anchor": "共享访问与更新协调",
+          "sha256": "1689004b73124411fe904277cb60bd8f98ddd4f616c32c5efa4634a47a69ec7c"
+        },
+        {
+          "id": "section-07",
+          "kind": "section",
+          "title": "完成与归档",
+          "anchor": "完成与归档",
+          "sha256": "dd25ec637571874230ffcc3ed1f3c47401f1034aca4c4da59b227ef16c2c5a49"
+        },
+        {
+          "id": "section-08",
+          "kind": "section",
+          "title": "内容保留验收场景",
+          "anchor": "内容保留验收场景",
+          "sha256": "a311c6018fa321c4552ff861756fafc52512aacd9047ec53d205764ecea8ac23"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "fb379df60b86085c46a91dd099b44555695229d81dab057c17c41108e0099d49"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "517c3102660d9f6b2e22756569c81480060728f658b5588c77d8be189f923ddd"
+        }
+      ]
+    },
+    {
+      "id": "workflow-module-contract",
+      "path": "references/coding/layer-01-fundamental-concepts/execution-planning/workflow-module-contract.md",
+      "title": "Coding 工作流模块契约",
+      "source_sha256": "9c37bcbf4e441f7652b9521f17f31f95d0ba213eb72093696f344ce692193f8c",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "6e52da676ed437ab6083dec14751bdb303d70d4c48db17be0c57cff72f19e562"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "5de145b94a764c0dfb8c54df89900a830ab528d37dd66b8c5e5808199cd172fc"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "模块声明",
+          "anchor": "模块声明",
+          "sha256": "a587234fe3cd69748533d2deaab75e672e5bf7299e9f15341ab7fcb57a21b211"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "结果与恢复证据",
+          "anchor": "结果与恢复证据",
+          "sha256": "bca716d7639ae87642ffeac5d3e6ef4f81c9129b626d7959ac21afd45da7614b"
+        },
+        {
+          "id": "section-03",
+          "kind": "section",
+          "title": "调用方边界",
+          "anchor": "调用方边界",
+          "sha256": "b9361f84dd8fc860f0ae74e317041bdef2b25cf68daa5b757ed9223224bd3bee"
+        },
+        {
+          "id": "section-04",
+          "kind": "section",
+          "title": "共享任务计划依赖",
+          "anchor": "共享任务计划依赖",
+          "sha256": "2ddcfda701551c959dfb7dd1de2faff54a5339828970a9e1600a2d3d7226e4c3"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "8c4817558ce1aa780e5651d3e218deb03c751c782bae579bf2edcfc23eac86fb"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "49eb45e21c52a3b625b94086f33680936b5b2aa7598cfa376d1b4c638a5253e1"
+        }
+      ]
+    },
+    {
+      "id": "workflow-routing-advice",
+      "path": "references/coding/layer-01-fundamental-concepts/execution-planning/workflow-routing-advice.md",
+      "title": "工作流路由建议",
+      "source_sha256": "2f3c70a8a9bc25f0d68dd0da1428dce1072c20d572b916d1cf49f22e1155a70b",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "9d9718b3c692658cf253843ebffc26e094e33b9c3bc41db31f175cf4d2eef8a6"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "b32a9b34b4c605fb357ef395fccfabe6f4075df38cc28990f1b56d4f3b978cf8"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "建议与判断和授权分离",
+          "anchor": "建议与判断和授权分离",
+          "sha256": "4ad5e13e0d0e56c2593997cd3f46ad4889f49cf9cd63915de9a8754376d79a85"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "路线边界",
+          "anchor": "路线边界",
+          "sha256": "89843648e836d517508ffba2aaafc33c997582681c6e5413931d872edb94a2c6"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "2d17be9e036e455036520a80d203d823a27e241ce3e13a6f740caf073d8030e8"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "7d4f377f059425152d81607e4276ece1c687bd76c844fd866579d1ddc5063562"
+        }
+      ]
+    },
+    {
+      "id": "session-runtime-index",
+      "path": "references/coding/layer-01-fundamental-concepts/session-runtime/INDEX.md",
+      "title": "Session Runtime 索引",
+      "source_sha256": "ed324f9ea8a623934112de0792ba10ed91fe10ea17784f462e5b48f0deae45c2",
+      "fragments": [
+        {
+          "id": "owners",
+          "kind": "section",
+          "title": "所有者",
+          "anchor": "所有者",
+          "sha256": "eaace4d667c599eeaf6c14e64b53023412d6d65b11795a77daf02daa963e394a"
+        }
+      ]
+    },
+    {
+      "id": "lsp-mcp-tools",
+      "path": "references/coding/layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.md",
+      "title": "Serena LSP 与 MCP 工具",
+      "source_sha256": "f27693bbae71b11802c5bfccf08b42b334a43452a97cfa4d6856cfacc095bd4c",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "d5b065952dabb563a9845fd6de9ab28346e71c2fbdaf9c1d8cd3255d6f8ed1fc"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "5ad5e2cde4775fd1d1dc8e081973a4b6f8584ed1bd89821d800b51682d64ce50"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "激活项目并结构化浏览代码",
+          "anchor": "激活项目并结构化浏览代码",
+          "sha256": "7ff57068a3032e20343b76aab3f69f6e4b78ccc7b442f4eaae6c914b62a9104d"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "读取和写入可复用项目 Memory",
+          "anchor": "读取和写入可复用项目-memory",
+          "sha256": "944d44c76fc0fc8cae24fe2d94c0da3507b24d1d0f1c1bf3a22fd2731b9b1a9c"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "5bb42ee3a47b661186e4f05d23881c3fd176567ff546be02ca8970f40b26b566"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "1594941dd34d1992d3b764b18a3475f9e9a7b911d07f1b78b20211e2b13969a4"
+        }
+      ]
+    },
+    {
+      "id": "session-runtime-readme",
+      "path": "references/coding/layer-01-fundamental-concepts/session-runtime/README.md",
+      "title": "Session Runtime",
+      "source_sha256": "cde97b4ea09cebc32f287b52033c9f9e96cce1fe35fb8b790ed227a6edf4412a",
+      "fragments": [
+        {
+          "id": "scope-and-boundary",
+          "kind": "section",
+          "title": "范围与边界",
+          "anchor": "范围与边界",
+          "sha256": "0c083822247945b9f4f38480ead09d75c8ccf003977997de3eb4622b6d6ed8a8"
+        },
+        {
+          "id": "entry",
+          "kind": "section",
+          "title": "入口",
+          "anchor": "入口",
+          "sha256": "d214e510193c2144f42047adc5e16c3a91ac790087126e903a351848c06539c2"
+        }
+      ]
+    },
+    {
+      "id": "reasoning-summary-visibility",
+      "path": "references/coding/layer-01-fundamental-concepts/session-runtime/reasoning-summary-visibility.md",
+      "title": "Coding Agent 推理摘要可见性",
+      "source_sha256": "788dc9cd97ec21aeb17b48adeaaa69636e6ee0e1b1e507e2515b0e857be068bf",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "7ffdb434363a94ed422d7725054b322c96f526b1a56abc911cbcc9dddf08d4ae"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "4c646ea6f2bdba36439649ac4a3764b12e7994f9be6b384de4688502ab00463a"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "摘要边界与内容",
+          "anchor": "摘要边界与内容",
+          "sha256": "166a74005711fdff8b0cfa274da900344e4084768c829f379c805e1735fdb141"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "固定可见格式",
+          "anchor": "固定可见格式",
+          "sha256": "c3adfc0b3b0d779a28ad65cca6af3d9beeadfb27d615448002246be9d9bbf75c"
+        },
+        {
+          "id": "section-03",
+          "kind": "section",
+          "title": "与其他证据的关系",
+          "anchor": "与其他证据的关系",
+          "sha256": "d349e73768dddea28d2044e2e7ef117379a62cc6ad1b3657a0b9e3116e8d9eae"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "29cb62b354f2260d7d81519c03e6e9507388165cc0088aff8aaf372107d2b616"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "616762696f36d1e8057c31ccd1e4b57466151ef594b968c2603aee032515ff65"
+        }
+      ]
+    },
+    {
+      "id": "runtime-provider-support",
+      "path": "references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md",
+      "title": "Pi Coding Agent 运行时与能力边界",
+      "source_sha256": "c0689fb739db5a6103e1d729b15285b91ee4b3b58812cfb95a0ecdda201b9903",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "194218d6c3fbae315121c90bde0c9cfc1b5080d8fdd7aaaba8175028d8874292"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "8a1322d4a5a68daab967775f32682f3cde8403f5e256163ab4de0c0395ccda0e"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "单一运行时目标",
+          "anchor": "单一运行时目标",
+          "sha256": "7339881c292e69a9c2ca44cf364b8d9c832841ca62ce490811488c20c775102e"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "模型与 API 请求相互独立",
+          "anchor": "模型与-api-请求相互独立",
+          "sha256": "0bf972b819d03127634ce23110bd2236af1b2f3b46a2696036b3b64716f9b5c7"
+        },
+        {
+          "id": "subagent-endpoint",
+          "kind": "section",
+          "title": "子代理端点跟随 Root",
+          "anchor": "子代理端点跟随-root",
+          "sha256": "25d7bf0fd0348cdb8ce229ed43bd2e4a6646e1d58ecf9fc28c8540a4973bddcb"
+        },
+        {
+          "id": "subagent-models",
+          "kind": "section",
+          "title": "子代理模型与推理强度参考",
+          "anchor": "子代理模型与推理强度参考",
+          "sha256": "1776e99eb8de660f466d202ad08fb52898aadeb44adcb9da48b955c05864de4f"
+        },
+        {
+          "id": "section-03",
+          "kind": "section",
+          "title": "不可用能力与禁止操作",
+          "anchor": "不可用能力与禁止操作",
+          "sha256": "227b03d16470f6f309e6595a088cd1f042793953d2db98143fb1f73b1446a2a4"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "8ada1d66bf7deb1d4e3d84e073992b36e88f153edea0e46b931a59825ab8c1be"
+        },
+        {
+          "id": "section-04",
+          "kind": "section",
+          "title": "渐进加载与工具调用",
+          "anchor": "渐进加载与工具调用",
+          "sha256": "688b5891f8694b60a184850d2a4f9c814298157bf2359c5f6d42e1262d7b733e"
+        },
+        {
+          "id": "section-05",
+          "kind": "section",
+          "title": "多代理由实际扩展提供",
+          "anchor": "多代理由实际扩展提供",
+          "sha256": "f91ab855871438f35c8dcd7bc5faf33e7a94d71ce0c73085282f9d2646741523"
+        },
+        {
+          "id": "section-06",
+          "kind": "section",
+          "title": "thinking 与子代理设置",
+          "anchor": "thinking-与子代理设置",
+          "sha256": "824e7ca4afbc4665653ba07e9558230b25f885f1227e6c9ffd5fad5f3edb9d9f"
+        },
+        {
+          "id": "section-07",
+          "kind": "section",
+          "title": "加载更新与能力复核",
+          "anchor": "加载更新与能力复核",
+          "sha256": "b405d269e5c4773c8c547d0a8409dcda44e542cb394638840452f69396130ae6"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "3cd773c28be908492bf0ad3eaf74dfada881fa5f6c58d021e28cab4ff4780997"
+        }
+      ]
+    },
+    {
+      "id": "session-audit-visibility",
+      "path": "references/coding/layer-01-fundamental-concepts/session-runtime/session-audit-visibility.md",
+      "title": "Coding 会话审计可见性",
+      "source_sha256": "cc9fd2ba741c67f341e92ecf87064093ded97fdf7f14b952e6caae0c6540195b",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "69ee80b5e13357d93d0774e90f4504afc5ee025f24d8c511678fb5239ccd4224"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "f598b625ff1a1c0e1694acc38ded7708b61034a9a351e41c520755274ed9a082"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "配置值",
+          "anchor": "配置值",
+          "sha256": "caf5e337ddb9d01c71b717b2964500cdade5763989e7ed801040ff62a2c64ea6"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "可见副本预设",
+          "anchor": "可见副本预设",
+          "sha256": "f34b38f8c505b5af67e73201a14420275982b1a6df180c2be41f4ee01abe4824"
+        },
+        {
+          "id": "section-03",
+          "kind": "section",
+          "title": "`balanced` 全文展示触发条件",
+          "anchor": "balanced-全文展示触发条件",
+          "sha256": "fa6a05e24c4e957a0c92b4cf311c5fb05bc0a5e1b5d0c3f5e319a0b98d15740a"
+        },
+        {
+          "id": "section-04",
+          "kind": "section",
+          "title": "Worker 日志可见性",
+          "anchor": "worker-日志可见性",
+          "sha256": "2275575e43375684b8243faab815c85ece30e5b75d55c8e879f31b03e789d906"
+        },
+        {
+          "id": "section-05",
+          "kind": "section",
+          "title": "摘要频率",
+          "anchor": "摘要频率",
+          "sha256": "b9c8baa3770dd4a2aa763e5de23a2a9ebfba5fc5ca91fc54de124d62b99ab0c8"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "d0407e34388b6f5292096cd2623a655b2f00589d441e50d8e6b37a3cafa643f8"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "a14378e61581aeb1a81213ea5af033aa9f82abcfa979075a31c2d85230248c9f"
+        }
+      ]
+    },
+    {
+      "id": "session-context-firewall",
+      "path": "references/coding/layer-01-fundamental-concepts/session-runtime/session-context-firewall.md",
+      "title": "Coding Session Context Firewall",
+      "source_sha256": "da8e85e0be9b8d2cbd02344489011736280b15c22a176654f9ebe267b0475a72",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "bae11c5c457965ff7c3551aade3be946916f024e83fd1766ed14579a974bf326"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "9e4799e2990d16ea71e34bb5123e264d9efe045f0760922dbb17a61d1b30a8e9"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "原始状态进入",
+          "anchor": "原始状态进入",
+          "sha256": "f922d223dc52bddee69d06f7963eaed9bfc5f5579b63f944d32a1ba915e65040"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "语义 ownership 和临时定位",
+          "anchor": "语义-ownership-和临时定位",
+          "sha256": "79c092f0a613b81a956dc936600b83933901e9492337bfc3f7ef8455a923f347"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "dcd61f82718b3efb63e16fefead7e18fdfcb7416cca16a013c373294f2d10726"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "909936357b707fc866c19171addbac4d1d5305d28c5d7830b6e79c9b067ebced"
+        }
+      ]
+    },
+    {
+      "id": "session-model",
+      "path": "references/coding/layer-01-fundamental-concepts/session-runtime/session-model.md",
+      "title": "Coding Session Model",
+      "source_sha256": "a4184e30b09c4b0cdc9f1c357f35180fa75f35c5fd91c1886b33ecf8c572cff9",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "4b36891b30ec6af6bde3fdb1ea421ef109d27629ca0ae372cb0466e3001b4329"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "c0f2fb80fe7aa39667c2ad47f46a3e90f0274ba730034f684d65574be9842ced"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "Session 语义",
+          "anchor": "session-语义",
+          "sha256": "174689c8ad22b749524f45a2e0b803537a4f124e0aacba452c2ed9137480dbbd"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "Primary Execution Session 与 Affinity",
+          "anchor": "primary-execution-session-与-affinity",
+          "sha256": "31b5b1b0032f24f5b444bf48f7c1de38fd07c3b75310802df514ddcfdea02569"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "ed4adc3f70124610f1d6548ac1091623ca99acaafcef869589dc0a2739a20164"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "030def3df220bebb8ca75c55605cecd705e5362c66c30838d48bc5094f6ff907"
+        }
+      ]
+    },
+    {
+      "id": "session-role-ownership",
+      "path": "references/coding/layer-01-fundamental-concepts/session-runtime/session-role-ownership.md",
+      "title": "Coding Session 职责归属",
+      "source_sha256": "2e9446769455f78bdc3d87a99eabd19a264308f50c4be6f8b2b320116873deac",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "d14e13ee356fd3f061098341b226a06a26bc61cf57340ce6facbb489d97a0942"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "50087496b0a29bc2d5a6d1e93feeef401adfd1aa6cfaf500b025a5f1d2a0f7cc"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "输入侧推理 Agent",
+          "anchor": "输入侧推理-agent",
+          "sha256": "a1128a6ae7b667d85910a92a133640bc72a9bf13a0ba76b9672a21892a46b8da"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "Primary 输出角色",
+          "anchor": "primary-输出角色",
+          "sha256": "239ef02d09ad24c31f4569136bd26729cf5ff1bda5602cec4b0533702fae3048"
+        },
+        {
+          "id": "section-03",
+          "kind": "section",
+          "title": "Context Bootstrap/Refresh 职责",
+          "anchor": "context-bootstraprefresh-职责",
+          "sha256": "b95f4708d9a5c6d7a953ff8a3c437fd41548a78c261d08f49264f722f8b1f65b"
+        },
+        {
+          "id": "change-verification-agent",
+          "kind": "section",
+          "title": "Change Verification Agent",
+          "anchor": "change-verification-agent",
+          "sha256": "5fb97529c53665c8399d3759dd2ce93a8d4df0bf8c4fc6e940a815777e42d656"
+        },
+        {
+          "id": "documentationcomments-git-operations-agent",
+          "kind": "section",
+          "title": "Documentation/Comments & Git Operations Agent",
+          "anchor": "documentationcomments--git-operations-agent",
+          "sha256": "f70cb0a5843c4d8a9da83faa9ccd9f88aa5657f5071895fbf32fe89f45269e87"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "dd3da4845b54d93332ba6a15daa83faa5ca79a222a19164b6a1f22a66146609e"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "6f94710b73ae280f4f8d5d420d621614d58cf7e587ac389e92dd78646afffa48"
+        }
+      ]
+    },
+    {
+      "id": "workflow-navigation-index",
+      "path": "references/coding/layer-01-fundamental-concepts/workflow-navigation/INDEX.md",
+      "title": "工作流导航索引",
+      "source_sha256": "50a310beb2f226a5c531fc9f81c47a10b0ef81f49fae5fe98108db258dba8ea6",
+      "fragments": [
+        {
+          "id": "owners",
+          "kind": "section",
+          "title": "Owners",
+          "anchor": "owners",
+          "sha256": "03b9ee24de57981bd58a8668ae96e18df424a3b70e36cd5d7b473d93d32208ce"
+        }
+      ]
+    },
+    {
+      "id": "workflow-navigation-readme",
+      "path": "references/coding/layer-01-fundamental-concepts/workflow-navigation/README.md",
+      "title": "工作流导航",
+      "source_sha256": "2ebe8aedf48548a3cd248dc7541b4d0052bc39f267bfad16e096aa1cdbf99c95",
+      "fragments": [
+        {
+          "id": "scope-and-boundary",
+          "kind": "section",
+          "title": "范围与边界",
+          "anchor": "范围与边界",
+          "sha256": "b41548a846b4778593e6f0002d2df7dac4ac445ac6adeda35423f42d30a09a8b"
+        },
+        {
+          "id": "entry",
+          "kind": "section",
+          "title": "入口",
+          "anchor": "入口",
+          "sha256": "7b8e33e856d382247c861d7569507392c68b4425e66e47f68fe3d674e4e56488"
+        }
+      ]
+    },
+    {
+      "id": "checkpoint-structure-checks",
+      "path": "references/coding/layer-01-fundamental-concepts/workflow-navigation/checkpoint-structure-checks.md",
+      "title": "检查点结构检查",
+      "source_sha256": "f0884fae7c9544b5ad9ed32d524c0497cde8a86040f1f8b741cc9532291e396d",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "e70bb6676bb46200fa81858a076f786ff2a45cda7ca41ad50b8a1649f3579cba"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "2d75c312a32bed8899042e8fab2b011e46687dc5af9e93b03b8aece76b961184"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "将评估视为可选的结构辅助",
+          "anchor": "将评估视为可选的结构辅助",
+          "sha256": "69eaefd3e9fa19e2ae21f6d7d664e8382008188c9b65e712a3fe15350f771ea5"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "d2e29ea54b1be2e57117062ec631a103208ef35222fecf90e981f0353c3ac55f"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "546dc42d2249a2743c7308d8da6ef219eebe9235914694a53c441fb3031ab655"
+        }
+      ]
+    },
+    {
+      "id": "navigation-availability",
+      "path": "references/coding/layer-01-fundamental-concepts/workflow-navigation/navigation-availability.md",
+      "title": "工作流导航可用性",
+      "source_sha256": "1ede64d7a0f348496619400f8a51d7078d43571b083fe0d6127f649638d0e9d4",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "dcaa206c6e3c42ec850b6f3f5041e50394c79497d92d856dcde7730cb81203c9"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "85102ea911659076df2366e27c88c5df899e4cbe75cbf8d83c198c67b07dc3c8"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "7f0d6f90f204b6ebc15a6add5d9643f575f5e77fae4ec9400def2b6a590a723f"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "42e1314312cecfbe1ed8a980fa589724d3ea8a97dc96ac66fecde9b478914de5"
+        }
+      ]
+    },
+    {
+      "id": "rule-context",
+      "path": "references/coding/layer-01-fundamental-concepts/workflow-navigation/rule-context.md",
+      "title": "工作流规则上下文",
+      "source_sha256": "9639702377e2c1fb40e0911e3aabe36545403c1ec848574043755eec25490c76",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "8f568635f6ed58ac9b5f33ba190bf616c78dc0d4edd45fdd6d6876e241df6426"
+        },
+        {
+          "id": "rules",
+          "kind": "section",
+          "title": "通用规范",
+          "anchor": "通用规范",
+          "sha256": "734bf8118a2d706297e447dc4b9d91c35e6ad639a645c5bdc9833b5d83600b65"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "仅读取所需规则上下文",
+          "anchor": "仅读取所需规则上下文",
+          "sha256": "593734637bcf07fd968abeec5ce06a21d8072da122a54d178f5ac818f854ec40"
+        },
+        {
+          "id": "pi-guidance",
+          "kind": "section",
+          "title": "Pi Coding Agent 优化指令",
+          "anchor": "pi-coding-agent-优化指令",
+          "sha256": "06886fa3cbb2ee638beafde6d5b716ffe4b6f0cf71952880bbfd5128463c399a"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "92207a1ae0d9d6ae4f8a2c2d6742b055181e3a2c6bad210bd13a6f481c49dffb"
+        }
+      ]
+    },
+    {
+      "id": "layer-02-index",
+      "path": "references/coding/layer-02-workflow-concepts/INDEX.md",
+      "title": "Layer 02: Workflow Checkpoints 索引",
+      "source_sha256": "dcba837fbaa84911582e02a285cfb01d367b67207d710a42f1db6bf051b0b3da",
+      "fragments": [
+        {
+          "id": "classification",
+          "kind": "section",
+          "title": "分类",
+          "anchor": "分类",
+          "sha256": "5a75c6d5d9d7b2f7acf59ed10901097f4a801639dc4a64931fa5a607318528ab"
+        }
+      ]
+    },
+    {
+      "id": "layer-02-readme",
+      "path": "references/coding/layer-02-workflow-concepts/README.md",
+      "title": "Layer 02: Workflow Checkpoints",
+      "source_sha256": "cd3b8239fd3c564b930c0e99456f919460735caec7e6311f8815b97c435317c7",
+      "fragments": [
+        {
+          "id": "scope-and-boundary",
+          "kind": "section",
+          "title": "范围与边界",
+          "anchor": "范围与边界",
+          "sha256": "46af116cdec43fc0ab20f54098886eb06ef6252dc688853d25213d578f701ff3"
+        },
+        {
+          "id": "entry",
+          "kind": "section",
+          "title": "入口",
+          "anchor": "入口",
+          "sha256": "57e407a4c5082859969b857923a9289a685408e51385df1f1670c3cde97f2b25"
+        }
+      ]
+    },
+    {
+      "id": "completion-and-effects-index",
+      "path": "references/coding/layer-02-workflow-concepts/completion-and-effects/INDEX.md",
+      "title": "Completion And Effects 索引",
+      "source_sha256": "764bd4092b439cc179b3f1a17a513fc9e70f2634514e53f9c4d2a4e7cd966d13",
+      "fragments": [
+        {
+          "id": "owners",
+          "kind": "section",
+          "title": "所有者",
+          "anchor": "所有者",
+          "sha256": "17f791e3e4bb0c1eb8aabc3b1de41738dc465cb872f7f914a6ef21a01cca31d3"
+        }
+      ]
+    },
+    {
+      "id": "completion-and-effects-readme",
+      "path": "references/coding/layer-02-workflow-concepts/completion-and-effects/README.md",
+      "title": "Completion And Effects",
+      "source_sha256": "5dc2b1ab7e73d58367063166053865c1befda2f24d500aef35b94ece5814996c",
+      "fragments": [
+        {
+          "id": "scope-and-boundary",
+          "kind": "section",
+          "title": "范围与边界",
+          "anchor": "范围与边界",
+          "sha256": "1306d0d52b9b0a854c8349d957f8478c6c1d6661789acb31e587f8bd84d5718f"
+        },
+        {
+          "id": "entry",
+          "kind": "section",
+          "title": "入口",
+          "anchor": "入口",
+          "sha256": "cddce73186b74c92cf75be2a067c0bbdbb7689fe308ab2c52befa1bb74c0065f"
+        }
+      ]
+    },
+    {
+      "id": "acceptance",
+      "path": "references/coding/layer-02-workflow-concepts/completion-and-effects/acceptance.md",
+      "title": "验收检查点",
+      "source_sha256": "683dbfc06f09e639554d4c663949f572ba6a4f253af77a2dbb2d24e4f7622515",
       "fragments": [
         {
           "id": "actions",
           "kind": "section",
           "title": "动作",
-          "sha256": "b1229d900ee2b91fc3b2eb7ab311a1964048ef994f8c040e3dc14f566316c9ae"
+          "anchor": "动作",
+          "sha256": "d5cd4e8c6c15392ed68e5e3ab16f1dffb519bf52a5aa7068f25f04201498e04c"
         },
         {
           "id": "pass",
           "kind": "section",
           "title": "通过条件",
+          "anchor": "通过条件",
+          "sha256": "6fcf5d02ad0c3e8bba26968b6cedcd7f548e847ea9b67f4609eb1b8d518dba92"
+        },
+        {
+          "id": "boundary",
+          "kind": "section",
+          "title": "边界",
+          "anchor": "边界",
+          "sha256": "c092ed26b81823e4dc4bff5d901ec87a12fd0a626120731aa3570d3ddc2c0bd4"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "9cf980de1cff9910c41f9a853537ee894069a1daf10e237385c0200b2d9b2ddd"
+        }
+      ]
+    },
+    {
+      "id": "documentation-concept",
+      "path": "references/coding/layer-02-workflow-concepts/completion-and-effects/documentation.md",
+      "title": "文档检查点",
+      "source_sha256": "22de5643602c11ecea3951e8b3ad482a38186f029f9b72cf518505c407c71553",
+      "fragments": [
+        {
+          "id": "actions",
+          "kind": "section",
+          "title": "动作",
+          "anchor": "动作",
+          "sha256": "5469e61490979a6c0b7e95e2c609a526ddc4815bcc2b782a654768e3f632b61d"
+        },
+        {
+          "id": "pass",
+          "kind": "section",
+          "title": "通过条件",
+          "anchor": "通过条件",
+          "sha256": "e1afef71a00fd9653f202c7562214865b4aad66a2bc28e15cde68f4175dd6fed"
+        },
+        {
+          "id": "boundary",
+          "kind": "section",
+          "title": "边界",
+          "anchor": "边界",
+          "sha256": "e3a8a82b3727d1a68d16bdff64279f4df807017f0907eca008fc8bc8c804f864"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "3438a0d22300f638493aa225fe7a5582d1a29a5ada24dcc76fec49351063ca0a"
+        }
+      ]
+    },
+    {
+      "id": "git",
+      "path": "references/coding/layer-02-workflow-concepts/completion-and-effects/git.md",
+      "title": "Git 检查点",
+      "source_sha256": "ee6dbf206923d5d3335a2e912a2fdf9119452849201b8aea96ab7716a8e96ec9",
+      "fragments": [
+        {
+          "id": "actions",
+          "kind": "section",
+          "title": "动作",
+          "anchor": "动作",
+          "sha256": "91cbc14c949c7dda51bdeada1dd2a7c4a93d5fdaadbdfbfcf99be07bbca68d3e"
+        },
+        {
+          "id": "pass",
+          "kind": "section",
+          "title": "通过条件",
+          "anchor": "通过条件",
+          "sha256": "671fb9cc6772a9477f852af7fb07fe78444a2208f14344d3e71ce2f527fa099d"
+        },
+        {
+          "id": "boundary",
+          "kind": "section",
+          "title": "边界",
+          "anchor": "边界",
+          "sha256": "c0a7b742372dbb0df59350cc7d416cc69c977837a005ac9587be5334b6826483"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "c1502c64973107a09b2ca09e1db689bcf3237d7f74ceaebfbd2a9fa3aebaae01"
+        }
+      ]
+    },
+    {
+      "id": "decision-and-execution-index",
+      "path": "references/coding/layer-02-workflow-concepts/decision-and-execution/INDEX.md",
+      "title": "Decision And Execution 索引",
+      "source_sha256": "7cf5127c9271dd1c5e4904b8b5afdbb10dabcc7fc5834fab9a19ffba5b4a6f81",
+      "fragments": [
+        {
+          "id": "owners",
+          "kind": "section",
+          "title": "所有者",
+          "anchor": "所有者",
+          "sha256": "2e79edcc098063642a9ef3935c40124ac86e9b933fb51a101943a2f6c3530041"
+        }
+      ]
+    },
+    {
+      "id": "decision-and-execution-readme",
+      "path": "references/coding/layer-02-workflow-concepts/decision-and-execution/README.md",
+      "title": "Decision And Execution",
+      "source_sha256": "8352fc047c3dd73274934632c700a281fa32aa950c480a5a7c159603f2b37a2e",
+      "fragments": [
+        {
+          "id": "scope-and-boundary",
+          "kind": "section",
+          "title": "范围与边界",
+          "anchor": "范围与边界",
+          "sha256": "5a6b3d3e1ae0b18fc40d6c86b029b17d56d6519bc84d88b8a2146d130cd1c88c"
+        },
+        {
+          "id": "entry",
+          "kind": "section",
+          "title": "入口",
+          "anchor": "入口",
+          "sha256": "0ab6b227ab379887800e17d1afd43c048dd2c8e3f27adeabfa28417cba986787"
+        }
+      ]
+    },
+    {
+      "id": "control",
+      "path": "references/coding/layer-02-workflow-concepts/decision-and-execution/control.md",
+      "title": "控制边界检查点",
+      "source_sha256": "9a16d77687c908ff40521b76cb09f1b3471989827ac1048c49e1d520fc0f99d7",
+      "fragments": [
+        {
+          "id": "actions",
+          "kind": "section",
+          "title": "动作",
+          "anchor": "动作",
+          "sha256": "f3817d5b9859dd6ee4ed64296e147fc7a7af47fbbbd9f057af72923cd4561e81"
+        },
+        {
+          "id": "pass",
+          "kind": "section",
+          "title": "通过条件",
+          "anchor": "通过条件",
+          "sha256": "19269eda02b83797851ae437bfd9fb413060a888431c4b2ab18e8e1cac5e7b45"
+        },
+        {
+          "id": "boundary",
+          "kind": "section",
+          "title": "边界",
+          "anchor": "边界",
+          "sha256": "1075f62c01c5d5c52a2a88411c6534bc03aafe7cd5f9817671e6f458e5a03750"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "1985a6dfa0effac39e0a75c48c851588946fde0eb308501cd32dc13496da18d7"
+        }
+      ]
+    },
+    {
+      "id": "decision",
+      "path": "references/coding/layer-02-workflow-concepts/decision-and-execution/decision.md",
+      "title": "决策检查点",
+      "source_sha256": "42359b691121200c42747d7cda6663eba6bd898ed32a3f84597cd63ccf6e21fb",
+      "fragments": [
+        {
+          "id": "actions",
+          "kind": "section",
+          "title": "动作",
+          "anchor": "动作",
+          "sha256": "320396a32f55311177d1a67d0ead68978fe952a23119cb0e207024e0e7b7cbef"
+        },
+        {
+          "id": "pass",
+          "kind": "section",
+          "title": "通过条件",
+          "anchor": "通过条件",
+          "sha256": "29037549f2666d32e99fad9a30c0c2689cae4b11711194e8bc93b47d677d8ff8"
+        },
+        {
+          "id": "boundary",
+          "kind": "section",
+          "title": "边界",
+          "anchor": "边界",
+          "sha256": "5acf4f53e66287a5498cbfa36db2589de5afff7b72e6253e22aad04747f075c9"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "d3a131e658d60652bc1bc47b78c04f9c70f36fce9c56fdf7481eab9b0335a56b"
+        }
+      ]
+    },
+    {
+      "id": "implementation",
+      "path": "references/coding/layer-02-workflow-concepts/decision-and-execution/implementation.md",
+      "title": "实现检查点",
+      "source_sha256": "96d5d38ba875fc7182c0822a8c912f3634109300d766fbeef537a7d6796980f4",
+      "fragments": [
+        {
+          "id": "actions",
+          "kind": "section",
+          "title": "动作",
+          "anchor": "动作",
+          "sha256": "e291c65af18fdd78e0af253efd8e4b51b1f227f682abea1797bff13d254905c9"
+        },
+        {
+          "id": "pass",
+          "kind": "section",
+          "title": "通过条件",
+          "anchor": "通过条件",
+          "sha256": "2cdf425be14a26b05e1ff51b709bf4e8d113dcfb3b9f7479cc80e650204ec692"
+        },
+        {
+          "id": "boundary",
+          "kind": "section",
+          "title": "边界",
+          "anchor": "边界",
+          "sha256": "3c699bf874c1bfdbd41983787ff596685a7ce3e46fcd628a025fa3d686f1ace0"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "f682db11bb37f71ce8271aebba34419f04052710ca930e190ad818ef91ddfa81"
+        }
+      ]
+    },
+    {
+      "id": "entry-and-context-index",
+      "path": "references/coding/layer-02-workflow-concepts/entry-and-context/INDEX.md",
+      "title": "Entry And Context 索引",
+      "source_sha256": "09a7556bc4f7bf059a0a8467132a1e5ebf309a613faa2c86ceefb8e2c96cf957",
+      "fragments": [
+        {
+          "id": "owners",
+          "kind": "section",
+          "title": "所有者",
+          "anchor": "所有者",
+          "sha256": "e25a27eb7e6cc2cabb786ae609c9958648751f617a560655412b63c10e9c6c40"
+        }
+      ]
+    },
+    {
+      "id": "entry-and-context-readme",
+      "path": "references/coding/layer-02-workflow-concepts/entry-and-context/README.md",
+      "title": "Entry And Context",
+      "source_sha256": "51af1cde9b88ed0be321afdcc5581aa4a4000b788542878f95a919d209f9c97f",
+      "fragments": [
+        {
+          "id": "scope-and-boundary",
+          "kind": "section",
+          "title": "范围与边界",
+          "anchor": "范围与边界",
+          "sha256": "a9703ca192f44bce77d9919c3689327b09b9d45c7bc20ba19f60efd5f46ef32f"
+        },
+        {
+          "id": "entry",
+          "kind": "section",
+          "title": "入口",
+          "anchor": "入口",
+          "sha256": "039f9fbb770012f8411792c3f1405c69ca73b851811a0b4195c5d74bcd83709b"
+        }
+      ]
+    },
+    {
+      "id": "context",
+      "path": "references/coding/layer-02-workflow-concepts/entry-and-context/context.md",
+      "title": "上下文检查点",
+      "source_sha256": "86848214455166954be1832c7155e83a117c7e27f3714db7a2a366a0671ca5f7",
+      "fragments": [
+        {
+          "id": "actions",
+          "kind": "section",
+          "title": "动作",
+          "anchor": "动作",
+          "sha256": "6cd61b76d06f48fe865ffd0f92434c7d51dae62909bd732e6d3666c171c7eb3a"
+        },
+        {
+          "id": "pass",
+          "kind": "section",
+          "title": "通过条件",
+          "anchor": "通过条件",
+          "sha256": "1868c882c7c4b964f47e1c514892b12716297f849e621710a8386feba6f1b2a6"
+        },
+        {
+          "id": "boundary",
+          "kind": "section",
+          "title": "边界",
+          "anchor": "边界",
+          "sha256": "41c05837006966f549bc36d59b624a20fb813feffb48e19c8cecd2128291e71e"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "0d14fddf546638cca2712235fc7f2caff954eebf4a6283a352e4e10a11da84c7"
+        }
+      ]
+    },
+    {
+      "id": "contract",
+      "path": "references/coding/layer-02-workflow-concepts/entry-and-context/contract.md",
+      "title": "Contract 检查点",
+      "source_sha256": "710d61301a2442cf65dbaa87b3f5bfe65e8cd2b5e16ed35dbbc5697ba0680323",
+      "fragments": [
+        {
+          "id": "actions",
+          "kind": "section",
+          "title": "动作",
+          "anchor": "动作",
+          "sha256": "7f7757b637cc713aad1731997ba079a49e014378456e0cf41638dd3f5cf2b1fb"
+        },
+        {
+          "id": "pass",
+          "kind": "section",
+          "title": "通过条件",
+          "anchor": "通过条件",
+          "sha256": "5a2ba2865253da03fc425dcccfa9e930e95fb1b32d47d8bd37d592e453545fdf"
+        },
+        {
+          "id": "boundary",
+          "kind": "section",
+          "title": "边界",
+          "anchor": "边界",
+          "sha256": "8a439c55194f806143d081a12760015e9bf90d9b23e0188d6457ae8b4a6c2223"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "292ffa1a7b24807b0bd425176fa5118af96d3565e03e06b3eb9d5a0e81f2f0fb"
+        }
+      ]
+    },
+    {
+      "id": "environment-capability-inventory",
+      "path": "references/coding/layer-02-workflow-concepts/entry-and-context/environment-capability-inventory.md",
+      "title": "Coding 运行环境能力清单",
+      "source_sha256": "bca10de5de7e6f8ca345495628311c4551076ef29289631f09e0adced5fb536f",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "0248c97dbc1ed415e0a2fbbf71125490a22cd70b3963d3c01b5e99ff87021e05"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "暴露能力清单",
+          "anchor": "暴露能力清单",
+          "sha256": "c6c27370b25bd118dce2d93c1b390b8e53c99554e83f2f7b37b8cef0b913d8ca"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "未知能力和路线阻断",
+          "anchor": "未知能力和路线阻断",
+          "sha256": "0d2f16ef0b1e7a6d78792187474b4476e2168e0425b49758531162daeeb9a1a9"
+        },
+        {
+          "id": "section-03",
+          "kind": "section",
+          "title": "受保护操作能力",
+          "anchor": "受保护操作能力",
+          "sha256": "13912271290e936c090aadbd08afa674a7e265123fa82250f13ddae8eac10399"
+        },
+        {
+          "id": "section-04",
+          "kind": "section",
+          "title": "路线消费",
+          "anchor": "路线消费",
+          "sha256": "92f69e0e7735f997bf8c3a836d81d1cced4df30ff36178789949ed25e4a33e13"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "5e046c122e1b2e2fcfdeef668a3a2b75e1bc2fce3a40ab2f6e078f01c1b1fd9b"
+        }
+      ]
+    },
+    {
+      "id": "environment",
+      "path": "references/coding/layer-02-workflow-concepts/entry-and-context/environment.md",
+      "title": "运行环境检查点",
+      "source_sha256": "c617c673a265e6d3dd5e6cf8b311b77786a1914c2063d62d695e2cca3390f574",
+      "fragments": [
+        {
+          "id": "actions",
+          "kind": "section",
+          "title": "动作",
+          "anchor": "动作",
+          "sha256": "14721c8a002796a5f39c7eaef2614c5d5b046ec21e0e3c0970066a3d9c4c06c1"
+        },
+        {
+          "id": "pass",
+          "kind": "section",
+          "title": "通过条件",
+          "anchor": "通过条件",
+          "sha256": "f891e0562d339e83075a6f1e086d1e030c8e41806c762123037f96b96603c554"
+        },
+        {
+          "id": "boundary",
+          "kind": "section",
+          "title": "边界",
+          "anchor": "边界",
+          "sha256": "74d4c70977a97e921906f3d6de5dfd0949763fb54ba14a382122aec1752ae152"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "c2d7b418745e83efd6f7b52500a94db11b9ce2f6b459cc739021ca88f0215a71"
+        }
+      ]
+    },
+    {
+      "id": "mode",
+      "path": "references/coding/layer-02-workflow-concepts/entry-and-context/mode.md",
+      "title": "执行模式检查点",
+      "source_sha256": "d9da47dc03ac5bcf555e25d2cabb4bdc30ff9f972ec57a063781a5a50bc3e22b",
+      "fragments": [
+        {
+          "id": "actions",
+          "kind": "section",
+          "title": "动作",
+          "anchor": "动作",
+          "sha256": "35bf47acd9f6c315b38e831ebbbe197039962b7dce5c44511c2a0a3f0518e27e"
+        },
+        {
+          "id": "pass",
+          "kind": "section",
+          "title": "通过条件",
+          "anchor": "通过条件",
+          "sha256": "10c2077fa0b57ba7a2e1eb1f60f3727bd225a6f22054dc343b6b85671291fdcf"
+        },
+        {
+          "id": "boundary",
+          "kind": "section",
+          "title": "边界",
+          "anchor": "边界",
+          "sha256": "a45b581419cb8bce403dba875d2e5dbe535af2ff6cab91c1ef1a31c202df7fbf"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "3c54fd81e172729f3147236c159671d57fa8e910541c15845e049e6d87f498e9"
+        }
+      ]
+    },
+    {
+      "id": "verification-and-repair-index",
+      "path": "references/coding/layer-02-workflow-concepts/verification-and-repair/INDEX.md",
+      "title": "Verification And Repair 索引",
+      "source_sha256": "c0b2ee63127b3d4206321e28a3060a0f3d900f6963698e4635b9e6c7adf84250",
+      "fragments": [
+        {
+          "id": "owners",
+          "kind": "section",
+          "title": "所有者",
+          "anchor": "所有者",
+          "sha256": "64e2ef82b23b594e11c4dd802cda7d0e7e9b6279dbc305ab7b3fafc151d42d73"
+        }
+      ]
+    },
+    {
+      "id": "verification-and-repair-readme",
+      "path": "references/coding/layer-02-workflow-concepts/verification-and-repair/README.md",
+      "title": "Verification And Repair",
+      "source_sha256": "c8a9fc152116fb5456b94063681f50412e3e652ae03fc2b3762189d905b811e0",
+      "fragments": [
+        {
+          "id": "scope-and-boundary",
+          "kind": "section",
+          "title": "范围与边界",
+          "anchor": "范围与边界",
+          "sha256": "e4f3e44485ec67b3667313ba7f100450926b6102b48d5c67fa447963a208f565"
+        },
+        {
+          "id": "entry",
+          "kind": "section",
+          "title": "入口",
+          "anchor": "入口",
+          "sha256": "9daa60c61d658c266c50968aa6bb9e038fa21828762d53f791b4981eb201023a"
+        }
+      ]
+    },
+    {
+      "id": "repair-execution",
+      "path": "references/coding/layer-02-workflow-concepts/verification-and-repair/repair-execution.md",
+      "title": "修复执行检查点",
+      "source_sha256": "500a101dd41bd9e6759ee3268afad2d6da525a879600527932be0c62f3ad6e93",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "74659927587a77d5ca2afb848a1c712101c08d9555afa0c96df705b2e14f8a8a"
+        },
+        {
+          "id": "actions",
+          "kind": "section",
+          "title": "动作",
+          "anchor": "动作",
+          "sha256": "95d0e4a6c73252b9f958e011b2891419b991056ada4afdc38d7703d5cbd6ac74"
+        },
+        {
+          "id": "pass",
+          "kind": "section",
+          "title": "通过条件",
+          "anchor": "通过条件",
+          "sha256": "2c4a0ab446ead06925b7b89356a01bf23ca80a21e454880332b8736516b99d5e"
+        },
+        {
+          "id": "boundary",
+          "kind": "section",
+          "title": "边界",
+          "anchor": "边界",
+          "sha256": "232fca8bb96ab314f05c4532c83ec7c5d5747a450e9d45d76e77e10ff8fe019f"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "76cbc0f2c305e4e8f4636b3b0809b04581a1c9a7d36c75d44092036d1844e739"
+        }
+      ]
+    },
+    {
+      "id": "repair-scope-gate",
+      "path": "references/coding/layer-02-workflow-concepts/verification-and-repair/repair-scope-gate.md",
+      "title": "修复范围门禁",
+      "source_sha256": "937923a3f568724d3cc04313df9c0e903621e95afadc7d28e6cd0300bd4ddc2b",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "b4600335dac8f962677cd3c6f23d6d9f2e527920dfcc332cfad6640b7b3b49d8"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "Contract 和决策兼容性",
+          "anchor": "contract-和决策兼容性",
+          "sha256": "249b74b56fb3ff4a94bae14414bf26a6b92e59c91af07a18732cf65aa57f0e56"
+        },
+        {
+          "id": "pass",
+          "kind": "section",
+          "title": "通过条件",
+          "anchor": "通过条件",
+          "sha256": "1b0d71f1a89e50c1ccb032b37f76ec05e69ee710845fcb5727464e65a8f1fdb2"
+        },
+        {
+          "id": "boundary",
+          "kind": "section",
+          "title": "边界",
+          "anchor": "边界",
+          "sha256": "7de25e26b73ca24a3a51952cc4573faa7c8f9023c9524d4b8ea105e36c8dc8ac"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "965823011a299834ae61d2db45fc0b93d5b000ce4ed461eb784beca5b7fad490"
+        }
+      ]
+    },
+    {
+      "id": "repair-verification-handoff",
+      "path": "references/coding/layer-02-workflow-concepts/verification-and-repair/repair-verification-handoff.md",
+      "title": "修复验证交接检查点",
+      "source_sha256": "33ead1e0c1e870b5bb9f7d94166c66f723d22234c3ec20275c1ea4a4da230189",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "181aff245c3e87dcd15ca6e41888f0f92186c054e2062c0391f8ed3aabbd5ad8"
+        },
+        {
+          "id": "actions",
+          "kind": "section",
+          "title": "动作",
+          "anchor": "动作",
+          "sha256": "399b00b21269e686933b4d17fa465ad97bcfa5b49b3ca137debf95a3f7c375d0"
+        },
+        {
+          "id": "pass",
+          "kind": "section",
+          "title": "通过条件",
+          "anchor": "通过条件",
+          "sha256": "1752fc0e4e48b050e727ea71df42966220aeda28a0baa854ae8db18a47a1b7d4"
+        },
+        {
+          "id": "boundary",
+          "kind": "section",
+          "title": "边界",
+          "anchor": "边界",
+          "sha256": "e7fda7bc48b5deace6698a7363f194ca98dcce3318eba561d5bc3beeeb857627"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "4c5e840b3efb04554f5f1040f6d37ed97977acdd017879744c6312831a63378c"
+        }
+      ]
+    },
+    {
+      "id": "repair",
+      "path": "references/coding/layer-02-workflow-concepts/verification-and-repair/repair.md",
+      "title": "修复检查点",
+      "source_sha256": "c8f73d5b699ad52ca54aa2b86aee26e01bac44c45fdb237a27946f264e1af652",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "cddf1b125179adf8ce2d5d2b52b45c609be10a434fbb556794a25523c358c5f0"
+        },
+        {
+          "id": "actions",
+          "kind": "section",
+          "title": "动作",
+          "anchor": "动作",
+          "sha256": "ba7e63c133fff4fe9748319d368e24dea32362ed0db1f2f1964b46a1f6286bf8"
+        },
+        {
+          "id": "pass",
+          "kind": "section",
+          "title": "通过条件",
+          "anchor": "通过条件",
+          "sha256": "283b8028097b78c48409d91c94f6ea2c79a182a507ed2d807d134378024365cd"
+        },
+        {
+          "id": "boundary",
+          "kind": "section",
+          "title": "边界",
+          "anchor": "边界",
+          "sha256": "9511145658150ae2a988222b4885153e776f3da73638b0b1812597fdc69eb39b"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "070f83aacfcb33cdf871c39daab397a4fc5fe1b2f3610daa5e97eca15944006b"
+        }
+      ]
+    },
+    {
+      "id": "verification-epoch",
+      "path": "references/coding/layer-02-workflow-concepts/verification-and-repair/verification-epoch.md",
+      "title": "验证 Epoch 检查点",
+      "source_sha256": "dffd3337efe36d6345003430bc37a0a9db6af329329a8058c544bc275c2fb91c",
+      "fragments": [
+        {
+          "id": "actions",
+          "kind": "section",
+          "title": "动作",
+          "anchor": "动作",
+          "sha256": "6780bb6ed821818aa6b34c6cc8e67bc2772ae5e3666340820946d480945e0bea"
+        },
+        {
+          "id": "pass",
+          "kind": "section",
+          "title": "通过条件",
+          "anchor": "通过条件",
           "sha256": "34f1f636ab0005f16ea124b0d368b81759bbee733232e433d19e7ffcf3680763"
         },
         {
           "id": "boundary",
           "kind": "section",
           "title": "边界",
+          "anchor": "边界",
           "sha256": "ddcb2afb763233f6a4f35d53732df9cf28300568680f26915aa3a072c4c4ff43"
+        }
+      ]
+    },
+    {
+      "id": "verification-independence",
+      "path": "references/coding/layer-02-workflow-concepts/verification-and-repair/verification-independence.md",
+      "title": "验证独立性检查点",
+      "source_sha256": "82c7aaf779475f3ebe229c0c6fcb0304d345618eb2a02cf4147b5907cedf3984",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "e4ae7c1fcb402dc1c560257ceae4804cf5153de6819cf44aa5bb30b5e61fef6b"
+        },
+        {
+          "id": "actions",
+          "kind": "section",
+          "title": "动作",
+          "anchor": "动作",
+          "sha256": "f5155452e71ba5f5be2ea6b0802abfda828a76c7d2b315eb9c69d1e3b68a53b9"
+        },
+        {
+          "id": "pass",
+          "kind": "section",
+          "title": "通过条件",
+          "anchor": "通过条件",
+          "sha256": "b499a9f272d5d23f40829228a9700e797001c7d71ae51bc70066ef417005d916"
+        },
+        {
+          "id": "boundary",
+          "kind": "section",
+          "title": "边界",
+          "anchor": "边界",
+          "sha256": "fe7117d9420fbd575155b0cb655c97628e2a6a701688e65d247f59a3f3ad5747"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "b641f6734b688b3b387bd786092b743321c3105083102e3b52e2081a7635a89e"
+        }
+      ]
+    },
+    {
+      "id": "verification-reporting",
+      "path": "references/coding/layer-02-workflow-concepts/verification-and-repair/verification-reporting.md",
+      "title": "验证报告检查点",
+      "source_sha256": "1085f30e9d472d187e568d08c53e3b887387f622c0866e3c763e3a426626bdeb",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "5387e9f8d21e7337ab1ff24d06aac58741118cbf5217a0dd113da141b4ab8103"
+        },
+        {
+          "id": "actions",
+          "kind": "section",
+          "title": "动作",
+          "anchor": "动作",
+          "sha256": "77b3a86f84b27c319bc96b4b620128d08ee4ed9353dd31baf9f421a81893079d"
+        },
+        {
+          "id": "pass",
+          "kind": "section",
+          "title": "通过条件",
+          "anchor": "通过条件",
+          "sha256": "68dc766fabfb90ab41d8593eaa97c088094fced031a3f4ce607fe73d9c866890"
+        },
+        {
+          "id": "boundary",
+          "kind": "section",
+          "title": "边界",
+          "anchor": "边界",
+          "sha256": "137e185113188aa103fd6882da7e69fc05c576b03f2a421c6b8307a8f39482bd"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "a22886d3d9345eefba602779e3a9b401bcf9335234d27114753e4eb9c9f04f0d"
+        }
+      ]
+    },
+    {
+      "id": "verification",
+      "path": "references/coding/layer-02-workflow-concepts/verification-and-repair/verification.md",
+      "title": "验证检查点",
+      "source_sha256": "ff2aa79214cff07d471b8acf5e50ce69489d57826ca769c7973bf5243b3abbe8",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "9e2ccd0d03ee9a6cf945a000a5cbbf7024358cbce3c536180ef930409b13f6d5"
+        },
+        {
+          "id": "actions",
+          "kind": "section",
+          "title": "动作",
+          "anchor": "动作",
+          "sha256": "3133ef1a58a2717ded0c4bd750edc4b2a4eaf35b9a99367096adacfbf155c756"
+        },
+        {
+          "id": "pass",
+          "kind": "section",
+          "title": "通过条件",
+          "anchor": "通过条件",
+          "sha256": "1420d451a8b9c69c158fa8a4a29e6aaed0820abe81c8f7f25b4a1a76151ee651"
+        },
+        {
+          "id": "boundary",
+          "kind": "section",
+          "title": "边界",
+          "anchor": "边界",
+          "sha256": "dc4455a325473760959b21eccb5c56d0e0be685acdd965e04e4660c5f74056bb"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "6209acbcf5993c3937f770ce432ce5984c6e81a29701b5759ad2c927ebb792f4"
+        }
+      ]
+    },
+    {
+      "id": "layer-03-index",
+      "path": "references/coding/layer-03-workflow-checkpoints/INDEX.md",
+      "title": "工作流检查点索引",
+      "source_sha256": "0c8d7e3513bd8b1d2d510f725826aec243e936d398ebdae69695d34d6efbfe07",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "7c845b225f51f36c045292abe8efbfc9fc534a308397b0917f723ff5f81ee5f2"
+        }
+      ]
+    },
+    {
+      "id": "layer-03-readme",
+      "path": "references/coding/layer-03-workflow-checkpoints/README.md",
+      "title": "Layer-03 工作流检查点",
+      "source_sha256": "d839089c96e32f5a922f4086f70cf45abf3ff6fd575866c394091dddfce33d8a",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "e39858e21d14dccd4bfc3bddd37c6a461ac38efe325a7b82b8dd86064319053a"
+        },
+        {
+          "id": "entry",
+          "kind": "section",
+          "title": "入口",
+          "anchor": "入口",
+          "sha256": "156286b3d444c68a0661788c4725f627ac7159421e66274e68b113ccb0bc7b8b"
+        }
+      ]
+    },
+    {
+      "id": "advisory-selection",
+      "path": "references/coding/layer-03-workflow-checkpoints/advisory-selection.md",
+      "title": "建议选择",
+      "source_sha256": "ec040c6bc66552e63c9fdbb49ce2e210ffd8a073aeef2801c9ce84db35fdd1c0",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "3c823f6d0485015a7df4384fba25002b49dcf90c898d23b40b7f87423c033a29"
+        },
+        {
+          "id": "inputs",
+          "kind": "section",
+          "title": "触发与输入",
+          "anchor": "触发与输入",
+          "sha256": "8cfb8c8f87790a646bf813c88783846183b831e8468f858c3cf5a86dfda27013"
+        },
+        {
+          "id": "decision-and-result",
+          "kind": "section",
+          "title": "决策与结果",
+          "anchor": "决策与结果",
+          "sha256": "2551d6fcf509c3532e5ec6c1aefec965c139e78df9ef10c02fd90bda17e09199"
+        },
+        {
+          "id": "failure-boundary",
+          "kind": "section",
+          "title": "失败边界",
+          "anchor": "失败边界",
+          "sha256": "b4b213021bba337ee366473c094beaee82e2c96236391a3d1848ccc16d82199c"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "273af7a2522b939f7ec11bb4e9d2b8fc41eea5d0e608d0b670c751a966ed7cc3"
+        }
+      ]
+    },
+    {
+      "id": "bootstrap-selection",
+      "path": "references/coding/layer-03-workflow-checkpoints/bootstrap-selection.md",
+      "title": "Bootstrap 选择",
+      "source_sha256": "33d1813dd9cd0b5edd7be3f8fea1bf4aa844703525b7e0e5dfe9de6a27c3cbbe",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "64e9b393991d5300e5e3cb0e02978c9133d3ca6588a868302f14dd4381759d17"
+        },
+        {
+          "id": "inputs",
+          "kind": "section",
+          "title": "触发与输入",
+          "anchor": "触发与输入",
+          "sha256": "8d2bc19df7767ba3f7b955b4f3cb6e8f0c910ed11c4ba10629881c6506551cdc"
+        },
+        {
+          "id": "decision-and-result",
+          "kind": "section",
+          "title": "决策与结果",
+          "anchor": "决策与结果",
+          "sha256": "794fac53626858c0eec664a32080d466345e06773bf4986e04f689f11badf533"
+        },
+        {
+          "id": "failure-boundary",
+          "kind": "section",
+          "title": "失败边界",
+          "anchor": "失败边界",
+          "sha256": "20210734e0f822e13f11757fd6a7203816f96ff92ff68f2e99d1a5a9391e92b9"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "27f971c86d7ff8d92528c056ec34207b2cc876c6e7dfc46f0b05a2d0ca70f35e"
+        }
+      ]
+    },
+    {
+      "id": "context-source-selection",
+      "path": "references/coding/layer-03-workflow-checkpoints/context-source-selection.md",
+      "title": "上下文来源选择",
+      "source_sha256": "a169d198cca477b3d1265495d302d7170aaec3f52dcf47c68b603e6b033167b1",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "565da1b3ddd837faf3398f6c17be3a57258cc375d97ed32a51f593b62f720f21"
+        },
+        {
+          "id": "inputs",
+          "kind": "section",
+          "title": "触发与输入",
+          "anchor": "触发与输入",
+          "sha256": "f256c1344eadc8b4a223fa53cdcd3e3c88b8845d813b4c2d4ed87b055d4d8ee4"
+        },
+        {
+          "id": "decision-and-result",
+          "kind": "section",
+          "title": "决策与结果",
+          "anchor": "决策与结果",
+          "sha256": "4c4cbb31620eb236ac6226cab129b0ec4fac6bab628e5872862a89efac2ae452"
+        },
+        {
+          "id": "failure-boundary",
+          "kind": "section",
+          "title": "失败边界",
+          "anchor": "失败边界",
+          "sha256": "d30136eb65e589dfb7b39f56a0980c825f573817385ec4a055aec3e9036368fb"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "2d0bdc6804c2b095965a1eb1a039e153e07a76f0a5d760b59cc9eb331bdbb007"
+        }
+      ]
+    },
+    {
+      "id": "decision-context-selection",
+      "path": "references/coding/layer-03-workflow-checkpoints/decision-context-selection.md",
+      "title": "决策上下文选择",
+      "source_sha256": "fbcaa38bf77e8b75b57d852e83a3444bb5d05849678addd042dfe2c369193fd1",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "4738e4edc98b8b4de3cf6f7ae59c7da5dd0c8dbfd65d32d1e23cdeb7733429ad"
+        },
+        {
+          "id": "inputs",
+          "kind": "section",
+          "title": "触发与输入",
+          "anchor": "触发与输入",
+          "sha256": "1d5b4f4b9de238ff19c7417476cbfd704e4bfc68de64487961e8744628ce043a"
+        },
+        {
+          "id": "decision-and-result",
+          "kind": "section",
+          "title": "决策与结果",
+          "anchor": "决策与结果",
+          "sha256": "d3246a1a1cf1b7bac73a1d78bf0eeff71c83e8376684c84f87ac8d9133d09c9a"
+        },
+        {
+          "id": "failure-boundary",
+          "kind": "section",
+          "title": "失败边界",
+          "anchor": "失败边界",
+          "sha256": "e47b9874f8d4abc21b61693b05946d8cfa3d6cb3332024f22d6f4fb5d498a9ae"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "171a10ae6dd656753db7305cdfa5a01743567f06982ca7cbd95056d0984497f7"
+        }
+      ]
+    },
+    {
+      "id": "documentation-impact",
+      "path": "references/coding/layer-03-workflow-checkpoints/documentation-impact.md",
+      "title": "文档影响",
+      "source_sha256": "651ea910e31f5c9325e69636064eb40e69493ac15ecc6f8747259ba8417e7f22",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "43671684d764320315869609a09eeb435ee82aba1de94640e7b8bc92305efdc1"
+        },
+        {
+          "id": "inputs",
+          "kind": "section",
+          "title": "触发与输入",
+          "anchor": "触发与输入",
+          "sha256": "90afcc645ed5a7acf2d8c0f4fc62ccec8382fab238d43cca241542fd03ed7aa3"
+        },
+        {
+          "id": "decision-and-result",
+          "kind": "section",
+          "title": "决策与结果",
+          "anchor": "决策与结果",
+          "sha256": "289f0de6b0fbb3196f27107f31093b69415a45001fad0c5de1b192996bcdcbcd"
+        },
+        {
+          "id": "failure-boundary",
+          "kind": "section",
+          "title": "失败边界",
+          "anchor": "失败边界",
+          "sha256": "f1df592ecea169c2a19e662784dcdcb39e087944d56204ca53822fdccaa85102"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "0ca4b27fdc70d22ed198a72486bfe3c34c3da8cd17f2c840eca5e5ea2f90309a"
+        }
+      ]
+    },
+    {
+      "id": "executor-selection",
+      "path": "references/coding/layer-03-workflow-checkpoints/executor-selection.md",
+      "title": "执行者选择",
+      "source_sha256": "6bb8773ea1647a46bd662e9e6dbfd2c17cb212bc054a7b74eb4f7b95dc9464c7",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "6f84ff1f02b9aedef425d8cc505095aa0ea21f47e3321b1cb7ef83bb0af8adec"
+        },
+        {
+          "id": "inputs",
+          "kind": "section",
+          "title": "触发与输入",
+          "anchor": "触发与输入",
+          "sha256": "ac58e228628b3b98ca99179ff7baa46de596372350312776a29d4b34152e3db2"
+        },
+        {
+          "id": "decision-and-result",
+          "kind": "section",
+          "title": "决策与结果",
+          "anchor": "决策与结果",
+          "sha256": "f6876d5f6b7e5a70019688d7119a42996da95f04560ffbc45f3015c39ba82e80"
+        },
+        {
+          "id": "failure-boundary",
+          "kind": "section",
+          "title": "失败边界",
+          "anchor": "失败边界",
+          "sha256": "351f9c0ae47a5972bc7d3f76861000b59807cdc22b74df76fb6b15d97aafdae4"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "102f0d074bbb2018a2a0057b20b6a3618d97f0260e55332b73cd4caee5200e8e"
+        }
+      ]
+    },
+    {
+      "id": "module-entry-resolution",
+      "path": "references/coding/layer-03-workflow-checkpoints/module-entry-resolution.md",
+      "title": "工作流模块入口解析",
+      "source_sha256": "8d70041c79f38d9b023e6bbc2bbfa3b1824a2bd73526b90a46c073be357b1ac4",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "2ed17e5dee2500de8fbc9f238266f3055c02d84f1c5526fcde2b554e25619ef4"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "Trigger 和输入",
+          "anchor": "trigger-和输入",
+          "sha256": "a98b96889334def408bbb17725db5151a1f1c404cec25be9e58aff73f41b3c67"
+        },
+        {
+          "id": "decision-and-result",
+          "kind": "section",
+          "title": "决策与结果",
+          "anchor": "决策与结果",
+          "sha256": "636af911dc210434ce99e21787a8b041fbe6d8b2e31500109b67f43145222b64"
+        },
+        {
+          "id": "failure-boundary",
+          "kind": "section",
+          "title": "失败边界",
+          "anchor": "失败边界",
+          "sha256": "2cd8a982646132e0aad618f835b4e7f61a20621cb67bbe8349a3fbe441d67697"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "fdf065e743d6855a5dfd78e2023a6b45c237cc52965f73fbb8eeb15b9fc509b1"
+        }
+      ]
+    },
+    {
+      "id": "output-route-selection",
+      "path": "references/coding/layer-03-workflow-checkpoints/output-route-selection.md",
+      "title": "输出路线选择",
+      "source_sha256": "e81ace0d29b99ca0997439aa30f14669d6c20c6a7e70864e5e2dfd65470bc670",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "9c1abc9311d2d233e6f6432dbabd0db27451305c182c1cc46f49085d936e1482"
+        },
+        {
+          "id": "inputs",
+          "kind": "section",
+          "title": "触发与输入",
+          "anchor": "触发与输入",
+          "sha256": "dca995f6d0a9815765c939c81b4f99dc9a6e48652a825fd71bef0d3b7f7d4cb9"
+        },
+        {
+          "id": "decision-and-result",
+          "kind": "section",
+          "title": "决策与结果",
+          "anchor": "决策与结果",
+          "sha256": "093c53d2342f46342082227e08a883a180a8f83e31aa575664fca1e159a521d3"
+        },
+        {
+          "id": "failure-boundary",
+          "kind": "section",
+          "title": "失败边界",
+          "anchor": "失败边界",
+          "sha256": "95091003f2762835160f4a58d510e5a10bb83d6dc787ff1a5db6137aac489833"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "3dea5c0dd51b40790bb4756ca847271c1c2e34d792adeb1a65917921028a4001"
+        }
+      ]
+    },
+    {
+      "id": "planning-output-selection",
+      "path": "references/coding/layer-03-workflow-checkpoints/planning-output-selection.md",
+      "title": "规划输出选择",
+      "source_sha256": "cf55afc2571f13f59d1fad4a6e70e9234202607e65902fded9302704e8a6c2d3",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "6b52529bb9ec0ce5708fe4f50fbb18e4454cbe3368a403e512b8c5c3828088a8"
+        },
+        {
+          "id": "inputs",
+          "kind": "section",
+          "title": "触发与输入",
+          "anchor": "触发与输入",
+          "sha256": "fe3ba80d8f8b223212097fcbcbc47360fc8a067365274968de4c3060f6f18ab0"
+        },
+        {
+          "id": "decision-and-result",
+          "kind": "section",
+          "title": "决策与结果",
+          "anchor": "决策与结果",
+          "sha256": "8e6564774e570ce27c27a283b11ae61afb9d78a35e1b996b2006c83ea5ee45ef"
+        },
+        {
+          "id": "failure-boundary",
+          "kind": "section",
+          "title": "失败边界",
+          "anchor": "失败边界",
+          "sha256": "8c9cefe22d4292bcb7347df1af442fd9dc06da39e3b968a6da5635170cb3a6ab"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "b04ccabc1dc23d72b5ceed890337b7ad2bb2c318964a581f25c0c068871c37ee"
+        }
+      ]
+    },
+    {
+      "id": "repair-disposition",
+      "path": "references/coding/layer-03-workflow-checkpoints/repair-disposition.md",
+      "title": "修复处置",
+      "source_sha256": "600a6dcb05b17ae6ca916b6cf8dd0c4b2be9827f5822e561c416c5a3ace53794",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "002489a9c45ac9238758fdf36dd69445dc81eeffa49d7cd4d7d879fcdb91f57f"
+        },
+        {
+          "id": "inputs",
+          "kind": "section",
+          "title": "触发与输入",
+          "anchor": "触发与输入",
+          "sha256": "7a9ab248e691d5c4be0d72906a3711b73ed7f8703bb060744df9ed4761729ebc"
+        },
+        {
+          "id": "decision-and-result",
+          "kind": "section",
+          "title": "决策与结果",
+          "anchor": "决策与结果",
+          "sha256": "e621cdd0388ccf10f46b39af181d6ab944f7bd9c427d445761c8d11dd638d839"
+        },
+        {
+          "id": "failure-boundary",
+          "kind": "section",
+          "title": "失败边界",
+          "anchor": "失败边界",
+          "sha256": "0bba1ef8e7b9c67ae71eacb77e5e6b55737dcecf5bb8b053e9b897ded1c0b09c"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "025e9e3c8de1f63f8aafc3c966a3d68a190ad9dc554e677c33536be09b064e98"
+        }
+      ]
+    },
+    {
+      "id": "role-reservation",
+      "path": "references/coding/layer-03-workflow-checkpoints/role-reservation.md",
+      "title": "角色预留",
+      "source_sha256": "88cd4a2cf19914eae919b87fc743bd2c90bc231869c0db9392aa5ce01a67754d",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "51490c3d1d49c47b9f935eb18853af91de77c1e1e52153aa08a905d4810750ae"
+        },
+        {
+          "id": "inputs",
+          "kind": "section",
+          "title": "触发与输入",
+          "anchor": "触发与输入",
+          "sha256": "88cad48f2f4dcc60d5a6b93d3a79a1b209454105f76d7134a3ae88ce55a6e69b"
+        },
+        {
+          "id": "decision-and-result",
+          "kind": "section",
+          "title": "决策与结果",
+          "anchor": "决策与结果",
+          "sha256": "a6ebc040bfafea7b64b25137dc30113ec7165c51a2c1efd7b5f396366c4de543"
+        },
+        {
+          "id": "failure-boundary",
+          "kind": "section",
+          "title": "失败边界",
+          "anchor": "失败边界",
+          "sha256": "e8216f6b90d5f029f43f9248e1fa5b6c058937e8734190e80c5a2072dd514dde"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "5a4c9279f11ea8faad37905b3a16b9a5eb5592726036282c1ef181d44b9b0ceb"
+        }
+      ]
+    },
+    {
+      "id": "route-entry",
+      "path": "references/coding/layer-03-workflow-checkpoints/route-entry.md",
+      "title": "Coding 路线入口",
+      "source_sha256": "065fa8b0bf0b107cb646ed6872db856bbc4fd24edd34aadc6d0ce38a2a3dac4c",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "cfefb63c4a935836cb92e049e1c4bc756f18e677da740d7ef5135c3d1de5ae3f"
+        },
+        {
+          "id": "inputs",
+          "kind": "section",
+          "title": "触发与输入",
+          "anchor": "触发与输入",
+          "sha256": "ec33189040d2f00542847f5ae9ce7a2452ca68e5ab4bd54d0ee8cb18053d724c"
+        },
+        {
+          "id": "decision-and-result",
+          "kind": "section",
+          "title": "决策与结果",
+          "anchor": "决策与结果",
+          "sha256": "6d516c4b78e8cdf8053a9b70f9ca69ae42e32e2bfe67ae6e0ae36bc84758d4ad"
+        },
+        {
+          "id": "failure-boundary",
+          "kind": "section",
+          "title": "失败边界",
+          "anchor": "失败边界",
+          "sha256": "9f9f731455875d276b46cf414ff409855159e1ab9b8f6a0de9e6be75d848a51a"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "6f389a759123bd387e5857f7bc47f067505e3cb12b0b6b7433cc249d52b8dbb9"
+        }
+      ]
+    },
+    {
+      "id": "session-audit-resolution",
+      "path": "references/coding/layer-03-workflow-checkpoints/session-audit-resolution.md",
+      "title": "Session 审计解决",
+      "source_sha256": "b7ce3503d7145252779580428dd8937334cf489f7940edc91759bd00ceac71b8",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "04a5634e1a9b679468f019a6a8d724d0458d9260b9c064ceb99a2f3be6f3e4e7"
+        },
+        {
+          "id": "inputs",
+          "kind": "section",
+          "title": "触发与输入",
+          "anchor": "触发与输入",
+          "sha256": "876cdac4483fd4415d108a72c0c58d1947422afc0e39493bce40898cf4525f17"
+        },
+        {
+          "id": "decision-and-result",
+          "kind": "section",
+          "title": "决策与结果",
+          "anchor": "决策与结果",
+          "sha256": "0ddc2f0a45bf31b9620fe429d80d07ec05588001589e5ce60b1e4d26b9903852"
+        },
+        {
+          "id": "failure-boundary",
+          "kind": "section",
+          "title": "失败边界",
+          "anchor": "失败边界",
+          "sha256": "dd4cbeafcab474bfb85d419f6519b06b550e025063075ab59a616ca432035b4e"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "b38a567b3016e7ce1ab1e555caf7d519e848a8bf8957adadb9d4fea74cf3a1a2"
+        }
+      ]
+    },
+    {
+      "id": "session-state-resolution",
+      "path": "references/coding/layer-03-workflow-checkpoints/session-state-resolution.md",
+      "title": "Session 状态解决",
+      "source_sha256": "16275b7a4e52d3602ab32aba584ff53ea22a65ae60401c7607d8de405e574ada",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "1a41a6b7f56b797ca97154eb03ed333a3665b26aca626f0b1dcab839b9c595c9"
+        },
+        {
+          "id": "inputs",
+          "kind": "section",
+          "title": "触发与输入",
+          "anchor": "触发与输入",
+          "sha256": "69584e508f46ee486b266f06975475449ec3b07a73ec6d873aed598273f72291"
+        },
+        {
+          "id": "decision-and-result",
+          "kind": "section",
+          "title": "决策与结果",
+          "anchor": "决策与结果",
+          "sha256": "579c1637bee9691c2523120361f83e5ad814736943bd9347a9b633a0d7ff7c27"
+        },
+        {
+          "id": "failure-boundary",
+          "kind": "section",
+          "title": "失败边界",
+          "anchor": "失败边界",
+          "sha256": "69309cd7617794f47cdfb7265b1f3a723d0034b45dced12fa3a8816e4e2bfde6"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "fd56cd0f77e99333b39276860b887017143a182fe8f94b59a4cbea42c998fb1b"
+        }
+      ]
+    },
+    {
+      "id": "workflow-navigation-selection",
+      "path": "references/coding/layer-03-workflow-checkpoints/workflow-navigation-selection.md",
+      "title": "工作流导航选择",
+      "source_sha256": "35a92550624050d3819dc19abe5795650f9f71e2ed3ddc750808c898edb820ea",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "6b4fc08b164096d418222bac0343ce7f9eb1d6670bc2d7f5978aaee614994371"
+        },
+        {
+          "id": "inputs",
+          "kind": "section",
+          "title": "触发与输入",
+          "anchor": "触发与输入",
+          "sha256": "ae5fabe753fc7d44cfc26d8d85289e8d10ef68f5f7610397daaaff216f8a1aeb"
+        },
+        {
+          "id": "decision-and-result",
+          "kind": "section",
+          "title": "决策与结果",
+          "anchor": "决策与结果",
+          "sha256": "648e0a72ee159d2c9e303a91ccbe0121ad5b7bf1574b2ea8f6f2d34f56e6edba"
+        },
+        {
+          "id": "failure-boundary",
+          "kind": "section",
+          "title": "失败边界",
+          "anchor": "失败边界",
+          "sha256": "1ba1a85c526574f114b91850ad9d33b1405a6e34a80cd5a19b30b415396fdc57"
+        },
+        {
+          "id": "related",
+          "kind": "section",
+          "title": "相关概念",
+          "anchor": "相关概念",
+          "sha256": "ccda754dd8304812da9b3cd0b7e22eff6a8aa69b1e438e04843f8e2fdd1ec5dd"
+        }
+      ]
+    },
+    {
+      "id": "layer-04-index",
+      "path": "references/coding/layer-04-workflows/INDEX.md",
+      "title": "完整路线索引",
+      "source_sha256": "440097c305f64bcbaf0320f172134e5812f597246b788d1d0119c505f77df208",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "a52b12202402ee0e750b3c1a34f07e323ac47d2c2557d2ba10ec97b6a488dd88"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "可复用模块",
+          "anchor": "可复用模块",
+          "sha256": "e3815f443397609166b75960c4caae4c40083a555022367d1ca70dcc6290765a"
+        }
+      ]
+    },
+    {
+      "id": "layer-04-readme",
+      "path": "references/coding/layer-04-workflows/README.md",
+      "title": "完整 Coding 路线",
+      "source_sha256": "668001297e28e1f5b4570587d746abe22501ffa88b83d1780b6d0f64da3f79d6",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "2b92189ac5b37969ad6238c044d755bd48dcb942f214213110149b9968963540"
+        },
+        {
+          "id": "entry",
+          "kind": "section",
+          "title": "入口",
+          "anchor": "入口",
+          "sha256": "1c43078674468250bdd732dbdf97f3d108973a4e713e3a98b8762f7121f90e88"
         }
       ]
     },
@@ -31,7 +4142,7 @@
       "id": "coding-multi-agent",
       "path": "references/coding/layer-04-workflows/coding-multi-agent.md",
       "title": "Coding 工作流 — Multi-Agent 模式",
-      "source_sha256": "3e128e416496ed289a267005be4d971c88854e5f656fbe4c8dc614a5790596d6",
+      "source_sha256": "bfa20f134f0f7d7f46eb11cbebbabc0caf6e41b4d3a3a6f6e53d6451128e849b",
       "fragments": [
         {
           "id": "MM01",
@@ -39,7 +4150,7 @@
           "title": "入口就绪。",
           "phase": "entry",
           "module": "entry-readiness",
-          "sha256": "e685e19c66a382ccd2e76df03aa2dcf173f7444d3c5d78083971ffbc66474724"
+          "sha256": "c1be3be4adfb933ae6e0c4cd07d1e5c9f7fb4ba4d71f97d92b011e00ef7d4212"
         },
         {
           "id": "MM02",
@@ -47,7 +4158,7 @@
           "title": "Session 就绪。",
           "phase": "session",
           "module": "session-readiness",
-          "sha256": "b80dbc0c7fda6bf96237333a12f9712185dfc69951f4e6a6c843bffe8b261120"
+          "sha256": "fcfce17e8e2b7e70caa44ea9d501a17e22e6a2a1aa6ea49af5ad87a692fe56fe"
         },
         {
           "id": "MM03",
@@ -55,7 +4166,7 @@
           "title": "工作定义。",
           "phase": "definition",
           "module": "work-definition",
-          "sha256": "23e22c388e5d1004d4e5e9ddbdc5d76074d29235919bb6e76a41690cc86bf63e"
+          "sha256": "41168f04a5e978568c12d1eafe4aab5ce9dccf7977364fc13ac58acac71cd7ba"
         },
         {
           "id": "MM04",
@@ -63,7 +4174,7 @@
           "title": "委派执行。",
           "phase": "execution",
           "module": "delegated-execution",
-          "sha256": "7cda7dc7de04bd93a318452f9daee7f6fd79dc13dfae784462902208d7c8540e"
+          "sha256": "8f96882b1ff3ef7e8a2d3e39fc6839c32753486d356822dc3abd0e9cb192b026"
         },
         {
           "id": "MM05",
@@ -71,7 +4182,7 @@
           "title": "验证与修复。",
           "phase": "verification",
           "module": "verification-repair",
-          "sha256": "19ada29963cff497ec22ee43dd4b677f58f0a74fca1504b274ddbcc2cd89e239"
+          "sha256": "41b4a9e93b9fa1280d3da1f7216abc5df94703dc0f876abef6471d8f4544a198"
         },
         {
           "id": "MM06",
@@ -79,7 +4190,7 @@
           "title": "文档。",
           "phase": "documentation",
           "module": "documentation",
-          "sha256": "51b847734feb478e976f21b82e20c13e769d2f8c7aad2095eb2a741e1ba6d8b0"
+          "sha256": "0a9d7b04d04b53b5bfc10dacf9c6f05c6a7f8701d062ea0be2c005bd7aea89ec"
         },
         {
           "id": "MM07",
@@ -87,18 +4198,20 @@
           "title": "交付与验收。",
           "phase": "delivery",
           "module": "delivery-acceptance",
-          "sha256": "69660a99addaa85f912e94bf4630f412f20d076ef9d5e2cccc1b2e89f4931686"
+          "sha256": "a1845551bc471ba7b9d1e58c1d428a47b5b194660db384890989f736085089db"
         },
         {
           "id": "returns",
           "kind": "section",
           "title": "前置返回映射",
+          "anchor": "前置返回映射",
           "sha256": "91f82473269d1aa257b2b2a8d5d9beb267595350af7eff0911836cdb5af811b8"
         },
         {
           "id": "mode-boundary",
           "kind": "section",
           "title": "Mode 边界",
+          "anchor": "mode-边界",
           "sha256": "1674712354c02818790376a75120f1fb3f972aec1ad918dc7f5d41628dac0076"
         }
       ]
@@ -107,7 +4220,7 @@
       "id": "coding-single-agent",
       "path": "references/coding/layer-04-workflows/coding-single-agent.md",
       "title": "Coding 工作流 — Single-Agent 模式",
-      "source_sha256": "ae0a8313bf66341827fd1842dda5668c1c9af30b62bb80613902411ee52c5c65",
+      "source_sha256": "0aad9c5fd1285e71c5b3bed7a49a322ad6ddbb8ddf8bd02066df36d158626c7d",
       "fragments": [
         {
           "id": "SM01",
@@ -115,7 +4228,7 @@
           "title": "入口就绪。",
           "phase": "entry",
           "module": "entry-readiness",
-          "sha256": "910d26034e3c231b5f62bb2689a13336b40d31c2411e8592bbd8dad7e80f8bd2"
+          "sha256": "5f72691f0ae38885e04274ba04ff7ae2e3c306e2a15e322ea4a37b3bd7e73fbf"
         },
         {
           "id": "SM02",
@@ -123,7 +4236,7 @@
           "title": "Session 就绪。",
           "phase": "session",
           "module": "session-readiness",
-          "sha256": "011b71021aa823740d543ee8170f16a6e969387eeaf8dd4807df850b4e42cb22"
+          "sha256": "9b503d5096453353fbef21979596e3c3fd2791117f89f8bea479965e92a6d263"
         },
         {
           "id": "SM03",
@@ -131,7 +4244,7 @@
           "title": "工作定义。",
           "phase": "definition",
           "module": "work-definition",
-          "sha256": "35cb0779db6c0eb5bb668c857cb7bdfa65f755cabcc248987c37ef6571b0383a"
+          "sha256": "a9c7ec7bd665e29bb4bfc604a5cee3fc1b4e673b1632553d6430b0af616c5fdf"
         },
         {
           "id": "SM04",
@@ -139,7 +4252,7 @@
           "title": "Single-Agent 执行。",
           "phase": "execution",
           "module": "single-execution",
-          "sha256": "00ec8e054777e5dca7a062f5f0bf654ce5a9f447ad2a908194112512b1ff2129"
+          "sha256": "a1892d6a6f59b707664d48b117247d368b3aac0e2bd5aa0a3b23a93a81d5ec26"
         },
         {
           "id": "SM05",
@@ -147,7 +4260,7 @@
           "title": "验证与修复。",
           "phase": "verification",
           "module": "verification-repair",
-          "sha256": "eebad18d3d1d2e9d9caaa39ef149715e391e5421ed4f6aac0ffdd87d28cf0e05"
+          "sha256": "ba4feef09bdac174aa14d365e79db4fcceed636e6b83bb983110b6689987be6e"
         },
         {
           "id": "SM06",
@@ -155,7 +4268,7 @@
           "title": "文档。",
           "phase": "documentation",
           "module": "documentation",
-          "sha256": "e47c4c02f359e5e26da7e24762a2f77cb14d32e91a4190fc91d4dd1d41bc1c20"
+          "sha256": "df6710182350793076724ec676830c02c96afda1c47d7516662ee21a9ed9ef92"
         },
         {
           "id": "SM07",
@@ -163,18 +4276,20 @@
           "title": "交付与验收。",
           "phase": "delivery",
           "module": "delivery-acceptance",
-          "sha256": "915ce134568d7086494c2eb055d5b25c77e6cf0ceeba0c52cdefca021cfca1e4"
+          "sha256": "756f277ca8500aae111522b1bf320c54c104cece627a272ac5d126cad5c06e6a"
         },
         {
           "id": "returns",
           "kind": "section",
           "title": "前置返回映射",
+          "anchor": "前置返回映射",
           "sha256": "7734352a24a7b09edc4247e70d8d1984397d513c1254b55f34efa54f2fe9d9ee"
         },
         {
           "id": "mode-boundary",
           "kind": "section",
           "title": "Mode 边界",
+          "anchor": "mode-边界",
           "sha256": "7fd5700cf75a526a9635394e9473164293fa9891298e12686100d6c071b8d1eb"
         }
       ]
@@ -183,67 +4298,68 @@
       "id": "delegated-execution",
       "path": "references/coding/layer-04-workflows/modules/delegated-execution.md",
       "title": "Multi-Agent 委派执行模块",
-      "source_sha256": "b0c95c6a923cf902fb38329eda59a1aa4119723269fe6ad576b5398221d9014e",
+      "source_sha256": "0b387e68f1c4c2cf11454fd2aed41f8e1e07d0df1896220f2558fc7f24e15f8d",
       "fragments": [
         {
           "id": "entry",
           "kind": "section",
           "title": "入口声明",
+          "anchor": "入口声明",
           "sha256": "490724bc256a2c0410f4f5f7c745163c641df251923e5d8ac32acae97320a9c4"
         },
         {
           "id": "DE00",
           "kind": "checkpoint",
           "title": "解析入口。",
-          "sha256": "392e2bd970df90b8176e75cf90b5de9862927be8087519fd6c1c81dc6970f53a"
+          "sha256": "2f2525bd1c0a39c097a98f5dd12929020edeef229811faaecc06c3ee7d6fcbaa"
         },
         {
           "id": "DE01",
           "kind": "checkpoint",
           "title": "评估 Bootstrap 并授权实际任务。",
-          "sha256": "6a04bec455461f6a0887c2f7184820d1f3a777ecfd6b579b4690c24dbc09f3c4"
+          "sha256": "7b118cfbb1500d52370632246ea2f880759bc7d019e7563a49878b98e05382b1"
         },
         {
           "id": "DE02",
           "kind": "checkpoint",
           "title": "分别解析执行者和输出。",
-          "sha256": "9af4f1d315a170dfe3a93dc91a50245371148d9ede4d7782296fdacdfe3028e3"
+          "sha256": "91efc205299b0fdc6d85c8f558884758b28cefeaabbd9f829898ee388328fa8c"
         },
         {
           "id": "DE03",
           "kind": "checkpoint",
           "title": "仅为新执行者预留角色。",
-          "sha256": "186c332102c3606a2552a686ec9889e275e5bec4a472604b98de26e760126f01"
+          "sha256": "14e2106ab48bb0f624d9795562b54b827a937af3cb02c1b3fb3e98a7b8c17b38"
         },
         {
           "id": "DE04",
           "kind": "checkpoint",
           "title": "应用共用 Control 门禁并释放当前 Slice。",
-          "sha256": "eea4ee75ce04b6802c4c6343648666d1c5e65e67335cf76704ea191ac44fbc14"
+          "sha256": "b9d37a5ab5e829da6f7559dc5a017dea17a1b83c7d1b02bc4301ed3001b80d1d"
         },
         {
           "id": "DE05",
           "kind": "checkpoint",
           "title": "创建新合格子代理并绑定身份。",
-          "sha256": "d1cc008ea8a5b27d236a0237b1f64a54f37ff394e4679b37fbf46fbbb44a7696"
+          "sha256": "7b352955f316b7b14b11d64418be82edc65b362f72f5077775c08c2e4c4abe8f"
         },
         {
           "id": "DE06",
           "kind": "checkpoint",
           "title": "仅在子代理分支派发。",
-          "sha256": "ff52b2ad2b883243dbb4303b1760ce54bc9eb1f8f6176ebc71133ef4eefaac3f"
+          "sha256": "edfd84f6584fb85a9ca3190425c683aac68af1234033e18efa44a6c347e756db"
         },
         {
           "id": "DE07",
           "kind": "checkpoint",
           "title": "执行实际任务并返回结果。",
-          "sha256": "adc38c823d69d3f8b300d5aa8d174bdfa3a81082d4647728bd30c7c230dc3e66"
+          "sha256": "ca9a0172c0c148895b705240fa89896c68709430dc4c7de5b2ad802630d3a431"
         },
         {
           "id": "DE08",
           "kind": "checkpoint",
           "title": "对所有执行者解决当前 Control。",
-          "sha256": "2614b9c77085f949ede8b433a260879b609e25702b9ac697dcfce25292b15251"
+          "sha256": "1bea2219f91ea09cd7a9c48fd0c530487d62b825058a200d9c1478a38814a146"
         },
         {
           "id": "DE09",
@@ -257,43 +4373,44 @@
       "id": "delivery-acceptance",
       "path": "references/coding/layer-04-workflows/modules/delivery-acceptance.md",
       "title": "交付与验收模块",
-      "source_sha256": "bc7b86276015e4ed57d3a37830deca088cd7aec1265f2cb711a9bcf5d9d3b8af",
+      "source_sha256": "8a2ad8c5757c63bae16ac6df7af059eca7a2f4a91c76b50ca3fd5aca871e86a4",
       "fragments": [
         {
           "id": "entry",
           "kind": "section",
           "title": "入口声明",
+          "anchor": "入口声明",
           "sha256": "4b497cc71e9fe673a45b725d93558178660bcadfd181e0fda21def21ef0e593b"
         },
         {
           "id": "DA00",
           "kind": "checkpoint",
           "title": "解析入口。",
-          "sha256": "660cc384b7920ce32dca6db789a43de7275a6578337300fa5862e9a0be4599ea"
+          "sha256": "0ef855ea363b857853afdc8742d47d2b9aed2607f8ed401fdaca03da40882d57"
         },
         {
           "id": "DA01",
           "kind": "checkpoint",
           "title": "交付前核验当前 Verification。",
-          "sha256": "1242730909aab27a3f2748cbb44318e46544eca721c1088f91422b7345e13938"
+          "sha256": "7cd59ae45284b2c748ba24c340d7e9eab45bb6ee61b1db4445430a24d70487eb"
         },
         {
           "id": "DA02",
           "kind": "checkpoint",
           "title": "仅执行已请求并授权的 Git 交付。",
-          "sha256": "2b01a3c0a05f10607c998f0dbfaac836bc63f773862d39dd26db6c95a874fceb"
+          "sha256": "31c251b8372bdb48b79741ab64cda25386cbdce76252a4efb1cde45ac19c2e5f"
         },
         {
           "id": "DA03",
           "kind": "checkpoint",
           "title": "将每项 Acceptance 标准映射到当前 epoch。",
-          "sha256": "ec69108adbd78e6b6274ae9e94fcdafccdd6960c9a779f33379cf41f6049dcd9"
+          "sha256": "c93b9f3c606c1c192f2c950a13bc759fc6413f65de9e471133e5c4feb0427554"
         },
         {
           "id": "DA04",
           "kind": "checkpoint",
           "title": "完成最终更新并仅归档匹配的已完成计划。",
-          "sha256": "9a72b032b48816081d173153b078c1cbcc5efff134d4efdd2dfce2ab89ffe802"
+          "sha256": "c6eaa4d497169853600027485d4781049726a4c63c67c92e6f011ae0219b5869"
         },
         {
           "id": "DA05",
@@ -307,43 +4424,44 @@
       "id": "documentation",
       "path": "references/coding/layer-04-workflows/modules/documentation.md",
       "title": "文档模块",
-      "source_sha256": "63ad2cdff3c745bb7e51578b7b27b9808fe1dba5a4bcc4989f24c329de5c095a",
+      "source_sha256": "f9de3076437a3449400237e6eaa95b84c2adbc2e5878d23afa7f75048c4de220",
       "fragments": [
         {
           "id": "entry",
           "kind": "section",
           "title": "入口声明",
+          "anchor": "入口声明",
           "sha256": "5b456c5b6a5de3245449666e9c2587852c5e1a8e8f4380469fbf3771062a8b8b"
         },
         {
           "id": "DOC00",
           "kind": "checkpoint",
           "title": "解析入口。",
-          "sha256": "f81f956cd5aa2f4c9ce4f602c121e32c8ef72ab752e9fc93490ea0261f94cfbf"
+          "sha256": "695a2b46061f48ba586144424e1a3850a9d398ce0a26ae4316e042450b04330a"
         },
         {
           "id": "DOC01",
           "kind": "checkpoint",
           "title": "核验状态并判断适用输出。",
-          "sha256": "f48f88da1b18207d3a3bd26c1e718af39fd730270eb3911a2ac025edeb392f76"
+          "sha256": "53f3331d704e863d36326ab9eadfffb5f2030a7b87c6a00874e26ef904387a50"
         },
         {
           "id": "DOC02",
           "kind": "checkpoint",
           "title": "编写获准输出或记录有证据的无变化。",
-          "sha256": "587b94742d642a01057b25abcfe048abf22f052f03d89306f91a7b348e34d0f3"
+          "sha256": "e59049f71de606c87553b773c3cfaef1dc9fb02e3892530d0f5e3827db1b879b"
         },
         {
           "id": "DOC03",
           "kind": "checkpoint",
           "title": "仅持久化已授权项目 Memory。",
-          "sha256": "a5d3fa0d51727129e4558fc03b3c1b23143bed0adb11e44336f7a99026458731"
+          "sha256": "e72b4609550e4e2ec49ab918638f26052282f029f3c24b70fa58576f973d5c97"
         },
         {
           "id": "DOC04",
           "kind": "checkpoint",
           "title": "分类写后影响。",
-          "sha256": "20db28f0466fac77137cc96525595c2a58edfb3ec9643db3bfab61d0509a07a1"
+          "sha256": "2b615b74167606b9449f18acfb41df8bdd7b8e678382374fd630367553bbe7f5"
         },
         {
           "id": "DOC05",
@@ -363,37 +4481,38 @@
       "id": "entry-readiness",
       "path": "references/coding/layer-04-workflows/modules/entry-readiness.md",
       "title": "入口就绪模块",
-      "source_sha256": "c8ac54eba1bdd45ad3b0e34622901db3a19cad814e30c9f2c767f777f04d6211",
+      "source_sha256": "a0c0d8558737d116fa3994da6f27b7bb4a7f146c7ccdec874782a123801dd97e",
       "fragments": [
         {
           "id": "entry",
           "kind": "section",
           "title": "入口声明",
-          "sha256": "504daeff5652b61a7b825d2a73db8e994103870ce4bbc4a69b7b6a4a98b5754f"
+          "anchor": "入口声明",
+          "sha256": "0e2e04b3081efabbc3521600897cdcb95ea805c717aabec42c54808ce5cf1ae5"
         },
         {
           "id": "ER00",
           "kind": "checkpoint",
           "title": "解析入口。",
-          "sha256": "7ad448f5b9e5186351736c5a9d6f18dc9f02cd9c39a7a8bbf3592731dc68f430"
+          "sha256": "e2f90b7d44871369b1d24ae1a81a0c9a873615f99ade08cacf1f2916932c0bc8"
         },
         {
           "id": "ER01",
           "kind": "checkpoint",
           "title": "核验 Contract 和共享协议。",
-          "sha256": "9b3c085c41724ebcc074788965926e5f76a2f8d0f7deb2648652ca8190fb8e59"
+          "sha256": "c8a7cb8362a18f81aff762db1e3c3fe531c74a78787471595f88445d6938f62f"
         },
         {
           "id": "ER02",
           "kind": "checkpoint",
           "title": "核验 Environment 和导航路径。",
-          "sha256": "8df8d7be8eca74bea1193d5d9973e2071b797174311856e3966e4e769c9a4032"
+          "sha256": "c7a4dfde3684543412402a5fd8a330a360cc6744b2bf5b312456687099b2f966"
         },
         {
           "id": "ER03",
           "kind": "checkpoint",
           "title": "对照已选路线核验已释放 Mode。",
-          "sha256": "642c2a39e39ed99bdb702327e4df07d90f27006f98f4405cc8b5b397cac5fc23"
+          "sha256": "ac8d2ee104e88b5e1ca7b209192a8608eb93d6d56c127bfae55666ceb3e5382a"
         }
       ]
     },
@@ -401,19 +4520,20 @@
       "id": "session-readiness",
       "path": "references/coding/layer-04-workflows/modules/session-readiness.md",
       "title": "Session 就绪模块",
-      "source_sha256": "00f543332135dfd4f270850062792e8a28b34828187dd523feaf46af14a3e766",
+      "source_sha256": "e19994cba274143c334ac36d41aa97da7a27435eff2a6e896a8e5415f403b315",
       "fragments": [
         {
           "id": "entry",
           "kind": "section",
           "title": "入口声明",
+          "anchor": "入口声明",
           "sha256": "aa3b16562cb641eff2465226db9a10072d58848ab0cae718f0d20414246560c1"
         },
         {
           "id": "SR00",
           "kind": "checkpoint",
           "title": "解析入口。",
-          "sha256": "279ff0ea85ee2325ee05d6673bb0798b8374ae3f5b0e2e4f20a604c57673aa8d"
+          "sha256": "2b8bf720246bb722550d589e95e39f18acf8074e8028d1c2ccb1f50299288dbd"
         },
         {
           "id": "SR01",
@@ -425,19 +4545,19 @@
           "id": "SR02",
           "kind": "checkpoint",
           "title": "核验规范 parent-context 记录。",
-          "sha256": "af24eaed5fa352796d2c9b7822880f3ff1931a1d0150f212f16c0cb8f212287d"
+          "sha256": "ed6410aed60855182a3c36f545a81105bb025e92947e59dff92b94c12a489ad5"
         },
         {
           "id": "SR03",
           "kind": "checkpoint",
           "title": "应用审计偏好。",
-          "sha256": "6e9df11d059026e280ad7eb4ae530b2adb4bf0319673400e27e8a7e2948f6650"
+          "sha256": "16dd42f6fa0a058f9147a2bbd4f0f335da9572e130d730b0bdc056288c91aec8"
         },
         {
           "id": "SR04",
           "kind": "checkpoint",
           "title": "仅在 Multi-Agent 适用时核验容量。",
-          "sha256": "d24b6c0746418c6a73c4285d51892a8623c45549b37b92bbfc2040e5df9ef88d"
+          "sha256": "7029d80ca574ab6ced613a2bd82dfada64b678ecb1bae76bffe4f0d4e7cc1e46"
         }
       ]
     },
@@ -445,49 +4565,50 @@
       "id": "single-execution",
       "path": "references/coding/layer-04-workflows/modules/single-execution.md",
       "title": "Single-Agent 执行模块",
-      "source_sha256": "2626a75136d974822d082ca2f66e5c572a34cd0733eb0330c56ca1a8ce1d7daa",
+      "source_sha256": "e9d75cd1225b900824586b785ba2421222ae0650c29a634e1fb7df78dc3bd70c",
       "fragments": [
         {
           "id": "entry",
           "kind": "section",
           "title": "入口声明",
+          "anchor": "入口声明",
           "sha256": "5954bc104cae798484c18b579169e76068ca04a487f527a436f0f8c86c2b25ba"
         },
         {
           "id": "SE00",
           "kind": "checkpoint",
           "title": "解析入口。",
-          "sha256": "723a44b7e79a190e90f088efadda209cb806feeb3ec02dbca1995549fa74a704"
+          "sha256": "2f24191812cc783dddcceade928ab3633d1120b677610277d82e4aa197fcd2a4"
         },
         {
           "id": "SE01",
           "kind": "checkpoint",
           "title": "分别解析执行者和输出。",
-          "sha256": "2ab2a03072c2b5e267e8da6a613489047c8173122a1135c1347dc1cbd124a14f"
+          "sha256": "11409a936b44095c0897d1beac418222ce0e27d7932774c4884bee10026321b3"
         },
         {
           "id": "SE02",
           "kind": "checkpoint",
           "title": "应用当前 Control 门禁并释放 Slice。",
-          "sha256": "c2bc0e813d2091ac1f19546285a6b60d73e9c09afc686845bf2309659a17223d"
+          "sha256": "b8bebd44d52c58b7263d6d56e8ecd5b898b9e2d7f06b9eb6e3ead9d3cb8ff6f6"
         },
         {
           "id": "SE03",
           "kind": "checkpoint",
           "title": "实施并返回初步检查。",
-          "sha256": "9b7dfbc3f106ec595a71b1ea448c8bc58a5714c5df3c4e6885d6025288f94673"
+          "sha256": "b786ff4e8f89f3480b07d747f749a5adec900bb2fbba649b0cdb2aff05402504"
         },
         {
           "id": "SE04",
           "kind": "checkpoint",
           "title": "提供阶段反馈。",
-          "sha256": "7ace7456701a654fe961fc6f5a1702d1cca7d1aefb0fcde2973efeea723fa22b"
+          "sha256": "3a198f04378ea500c5858050a9153dad3c31c2cb6e494222c420b4eaaf47164d"
         },
         {
           "id": "SE05",
           "kind": "checkpoint",
           "title": "解决当前 Control。",
-          "sha256": "3b58d10212b7be914f2c0357c7657bac3b214ccb5cde8f5c0dca7ce94d1ac653"
+          "sha256": "407d1c9cfab72df03e6279ca06de2795a9ab029c069f4011f40832293e6c6482"
         },
         {
           "id": "SE06",
@@ -501,31 +4622,32 @@
       "id": "verification-repair",
       "path": "references/coding/layer-04-workflows/modules/verification-repair.md",
       "title": "验证与修复模块",
-      "source_sha256": "d8e8e9790dbab747337e944e007595c1564d30b765f6073e1b1e1899b84f20be",
+      "source_sha256": "d71bd71cf4adaa1e4cd281f5e8622642d1b75be797485a6e0c879d8088a57ba2",
       "fragments": [
         {
           "id": "entry",
           "kind": "section",
           "title": "入口声明",
+          "anchor": "入口声明",
           "sha256": "a0616b1893926bd19ad6060d77b07b519c5dc11a3230aca305a4cdbb0df30768"
         },
         {
           "id": "VR00",
           "kind": "checkpoint",
           "title": "解析入口。",
-          "sha256": "1eab4364e81871c8afa9ae32be6eb47b67b0775e145fe28c84f030ee59bca52e"
+          "sha256": "9c60e866e69f364dc18f4d29b25b1c98eabf74eb3dfb0ac6b80d3fd1fca72e5c"
         },
         {
           "id": "VR01",
           "kind": "checkpoint",
           "title": "捕获实际当前最终状态。",
-          "sha256": "400a5dc5008514e1b222ef17bc1f8a30f9399ae3c19fb26619daea79d85db8f9"
+          "sha256": "547629cc0d09ed7bf1ed338a10ccd7c1d77ec29161fe1bfc85ea122a6589a326"
         },
         {
           "id": "VR02",
           "kind": "checkpoint",
           "title": "解析独立性要求。",
-          "sha256": "dec2602b2c0b596e8279226fac02b15395b30ef0171364cd1020da172545ceaa"
+          "sha256": "52a0b5b9d58f4d3c381903944c7f3c503644ed2c000da7ea3a31a9e4c851e0f7"
         },
         {
           "id": "VR03",
@@ -537,13 +4659,13 @@
           "id": "VR04",
           "kind": "checkpoint",
           "title": "分类并报告证据。",
-          "sha256": "5e194154ae470dfeb53da610529fa76dc66afc8e12db3f03a386a4ad76b80468"
+          "sha256": "0d6c0bfb34c8f746b53cb98e502a48a91ed15da2f7b9e37a2192924a4fa4cf4c"
         },
         {
           "id": "VR05",
           "kind": "checkpoint",
           "title": "路由失败或确立 Repair N/A。",
-          "sha256": "1404befb8beb2e2034a6640bf71ee4d09beeb7886242d695dc978d7509a43b56"
+          "sha256": "a11ba1939e425c32913c722c851b66996d944e6f760257ef012715f66b1df8ab"
         },
         {
           "id": "VR06",
@@ -557,37 +4679,213 @@
       "id": "work-definition",
       "path": "references/coding/layer-04-workflows/modules/work-definition.md",
       "title": "工作定义模块",
-      "source_sha256": "812bff7918f0ac3a41bd75aa5c17e76cf049efdfdafa1b476c84542dad521ad5",
+      "source_sha256": "7fb25c7a91aff7cc92a2f01d91d4fd5667dbd0575e395ef5be0f822176e4cbbe",
       "fragments": [
         {
           "id": "entry",
           "kind": "section",
           "title": "入口声明",
+          "anchor": "入口声明",
           "sha256": "7d4697f8c529fda6cb18d99327be436242593162bdb48ae2d2c64c033e877a30"
         },
         {
           "id": "WD00",
           "kind": "checkpoint",
           "title": "解析入口。",
-          "sha256": "5d74057edc5bbebfebdc9514f164a8f4aee76b29433466a5efe7fb6b10a91fd3"
+          "sha256": "490990ba217a71cd2945e442f295ddddb9ac05530e84a8946bab7039378de077"
         },
         {
           "id": "WD01",
           "kind": "checkpoint",
           "title": "建立有界当前 Context。",
-          "sha256": "084754d566649b873efd2a2819734e57a696f4977913ed583f8d4bdc24442e0e"
+          "sha256": "d57696c9bf20f138b14c6022bab89b8c82b070b196379b5c644bd80f7162becc"
         },
         {
           "id": "WD02",
           "kind": "checkpoint",
           "title": "在 Contract 范围内决策。",
-          "sha256": "ceef065a27aae89e7bb97f8281742ffdb1e24b17f0fe239d0e3bf6d8e6a0953e"
+          "sha256": "17ac3da22c9df1f6a577e12346a76b1670540cc7ef75b1b55c5a37a7d51f5b35"
         },
         {
           "id": "WD03",
           "kind": "checkpoint",
           "title": "解决默认共享任务计划。",
-          "sha256": "dea9a2a665bbb276dc04daf3f41f37c6d2f3235480b94df56ae4f3812b190d33"
+          "sha256": "ade91016be12ace179867b8de2c5bd353713e83b35fc3c2239dc6c98807a4a0d"
+        }
+      ]
+    },
+    {
+      "id": "multimodal-flow",
+      "path": "references/multimodal/multimodal-flow.md",
+      "title": "Multimodal Flow",
+      "source_sha256": "b81169d41e06dd780f36a5a88d3a4d191720101381c805ffa607c954a5300254",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "7f2fb258898455a8d5fd2faeb988e0a087ddc876d6a0b4ec85b2412f7abdb359"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "角色 ownership",
+          "anchor": "角色-ownership",
+          "sha256": "e2ea05adf4b05b60349d68d45fd61884ec21442a13c1ba8efc885bbde7474c6d"
+        },
+        {
+          "id": "decision-agent",
+          "kind": "section",
+          "title": "Decision Agent",
+          "anchor": "decision-agent",
+          "sha256": "d56c3faf9f84849b2980101cecef8e35ece9bce1231c9be529a5d248cfe98f05"
+        },
+        {
+          "id": "primary-observation-agent",
+          "kind": "section",
+          "title": "Primary Observation Agent",
+          "anchor": "primary-observation-agent",
+          "sha256": "f0ca7edc93ef90e9c8c0254aa4d4b0c412dc4efbe35f99447efe9146dbce3a50"
+        },
+        {
+          "id": "optional-primary-output-agent",
+          "kind": "section",
+          "title": "Optional Primary Output Agent",
+          "anchor": "optional-primary-output-agent",
+          "sha256": "9e9d1854579a5b3ec910785d99536d091ac225b03cb81c31ee1f826a7401b612"
+        },
+        {
+          "id": "observation-firewall",
+          "kind": "section",
+          "title": "Observation Firewall",
+          "anchor": "observation-firewall",
+          "sha256": "0b355d163aece8e9f5d6a2f34328766180946397338bf1749c11566289a83c49"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "工作模式",
+          "anchor": "工作模式",
+          "sha256": "e87b692bf5f43203f933ae215203eb15e37b256e329b6a82fb7d246471d221a4"
+        },
+        {
+          "id": "section-03",
+          "kind": "section",
+          "title": "Creative 控制循环",
+          "anchor": "creative-控制循环",
+          "sha256": "a6210ebefc81e555864de64cd32c5850434d45e48fa3e705706d1de4310af93f"
+        },
+        {
+          "id": "section-04",
+          "kind": "section",
+          "title": "渐进式披露",
+          "anchor": "渐进式披露",
+          "sha256": "6f9934922eecfbedfe82ad1a56a4e0777bd0d49c916c18c71607e6e6aca74e62"
+        },
+        {
+          "id": "section-05",
+          "kind": "section",
+          "title": "Session 状态与 Routine 安全",
+          "anchor": "session-状态与-routine-安全",
+          "sha256": "4e2256981b68702b3b43e960126a6eb3132c4383c5b402bd0dde5f8f50346143"
+        },
+        {
+          "id": "section-06",
+          "kind": "section",
+          "title": "Digest 与验证",
+          "anchor": "digest-与验证",
+          "sha256": "cc930e90a67b9ab905b91e254d23511bc3494784b76cf76fc0eb42cecf03ff37"
+        },
+        {
+          "id": "section-07",
+          "kind": "section",
+          "title": "窄 Coding handoff",
+          "anchor": "窄-coding-handoff",
+          "sha256": "b40c9b5b4511d50d8e6a553ccbe59f85bfac6bd53088c94d843a168397c8adfb"
+        }
+      ]
+    },
+    {
+      "id": "multimodal-openai-profile",
+      "path": "references/multimodal/multimodal-openai-profile.md",
+      "title": "Multimodal OpenAI Deployment Profile",
+      "source_sha256": "0320ae90ac0014ba2b13f3943119756c4c25d8ab2639ff39d02b887c9af41991",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "23d0ba22fd825d9412590cfec8d28b1f2ad88017a7ec44865de9ff4b174746d5"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "按任务选择，不再固定Luna",
+          "anchor": "按任务选择不再固定luna",
+          "sha256": "fdad56d2ce983bbf698758dd63d4afda6f9b9270ab831ccac0e817b4b55345f8"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "档位与能力边界",
+          "anchor": "档位与能力边界",
+          "sha256": "5b3abcd7eeb692ca421dc0ef64df6c497b24ba15de35fd79fd5e66437036e1e6"
+        }
+      ]
+    },
+    {
+      "id": "shared-protocols",
+      "path": "references/share/shared-protocols.md",
+      "title": "共享调度协议",
+      "source_sha256": "bce8b102297808a8b1736132730a7277ebac5145500328ace36e6098011df4f0",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "76921fa01d14adb8ce2379536d9df9116cda65f620fe13a765e08cb0763f1d68"
+        },
+        {
+          "id": "semantic-contract",
+          "kind": "section",
+          "title": "Semantic Contract",
+          "anchor": "semantic-contract",
+          "sha256": "ea5e54daa9c0496633008a31e4f9d3995abc27c8b6a527798e3e3cef5dc9f9fa"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "父级返回路径",
+          "anchor": "父级返回路径",
+          "sha256": "903bab69d764a6a2f52bc08a5787867c27ac9548b489655fe2fdf4c9f95f3f2d"
+        },
+        {
+          "id": "dispatch-preview",
+          "kind": "section",
+          "title": "Dispatch Preview",
+          "anchor": "dispatch-preview",
+          "sha256": "70db3d8b838a13848bac26717aecbd9c35f4637904a2b8d9bc3faab036bf15d3"
+        },
+        {
+          "id": "section-02",
+          "kind": "section",
+          "title": "事件驱动反馈",
+          "anchor": "事件驱动反馈",
+          "sha256": "2e3f6cb0e6c08cb0f1cbd95bf3a2ee523aeda4cf61ce25a06520add73588c56f"
+        },
+        {
+          "id": "evidence-on-demand",
+          "kind": "section",
+          "title": "Evidence-on-Demand",
+          "anchor": "evidence-on-demand",
+          "sha256": "5c40686f4684c652993429518ec67e80d7fbe3091affbc7fc629833a73299953"
+        },
+        {
+          "id": "section-03",
+          "kind": "section",
+          "title": "缓存感知的稳定性",
+          "anchor": "缓存感知的稳定性",
+          "sha256": "aa1e6155b34be9f375834e32c66b361d7b5a784c00b7ea286857abce6862e8e2"
         }
       ]
     }
@@ -610,5 +4908,5 @@
     "session": "983ada1d5b1b460d2bd5af0bdf339442ee4478a6600475edcd41ec99ba43138d",
     "verification": "cd86357fe8a956a1230586de8c6c9810a41e3185fb971fc9d02638d5c38517b2"
   },
-  "legacy_rule_sha256": "93d98218721869d98f75cdd789d59816126c815f3b40006ae85cb218e090bfe6"
+  "legacy_rule_sha256": "c3ee727073b263bfbeb215917f2434bd75f991758485e13164c9990692a7003e"
 }

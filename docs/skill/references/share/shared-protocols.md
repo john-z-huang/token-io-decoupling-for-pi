@@ -1,5 +1,7 @@
 # 共享调度协议
 
+<!-- 由 docs/rules/references/share/shared-protocols.yaml 生成。请在 DSL 中维护正文。 -->
+
 本模块定义可复用的 Coding 消息与上下文原语，不选择路线、Session 拓扑、Runtime 或 Agent 数量。
 
 ## Semantic Contract

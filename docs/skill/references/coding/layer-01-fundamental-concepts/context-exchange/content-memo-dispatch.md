@@ -1,5 +1,7 @@
 # Worker Content Memo Dispatch
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/context-exchange/content-memo-dispatch.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档定义父 Agent 控制的 Serena Memory Worker memo 开关 `write_content_memo`，不定义 memo 内容或生命周期。
 

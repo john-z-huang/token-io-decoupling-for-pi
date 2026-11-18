@@ -39,7 +39,7 @@ token-io-decoupling-tools skills update
 
 默认安装到 `~/.pi/agent/skills/token-io-decoupling-skill`；可用 `--name NEW-NAME` 指定另一个小写、连字符分隔的名称。旧名称 `token-io-decoupling` 始终被拒绝。安装器不会修改或删除旧项目，会拒绝符号链接路径及已有未知目录，只更新内容未经修改且由本工具管理的安装。更新前请将本地修改另行保存。发布失败时会恢复旧安装；进程中断可能遗留锁或暂存目录，应先检查再人工恢复。
 
-Skill 指令源位于 [docs/skill](docs/skill/SKILL.md)。wheel 和源码分发包携带独立快照，包含中文工作流、引用以及支持文档和脚本。安装只读取该快照，不读取或克隆源码仓库；开发改动必须重新构建、安装 CLI 并显式更新 Skill 后才生效。安装后的 `_project/` 是生成的支持资料快照，不是新的源文档 owner。该 CLI 路径不安装此轮新增的 Extension；MCP 使用唯一 tools 程序，需按实际 Pi MCP 配置显式注册；受保护写入仍要求独立可信绑定。
+Skill 的入口位于 [docs/skill](docs/skill/SKILL.md)。参考规则用 `docs/rules/references/` 中的 YAML DSL 维护。wheel 和源码分发包携带独立快照，包含中文工作流、生成的参考文档以及支持文档和脚本。安装从该快照读取，开发改动需重新构建、安装 CLI 并显式更新 Skill 后才生效。安装后的 `_project/` 是生成的支持资料快照。通过 CLI 安装 Skill 和通过 Pi 加载 Extension 分别执行。MCP 使用唯一 tools 程序，需按实际 Pi MCP 配置显式注册。受保护写入仍要求独立可信绑定。 [维护说明](docs/project/DOCUMENTATION_STANDARDS.md#参考规则-dsl)
 
 兼容旧安装时，请在请求中使用新 Skill 名称。已有会话可能保留旧指令：保留并迁移旧开发仓库后，使用现有配置人工停用其旧 Skill 发现入口，再启动使用新名称的新会话。安装器不删除旧项目，也不自动处理重复发现。不要再次将开发仓库本身放进 Skill 目录。
 

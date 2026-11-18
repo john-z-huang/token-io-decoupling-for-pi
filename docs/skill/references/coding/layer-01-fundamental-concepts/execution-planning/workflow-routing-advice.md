@@ -1,5 +1,7 @@
 # 工作流路由建议
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/execution-planning/workflow-routing-advice.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档定义在已获授权的 Coding 路线内定位当前检查点的可选任务级建议。它不拥有路线政策、就绪判断、模式选择、权限或执行权。
 

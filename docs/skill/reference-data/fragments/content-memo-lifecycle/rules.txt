@@ -1,0 +1,5 @@
+### 创建、更新与发现
+
+`write_content_memo` 为 true 时，使用 `list_memories` 检查具名条目，并在首次出现可复用状态以及实质里程碑、阻塞、handoff、replacement 或正常退出时，使用 `write_memory` 创建或更新 `context-exchange/workers/<worker-context-id>/content-memo`。只在状态/证据实质变化时更新，不要逐命令记录。父级或后继者只有在已放行指令具名或授权该记录时才能读取；Serena 本身不强制该归属规则。这些记录不另建本地文件索引；名称可通过 Serena Memory 列表发现。
+
+Memory 能力失败时必须报告，并阻塞依赖该记录的工作；不得回退为文件写入。遵守 memo 内容契约，不得写成命令日志。

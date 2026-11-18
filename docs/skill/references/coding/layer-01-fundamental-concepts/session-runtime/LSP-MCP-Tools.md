@@ -1,5 +1,7 @@
 # Serena LSP 与 MCP 工具
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档定义 Coding Agent 如何通过 Serena MCP 使用当前语言服务器结构化浏览代码，以及如何读写可复用的 Agent 项目知识。它不定义权威仓库文档的存储或父级实时 mode/count/allocation/epoch 状态；Worker memo 与上下文交换记录按各自 owner 使用项目 Memory。
 

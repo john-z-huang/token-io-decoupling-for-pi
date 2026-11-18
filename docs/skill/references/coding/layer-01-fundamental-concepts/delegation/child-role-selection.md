@@ -1,5 +1,7 @@
 # Coding 子代理职责选择
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/delegation/child-role-selection.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档负责为拟创建的子代理选择一个受维护的职责，以及职责选择 Decisions 政策。它消费[Session 职责归属](../session-runtime/session-role-ownership.md)中的职责、[Session 模型](../session-runtime/session-model.md)和[委派状态记录](delegation-state-record.md)中的当前身份与 allocation，以及[委派数量门禁](delegation-mode-count-gate.md)中的容量；不分配预算、不创建子代理，也不授权任何影响。
 

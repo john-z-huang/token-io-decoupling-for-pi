@@ -1,5 +1,7 @@
 # Coding 子 Agent 派发
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/delegation/delegation-child-dispatch.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档负责实际派发前的 Dispatch Preview 和 Worker 边界。它消费已获授权的子 Agent 和 slice；不定义子 Agent 创建、职责分配、复用或替换、生命周期或 Interaction Slice 字段。
 

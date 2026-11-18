@@ -1,5 +1,7 @@
 # Coding Session 职责归属
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/session-runtime/session-role-ownership.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档负责 Coding 架构角色的责任：输入侧推理、Primary Output、Context Bootstrap/Refresh、Change Verification 以及 Documentation/Comments & Git Operations。不定义 Session 语义、职责分配、Context Firewall 策略或工作流最终验收。
 

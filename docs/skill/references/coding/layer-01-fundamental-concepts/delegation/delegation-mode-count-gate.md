@@ -1,5 +1,7 @@
 # Coding 委派数量门禁
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档负责多代理子 Agent 数量的选择、锁定和数量预算边界。它消费已选择的模式和状态记录；不定义模式选择、重新进入、子 Agent 创建或生命周期。
 

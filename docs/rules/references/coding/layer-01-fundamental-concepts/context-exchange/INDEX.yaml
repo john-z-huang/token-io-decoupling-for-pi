@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=../../../../reference.schema.json
+schema_version: 1
+document_type: directory-index
+id: context-exchange-index
+markdown_path: references/coding/layer-01-fundamental-concepts/context-exchange/INDEX.md
+title: "Context Exchange 索引"
+blocks:
+  - owners:
+      kind: section
+      title: "所有者"
+      expose: true
+      blank_lines_before: 2
+      blocks:
+        - owners-body:
+            kind: markdown
+            text: |-
+              - [content-memo](content-memo.yaml)
+              - [content-memo-dispatch](content-memo-dispatch.yaml)
+              - [content-memo-lifecycle](content-memo-lifecycle.yaml)
+              - [context-exchange](context-exchange.yaml)
+              - [context-exchange-handoff](context-exchange-handoff.yaml)
+              - [context-exchange-workspace-boundary](context-exchange-workspace-boundary.yaml)

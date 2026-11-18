@@ -1,0 +1,7 @@
+- [Coding Child Lifecycle](delegation-child-lifecycle.yaml) — 定位子 Agent 状态归属。
+- [Coding Child Role Allocation](delegation-child-role-allocation.yaml) — 定位名额和职责分配。
+- [Coding Child Dispatch](delegation-child-dispatch.yaml) — 定位实际派发边界。
+- [Coding Child Reuse and Replacement](delegation-child-reuse-replacement.yaml) — 定位获准的复用和替换。
+- [Coding Session Model](../session-runtime/session-model.yaml) — 定位 role 和 Session 归属。
+- [Coding Context Exchange](../context-exchange/context-exchange.yaml) — 定位必要的上下文传输归属。
+- [Coding Session 审计可见性](../session-runtime/session-audit-visibility.yaml) — 定位会话审计配置。

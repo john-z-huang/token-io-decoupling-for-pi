@@ -1,0 +1,6 @@
+- [Coding Execution Control](../../layer-01-fundamental-concepts/execution-control/execution-control.yaml) — 定位授权路径、修改和返回边界归属。
+- [Coding Execution Planning](../../layer-01-fundamental-concepts/execution-planning/execution-planning.yaml) — 定位有界规划和已放行 slice 归属。
+- [Coding Execution Decision Gate](../../layer-01-fundamental-concepts/execution-planning/execution-decision-gate.yaml) — 定位方向和实现放行归属。
+- [输出物料化](../../layer-01-fundamental-concepts/execution-planning/output-materialization.yaml) — 定位受控候选准备和应用。
+- [候选合规预检](../../layer-01-fundamental-concepts/execution-planning/candidate-compliance.yaml) — 定位只读候选检查。
+- [Coding Delegation State Record Worker Boundary](../../layer-01-fundamental-concepts/delegation/delegation-worker-boundary.yaml) — 定位命名路径的 Worker 访问边界。

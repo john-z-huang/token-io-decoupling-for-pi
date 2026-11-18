@@ -1,0 +1,62 @@
+layouts:
+  - [overview, entry, flowchart, checkpoints, related]
+block_rules:
+  overview:
+    kind: markdown
+  entry:
+    kind: section
+    expose: true
+  flowchart:
+    kind: section
+    child_kinds:
+      - markdown
+  checkpoints:
+    kind: section
+    child_kinds:
+      - checkpoint
+  related:
+    kind: section
+document:
+  schema_version: 1
+  document_type: workflow-module
+  id: example-workflow-module
+  markdown_path: references/coding/layer-04-workflows/modules/example-workflow-module.md
+  title: 工作流模块示例
+  blocks:
+    - overview:
+        kind: markdown
+        text: 说明模块组合的证据、职责和返回边界。
+    - entry:
+        kind: section
+        title: 入口声明
+        expose: true
+        blocks:
+          - entry-body:
+              kind: markdown
+              text: 声明必需输入、允许效果、结果和新鲜度。
+    - flowchart:
+        kind: section
+        title: 工作流路线图
+        blocks:
+          - flowchart-body:
+              kind: markdown
+              text: |-
+                ```mermaid
+                flowchart TD
+                    EX00[解析入口] --> DONE[完成]
+                ```
+    - checkpoints:
+        kind: section
+        title: 有序模块清单
+        blocks:
+          - EX00:
+              kind: checkpoint
+              title: 解析入口
+              text: 描述入口证据、结果分支和暂停位置。
+    - related:
+        kind: section
+        title: 相关概念
+        blocks:
+          - related-body:
+              kind: markdown
+              text: '- 链接到模块消费的规则。'

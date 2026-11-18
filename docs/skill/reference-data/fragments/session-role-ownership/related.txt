@@ -1,0 +1,8 @@
+- [Coding Session Model](session-model.yaml) — 定位 Session 语义和 Affinity。
+- [Coding Session Context Firewall](session-context-firewall.yaml) — 定位原始状态进入归属。
+- [Coding Child Role Allocation](../delegation/delegation-child-role-allocation.yaml) — 定位职责分配归属。
+- [Coding Delegation State Record](../delegation/delegation-state-record.yaml) — 定位任务控制状态归属。
+- [Coding Execution Control](../execution-control/execution-control.yaml) — 定位阶段和 slice 边界归属。
+- [Coding Session 审计可见性](session-audit-visibility.yaml) — 定位 Worker 消息与摘要策略。
+- [子代理职责选择](../delegation/child-role-selection.yaml) — 定位受维护职责之间的建议选择。
+- [任务执行主体分配](../execution-planning/task-assignment.yaml) — 定位 Root 和现有子代理的选择。

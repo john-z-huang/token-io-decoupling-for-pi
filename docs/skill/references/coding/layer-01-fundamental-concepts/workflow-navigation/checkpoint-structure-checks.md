@@ -1,5 +1,7 @@
 # 检查点结构检查
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/workflow-navigation/checkpoint-structure-checks.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档负责对调用方提供的检查点事实和证据执行确定性结构评估。不负责认证输入、判定语义真实性、授权工作或验收任务。
 

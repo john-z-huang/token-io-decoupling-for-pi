@@ -1,5 +1,7 @@
 # Coding 委派模式确认
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-confirmation.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档负责会话首次的模式选择、默认值、选择前限制以及单代理路线限制。它消费并更新状态记录；不定义数量锁定、重新进入、子 Agent 创建或生命周期。
 

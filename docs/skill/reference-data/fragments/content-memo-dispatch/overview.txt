@@ -1,0 +1,1 @@
+本文档定义父 Agent 控制的 Serena Memory Worker memo 开关 `write_content_memo`，不定义 memo 内容或生命周期。

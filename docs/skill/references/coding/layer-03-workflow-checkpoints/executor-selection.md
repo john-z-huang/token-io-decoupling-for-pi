@@ -1,5 +1,7 @@
 # 执行者选择
 
+<!-- 由 docs/rules/references/coding/layer-03-workflow-checkpoints/executor-selection.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本检查点负责当前任务范围和模式建立后的执行者路由。[Task Assignment](../layer-01-fundamental-concepts/execution-planning/task-assignment.md)仍是执行者及候选选择政策的权威 owner。
 

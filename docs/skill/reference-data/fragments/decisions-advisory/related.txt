@@ -1,0 +1,6 @@
+- [Workflow Routing Advice](workflow-routing-advice.yaml) — 拥有五个固定语义建议节点之外的任务级阶段建议。
+- [工作流规则上下文](../workflow-navigation/rule-context.yaml) — 当前注册 owner 标题及来源/Hash 边界。
+- [Session 角色归属](../session-runtime/session-role-ownership.yaml) — 角色责任边界。
+- [Coding Execution Decision Gate](execution-decision-gate.yaml) — 决策和放行责任。
+- [Coding Execution Control](../execution-control/execution-control.yaml) — Slice 和 Control 转换授权。
+- [Coding Delegation State Record](../delegation/delegation-state-record.yaml) — 当前 Root 状态和 Epoch 基础。

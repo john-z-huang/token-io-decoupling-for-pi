@@ -1,0 +1,116 @@
+layouts:
+  - [overview, flowchart, checkpoints, returns, mode-boundary, related]
+block_rules:
+  overview:
+    kind: markdown
+  flowchart:
+    kind: section
+    child_kinds:
+      - markdown
+  checkpoints:
+    kind: section
+    child_kinds:
+      - markdown
+      - route_step
+  returns:
+    kind: section
+    expose: true
+  mode-boundary:
+    kind: section
+    expose: true
+  related:
+    kind: section
+phase_order: [entry, session, definition, execution, verification, documentation, delivery]
+document:
+  schema_version: 1
+  document_type: workflow-route
+  id: example-workflow-route
+  markdown_path: references/coding/layer-04-workflows/example-workflow-route.md
+  title: 工作流路线示例
+  blocks:
+    - overview:
+        kind: markdown
+        text: 说明路线的适用 Mode、模块组合与返回边界。
+    - flowchart:
+        kind: section
+        title: 工作流路线图
+        blocks:
+          - flowchart-body:
+              kind: markdown
+              text: |-
+                ```mermaid
+                flowchart TD
+                    EX01[入口就绪] --> EX02[Session 就绪]
+                ```
+    - checkpoints:
+        kind: section
+        title: 路线顺序检查清单
+        blocks:
+          - preconditions:
+              kind: markdown
+              text: 说明所需前置证据和调用位置。
+          - EX01:
+              kind: route_step
+              title: 入口就绪
+              phase: entry
+              module: entry-readiness
+              text: 调用[模块](modules/entry-readiness.yaml)。
+          - EX02:
+              kind: route_step
+              title: Session 就绪
+              phase: session
+              module: session-readiness
+              text: 调用[模块](modules/session-readiness.yaml)。
+          - EX03:
+              kind: route_step
+              title: 工作定义
+              phase: definition
+              module: work-definition
+              text: 调用[模块](modules/work-definition.yaml)。
+          - EX04:
+              kind: route_step
+              title: 执行
+              phase: execution
+              module: single-execution
+              text: 调用[模块](modules/single-execution.yaml)。
+          - EX05:
+              kind: route_step
+              title: 验证与修复
+              phase: verification
+              module: verification-repair
+              text: 调用[模块](modules/verification-repair.yaml)。
+          - EX06:
+              kind: route_step
+              title: 文档
+              phase: documentation
+              module: documentation
+              text: 调用[模块](modules/documentation.yaml)。
+          - EX07:
+              kind: route_step
+              title: 交付与验收
+              phase: delivery
+              module: delivery-acceptance
+              text: 调用[模块](modules/delivery-acceptance.yaml)。
+    - returns:
+        kind: section
+        title: 前置返回映射
+        expose: true
+        blocks:
+          - returns-body:
+              kind: markdown
+              text: 为每个前置结果写明生产者、复核条件和原调用位置。
+    - mode-boundary:
+        kind: section
+        title: Mode 边界
+        expose: true
+        blocks:
+          - mode-boundary-body:
+              kind: markdown
+              text: 说明本路线读取的 Mode 证据及其允许效果。
+    - related:
+        kind: section
+        title: 相关概念
+        blocks:
+          - related-body:
+              kind: markdown
+              text: '- 链接到相关所有者。'

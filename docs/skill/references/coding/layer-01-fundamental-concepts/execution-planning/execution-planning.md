@@ -1,5 +1,7 @@
 # Coding Execution Planning
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/execution-planning/execution-planning.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档负责两级执行规划：将已批准方向转换为有界计划和阶段提纲，并安排 reconnaissance 在实现放行之前发生。不定义决策门禁策略、Interaction Slice 字段、阶段反馈、角色/Session 语义、上下文传输或委派生命周期。
 

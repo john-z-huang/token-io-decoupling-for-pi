@@ -1,1 +1,1 @@
-提供本声明、当前授权与路线/模式证据、完整 Session/审计和 Context/Decision 证据、先前效果、恢复状态及 continuation，调用[模块入口解析](../../layer-03-workflow-checkpoints/module-entry-resolution.md)。`ready` 只允许模块核验。证据缺失时连同 owner 和位置返回 `needs_prerequisite`；冲突、状态不安全或先前效果无法恢复时返回 `blocked`。
+提供本声明、当前授权与路线/模式证据、完整 Session/审计和 Context/Decision 证据、先前效果、恢复状态及 continuation，调用[模块入口解析](../../layer-03-workflow-checkpoints/module-entry-resolution.yaml)。`ready` 只允许模块核验。证据缺失时连同 owner 和位置返回 `needs_prerequisite`；冲突、状态不安全或先前效果无法恢复时返回 `blocked`。

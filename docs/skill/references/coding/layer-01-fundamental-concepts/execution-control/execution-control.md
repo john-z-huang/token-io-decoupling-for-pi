@@ -1,5 +1,7 @@
 # Coding Execution Control
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/execution-control/execution-control.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本文档负责 Interaction Slice 控制：slice 放行字段、边界行为和 Control Checkpoint 选择。它假定规划、决策门禁、阶段反馈、角色/Session 上下文、运行环境能力、上下文传输和委派生命周期由各自 owner 概念提供，不定义这些策略。
 

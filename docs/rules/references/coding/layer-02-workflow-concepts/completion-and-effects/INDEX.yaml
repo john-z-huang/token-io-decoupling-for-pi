@@ -1,0 +1,19 @@
+# yaml-language-server: $schema=../../../../reference.schema.json
+schema_version: 1
+document_type: directory-index
+id: completion-and-effects-index
+markdown_path: references/coding/layer-02-workflow-concepts/completion-and-effects/INDEX.md
+title: "Completion And Effects 索引"
+blocks:
+  - owners:
+      kind: section
+      title: "所有者"
+      expose: true
+      blank_lines_before: 2
+      blocks:
+        - owners-body:
+            kind: markdown
+            text: |-
+              - [documentation](documentation.yaml)
+              - [git](git.yaml)
+              - [acceptance](acceptance.yaml)

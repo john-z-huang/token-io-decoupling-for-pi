@@ -1,1 +1,1 @@
-使用当前 Contract、Environment、能力清单、已释放 Multi-Agent Mode、正数锁定数量及授权路线证据，调用[入口就绪模块](modules/entry-readiness.md)。仅在入口证据当前且一致时继续。缺失前置交语义 owner 并保留 MM01；冲突或状态不安全时阻塞。
+使用当前 Contract、Environment、能力清单、已释放 Multi-Agent Mode、正数锁定数量及授权路线证据，调用[入口就绪模块](modules/entry-readiness.yaml)。仅在入口证据当前且一致时继续。缺失前置交语义 owner 并保留 MM01；冲突或状态不安全时阻塞。

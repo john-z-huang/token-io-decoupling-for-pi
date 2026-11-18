@@ -1,5 +1,7 @@
 # Entry And Context
 
+<!-- 由 docs/rules/references/coding/layer-02-workflow-concepts/entry-and-context/README.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 ## 范围与边界
 

@@ -1,0 +1,5 @@
+在本文 owner 中，已放行任务是指 Root 在 Context 和 Decision 之后已授权并界定其目标与范围。这不要求面向特定子代理的 Interaction Slice 已放行。执行主体选择本身不能放行后续 Slice：实现或派发前，Root 仍须通过适用的 Slice 门禁并提供具体授权边界。
+
+遵循用户明确的执行主体或 Agent 指令，并跳过相应的建议请求。仍须核验模式、范围、权限、可用性和当前会话身份。显式 `sub_agent` 指令与已锁定的 Single-Agent 模式冲突时，必须交 Root 复核；不得静默改成 `root`。Single-Agent 模式下显式指定 `root` 仍然有效。没有显式执行主体时，Single-Agent 模式没有子代理执行主体，可按本地确定性路径由 Root 处理，但仍须通过其他门禁。Fork 是新 Session，必须按[委派模式重入](../delegation/delegation-mode-reentry.yaml)重新通过模式/数量门禁；依据[Session 模型](../session-runtime/session-model.yaml)和[委派状态记录](../delegation/delegation-state-record.yaml)，继承代理不属于当前会话候选。
+
+执行主体未明确时，Root 审阅当前任务事实和决策上下文，再考虑执行主体建议。若上下文生成失败，或缺少直接影响判断的事实，不得伪造描述/哈希，也不得带着不可用上下文发送下游建议请求。若当前 Skill 和已核实事实足以直接判断，Root 仍可直接决定；否则保留未决状态供审阅。若存在正数未用批准名额且没有合适的现有子代理，`sub_agent` 建议可通过[子代理职责选择](../delegation/child-role-selection.yaml)继续，无需另行申请预算。Root 须在 Context 与 Decision 之后、该子代理专属 Interaction Slice 放行之前，为已授权的拟派任务选择并预留职责；之后 Slice 门禁仍须核验具体目标/范围与该职责相符。执行主体建议本身不预选职责。没有剩余名额但仍有未占用的不同职责时，Root 必须按[委派数量门禁](../delegation/delegation-mode-count-gate.yaml)中的用户明确批准流程预留该职责。若四种职责均已占用，扩额不能使另一职责合法可用，必须阻止创建而不得申请扩额。建议能力失败或证据不足时，Root 按本文审阅，绝不默认选择 Root。

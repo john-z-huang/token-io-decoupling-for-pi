@@ -1,0 +1,2 @@
+1. 对实质性修改，在 Contract 要求时使用独立的 Change Verification Session。
+2. 将同一 Session 中的检查标记为逻辑验证，不称为独立验证。

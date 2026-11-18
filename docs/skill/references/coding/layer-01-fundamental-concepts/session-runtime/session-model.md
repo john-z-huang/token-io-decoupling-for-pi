@@ -1,5 +1,7 @@
 # Coding Session Model
 
+<!-- 由 docs/rules/references/coding/layer-01-fundamental-concepts/session-runtime/session-model.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本模块负责 Coding 的 Session 语义、单代理与多代理 Session 映射、Primary Execution Session Affinity，以及复用/worktree 隔离边界。它消费 owner 概念提供的职责归属和当前工作流的状态；不定义职责责任、Context Firewall、运行环境 eligibility、执行参数、dispatch 格式、项目上下文传输或验收流程。
 

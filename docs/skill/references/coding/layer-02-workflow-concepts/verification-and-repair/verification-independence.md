@@ -1,5 +1,7 @@
 # 验证独立性检查点
 
+<!-- 由 docs/rules/references/coding/layer-02-workflow-concepts/verification-and-repair/verification-independence.yaml 生成。请在 DSL 中维护正文。 -->
+
 
 本检查点负责区分独立 Change Verification Session 和同一 Session 的逻辑验证。不定义检查内容、证据收集、结果分类或修复。
 
