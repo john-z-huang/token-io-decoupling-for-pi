@@ -3,6 +3,8 @@
 
 `token-io-decoupling` 是面向 **Pi Coding Agent** 的 Extension + Skill 包，用于把高价值语义决策与高体量状态消费、输出物化分离。
 
+首次安装、更新本地 Skill 与配置 MCP 见 [安装与使用](INSTALL.md)。
+
 两条 Coding 路线由 YAML 绑定七个阶段。16 份条件 Hooks 提供执行合同，阶段 Hook 决定检查点顺序及适用性。Extension 负责宿主工具守卫、验证失效和暂停续接。授权和语义验收依据实际来源与结果核对。Multimodal 仅作为 reference 保留。
 
 ## Pi 工作流插件开发状态与验证
@@ -38,13 +40,12 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi
 
 当前 `@mjakl/pi-subagent` 3.1.0 的接口与逐任务模型选型见 [Pi 子代理适配](integrations/pi-subagent/README.md#310-接口适配)。加载本package不自动覆盖用户配置；本机部署与普通package加载是两件事，不能把描述文件存在当作Git专用适配器、权限隔离或模型身份能力已实现。
 
-## 仅安装 Skill（不包含 Extension）
+## 安装 MCP 工具与 Skill
 
-将开发仓库放在用户 Skill 目录之外。在仓库根目录运行 `bash scripts/install-pi-mcp.sh`，通过 uv tool 安装唯一工具程序，然后运行：
+将开发仓库放在用户 Skill 目录之外。在仓库根目录运行以下命令，构建并安装或更新 MCP 工具和本地 Skill。
 
 ```bash
-token-io-decoupling-tools skills install
-token-io-decoupling-tools skills update
+bash scripts/update-pi-tools-and-skill.sh
 ```
 
 默认安装到 `~/.pi/agent/skills/token-io-decoupling-skill`；可用 `--name NEW-NAME` 指定另一个小写、连字符分隔的名称。旧名称 `token-io-decoupling` 始终被拒绝。安装器不会修改或删除旧项目，会拒绝符号链接路径及已有未知目录，只更新内容未经修改且由本工具管理的安装。更新前请将本地修改另行保存。发布失败时会恢复旧安装；进程中断可能遗留锁或暂存目录，应先检查再人工恢复。

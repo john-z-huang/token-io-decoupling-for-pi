@@ -4,7 +4,9 @@
 
 ## 安装与更新
 
-在仓库根目录执行 `bash scripts/install-pi-mcp.sh`，使用 uv tool 安装 workspace 构建出的本地 wheel。脚本不写入宿主配置、不启动 API 调用，也不自动安装 Skill。
+在仓库根目录执行 `bash scripts/update-pi-tools-and-skill.sh`，按顺序构建 Skill、构建 MCP wheel、安装或更新 MCP 工具并同步本地 Skill。只安装或更新 MCP 工具时，执行 `bash scripts/install-pi-mcp.sh`。脚本不改宿主配置，也不调用模型 API。 [安装与使用](../../../INSTALL.md)
+
+也可以分别执行首次安装或后续更新命令。
 
 ```sh
 token-io-decoupling-tools skills install
