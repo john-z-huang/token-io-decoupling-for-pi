@@ -38,6 +38,7 @@ document:
   document_type: hook-contract
   id: example-hook
   markdown_path: hooks/example-hook.md
+  activate_on: [capability_changed]
   title: Hook 合同示例
   blocks:
     - intro:

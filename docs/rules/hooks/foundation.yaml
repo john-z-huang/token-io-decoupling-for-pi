@@ -4,6 +4,7 @@ schema_version: 1
 document_type: hook-contract
 id: foundation
 markdown_path: hooks/foundation.md
+activate_on: [workflow]
 title: 共享协议、Contract 与不可越界
 blocks:
   - trigger:

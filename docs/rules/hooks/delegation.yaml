@@ -6,6 +6,7 @@ schema_version: 1
 document_type: hook-contract
 id: delegation
 markdown_path: hooks/delegation.md
+activate_on: [executor_changed, independent_verification]
 title: 有界委派与一次性任务
 blocks:
   - trigger:
@@ -227,6 +228,7 @@ blocks:
               应用[任务分配](../references/coding/layer-01-fundamental-concepts/execution-planning/task-assignment.yaml)和[执行者选择](../references/coding/layer-03-workflow-checkpoints/executor-selection.yaml)，再应用[输出 Token 路由](../references/coding/layer-01-fundamental-concepts/execution-planning/output-token-routing.yaml)及[输出路由选择](../references/coding/layer-03-workflow-checkpoints/output-route-selection.yaml)。仅当执行者结果为 `new-executor-needed` 且 Root 输出已处置时进入 DE03。已确认 Root 执行者或已确认的现有执行者/子代理，必须先确认输出已处置，再根据该证据将角色预留记录为 `not_applicable` 并继续至 DE04。必需结果未知或未解决时返回 `needs_prerequisite`；冲突则阻塞。不得把未解决视为 `not_applicable`。
         - DE03:
             kind: checkpoint
+            applicability: sub_agent
             title: 仅为新执行者预留角色。
             text: |-
               仅在 DE02 已处置输出且需要新执行者时，核对锁定容量与 allocation，取得唯一且有效的当前角色预留。证据缺失返回 `needs_prerequisite`，不一致或未授权时阻断。Root 和现有执行者沿既有路径。
@@ -239,11 +241,13 @@ blocks:
               所有实际执行者分支都经过此检查点。应用[执行控制](../references/coding/layer-01-fundamental-concepts/execution-control/execution-control.yaml)、[执行规划](../references/coding/layer-01-fundamental-concepts/execution-planning/execution-planning.yaml)和[委派状态记录](../references/coding/layer-01-fundamental-concepts/delegation/delegation-state-record.yaml)。实质变化会使依赖它的 Control 证据失效；释放/恢复前返回 DE08 并重新评估当前事实。`Stop` 会阻塞。子代理执行时核验当前容量/allocation；Root 执行时记录附有理由的子代理容量 `not_applicable`。仅当 Context 和 Decision 当前有效，并明确目标、已授权执行者/角色、范围/修改、返回条件、未释放边界及新 Worker bundle 的显式 memo 值时，才释放具体 Slice。恢复既有 bundle 时保留并核验记录值。子代理行动前按 owner 更新并回读规范 parent-context 记录。若无实质 Control 变化，记录附有理由的 `not_applicable`。释放前应用[任务计划 Memory 生命周期](../references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.yaml)；必需证据、持久化或核验失败时阻塞依赖工作。
         - DE05:
             kind: checkpoint
+            applicability: sub_agent
             title: 创建新合格子代理并绑定身份。
             text: |-
               仅对新子代理应用[子代理创建](../references/coding/layer-01-fundamental-concepts/delegation/delegation-child-creation.yaml)和[运行环境与模型厂商支持](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml)。确认符合条件的已释放任务/Slice、唯一角色预留、当前容量、能力、权限、上下文、返回条件及必需运行环境/effort 证据；只创建已授权子代理。独立创建型扩展在派发前按 owner 绑定实际身份/allocation；同步一次性扩展在此完成创建前核验并标记已批准、尚未调用的 allocation，不虚构提前返回的身份。后者在 DE06 以同一次工具调用创建、派发、执行并返回，再将真实调用/结果证据绑定该 allocation。两种路径均在依赖前更新并回读父级记录，不能重复调用来补造身份。复用现有子代理时，根据复用证据将创建和新 model-binding 检查记录为 `not_applicable`；保留相同身份，不重查模型选择，也绝不替换。已确认 Root 执行时，将子代理创建/身份记录为有原因的 `not_applicable`。所有分支进入 DE07；子代理分支先经过 DE06。已由当前证据确认 Root 执行时，可共用一次执行者选择记录，说明职责预留、创建、派发三个检查点不适用。仍须通过 DE04 放行和 DE07 结果审阅。
         - DE06:
             kind: checkpoint
+            applicability: sub_agent
             title: 仅在子代理分支派发。
             text: |-
               应用[子代理派发](../references/coding/layer-01-fundamental-concepts/delegation/delegation-child-dispatch.yaml)、[Worker 边界](../references/coding/layer-01-fundamental-concepts/delegation/delegation-worker-boundary.yaml)、[子代理生命周期](../references/coding/layer-01-fundamental-concepts/delegation/delegation-child-lifecycle.yaml)、[子代理复用与替代](../references/coding/layer-01-fundamental-concepts/delegation/delegation-child-reuse-replacement.yaml)、[子代理消息可见性](../references/coding/layer-01-fundamental-concepts/delegation/delegation-child-message-visibility.yaml)、[Content Memo Dispatch](../references/coding/layer-01-fundamental-concepts/context-exchange/content-memo-dispatch.yaml)及[Content Memo Lifecycle](../references/coding/layer-01-fundamental-concepts/context-exchange/content-memo-lifecycle.yaml)。实际已释放 bundle 必须包含完整任务与范围、来源指针、返回条件、适用时准确的授权 Memory 名称，以及显式 `write_content_memo: true` 或 `false`；不得推断默认值。已有稳定身份时只向已绑定的子代理派发已释放 Slice；同步一次性扩展只为 DE05 已批准的未绑定 allocation 发起一次任务调用，并按创建 owner 绑定其真实调用证据。为 true 时遵循 memo owner 生命周期并核验 memo 证据；为 false 时不得派发或写入该 memo。每次 follow-up 均保留实际派发正文证据和当前授权范围。派发或真实任务证据缺失/不完整时阻塞。异步扩展确认派发及显式 memo 值后立即进入 DE07，不提前等待结果；同步一次性调用返回后直接在 DE07 审阅已产生的结果，不模拟异步等待或再次派发。Root 执行时，将子代理派发/memo 记录为有原因的 `not_applicable` 并进入 DE07。派发同时按[任务计划 Memory 生命周期](../references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.yaml)携带准确共享任务计划项目/名称及允许贡献。判断子级需要当前计划读取、直接写入授权，还是仅需有界贡献返回通道；仅提供该角色实际需要的访问。父级协调唯一当前计划写者，并可合并明确授权且有来源的贡献。不得要求每个子级都具备 Memory 写入权限。新事实/进度在 owner 规定的边界纳入；影响授权、范围、验收、方向或依赖动作的变化仍须在该动作前记录。`write_content_memo: false` 不豁免共享计划生命周期。

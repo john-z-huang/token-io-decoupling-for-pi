@@ -80,7 +80,7 @@ test('the catalog reads only selected Hooks, route rules, and current checkpoint
       assert.ok(context.includes(`当前检查点 [${checkpoint} `));
       if (checkpoint === 'VR03') assert.ok(context.includes('VR04 分类并报告证据。'));
       const expected = new Set(hooks.map(id => `hooks/${id}.yaml`));
-      for (const id of [module, included?.[0]].filter(Boolean)) {
+      for (const id of [`coding-${mode}-agent`, module, included?.[0]].filter(Boolean)) {
         expected.add(indexed.references.sourceForPath(indexed.references.document(id).path));
       }
       assert.deepEqual(selected().sort(), [...expected].sort());
@@ -92,7 +92,7 @@ test('the catalog reads only selected Hooks, route rules, and current checkpoint
   }
 });
 
-test('the catalog rejects changed route or checkpoint bindings in the YAML sources', t => {
+test('the catalog reads checkpoint order and applicability from YAML and rejects invalid guard bindings', t => {
   const original = fs.readFileSync;
   let edit;
   t.mock.method(fs, 'readFileSync', (path, ...args) => {
@@ -102,10 +102,31 @@ test('the catalog rejects changed route or checkpoint bindings in the YAML sourc
   });
   syncBuiltinESMExports();
   try {
-    edit = { file: 'coding-single-agent.yaml', before: 'hook: execution', after: 'hook: delegation' };
+    edit = {
+      file: 'coding-single-agent.yaml',
+      before: /hook: execution([\s\S]*?)\]\(\.\.\/hooks\/execution\.yaml\)/,
+      after: 'hook: delegation$1](../hooks/delegation.yaml)',
+    };
     assert.throws(() => loadCatalog(), /路线契约变化/);
-    edit = { file: 'hooks/entry.yaml', before: '- ER00:', after: '- ER99:' };
+    edit = { file: 'hooks/entry.yaml', before: '- ER01:', after: '- ER99:' };
     assert.throws(() => loadCatalog(), /检查点契约变化/);
+    edit = { file: 'hooks/advisory.yaml', before: '[advice_requested]', after: '[unknown_signal]' };
+    assert.throws(() => loadCatalog(), /activate_on/);
+
+    edit = { file: 'hooks/entry.yaml', before: '- ER00:\n            kind: checkpoint', after: '- ER99:\n            kind: checkpoint\n            applicability: optional' };
+    const changed = loadCatalog();
+    const workflow = new Workflow(changed, makeState(changed, 'dsl-test', process.cwd(), 'single', 0, '合成任务'));
+    workflow.observe('user', '/coding', 'user', true);
+    assert.equal(workflow.checkpoint.id, 'ER99');
+    workflow.report(workflow.state.revision, [{ checkpoint: 'ER99', outcome: 'not_applicable', summary: '验证 Hook 中的适用条件', evidence: ['user'] }]);
+    assert.equal(workflow.checkpoint.id, 'ER01');
+
+    edit = { file: 'hooks/advisory.yaml', before: '[advice_requested]', after: '[context_exchange]' };
+    const triggered = loadCatalog();
+    const withSignal = new Workflow(triggered, makeState(triggered, 'dsl-test', process.cwd(), 'single', 0, '合成任务'));
+    withSignal.observe('user', '/coding', 'user', true);
+    withSignal.signal(withSignal.state.revision, 'context_exchange', ['user'], '验证 Hook 中的触发条件');
+    assert.ok(renderContext(withSignal).includes('[Hook:advisory]'));
   } finally {
     t.mock.restoreAll();
     syncBuiltinESMExports();

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { loadCatalog, currentModule, phaseHooks, signalHooks, SIGNALS, PHASES } from '../extensions/coding-workflow/catalog.ts';
+import { loadCatalog, currentModule, SIGNALS, PHASES } from '../extensions/coding-workflow/catalog.ts';
 import { makeState, Workflow, restoreState, exactPath, ROLES, sameEpoch } from '../extensions/coding-workflow/engine.ts';
 import { MAX_CONTEXT, renderContext } from '../extensions/coding-workflow/runtime.ts';
 const catalog = loadCatalog();
@@ -109,14 +109,37 @@ test('failed or unavailable check cannot be reported as passed verification', ()
   assert.throws(() => step(w, { evidence: ['failed-check'] }), /实际检查/);
 });
 test('documentation writes return through verification and resume after the write checkpoint', () => {
+  for (const [dimension, boundary] of [['content', 'DOC04'], ['documentation', 'DOC06']]) {
+    const w = fresh(); until(w, 'DOC02'); w.mutate(dimension);
+    until(w, boundary); step(w); assert.equal(w.checkpoint.id, 'VR00');
+    until(w, 'VR06'); step(w); assert.equal(w.checkpoint.id, 'DOC04');
+    assert.equal(w.state.reports.filter(r => r.report.checkpoint === 'DOC02').length, 1);
+    until(w, 'DA05'); step(w); assert.equal(w.state.status, 'complete');
+  }
+});
+test('current documentation checks can refresh just the documentation epoch', () => {
   const w = fresh(); until(w, 'DOC02'); w.mutate('documentation');
-  until(w, 'DOC06'); step(w); assert.equal(w.checkpoint.id, 'VR00');
-  until(w, 'VR06'); step(w); assert.equal(w.checkpoint.id, 'DOC04');
-  assert.equal(w.state.reports.filter(r => r.report.checkpoint === 'DOC02').length, 1);
-  until(w, 'DA05'); step(w); assert.equal(w.state.status, 'complete');
+  until(w, 'DOC05');
+  w.observe('doc-check', 'synthetic link check', 'check', true);
+  step(w, { facts: { verification: 'passed' }, evidence: ['doc-check'] });
+  step(w);
+  assert.equal(w.checkpoint.id, 'DA00');
+  assert.ok(sameEpoch(w.state.verified, w.state.epoch));
 });
 test('Git writes reverify before acceptance without replaying DA02', () => {
-  const w = fresh(); until(w, 'DA02'); w.mutate('git'); step(w);
+  const w = fresh(); until(w, 'DA01');
+  w.mutate('git'); step(w);
+  assert.equal(w.checkpoint.id, 'DA02');
+  const gitSlice = { ...slice, mutations: ['git'], paths: [] };
+  w.release(w.state.revision, gitSlice);
+  w.mutate('content');
+  assert.match(w.canRun('git'), /当前内容和文档验证/);
+  w.pause('读回受影响状态');
+  w.observe('readback', 'read', 'read', true); w.resume(w.state.revision, ['readback']);
+  assert.equal(w.checkpoint.id, 'VR00');
+  until(w, 'DA02'); w.release(w.state.revision, gitSlice);
+  w.mutate('git'); assert.equal(w.canRun('git'), undefined); step(w);
+  assert.match(w.canRun('git'), /DA02/);
   step(w); assert.equal(w.checkpoint.id, 'VR00');
   until(w, 'VR06'); step(w); assert.equal(w.checkpoint.id, 'DA03');
   assert.equal(w.state.reports.filter(r => r.report.checkpoint === 'DA02').length, 1);
@@ -165,9 +188,9 @@ test('a distinct read-only verifier can be allocated at VR02 with sufficient exp
   w.reserve([{ role: ROLES[1], callId: 'verifier' }]); assert.equal(w.state.allocations[0].role, ROLES[1]);
 });
 test('all signals have explicit hook routing; unrelated advice/materialization stay unloaded', () => {
-  for (const signal of SIGNALS) assert.ok(signalHooks(signal).length);
-  assert.ok(!phaseHooks('entry', 'single').includes('materialization'));
-  assert.ok(!renderContext(fresh()).includes('[Hook:advisory]'));
+  for (const signal of SIGNALS) assert.ok(Object.values(catalog.hookTriggers).some(triggers => triggers.includes(signal)));
+  const context = renderContext(fresh());
+  assert.ok(!context.includes('[Hook:materialization]') && !context.includes('[Hook:advisory]'));
 });
 test('semantic changes retain mode/count and bound allocations; invalid signals are atomic', () => {
   const w = fresh('multi'); const original = w.snapshot();
@@ -177,6 +200,10 @@ test('semantic changes retain mode/count and bound allocations; invalid signals 
   w.signal(w.state.revision, 'requirements_changed', ['user-1'], '实际需求变更');
   assert.equal(w.checkpoint.id, 'ER00'); assert.equal(w.state.mode, 'multi'); assert.equal(w.state.childCount, 1);
   assert.equal(w.state.allocations[0].id, allocation.id); assert.equal(w.state.slice, undefined);
+  until(w, 'WD03'); step(w);
+  assert.equal(w.checkpoint.id, 'DE06');
+  assert.equal(w.state.reports.filter(r => r.report.checkpoint === 'SR02').length, 1);
+  assert.throws(() => w.reserve([{ role: ROLES[0], callId: 'replay' }]), /DE06/);
 });
 test('decision recheck returns to the original checkpoint without resetting a resolved plan', () => {
   const w = fresh(); until(w, 'DA02');
@@ -216,7 +243,36 @@ test('decision recheck at final delivery preserves the plan already archived by 
   assert.equal(w.checkpoint.id, 'DA05'); assert.equal(w.state.plan, 'archived');
   assert.equal(w.state.reports.filter(r => r.report.checkpoint === 'WD03').length, 1);
   assert.equal(w.state.reports.filter(r => r.report.checkpoint === 'DA04').length, 1);
+  w.mutate('documentation'); step(w);
+  assert.equal(w.checkpoint.id, 'VR00');
+  until(w, 'DA03'); step(w);
+  step(w, { facts: { plan: 'archived' }, evidence: ['plan-archive'] });
+  assert.equal(w.state.reports.filter(r => r.report.checkpoint === 'DA02').length, 1);
   step(w); assert.equal(w.state.status, 'complete');
+});
+test('changed requirements after archival need a current plan, checks and archive evidence', () => {
+  const w = fresh(); until(w, 'WD03');
+  w.observe('old-plan', 'synthetic-memory', 'memory', true);
+  step(w, { facts: { plan: 'persisted' }, evidence: ['old-plan'] });
+  until(w, 'DA04');
+  w.observe('old-archive', 'synthetic-memory', 'memory', true);
+  step(w, { facts: { plan: 'archived' }, evidence: ['old-archive'] });
+
+  w.signal(w.state.revision, 'requirements_changed', ['user-1'], '合成验收条件变化');
+  until(w, 'WD03');
+  assert.throws(() => step(w, { facts: { plan: 'persisted' }, evidence: ['old-plan'] }), /计划必须/);
+  w.observe('revised-plan', 'synthetic-memory', 'memory', true);
+  step(w, { facts: { plan: 'persisted' }, evidence: ['revised-plan'] });
+  assert.equal(w.checkpoint.id, 'DA05');
+  step(w); until(w, 'VR03');
+  assert.throws(() => step(w, { evidence: ['check-1'] }), /当前 epoch/);
+  w.observe('current-check', 'synthetic-check', 'check', true);
+  step(w, { evidence: ['current-check'] }); until(w, 'DA04');
+  assert.throws(() => step(w, { facts: { plan: 'archived' }, evidence: ['old-archive'] }), /归档须/);
+  w.observe('current-archive', 'synthetic-memory', 'memory', true);
+  step(w, { facts: { plan: 'archived' }, evidence: ['current-archive'] }); step(w);
+  assert.equal(w.state.status, 'complete');
+  assert.equal(w.state.reports.filter(r => r.report.checkpoint === 'DA02').length, 1);
 });
 test('restoration rejects wrong version, session, scope, digest and malformed states', () => {
   const s = fresh().snapshot();

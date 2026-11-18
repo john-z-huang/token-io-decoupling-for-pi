@@ -6,6 +6,7 @@ schema_version: 1
 document_type: hook-contract
 id: verification
 markdown_path: hooks/verification.md
+activate_on: [repair_required, documentation_impact, git_changed]
 title: Verification Hook
 flowchart_references:
   VR_SCOPE: ../references/coding/layer-02-workflow-concepts/verification-and-repair/repair-scope-gate.yaml#section-01
@@ -144,11 +145,15 @@ blocks:
             kind: checkpoint
             title: 解析独立性要求。
             text: |-
+              必需独立验证满足时报告 `facts.independence=satisfied`，引用当前独立验证者的实际返回或用户提供的独立审阅证据。
+
               应用[Verification Independence](../references/coding/layer-02-workflow-concepts/verification-and-repair/verification-independence.yaml)和[Session 职责归属](../references/coding/layer-01-fundamental-concepts/session-runtime/session-role-ownership.yaml)。Contract 要求独立 Change Verification Session 时，使用该职责并仅提供给定范围证据和验收条件；否则将同 Session 检查分类为逻辑验证。在 Multi-Agent 执行中，Worker/子代理实际正文或结果是实施证据，不是独立验证；复用或完整可见也不满足必需的独立验证。必需的独立性不可用时返回 `needs_prerequisite`；不得声称满足 Contract。
         - VR03:
             kind: checkpoint
             title: 运行当前检查。
             text: |-
+              通过时填写 `facts.verification=passed` 并引用当前 epoch 成功的 `check` 调用。确认有需修复的实际失败时，上报 `repair_required` 并引用失败证据。
+
               针对 VR01 捕获的准确实际状态指纹运行适用的最强整体和定向检查。涵盖所有必需标准及变化维度所需检查。候选预检、应用收据和实施阶段检查仍是初步证据，不能替代这些当前检查。不得对受影响维度复用较早 epoch 的证据。必需检查不可运行时，保留不可用原因及阻塞影响。
         - VR04:
             kind: checkpoint

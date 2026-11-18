@@ -4,6 +4,7 @@ schema_version: 1
 document_type: hook-contract
 id: materialization
 markdown_path: hooks/materialization.md
+activate_on: [materialization_requested]
 title: 候选预检与受控输出物化
 blocks:
   - trigger:

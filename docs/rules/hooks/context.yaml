@@ -4,6 +4,7 @@ schema_version: 1
 document_type: hook-contract
 id: context
 markdown_path: hooks/context.md
+activate_on: [definition, documentation, multi_execution, context_exchange]
 title: 有界上下文、Memory 与交接 Hook
 blocks:
   - intro:

@@ -3,7 +3,7 @@
 
 `token-io-decoupling` 是面向 **Pi Coding Agent** 的 Extension + Skill 包，用于把高价值语义决策与高体量状态消费、输出物化分离。
 
-两条 Coding 路线由 Extension 维护七模块顺序、暂停/恢复、修复回环及验证失效；16份条件 Hooks 自动提供当前执行合同。Multimodal 仅作为 reference 保留。详细 owner 仍为策略权威，Hooks/结构通过不证明授权或语义验收。
+两条 Coding 路线由 YAML 绑定七个阶段。16 份条件 Hooks 提供执行合同，阶段 Hook 决定检查点顺序及适用性。Extension 负责宿主工具守卫、验证失效和暂停续接。授权和语义验收依据实际来源与结果核对。Multimodal 仅作为 reference 保留。
 
 ## Pi Extension 快速入口
 
@@ -59,7 +59,7 @@ MCP 已收敛为 `token-io-decoupling-tools`；上面的 Pi package 命令只加
 
 ## 文档入口
 
-- [Pi Extension](docs/project/PI_EXTENSION.md)：安装、事件、状态机、适配与验证边界。
+- [Pi Extension](docs/project/PI_EXTENSION.md) 介绍安装、事件、Hook 推进、适配及验证边界。
 - [Hooks 目录](docs/skill/hooks/README.md)：明确触发条件与执行合同。
 - [Skill 入口](docs/skill/SKILL.md)：轻量入口与未启用扩展的回退路线。
 - [Coding reference](docs/skill/references)：由工作流组合使用的独立 Coding 模块和共享协议模块。

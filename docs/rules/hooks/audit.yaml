@@ -4,6 +4,7 @@ schema_version: 1
 document_type: hook-contract
 id: audit
 markdown_path: hooks/audit.md
+activate_on: [session, multi_execution, independent_verification, active_allocation]
 title: Session Audit Hook 合同
 blocks:
   - trigger:

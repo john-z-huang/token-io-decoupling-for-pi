@@ -4,6 +4,7 @@ schema_version: 1
 document_type: hook-contract
 id: recovery
 markdown_path: hooks/recovery.md
+activate_on: [recovery_needed]
 title: 中断、前置补证与原位恢复
 blocks:
   - trigger:

@@ -34,12 +34,12 @@ blocks:
               | [repair](repair.yaml) | VR05 或 `repair_required` | 修复范围门禁、Contract 改变回 Decision、修复后重验。 |
               | [documentation](documentation.yaml) | documentation；documentation_impact | Root/Skill 输出边界、文档影响、检查及原位置恢复。 |
               | [delivery](delivery.yaml) | delivery；git_changed | Git 独立授权、逐标准验收、计划保全/字节相同归档。 |
-              | [recovery](recovery.yaml) | paused/blocked/未知效果；生命周期中断 | 准确 owner/位置、实际读回、撤销 Slice、不重放、有限续跑。 |
+              | [recovery](recovery.yaml) | paused/blocked/未知效果；生命周期中断或有待返回位置 | 准确 owner/位置、实际读回、撤销 Slice、不重放、有限续跑。 |
               | [navigation](navigation.yaml) | entry；当前导航需求 | 可选导航的直接 owner 路径、不伪造未适配服务能力。 |
               | [advisory](advisory.yaml) | advice_requested | 外部建议的最少事实、独立出站授权、API 配置/模型边界。 |
               | [materialization](materialization.yaml) | materialization_requested | 候选预检与真实应用分离、可信身份/grant、守卫失败不绕过。 |
 
-              表中语义条件通过 `coding_checkpoint signal` 上报。宿主不能自动证明任务改变、验证充分、授权真实或 N/A 合理；Agent 负责识别并提供实际来源。工具错误也只自动引导能力/环境核验，不能被重写为可跳过门禁。
+              路线绑定当前阶段的主 Hook。各合同的 `activate_on` 声明额外触发条件，可匹配阶段、语义信号和宿主观察到的状态。表中语义信号通过 `coding_checkpoint signal` 上报。Agent 负责识别任务变化、验证充分性、授权及 N/A 并引用实际来源。工具错误触发能力与环境核验。
   - host-events:
       kind: section
       title: 真正的宿主回调
@@ -69,9 +69,9 @@ blocks:
 
               - [逐篇来源整合对照](SOURCE_COVERAGE.yaml) 列出 Hook 消费的规则和导航。各合同末尾的“规则来源”表记录具体消费位置。
               - DSL 源引用相对 `.yaml` 文件及块 ID，阅读版引用对应的 `.md` 和标题锚点。Pi 注入时将参考规则链接转换为 `coding-rule:文档#片段`，通过 `coding_checkpoint action=rules` 定向读取。其余本地链接以包内资源为基准生成 `file:` URL。
-              - 运行时按需读取编译后的 Hook 正文，注入触发、输入、执行条款、退出及重核。完整合同及“规则来源”对照表在 Markdown 阅读版中查阅。
-              - 上下文按模块、当前检查点、执行者、语义信号、恢复状态和 allocation 状态选择 Hook。每个注入包先发共享及适用合同，再发当前状态、当前指令、后续目录和观察。硬上限为 96,000 字符，超限阻断。
-              - 两条 Coding 路线提供阶段绑定和返回规则。八份阶段 Hook 维护检查点，扩展从生成索引按需读取当前检查点，后续检查点显示标题。入口上下文组合当前路线的 Mode 边界，验证 Hook 按 ID 读取 Epoch 动作。
+              - 运行时按需从 YAML 读取 Hook 正文，注入触发、输入、执行条款、退出及重核。完整合同及“规则来源”对照表在 Markdown 阅读版中查阅。
+              - 每个注入包先提供适用合同，再提供当前位置、当前路线和检查点指令、后续标题及有限观察。存在返回位置时附本路线的前置返回映射。硬上限为 96,000 字符，超限阻断。
+              - 八份阶段 Hook 定义检查点的顺序和适用性。标记 `applicability: optional` 的检查点可以凭证据报告不适用。标记 `applicability: sub_agent` 的检查点在明确选择 Root 执行后由同一执行者报告记录为不适用。入口上下文组合当前路线的 Mode 边界，验证 Hook 按 ID 读取 Epoch 动作。
               - Hook YAML 的执行要求可用 `rule_include` 块引用参考 DSL 片段，编译时转换为运行时引用。编译器校验目标参考规则与片段。DSL 正文中的链接供定位和按需阅读。
   - maintenance:
       kind: section
@@ -80,7 +80,7 @@ blocks:
         - maintenance-body:
             kind: markdown
             text: |-
-              - `catalog.ts` 用运行时索引核对 16 个 Hook、两条路线的阶段绑定和检查点 ID。Markdown 路径、层级和归属由离线脚本检查。改变检查点或模块形状时同步审阅引擎。
+              - `catalog.ts` 从 YAML 建立路线和 Hook 索引，核对触发条件、阶段绑定及宿主守卫所需的检查点。Markdown 路径、层级、归属与路线图由离线脚本检查。
               - `npm run check:hooks` 默认只读。检查 16 份合同及目录和对照表的本地链接、标题锚点、路径与符号链接边界，核对来源引用与对照表，并覆盖两种模式、七个模块、单个及组合信号和暂停状态。检查范围为本地资源。
               - 合同和目录在 `docs/rules/hooks/` 下维护。用 `uv run --locked --script scripts/compile-reference-dsl.py` 生成阅读版和注入正文。调整规则来源后用 `node scripts/check-pi-hooks.mjs --write-coverage` 刷新 YAML 和 Markdown 来源对照。来源表记录归属及落点，执行规则写入正文。
               - `npm test` 还验证跨工作区注入链接、中文/重复标题、坏锚点、源引用缺失、超限拒绝及正文不截断；宿主声明/入口smoke另见使用说明。

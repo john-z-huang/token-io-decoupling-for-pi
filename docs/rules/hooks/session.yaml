@@ -6,6 +6,7 @@ schema_version: 1
 document_type: hook-contract
 id: session
 markdown_path: hooks/session.md
+activate_on: [capability_changed]
 title: Session Hook 合同
 blocks:
   - trigger:
@@ -123,6 +124,7 @@ blocks:
               依据 [Session 审计解决](../references/coding/layer-03-workflow-checkpoints/session-audit-resolution.yaml)、[Session Audit Visibility](../references/coding/layer-01-fundamental-concepts/session-runtime/session-audit-visibility.yaml)、[Reasoning Summary Visibility](../references/coding/layer-01-fundamental-concepts/session-runtime/reasoning-summary-visibility.yaml)、[委派状态记录](../references/coding/layer-01-fundamental-concepts/delegation/delegation-state-record.yaml)。
         - SR04:
             kind: checkpoint
+            applicability: optional
             title: 仅在 Multi-Agent 适用时核验容量。
             text: |-
               在已放行 Multi-Agent 模式下，读取当前父级控制分配。应用[委派数量门禁](../references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.yaml)、[委派状态记录](../references/coding/layer-01-fundamental-concepts/delegation/delegation-state-record.yaml)，并按条件应用[子代理职责分配](../references/coding/layer-01-fundamental-concepts/delegation/delegation-child-role-allocation.yaml)，核实锁定容量、已占用角色和未分配名额。这只是只读核验：不得选择/预留角色、释放 Slice、创建子代理或回收名额。Single-Agent 模式记录附有理由的 `not_applicable`。返回 `complete`，并附上当前父级记录读回、生效的审计偏好和适用的容量证据；这些证据均不授权子代理任务。

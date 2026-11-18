@@ -4,6 +4,7 @@ schema_version: 1
 document_type: hook-contract
 id: navigation
 markdown_path: hooks/navigation.md
+activate_on: [entry]
 title: 工作流导航 Hook 合同
 blocks:
   - trigger:

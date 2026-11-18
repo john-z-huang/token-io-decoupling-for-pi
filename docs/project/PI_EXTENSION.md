@@ -1,6 +1,6 @@
 # Pi Coding Workflow Extension
 
-此包将两条 Coding 固定路线实现为宿主侧状态机，将条件规则组织为实际 Pi 事件驱动的 Hooks。它不是把整个 Skill 换成一段更长的 system prompt，也不是 MCP Server 的 Pi 适配。
+此包根据 YAML 绑定两条 Coding 路线，从实际 Pi 事件和当前阶段选择 Hooks。Extension 维护当前位置、宿主工具守卫与实际效果证据。
 
 ## 试用与安装
 
@@ -61,7 +61,7 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi \
 
 ## 工作流路线与工具
 
-两条路线共享七个阶段：入口就绪 → Session 就绪 → 工作定义 → 执行 → 验证/修复 → 文档 → 交付/验收。执行阶段分别绑定执行 Hook 和委派 Hook。Layer-04 负责阶段绑定及跨阶段返回规则。检查点 ID 和指令由相应 Hook 提供，形状变化时须同步审阅引擎。
+两条路线共享七个阶段，从入口就绪、Session 就绪和工作定义推进到执行、验证与修复、文档及交付验收。Layer-04 定义阶段顺序、Hook 绑定及跨阶段返回规则。各阶段按 Hook 中声明的检查点顺序及适用性推进。代码核对需要宿主守卫或续接的检查点。
 
 多代理路线在 `DE02` 引用实际证据并明确 `facts.executor`。选择 `root` 时，一条记录覆盖职责预留、创建和派发（`DE03 / DE05 / DE06`）的 `not_applicable`，仍须经过 `DE04` 放行 Slice 和 `DE07` 审阅结果。选择 `sub_agent` 时，依次确认职责、当前 Slice 和创建前置条件，`DE06` 才可派发。Slice 替换、审批前置复核或相关 epoch 变化后，旧派发核验不能复用。需要重新核对执行者或派发条件时，上报 `executor_changed` 返回 `DE02`，保留已占名额和实际效果，先读回待处理结果。
 
@@ -72,9 +72,7 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi \
 | `coding_run` | 经 `ctx.executeTool` 的真实宿主校验/权限/Hooks 调用不透明工具，声明 read/check/content/documentation/git/memory；不自行实现 Shell/MCP 旁路。 |
 | `coding_delegate` | 在预算、职责、任务与 Slice 门禁后，调用实际暴露且 Schema 匹配的一次性单任务扩展。 |
 
-每次模型请求注入适用 Hook 合同、当前检查点完整指令、后续适用项的标题以及最近 24 项观察。对 `coding-rule:文档#片段`，用 `coding_checkpoint` 的 `action=rules` 传入对应 `document` 和 `fragment`，每次读取一个片段。省略 `fragment` 时列出片段标题，省略 `document` 时定位当前阶段的 Hook。批量上报前逐项读过指令，并引用实际证据。批次限于同一模块。整个上下文包的硬上限为 96,000 字符，超限时停止并保留完整合同。
-
-必需的 `facts` 包括 ER01 的 independence、WD03 的 plan=persisted/prohibited、DE02 的 executor=root/sub_agent、VR03 的 verification=passed、DA03 的 acceptance=satisfied 以及适用时 DA04 的 plan=archived。Agent 须为这些语义声明提供证据。WD03 引用真实 Memory 操作或明确禁止持久化的来源。
+每次模型请求按当前路线及 Hook 的 `activate_on` 注入适用合同、当前路线与检查点的完整指令、后续适用项的标题以及最近 24 项观察。各检查点在所属 Hook 说明必需的 `facts` 和证据。对 `coding-rule:文档#片段`，用 `coding_checkpoint` 的 `action=rules` 传入对应 `document` 和 `fragment`，每次读取一个片段。省略 `fragment` 时列出片段标题，省略 `document` 时定位当前阶段的 Hook。批量上报前逐项读过指令，并引用实际证据。批次限于同一模块，遇到补证返回时先核对返回位置。整个上下文包的硬上限为 96,000 字符，超限时停止并保留完整合同。
 
 ## 事件与语义信号
 
@@ -86,7 +84,7 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi \
 
 内置 edit/write 按真实调用路径守卫并更新 epoch；失败也可能部分写入，保守失效。Bash/codemode/MCP 影响由调用者显式声明；readOnlyHint 不是无副作用证明，不据它跳过不透明工具分类。外部进程、其他插件内未经过宿主事件链的操作不能自动观测。
 
-文档变化经 Verification 后恢复 DOC04，Git 变化在 Acceptance 之前重验并恢复 DA03。决策补证根据调用方位置执行 WD01–WD03 中适用的检查，完成后回到原检查点。报告批次止于返回位置。DA04 已归档后，DA05 的决策补证至 WD02 即返回，保留已归档状态。能力变化在原位置重核适用条件。VR06 对照 VR03 的实际检查 epoch，状态变化时回 VR01 捕获并检查当前状态。修复保留外层 continuation。新用户输入、压缩、恢复、树导航或 abort 先撤销 Slice 并读回。当前分支的进度与整个 Session 的预算分开恢复，宿主文件效果须按当前状态核对。
+只影响文档维度且满足 DOC05 的证据复用条件时，使用当前文档检查更新该维度。需要回验时经 Verification 恢复 DOC04。DA02 的 Git 操作前要求当前内容和文档证据，已执行 Git 的新 epoch 在 DA03 验收前重核。需求变化先复核入口和适用的工作定义，再继续原调用位置。决策补证按调用方位置执行 WD01–WD03 中适用的检查。已归档计划保留原结果及证据。验证结束时对照实际检查 epoch，状态变化时回 VR01。修复保留外层 continuation。新用户输入、压缩、恢复、树导航或 abort 先撤销 Slice 并读回。当前分支的进度与整个 Session 的预算分开恢复，宿主文件效果按当前状态核对。
 
 只在最终可行动边界 `agent_before_settle` 请求续跑；不在 `agent_end` 自建循环。无检查点进展只提示一次，每次用户启动/继续预算最多8次；缺授权、证据或能力则 pause/blocked，不自动补授权。
 

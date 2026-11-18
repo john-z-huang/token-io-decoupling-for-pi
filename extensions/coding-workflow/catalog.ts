@@ -14,91 +14,84 @@ export const HOOK_IDS = ["foundation", "entry", "session", "planning", "executio
 export type HookId = typeof HOOK_IDS[number];
 export const SIGNALS = ["requirements_changed", "decision_required", "executor_changed", "repair_required", "documentation_impact", "git_changed", "context_exchange", "advice_requested", "materialization_requested", "capability_changed"] as const;
 export type SemanticSignal = typeof SIGNALS[number];
-export interface Checkpoint { id: string; title: string; instruction: string; conditional: boolean }
+const HOOK_TRIGGERS = ["workflow", ...PHASES, ...SIGNALS, "multi_execution", "recovery_needed", "repair_review", "independent_verification", "active_allocation"] as const;
+export type HookTrigger = typeof HOOK_TRIGGERS[number];
+export interface Checkpoint { id: string; title: string; instruction: string; applicability?: "optional" | "sub_agent" }
 export interface Module { name: string; hook: HookId; path: string; checkpoints: Checkpoint[] }
 interface RouteStep { id: string; title: string; module: string; hook: HookId }
-interface Route { documentId: string; steps: Record<Phase, RouteStep> }
+interface Route { documentId: string; phases: Phase[]; steps: Record<Phase, RouteStep> }
 export interface Catalog {
   root: string;
   modules: Record<string, Module>;
   routes: Record<Mode, Route>;
+  hookTriggers: Record<HookId, HookTrigger[]>;
   references: ReturnType<typeof loadReferenceData>;
   digest: string;
 }
-const CONDITIONAL = new Set(["SR04", "DE03", "DE05", "DE06", "SE04", "DA02", "DOC03"]);
-const EXPECTED_IDS: Record<string, string[]> = {
-  "entry-readiness": ["ER00", "ER01", "ER02", "ER03"],
-  "session-readiness": ["SR00", "SR01", "SR02", "SR03", "SR04"],
-  "work-definition": ["WD00", "WD01", "WD02", "WD03"],
-  "single-execution": ["SE00", "SE01", "SE02", "SE03", "SE04", "SE05", "SE06"],
-  "delegated-execution": Array.from({ length: 10 }, (_, i) => `DE0${i}`),
-  "verification-repair": Array.from({ length: 7 }, (_, i) => `VR0${i}`),
-  documentation: Array.from({ length: 7 }, (_, i) => `DOC0${i}`),
-  "delivery-acceptance": Array.from({ length: 6 }, (_, i) => `DA0${i}`),
+// 宿主守卫和续接只依赖这些锚点。其余检查点及执行要求均由 Hook 提供。
+const STAGE_HOOKS: Partial<Record<HookId, { phase: Phase; name: string; anchors: readonly string[] }>> = {
+  entry: { phase: "entry", name: "entry-readiness", anchors: ["ER01"] },
+  session: { phase: "session", name: "session-readiness", anchors: [] },
+  planning: { phase: "definition", name: "work-definition", anchors: ["WD00", "WD01", "WD02", "WD03"] },
+  execution: { phase: "execution", name: "single-execution", anchors: ["SE02"] },
+  delegation: { phase: "execution", name: "delegated-execution", anchors: ["DE02", "DE03", "DE04", "DE05", "DE06"] },
+  verification: { phase: "verification", name: "verification-repair", anchors: ["VR01", "VR02", "VR03", "VR05"] },
+  documentation: { phase: "documentation", name: "documentation", anchors: ["DOC02", "DOC04", "DOC05"] },
+  delivery: { phase: "delivery", name: "delivery-acceptance", anchors: ["DA01", "DA02", "DA03", "DA04"] },
 };
-const MODULE_HOOKS = {
-  "entry-readiness": "entry", "session-readiness": "session", "work-definition": "planning",
-  "single-execution": "execution", "delegated-execution": "delegation", "verification-repair": "verification",
-  documentation: "documentation", "delivery-acceptance": "delivery",
-} satisfies Record<string, HookId>;
-// 固定引擎目前支持的拓扑，发布时用 DSL 索引校验实际路线。
-function expectedModule(phase: Phase, mode: Mode): keyof typeof MODULE_HOOKS {
-  return ({ entry: "entry-readiness", session: "session-readiness", definition: "work-definition", execution: mode === "single" ? "single-execution" : "delegated-execution", verification: "verification-repair", documentation: "documentation", delivery: "delivery-acceptance" } as const)[phase];
-}
 
-function loadRoute(references: Catalog["references"], mode: Mode): Route {
+function loadRoute(references: Catalog["references"], mode: Mode, modules: Catalog["modules"]): Route {
   const documentId = `coding-${mode}-agent`;
   const document = references.document(documentId);
-  const prefix = mode === "single" ? "SM" : "MM";
   const steps = document.fragments.filter(item => item.kind === "route_step");
   if (document.path !== `${WORKFLOW_DIR}/${documentId}.md` || steps.length !== PHASES.length ||
-      !PHASES.every((phase, i) => steps[i].phase === phase && steps[i].id === `${prefix}0${i + 1}` && steps[i].hook === MODULE_HOOKS[expectedModule(phase, mode)])) {
+      !PHASES.every((phase, i) => steps[i].phase === phase)) {
     throw new Error(`路线契约变化，须审阅 Extension：${document.path}`);
   }
   const bindings = {} as Record<Phase, RouteStep>;
-  PHASES.forEach((phase, i) => {
-    const module = expectedModule(phase, mode);
-    bindings[phase] = { id: steps[i].id, title: steps[i].title, module, hook: MODULE_HOOKS[module] };
+  const phases = steps.map(({ id, title, phase, hook }) => {
+    const binding = STAGE_HOOKS[hook as HookId];
+    if (binding?.phase !== phase || !modules[binding.name] ||
+        (phase === "execution" && hook !== (mode === "single" ? "execution" : "delegation"))) {
+      throw new Error(`路线契约变化，阶段 ${phase} 无对应 Hook：${document.path}`);
+    }
+    bindings[binding.phase] = { id, title, module: binding.name, hook: modules[binding.name].hook };
+    return binding.phase;
   });
-  return { documentId, steps: bindings };
+  return { documentId, phases, steps: bindings };
 }
 
-export function phaseHooks(phase: Phase, mode: Mode): HookId[] {
-  const table: Record<Phase, HookId[]> = {
-    entry: ["entry", "navigation"], session: ["session", "audit"], definition: ["planning", "context"],
-    execution: mode === "multi" ? ["execution", "delegation"] : ["execution"],
-    verification: ["verification"], documentation: ["documentation", "context"], delivery: ["delivery"],
-  };
-  return [...new Set<HookId>(["foundation", ...table[phase], ...(["execution", "verification", "documentation", "delivery"].includes(phase) ? ["planning" as const] : []), ...(phase === "execution" && mode === "multi" ? ["context" as const, "audit" as const] : [])])];
-}
-export function signalHooks(signal: SemanticSignal): HookId[] {
-  return ({ requirements_changed: ["entry", "planning"], decision_required: ["planning"], executor_changed: ["execution", "delegation"], repair_required: ["repair", "verification"], documentation_impact: ["documentation", "verification"], git_changed: ["delivery", "verification"], context_exchange: ["context"], advice_requested: ["advisory"], materialization_requested: ["materialization"], capability_changed: ["session", "entry"] } satisfies Record<SemanticSignal, HookId[]>)[signal];
-}
 export function loadCatalog(root = RULES_ROOT): Catalog {
   const modules: Record<string, Module> = Object.create(null);
+  const hookTriggers = {} as Catalog["hookTriggers"];
   const hash = createHash("sha256");
-  for (const file of ["catalog.ts", "engine.ts", "runtime.ts", "index.ts", "model-selection.ts", "startup.ts", "reference-data.ts"]) hash.update(file).update(readFileSync(new URL(file, import.meta.url)));
+  for (const file of ["catalog.ts", "engine.ts", "runtime.ts", "index.ts", "model-selection.ts", "subagent-adapter.ts", "startup.ts", "reference-data.ts"]) hash.update(file).update(readFileSync(new URL(file, import.meta.url)));
   const references = loadReferenceData(root);
   hash.update("rules-yaml").update(references.digest);
-  const routes = { single: loadRoute(references, "single"), multi: loadRoute(references, "multi") };
-  for (const [name, hook] of Object.entries(MODULE_HOOKS)) {
-    const expected = EXPECTED_IDS[name];
+  for (const hook of HOOK_IDS) {
+    const activation = references.hookActivation(hook);
+    if (!Array.isArray(activation) || !activation.length || new Set(activation).size !== activation.length ||
+        activation.some(item => !HOOK_TRIGGERS.includes(item))) {
+      throw new Error(`Hook ${hook} 的 activate_on 缺失或包含无效触发条件`);
+    }
+    hookTriggers[hook] = activation;
+    const binding = STAGE_HOOKS[hook];
+    if (!binding) continue;
     const document = references.document(hookDocument(hook));
-    const path = `hooks/${hook}.md`;
-    const checkpoints = document.fragments.filter(item => item.kind === "checkpoint").map(({ id, title }) => ({
-      id, title, conditional: CONDITIONAL.has(id),
+    const checkpoints = document.fragments.filter(item => item.kind === "checkpoint").map(({ id, title, applicability }) => ({
+      id, title, applicability,
       get instruction() { return references.readFragment(hookDocument(hook), id); },
     }));
-    if (document.path !== path || checkpoints.length !== expected.length || checkpoints.some((item, i) => item.id !== expected[i])) {
-      throw new Error(`检查点契约变化，须审阅 Extension：${path}`);
+    const anchors = checkpoints.filter(({ id }) => binding.anchors.includes(id)).map(({ id }) => id);
+    if (!checkpoints.length || anchors.join() !== binding.anchors.join() ||
+        checkpoints.some(({ id, applicability }) => applicability === "sub_agent" && (hook !== "delegation" || id === "DE02" || id === "DE04"))) {
+      throw new Error(`检查点契约变化，须核对宿主守卫锚点：${document.path}`);
     }
-    modules[name] = { name, hook, path, checkpoints };
+    modules[binding.name] = { name: binding.name, hook, path: document.path, checkpoints };
   }
-  for (const id of HOOK_IDS) {
-    if (!references.hasHook(id)) throw new Error(`规则片段索引缺少 Hook：${id}`);
-  }
+  const routes = { single: loadRoute(references, "single", modules), multi: loadRoute(references, "multi", modules) };
   // 快照使用代码与规则索引的指纹，不扫描文档导出目录。
-  return { root: resolve(root), modules, routes, references, digest: hash.digest("hex") };
+  return { root: resolve(root), modules, routes, hookTriggers, references, digest: hash.digest("hex") };
 }
 export function currentModule(catalog: Catalog, phase: Phase, mode: Mode): Module { return catalog.modules[catalog.routes[mode].steps[phase].module]; }
 /** Resolve against the resource document, never the user's unrelated working directory. */

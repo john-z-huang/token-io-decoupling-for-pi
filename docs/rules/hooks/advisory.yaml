@@ -4,6 +4,7 @@ schema_version: 1
 document_type: hook-contract
 id: advisory
 markdown_path: hooks/advisory.md
+activate_on: [advice_requested]
 title: 有界建议、决策上下文与语义路由
 blocks:
   - trigger:

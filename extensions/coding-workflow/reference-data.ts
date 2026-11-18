@@ -4,14 +4,16 @@ import { join } from "node:path";
 import { isAlias, isNode, parseDocument, visit } from "yaml";
 
 type MarkdownBlock = { kind: "markdown"; text: string; title?: string; expose: boolean };
-type CheckpointBlock = { kind: "checkpoint"; text: string; title: string };
+type Applicability = "optional" | "sub_agent";
+type CheckpointBlock = { kind: "checkpoint"; text: string; title: string; applicability?: Applicability };
 type RouteBlock = { kind: "route_step"; text: string; title: string; phase: string; hook: string };
 type SectionBlock = { kind: "section"; title: string; children: Entry[]; expose?: boolean; gap?: number };
 type IncludeBlock = { kind: "rule_include"; document: string; fragment: string };
 type Block = MarkdownBlock | CheckpointBlock | RouteBlock | SectionBlock | IncludeBlock;
 type Entry = { id: string; block: Block };
 type Fragment = { id: string; title: string } & (
-  { kind: "checkpoint" | "markdown" } |
+  { kind: "checkpoint"; applicability?: Applicability } |
+  { kind: "markdown" } |
   { kind: "section"; anchor: string } |
   { kind: "route_step"; phase: string; hook: string }
 );
@@ -69,9 +71,14 @@ function readEntries(value: unknown, path: string, seen = new Set<string>()): En
         block = { kind: data.kind, text: string(data.text, key), expose: data.expose === true,
           title: data.expose || data.title !== undefined ? string(data.title, key, /^[^\r\n]+$/) : undefined };
         break;
-      case "checkpoint":
-        block = { kind: data.kind, text: string(data.text, key), title: string(data.title, key, /^[^\r\n]+$/) };
+      case "checkpoint": {
+        const applicability = data.applicability;
+        if (applicability !== undefined && applicability !== "optional" && applicability !== "sub_agent") {
+          throw new Error(`检查点适用条件无效：${key}`);
+        }
+        block = { kind: data.kind, text: string(data.text, key), title: string(data.title, key, /^[^\r\n]+$/), applicability };
         break;
+      }
       case "route_step": {
         const text = string(data.text, key);
         const hook = string(data.hook, key, DOCUMENT_ID);
@@ -136,7 +143,10 @@ function buildFragments(title: string, entries: Entry[]) {
         const { kind, title, phase, hook } = block;
         fragments.push({ id, title, kind, phase, hook });
         renderers.set(id, () => block.text);
-      } else if (block.kind === "checkpoint" || (block.kind === "markdown" && block.expose)) {
+      } else if (block.kind === "checkpoint") {
+        fragments.push({ id, title: block.title, kind: block.kind, applicability: block.applicability });
+        renderers.set(id, () => block.text);
+      } else if (block.kind === "markdown" && block.expose) {
         fragments.push({ id, title: string(block.title, id), kind: block.kind });
         renderers.set(id, () => block.text);
       }
@@ -154,6 +164,7 @@ export function loadReferenceData(root: string) {
   const sources = new Map<string, string>();
   const entries = new Map<string, { file: string; hash: string; renderers: Map<string, () => string> }>();
   const hookBodies = new Map<string, () => string>();
+  const hookTriggers = new Map<string, unknown>();
   const verified = new Set<string>();
   const cache = new Map<string, string>();
 
@@ -201,6 +212,7 @@ export function loadReferenceData(root: string) {
     if (owner && raw.document_type === "hook-contract") {
       const execution = blocks.filter(block => !["flowchart", "checkpoints", "sources"].includes(block.id));
       hookBodies.set(id, () => `# ${title}${"\n".repeat(titleGap)}${render(execution, 2)}`);
+      hookTriggers.set(id, raw.activate_on);
     }
   }
 
@@ -235,7 +247,7 @@ export function loadReferenceData(root: string) {
   }
   return {
     digest: digest.digest("hex"), document, readFragment, readHook,
-    hasHook: (id: string) => hookBodies.has(id),
+    hookActivation: (id: string) => hookTriggers.get(id),
     documentPaths: () => documentsByPath.keys(),
     documentForPath: (path: string) => documentsByPath.get(path),
     sourceForPath: (path: string) => sources.get(path),

@@ -4,6 +4,7 @@ schema_version: 1
 document_type: hook-contract
 id: repair
 markdown_path: hooks/repair.md
+activate_on: [repair_review, repair_required]
 title: Repair Hook
 blocks:
   - trigger:
