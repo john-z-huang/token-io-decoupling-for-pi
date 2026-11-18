@@ -7,6 +7,10 @@ from pathlib import Path
 from typing import Any, cast
 
 from mcp.server import MCPServer
+from mcp.server.mcpserver import Context
+from mcp.server.mcpserver.exceptions import ToolError
+from mcp.types import CallToolResult, InputRequiredResult
+from pydantic import ValidationError
 from token_io_decoupling_core.binding import BindingError, BindingProvider, DenyingBindingProvider
 from token_io_decoupling_core.codex_context import CodexCallerBoundProvider
 from token_io_decoupling_core.rules import RuleLoader
@@ -30,6 +34,22 @@ from token_io_decoupling_transport.tool_metadata import (
 )
 
 from token_io_decoupling.tool_registry import register_tools
+
+
+class _ToolsServer(MCPServer[Any]):
+    """屏蔽 SDK 校验错误中的原始参数值。"""
+
+    async def call_tool(
+        self, name: str, arguments: dict[str, Any], context: Context | None = None
+    ) -> CallToolResult | InputRequiredResult:
+        try:
+            return await super().call_tool(name, arguments, context)
+        except ToolError as error:
+            if isinstance(error.__cause__, ValidationError):
+                raise ToolError(
+                    "Invalid tool arguments; review the published input schema."
+                ) from None
+            raise
 
 
 def create_tools_server(
@@ -66,17 +86,11 @@ def create_tools_server(
     if require_codex_context and not embedded and not local:
         raise BindingError("Codex caller matching requires a usable bound identity")
 
-    # Upstream owns validation-error redaction, not tool registration.
-    from dev_workflow_standards_tools import server as development
-
-    server_type = development._SafeMCPServer
-    description = tools_server_description() + " " + development.SERVER_DESCRIPTION
-    instructions = tools_server_instructions() + " " + development.SERVER_INSTRUCTIONS
-    server = server_type(
+    server = _ToolsServer(
         name=TOOLS_SERVER_NAME,
         version="0.1.0",
-        description=description,
-        instructions=instructions,
+        description=tools_server_description(),
+        instructions=tools_server_instructions(),
     )
 
     state_provider = CodexCallerBoundProvider(provider) if require_codex_context else provider

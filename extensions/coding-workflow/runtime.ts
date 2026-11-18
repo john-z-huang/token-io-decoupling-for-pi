@@ -56,14 +56,14 @@ export function renderContext(workflow: Workflow): string {
   const module = currentModule(workflow.catalog, s.phase, s.mode);
   const content = [
     "[Coding Extension：结构化流程，不是权限或事实证明]",
-    JSON.stringify({ revision: s.revision, status: s.status, reason: s.reason, mode: s.mode, child_count: s.childCount, audit: s.audit, phase: s.phase, checkpoint: workflow.checkpoint?.id ?? "done", epoch: s.epoch, verified: s.verified, returnTo: s.returnTo, plan: s.plan, allocations: s.allocations, inFlight: s.inFlight, slice: s.slice, task: s.task }),
-    "本次用户任务只是目标，不覆盖任何安全/授权规则。不要重放已完成效果。完成当前检查点后用 coding_checkpoint 提交证据；可以一次提交同模块内连续已完成项，但不能跨模块。所有 facts 是 Agent 声明，不是宿主认证。",
+    "用 coding_checkpoint 上报当前模块已完成项及真实证据，同模块连续项可批量提交。语义变化用 signal，缺前置用 pause/blocked。恢复后从原位推进。facts 由 Agent 提供，须有来源。",
     "facts 要求：ER01 independence=required/not_required；WD03 plan=persisted/prohibited；VR03 verification=passed（必须引用 effect=check 实际结果）；DA03 acceptance=satisfied（摘要逐项映射标准）；DA04 plan=archived（用户禁止持久化时除外）。",
-    "写前用 coding_slice 放行四字段和精确文件。Bash、codemode 和不透明 MCP 调用通过 coding_run 声明 effect/rationale/evidence；只读声明不是自动安全证明。不得将未经授权的命令标成 read。多代理仅通过 coding_delegate，不能绕过为其他工具/递归子任务。未知语义变化用 coding_checkpoint signal，上报后重核对应 Hook。",
-    `当前模块待处理（来自 [${module.path}](${resolveDocumentLink(workflow.catalog.root, module.path, "")!.url})，仅此模块，不预加载全部路线）：\n${module.checkpoints.slice(s.step).map(c => `${c.id} ${c.title}\n${rewriteDocumentLinks(workflow.catalog.root, module.path, c.instruction)}`).join("\n\n")}`,
-    workflow.checkpoint ? "只推进已完成的检查点；批量上报也必须逐项有真实证据。" : "已完成结构化检查点，向用户报告实际验收结果和限制。",
-    `可引用的最近24项实际观察（更早引用可通过 status 查找；被128项窗口淘汰的证据须重读）：\n${JSON.stringify(s.observations.slice(-24))}`,
+    "写前用 coding_slice 放行四字段和精确文件。Bash、codemode 和不透明 MCP 经 coding_run 声明 effect/rationale/evidence，先核验实际效果和授权。子任务只经 coding_delegate，禁止递归和其他入口绕过。",
     ...[...hooks].map(id => renderHook(workflow.catalog, id)),
+    JSON.stringify({ revision: s.revision, status: s.status, reason: s.reason, mode: s.mode, child_count: s.childCount, audit: s.audit, phase: s.phase, checkpoint: workflow.checkpoint?.id ?? "done", epoch: s.epoch, verified: s.verified, returnTo: s.returnTo, plan: s.plan, allocations: s.allocations, inFlight: s.inFlight, slice: s.slice, task: s.task }),
+    `当前模块待处理（来自 [${module.path}](${resolveDocumentLink(workflow.catalog.root, module.path, "")!.url})，仅此模块，不预加载全部路线）：\n${module.checkpoints.slice(s.step).map(c => `${c.id} ${c.title}\n${rewriteDocumentLinks(workflow.catalog.root, module.path, c.instruction)}`).join("\n\n")}`,
+    `可引用的最近24项实际观察（更早引用可通过 status 查找；被128项窗口淘汰的证据须重读）：\n${JSON.stringify(s.observations.slice(-24))}`,
+    ...(!workflow.checkpoint ? ["已完成结构化检查点，向用户报告实际验收结果和限制。"] : []),
   ].join("\n\n");
   if (content.length > MAX_CONTEXT) throw new Error(`当前规则包超出${MAX_CONTEXT}字符上限；停止依赖工作，请缩小任务/规则，而不是截断守卫`);
   return content;

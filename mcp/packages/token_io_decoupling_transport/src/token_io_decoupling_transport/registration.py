@@ -13,7 +13,7 @@ from mcp.server import MCPServer
 from mcp.server.mcpserver import Context as MCPContext
 from mcp.server.mcpserver.exceptions import ToolError
 from mcp.types import ToolAnnotations
-from pydantic import BaseModel, Field, TypeAdapter, ValidationError, WithJsonSchema
+from pydantic import BaseModel, Field, ValidationError, WithJsonSchema
 from token_io_decoupling_core.binding import BindingError, BindingProvider
 from token_io_decoupling_core.codex_context import CodexCallerBoundProvider
 from token_io_decoupling_core.server_tools import TOOLS_SERVER_TOOLS
@@ -134,7 +134,7 @@ class ToolRegistrar:
                     lambda: self.check_operation_role(
                         definition.role,
                         lambda: callback(
-                            TypeAdapter(payload_type).validate_json(
+                            payload_type.model_validate_json(
                                 json.dumps(payload, ensure_ascii=False)
                             )
                         ),

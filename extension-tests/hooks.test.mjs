@@ -27,7 +27,7 @@ for (const id of HOOK_IDS) test(`${id}: complete execution clauses and every por
 test('all substantive articles have explicit per-hook provenance and the checked-in map is current', () => {
   const rows = collectSourceCoverage(catalog);
   assert.ok(rows.filter(row => row.kind === 'rule').every(row => row.hooks.length));
-  assert.equal(readFileSync(join(catalog.root, 'hooks/SOURCE_COVERAGE.md'), 'utf8'), coverageMarkdown(catalog));
+  assert.equal(readFileSync(join(catalog.root, 'hooks/SOURCE_COVERAGE.md'), 'utf8'), coverageMarkdown(rows));
   for (const name of ['README', 'SOURCE_COVERAGE']) validateMarkdownLinks(catalog.root, `hooks/${name}.md`, readFileSync(join(catalog.root, `hooks/${name}.md`), 'utf8'));
 });
 
@@ -91,6 +91,7 @@ test('both routes retain all relevant contracts for single and combined signals,
     const content = renderContext(w); peak = Math.max(peak, content.length);
     assert.ok(content.length <= MAX_CONTEXT);
     assert.ok(content.includes('[Hook:foundation]'));
+    assert.ok(content.indexOf('[Hook:foundation]') < content.indexOf('{"revision":'));
     assert.ok(!documentLinks(content).some(target => target.startsWith('../')), 'module and hook links must not bind to the target project');
     if (status === 'paused') assert.ok(content.includes('[Hook:recovery]'));
     if (signals.includes('advice_requested')) assert.ok(content.includes('[Hook:advisory]'));

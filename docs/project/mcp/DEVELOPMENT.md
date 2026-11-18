@@ -31,6 +31,8 @@ token-io-decoupling-tools skills update
 
 所有工具使用 `token_io_decoupling_transport.registration.ToolDefinition` 模板，由 `mcp/src/token_io_decoupling/tool_registry.py` 中的 `tool_definitions()` 集中声明，`register_tools()` 先校验完整清单，再逐项调用唯一的 `ToolRegistrar.register()`。`server.py` 只负责组装服务；业务模块不调用 MCP 装饰器，上游依赖只提供业务 callback 和说明元数据，不再通过其 `register_*` 注册工具。
 
+初始化响应只携带 Pi 服务共用的调用边界。单项工具的参数、返回值和副作用以实际发现的元数据为准。服务器在 SDK 调用边界统一屏蔽参数校验错误中的输入值。
+
 新增或调整工具时，统一使用以下模板（字段按既有调用契约选择）：
 
 ```python

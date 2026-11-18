@@ -5,7 +5,7 @@ description: "用于代码理解、实现、重构、调试、验证、文档和
 
 # Token I/O Decoupling
 
-把语义决策与高体量状态消费、输出物化分离。当前仅维护 Coding 可执行工作流；Multimodal/Mixed 仅为参考。
+当前仅维护 Coding 可执行工作流；Multimodal/Mixed 仅作参考。
 
 ## 适用范围
 
@@ -15,10 +15,7 @@ description: "用于代码理解、实现、重构、调试、验证、文档和
 
 ### 已启用 Coding Extension
 
-1. 以每次上下文中最新的 **Coding Hooks、revision 和当前检查点**为准；不要再读取整条路线或预加载全部 references，也不要在扩展之外维护第二份流程状态。
-2. 消费当前模块清单与自动注入的 Hook，执行已授权工作，用 `coding_checkpoint` 上报真实证据；同模块连续已完成项可批量上报，不能跨模块跳步。
-3. 写前使用 `coding_slice` 放行目标、精确路径/影响、返回条件及未放行边界。不透明工具通过 `coding_run` 显式分类影响；真实一次性子任务通过 `coding_delegate` 核验职责/预算和实际 Schema。
-4. 语义变化使用结构化 signal，缺前置/授权/能力使用 pause/blocked；恢复只回原位置，不重放效果。Hook 未覆盖的具体边界、歧义或冲突，定向查详细 owner；省略不构成豁免。
+消费最新的 **Coding Hooks、revision 和当前检查点**，使用注入包给出的协调工具推进。以扩展状态为准；出现规则歧义、冲突或未覆盖的边界时，定向查详细 owner。
 
 工具出现不表示已启用。未见当前 Coding Hooks 时，不由 Agent 猜模式或自行调用命令；用户可用 `/coding single <任务>` 或 `/coding multi [数量] <任务>` 显式启用。安装与能力边界见 [Pi Extension 使用说明](PI_EXTENSION.md)。
 
@@ -36,8 +33,6 @@ description: "用于代码理解、实现、重构、调试、验证、文档和
 
 ## MCP 支持边界
 
-宿主 Extension 独立负责流程与 Hooks；MCP 仅保留 `token-io-decoupling-tools`，不提供 workflow 调度、决策或 task-plan 服务。Skill 使用 `token-io-decoupling-tools skills install` 安装、`token-io-decoupling-tools skills update` 更新，目标为 `~/.pi/agent/skills/token-io-decoupling-skill/`，更新后在 Pi 执行 `/reload`。可选导航/咨询不适用时直接依据 owner；必需能力缺失只阻断依赖分支。不得伪造旧身份、grant、事务或服务器适配。
-
-MCP Tools 内部仍用 OpenAI API；每次真实调用读取非空 `OPENAI_API_KEY` 与 `OPENAI_BASE_URL`，固定模型 `gpt-6-luna`，不输出凭据。默认 Mock，真实出站仍须授权；Pi 会话/子任务模型与此 API 模型独立。
+按实际 Schema 和授权使用 MCP。可选导航或咨询缺失时直接查 owner；必需能力缺失只阻断依赖分支。工具发现、安装及授权边界见 [工作流架构](WORKFLOW_ARCHITECTURE.md) 和 [Pi Extension 使用说明](PI_EXTENSION.md)。
 
 [Hooks 触发目录](hooks/README.md) · [详细工作流架构](WORKFLOW_ARCHITECTURE.md) · [运行时能力边界](references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md)

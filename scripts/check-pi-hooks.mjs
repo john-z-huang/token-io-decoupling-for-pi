@@ -11,7 +11,7 @@ const c = loadCatalog();
 let links = 0, largestDefault = 0, largestConditional = 0, contexts = 0;
 for (const id of HOOK_IDS) links += validateMarkdownLinks(c.root, `hooks/${id}.md`, c.hooks[id]);
 const rows = collectSourceCoverage(c);
-const generated = coverageMarkdown(c), coveragePath = join(c.root, 'hooks/SOURCE_COVERAGE.md');
+const generated = coverageMarkdown(rows), coveragePath = join(c.root, 'hooks/SOURCE_COVERAGE.md');
 if (process.argv.includes('--write-coverage')) writeFileSync(coveragePath, generated);
 assert.equal(readFileSync(coveragePath, 'utf8'), generated, '来源对照表过期，请运行 node scripts/check-pi-hooks.mjs --write-coverage 并审阅变化');
 for (const name of ['README', 'SOURCE_COVERAGE']) links += validateMarkdownLinks(c.root, `hooks/${name}.md`, readFileSync(join(c.root, `hooks/${name}.md`), 'utf8'));

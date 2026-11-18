@@ -56,14 +56,15 @@ def _headings(source: str) -> list[tuple[int, int, int, str]]:
 def extract_heading(source: str, title: str) -> str:
     """Return the body of the unique exact ATX heading, ignoring fenced code."""
     target = title.strip()
-    matches = [heading for heading in _headings(source) if heading[3] == target]
+    headings = _headings(source)
+    matches = [heading for heading in headings if heading[3] == target]
     if not matches:
         raise HeadingNotFoundError(f"heading {target!r} was not found outside fenced code")
     if len(matches) != 1:
         raise DuplicateHeadingError(f"heading {target!r} occurs {len(matches)} times")
-    start, end, level, _ = matches[0]
+    _, end, level, _ = matches[0]
     next_heading = next(
-        (item for item in _headings(source) if item[0] >= end and item[2] <= level),
+        (item for item in headings if item[0] >= end and item[2] <= level),
         None,
     )
     body_end = next_heading[0] if next_heading else len(source)

@@ -91,6 +91,21 @@ def test_flat_callback_exceptions_are_not_payload_redacted() -> None:
         tool.fn()
 
 
+def test_server_validation_errors_hide_rejected_arguments() -> None:
+    async def run() -> None:
+        async with Client(create_tools_server()) as client:
+            result = await client.call_tool(
+                "serena_memory_tail_read",
+                {"memory_path": "test", "tail_lines": "synthetic-sensitive-value"},
+            )
+        assert result.is_error
+        assert result.content[0].text == (
+            "Invalid tool arguments; review the published input schema."
+        )
+
+    asyncio.run(run())
+
+
 def test_server_memory_configuration_is_isolated() -> None:
     class Reader(SerenaMemoryReadService):
         def __init__(self, label: str) -> None:

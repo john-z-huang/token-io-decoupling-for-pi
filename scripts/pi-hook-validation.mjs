@@ -62,8 +62,7 @@ export function collectSourceCoverage(catalog) {
   return catalog.coverage.map(row => ({ ...row, hooks: [...bySource.get(row.path)], declaredHooks: row.hooks }));
 }
 
-export function coverageMarkdown(catalog) {
-  const rows = collectSourceCoverage(catalog);
+export function coverageMarkdown(rows) {
   const lines = [
     '# Hook 来源整合对照', '',
     '由 `node scripts/check-pi-hooks.mjs --write-coverage` 根据各 Hook 的“规则来源”表生成；默认检查只读。', '',

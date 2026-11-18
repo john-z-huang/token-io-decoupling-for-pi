@@ -2,16 +2,9 @@
 
 from __future__ import annotations
 
-STANDARD_INSTALL_NOTICE = (
-    "The single token-io-decoupling-tools stdio executable exposes bounded local utilities "
-    "and development tools. Protected materialization requires a trusted current per-call "
-    "Worker binding and assignment plus a separate operator grant. Discovery grants no authority. "
-    "The executable does not provide independent process authentication or OS isolation."
-)
-
 SERVER_DESCRIPTION = (
-    "Local MCP tools for Pi and other MCP stdio clients. "
-    "Client discovery does not provide binding, assignment, or operation authorization."
+    "面向 Pi 的 stdio MCP 服务，提供规则查询、合规预检、Memory 只读检查、"
+    "受保护输出物化和通用 Git/GitHub 开发工具。"
 )
 
 
@@ -160,13 +153,26 @@ def tool_description(name: str) -> str:
 
 
 def tools_server_description() -> str:
-    return SERVER_DESCRIPTION + " " + STANDARD_INSTALL_NOTICE
+    return SERVER_DESCRIPTION
 
 
 def tools_server_instructions() -> str:
     return (
-        "Use each tool according to its declared contract and current user authorization. "
-        "Rule context and compliance preflight are bounded utilities, not workflow decisions. "
-        "materialize_decoupled_output remains unavailable without trusted per-call binding, "
-        "assignment and an independent operator grant. " + STANDARD_INSTALL_NOTICE
+        "按实际发现的工具 Schema 和说明核验输入、效果及成功条件。"
+        "Pi 的 codemode 可用 searchTools 和 describeTool 发现工具，hidden 不可绕过。"
+        "流程由宿主协调，规则查询、预检和建议只提供辅助证据。\n\n"
+        "repo_path 使用经核实的绝对仓库根。每项写入需要当前动作、目标和范围的用户授权，"
+        "并遵守实际宿主审批。工具说明中的 Codex writes approval 仅适用于提供该机制的宿主；"
+        "在 Pi 仍须遵守其实际权限。能力缺口仅在现有授权与同等校验内由宿主补足。"
+        "实际拒绝或校验失败不可换入口绕过，部分成功或结果不明先只读回查。"
+        "物化单独核验逐次可信 Worker 绑定、任务分配和操作员 grant；"
+        "stdio 连接或请求自报字段不能建立身份或隔离。\n\n"
+        "check_api_input 会把最终用途和内容发往配置的审核服务。"
+        "在任务允许的范围内无需递归审核，审核通过后可按原用途和目的地外发同一内容。"
+        "用途、内容、策略或目的地变化时重新核对范围并按需重审。更高优先级限制和实际拒绝继续有效。"
+        "业务 API 自动审核实际请求；审核结果不授权发布或其他写入。"
+        "不传凭据或无关私有数据。按工具说明处理超时和失败，不盲目重跑。\n\n"
+        "起草 Issue/PR 时提供当前已核实事实、证据指针与缺口；"
+        "涉及 Git 交付时核对目标 base/head、待交付的完整提交范围及最终 diff。"
+        "生成结果须结合实际证据审阅并核对质量状态，发布需独立授权。"
     )
