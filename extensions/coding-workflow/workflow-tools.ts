@@ -72,7 +72,7 @@ function applyCheckpointChange(workflow: Workflow, change: CheckpointChange): vo
       workflow.report(change.revision, change.reports);
       return;
     case "signal":
-      workflow.signal(change.revision, change.signal, change.evidence, change.reason);
+      workflow.signal(change.revision, change);
       return;
     case "pause":
       workflow.assertRevision(change.revision);
@@ -210,10 +210,12 @@ async function runOpaqueTool(workflow: Workflow, call: OpaqueToolCall, host: Too
   }
   const actuallyRan = outcome.durationMs !== undefined;
   workflow.observe(
-    callId,
-    input.tool,
-    input.effect,
-    actuallyRan && !outcome.isError && !options.signal?.aborted,
+    {
+      id: callId,
+      tool: input.tool,
+      effect: input.effect,
+      ok: actuallyRan && !outcome.isError && !options.signal?.aborted,
+    },
     epochAtCall,
   );
   if (actuallyRan && affectsEpoch(input.effect) && !calls.observedMutations.has(callId)) {
@@ -294,7 +296,7 @@ function registerDelegateTool(pi: ExtensionAPI, schemas: WorkflowToolSchemas, ho
   });
 }
 
-export function registerWorkflowTools(pi: ExtensionAPI, schemas: WorkflowToolSchemas, host: ToolHost) {
+export function registerWorkflowTools(pi: ExtensionAPI, schemas: WorkflowToolSchemas, host: ToolHost): void {
   registerControlTools(pi, schemas, host);
   registerRunTool(pi, schemas, host);
   registerDelegateTool(pi, schemas, host);

@@ -59,7 +59,11 @@ function measurePhaseContexts(catalog, mode, phase) {
   for (const signals of signalSets) {
     for (const status of ['active', 'paused']) {
       const childCount = mode === 'single' ? 0 : 1;
-      const state = makeState(catalog, 'hook-check', process.cwd(), mode, childCount, '有界合成任务');
+      const state = makeState(
+        catalog,
+        { sessionId: 'hook-check', cwd: process.cwd() },
+        { mode, childCount, task: '有界合成任务' },
+      );
       Object.assign(state, { phase, signals, status });
       samples.push({
         isDefault: !signals.length && status === 'active',

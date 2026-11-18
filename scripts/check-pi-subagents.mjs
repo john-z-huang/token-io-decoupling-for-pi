@@ -4,53 +4,38 @@ import assert from 'node:assert/strict';
 import childProcess from 'node:child_process';
 import { EventEmitter } from 'node:events';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { createRequire, syncBuiltinESMExports } from 'node:module';
+import { syncBuiltinESMExports } from 'node:module';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createHostLoader, declarationPath, hostModulePaths, openPiHost } from './pi-installed-host.mjs';
+
 const project = fileURLToPath(new URL('../', import.meta.url));
-const host = process.argv[2] ?? process.env.PI_EXTENSION_HOST_ROOT;
-const entry = process.argv[3];
-assert.ok(host && entry, '传入已有Pi包根目录与获准的现有subagent/index.ts；不自动查找或安装');
-const root = resolve(host),
-  nativeEntry = resolve(entry),
-  nativeDir = dirname(nativeEntry);
-assert.equal(
-  JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).name,
-  '@earendil-works/pi-coding-agent',
-);
-const requireHost = createRequire(join(root, 'package.json'));
-const aliases = {
-  '@earendil-works/pi-coding-agent': join(root, 'dist/index.js'),
-  typebox: requireHost.resolve('typebox'),
-};
-for (const name of ['pi-ai', 'pi-agent-core', 'pi-tui'])
-  aliases[`@earendil-works/${name}`] = join(root, 'node_modules/@earendil-works', name, 'dist/index.js');
-for (const value of Object.values(aliases)) assert.ok(existsSync(value), value);
-const temp = mkdtempSync(join(tmpdir(), 'pi-subagent-smoke-'));
-const originalSpawn = childProcess.spawn;
-try {
-  // Only compare approved deployment resources, never auth/settings/model configuration.
-  const agentDir = resolve(nativeDir, '../../agents');
-  const names = ['worker', 'reviewer', 'scout', 'planner', 'git-operator'];
-  for (const name of names)
-    assert.equal(
-      readFileSync(join(project, 'agents', `${name}.md`), 'utf8'),
-      readFileSync(join(agentDir, `${name}.md`), 'utf8'),
-      `${name} deployment drift`,
+const AGENT_PROFILES = ['worker', 'reviewer', 'scout', 'planner', 'git-operator'];
+
+function checkDeployment(nativeDir, agentDir) {
+  // 仅比较已授权的部署文件，差异报告只包含文件名。
+  for (const name of AGENT_PROFILES) {
+    const profile = `${name}.md`;
+    assert.ok(
+      readFileSync(join(project, 'agents', profile)).equals(readFileSync(join(agentDir, profile))),
+      `${profile} deployment drift`,
     );
-  assert.equal(
-    readFileSync(join(project, 'extensions/coding-workflow/model-selection.ts'), 'utf8'),
-    readFileSync(join(nativeDir, 'model-selection.ts'), 'utf8'),
+  }
+  const source = readFileSync(join(project, 'extensions/coding-workflow/model-selection.ts'));
+  assert.ok(
+    source.equals(readFileSync(join(nativeDir, 'model-selection.ts'))),
+    'model-selection.ts deployment drift',
   );
+}
+
+function checkTypes(temp, { hostRoot, aliases }, sourceFiles) {
   const paths = Object.fromEntries(
-    Object.entries(aliases).map(([name, path]) => [
-      name,
-      [path.replace(/\.mjs$/, '.d.mts').replace(/\.js$/, '.d.ts')],
-    ]),
+    Object.entries(aliases).map(([name, path]) => [name, [declarationPath(path)]]),
   );
+  const configPath = join(temp, 'tsconfig.json');
   writeFileSync(
-    join(temp, 'tsconfig.json'),
+    configPath,
     JSON.stringify({
       compilerOptions: {
         target: 'ES2023',
@@ -61,30 +46,34 @@ try {
         skipLibCheck: true,
         allowImportingTsExtensions: true,
         types: ['node'],
-        typeRoots: [join(root, 'node_modules/@types')],
+        typeRoots: [join(hostRoot, 'node_modules/@types')],
         paths,
       },
-      include: [nativeEntry, join(nativeDir, 'agents.ts'), join(nativeDir, 'model-selection.ts')],
+      include: sourceFiles,
     }),
   );
-  const typed = childProcess.spawnSync(process.env.TSC_BIN ?? 'tsc', ['-p', join(temp, 'tsconfig.json')], {
+  const typed = childProcess.spawnSync(process.env.TSC_BIN ?? 'tsc', ['-p', configPath], {
     encoding: 'utf8',
   });
+  if (typed.error) throw typed.error;
   assert.equal(typed.status, 0, typed.stdout + typed.stderr);
+}
 
+function modelArg(args) {
+  return args[args.indexOf('--model') + 1];
+}
+
+function captureSpawns() {
+  // 由模拟进程返回可识别的模型证据，宿主不会启动任何子代理。
   const spawns = [];
   childProcess.spawn = (_command, args) => {
-    // This function never launches an executable, shell or network client.
     spawns.push([...args]);
     const proc = new EventEmitter();
     proc.stdout = new EventEmitter();
     proc.stderr = new EventEmitter();
     proc.kill = () => true;
     queueMicrotask(() => {
-      const requested = args[args.indexOf('--model') + 1].replace(
-        /:(off|minimal|low|medium|high|xhigh|max)$/,
-        '',
-      );
+      const requested = modelArg(args).replace(/:(off|minimal|low|medium|high|xhigh|max)$/, '');
       const at = requested.indexOf('/');
       const message = {
         role: 'assistant',
@@ -99,15 +88,19 @@ try {
     return proc;
   };
   syncBuiltinESMExports();
-  const { createJiti } = requireHost('jiti');
-  const jiti = createJiti(import.meta.url, { moduleCache: false, fsCache: false, alias: aliases });
-  const sdk = await jiti.import(aliases['@earendil-works/pi-coding-agent']);
-  for (const name of names) {
-    const { frontmatter, body } = sdk.parseFrontmatter(readFileSync(join(agentDir, `${name}.md`), 'utf8'));
+  return spawns;
+}
+
+function checkAgentProfiles(parseFrontmatter, agentDir) {
+  for (const name of AGENT_PROFILES) {
+    const { frontmatter, body } = parseFrontmatter(readFileSync(join(agentDir, `${name}.md`), 'utf8'));
     assert.equal(frontmatter.name, name);
     assert.equal(frontmatter.model, undefined);
     assert.ok(frontmatter.description.length > 20 && body.includes('禁止Computer Use'));
   }
+}
+
+async function loadLegacyTool(jiti, nativeEntry) {
   const factory = await jiti.import(nativeEntry, { default: true });
   let tool;
   factory({
@@ -119,6 +112,10 @@ try {
   assert.equal(tool.parameters.properties.model.type, 'string');
   for (const list of ['tasks', 'chain'])
     assert.equal(tool.parameters.properties[list].items.properties.model.type, 'string');
+  return tool;
+}
+
+function syntheticContext(cwd) {
   const models = ['gpt-6.1-sol', 'gpt-6.1-terra', 'gpt-6-luna'].map((id) => ({
     id,
     provider: 'openai',
@@ -138,21 +135,25 @@ try {
     contextWindow: 1050000,
     maxTokens: 128000,
   }));
-  const ctx = {
-    cwd: temp,
+  return {
+    cwd,
     model: { provider: 'openai', id: 'gpt-6-luna' },
     thinkingLevel: 'max',
     hasUI: false,
     modelRegistry: { getAvailable: () => models },
   };
-  const run = (params) => tool.execute('synthetic-smoke', params, undefined, undefined, ctx);
-  const selected = (value) => value.slice(value.indexOf('--model') + 1, value.indexOf('--model') + 2)[0];
+}
+
+async function checkSingleDispatch(run, spawns) {
   const single = await run({ agent: 'worker', task: 'synthetic no-op', model: 'openai/gpt-6.1-sol:medium' });
   assert.ok(!single.isError, JSON.stringify(single));
-  assert.equal(selected(spawns.at(-1)), 'openai/gpt-6.1-sol:medium');
+  assert.equal(modelArg(spawns.at(-1)), 'openai/gpt-6.1-sol:medium');
   assert.ok(!spawns.at(-1).includes('--thinking'), 'parent thinking must not override explicit suffix');
   assert.equal(single.details.results[0].requestedModel, 'openai/gpt-6.1-sol:medium');
   assert.equal(single.details.results[0].model, 'openai/gpt-6.1-sol-synthetic-host');
+}
+
+async function checkBatchDispatch(run, spawns) {
   const parallel = await run({
     model: 'openai/gpt-6-luna:low',
     tasks: [
@@ -166,7 +167,7 @@ try {
     ['openai/gpt-6-luna:low', 'openai/gpt-6.1-terra:high'],
   );
   assert.deepEqual(
-    spawns.slice(-2).map(selected).sort(),
+    spawns.slice(-2).map(modelArg).sort(),
     ['openai/gpt-6-luna:low', 'openai/gpt-6.1-terra:high'].sort(),
   );
   await run({
@@ -176,13 +177,18 @@ try {
       { agent: 'scout', task: '{previous}' },
     ],
   });
-  assert.deepEqual(spawns.slice(-2).map(selected), ['openai/gpt-6.1-sol:high', 'openai/gpt-6-luna:medium']);
+  assert.deepEqual(spawns.slice(-2).map(modelArg), ['openai/gpt-6.1-sol:high', 'openai/gpt-6-luna:medium']);
+}
+
+async function checkInheritedModel(run, spawns) {
   await run({ agent: 'worker', task: 'inherit' });
-  assert.equal(selected(spawns.at(-1)), 'openai/gpt-6-luna');
-  assert.deepEqual(
-    spawns.at(-1).slice(spawns.at(-1).indexOf('--thinking'), spawns.at(-1).indexOf('--thinking') + 2),
-    ['--thinking', 'max'],
-  );
+  const args = spawns.at(-1);
+  const thinkingIndex = args.indexOf('--thinking');
+  assert.equal(modelArg(args), 'openai/gpt-6-luna');
+  assert.deepEqual(args.slice(thinkingIndex, thinkingIndex + 2), ['--thinking', 'max']);
+}
+
+async function checkRejectedSelections(run, spawns) {
   for (const params of [
     { agent: 'worker', task: 'bad', model: 'luna' },
     { agent: 'worker', task: 'bad', model: 'openai/missing:low' },
@@ -205,6 +211,35 @@ try {
     assert.equal(result.isError, true, JSON.stringify({ params, result }));
     assert.equal(spawns.length, before, 'bad selection must reject the whole batch before spawn');
   }
+}
+
+const hostLocation = process.argv[2] ?? process.env.PI_EXTENSION_HOST_ROOT;
+const entry = process.argv[3];
+assert.ok(hostLocation && entry, '传入已有Pi包根目录与获准的现有subagent/index.ts；不自动查找或安装');
+const host = openPiHost(hostLocation);
+const nativeEntry = resolve(entry);
+const nativeDir = dirname(nativeEntry);
+const agentDir = resolve(nativeDir, '../../agents');
+const aliases = hostModulePaths(host);
+for (const value of Object.values(aliases)) assert.ok(existsSync(value), value);
+checkDeployment(nativeDir, agentDir);
+
+const temp = mkdtempSync(join(tmpdir(), 'pi-subagent-smoke-'));
+const originalSpawn = childProcess.spawn;
+try {
+  const sourceFiles = [nativeEntry, join(nativeDir, 'agents.ts'), join(nativeDir, 'model-selection.ts')];
+  checkTypes(temp, { hostRoot: host.root, aliases }, sourceFiles);
+  const spawns = captureSpawns();
+  const jiti = createHostLoader(host, import.meta.url, aliases);
+  const sdk = await jiti.import(aliases['@earendil-works/pi-coding-agent']);
+  checkAgentProfiles(sdk.parseFrontmatter, agentDir);
+  const tool = await loadLegacyTool(jiti, nativeEntry);
+  const ctx = syntheticContext(temp);
+  const run = (params) => tool.execute('synthetic-smoke', params, undefined, undefined, ctx);
+  await checkSingleDispatch(run, spawns);
+  await checkBatchDispatch(run, spawns);
+  await checkInheritedModel(run, spawns);
+  await checkRejectedSelections(run, spawns);
   assert.deepEqual(ctx.model, { provider: 'openai', id: 'gpt-6-luna' });
   assert.equal(ctx.thinkingLevel, 'max');
   console.log(

@@ -1,4 +1,4 @@
-/** Schema adapters only: no sessions, subprocesses, authorization or workflow state. */
+/** 适配宿主工具的 Schema，预算和授权由调用方核验。 */
 import { parseModelSelection, validateChildSelection } from "./model-selection.ts";
 
 interface Schema {
@@ -15,17 +15,26 @@ export interface SubagentAdapter {
   kind: "legacy" | "calls";
   fields: Record<string, Schema>;
 }
-function object(value: unknown): Schema | undefined {
+
+interface ObjectSchema extends Schema {
+  type: "object";
+  properties: Record<string, Schema>;
+}
+
+function object(value: unknown): ObjectSchema | undefined {
   if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
   const schema = value as Schema;
-  if (
-    schema.type !== "object" ||
-    !schema.properties ||
-    typeof schema.properties !== "object" ||
-    Array.isArray(schema.properties)
-  )
-    return undefined;
-  return schema;
+  return hasObjectFields(schema) ? schema : undefined;
+}
+
+function hasObjectFields(schema: Schema): schema is ObjectSchema {
+  const { properties } = schema;
+  return (
+    schema.type === "object" &&
+    Boolean(properties) &&
+    typeof properties === "object" &&
+    !Array.isArray(properties)
+  );
 }
 function requiredWithin(schema: Schema, names: string[]): boolean {
   return (
@@ -42,43 +51,42 @@ function acceptsString(schema: Schema | undefined, value?: string): boolean {
   );
 }
 
+function acceptsSingleCall(calls: Schema | undefined): calls is Schema {
+  if (!calls || calls.type !== "array") return false;
+  if ((calls.minItems ?? 0) > 1 || (calls.maxItems ?? 1) < 1) return false;
+  return true;
+}
+
+function callsAdapter(top: ObjectSchema): SubagentAdapter | undefined {
+  const { calls } = top.properties;
+  if (!acceptsSingleCall(calls) || !requiredWithin(top, ["calls"])) return undefined;
+  const item = object(calls.items);
+  if (!item || !requiredWithin(item, ["agent", "prompt", "cwd", "initialContext"])) return undefined;
+  const fields = item.properties;
+  if (
+    !["agent", "prompt", "cwd"].every((name) => acceptsString(fields[name])) ||
+    !acceptsString(fields.initialContext, "empty")
+  ) {
+    return undefined;
+  }
+  return { kind: "calls", fields };
+}
+
 export function resolveSubagentAdapter(parameters: unknown): SubagentAdapter | undefined {
   const top = object(parameters);
   if (!top) return undefined;
-  // A declared calls interface is never silently reinterpreted as the older API.
-  if (top.properties!.calls !== undefined) {
-    const calls = top.properties!.calls;
-    const item = object(calls?.items);
-    if (
-      !calls ||
-      calls.type !== "array" ||
-      (calls.minItems ?? 0) > 1 ||
-      (calls.maxItems ?? 1) < 1 ||
-      !requiredWithin(top, ["calls"]) ||
-      !item ||
-      !requiredWithin(item, ["agent", "prompt", "cwd", "initialContext"])
-    )
-      return undefined;
-    const fields = item.properties!;
-    if (
-      !["agent", "prompt", "cwd"].every((name) => acceptsString(fields[name])) ||
-      !acceptsString(fields.initialContext, "empty")
-    )
-      return undefined;
-    return { kind: "calls", fields };
-  }
-  if (
-    !requiredWithin(top, ["agent", "task", "cwd"]) ||
-    !["agent", "task", "cwd"].every((name) => acceptsString(top.properties![name]))
-  )
-    return undefined;
-  return { kind: "legacy", fields: top.properties! };
+  const fields = top.properties;
+  // 声明了 calls 的宿主必须通过该接口的校验，避免误发旧版参数。
+  if (fields.calls !== undefined) return callsAdapter(top);
+  const keys = ["agent", "task", "cwd"];
+  if (!requiredWithin(top, keys) || !keys.every((name) => acceptsString(fields[name]))) return undefined;
+  return { kind: "legacy", fields };
 }
 export function compatibleSubagent(parameters: unknown): boolean {
   return !!resolveSubagentAdapter(parameters);
 }
 
-/** Run for every job BEFORE reserving allocations or executing any child. */
+/** 整批任务在预留名额前核验模型参数，避免边执行边发现 Schema 不兼容。 */
 export function subagentModelInput(adapter: SubagentAdapter, model?: string): Record<string, string> {
   if (model === undefined) return {};
   validateChildSelection(model);
@@ -91,16 +99,18 @@ export function subagentModelInput(adapter: SubagentAdapter, model?: string): Re
   const selected = `${provider}/${id}`;
   if (!acceptsString(adapter.fields.model, selected) || !acceptsString(adapter.fields.thinking, thinking))
     throw new Error("calls[] 显式选型须有真实 model/thinking 字段及受支持档位；不静默忽略或回退");
-  // pi-subagent 3.1.0 applies call > agent > startup thinking separately from model.
+  // pi-subagent 3.1.0 独立处理 thinking，单次调用优先于代理配置和启动值。
   return { model: selected, thinking };
 }
-export function subagentInput(
-  adapter: SubagentAdapter,
-  agent: string,
-  task: string,
-  cwd: string,
-  modelInput: Record<string, string>,
-): Record<string, unknown> {
+interface SubagentCall {
+  agent: string;
+  task: string;
+  cwd: string;
+  modelInput: Record<string, string>;
+}
+
+export function subagentInput(adapter: SubagentAdapter, call: SubagentCall): Record<string, unknown> {
+  const { agent, task, cwd, modelInput } = call;
   return adapter.kind === "calls"
     ? { calls: [{ agent, prompt: task, cwd, initialContext: "empty", ...modelInput }] }
     : { agent, task, cwd, ...modelInput };

@@ -38,7 +38,7 @@
   "files": [
     "CHANGELOG/CHANGELOG.md",
     "CHANGELOG/CODE_QUALITY.md",
-    "extensions/coding-workflow/*.ts",
+    "extensions/coding-workflow/**/*.ts",
     "docs/rules",
     "docs/project",
     "docs/skill",

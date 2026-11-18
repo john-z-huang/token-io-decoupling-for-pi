@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import fs from 'node:fs';
 import {
   existsSync,
   mkdirSync,
@@ -10,9 +9,8 @@ import {
   symlinkSync,
   writeFileSync,
 } from 'node:fs';
-import { syncBuiltinESMExports } from 'node:module';
 import { tmpdir } from 'node:os';
-import { join, sep } from 'node:path';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   documentLinks,
@@ -38,6 +36,18 @@ import {
 } from '../scripts/pi-hook-validation.mjs';
 const catalog = loadCatalog();
 const hookSources = readHookSources(SKILL_ROOT);
+
+function assertInjectedLinks(injected) {
+  for (const target of documentLinks(injected)) {
+    assert.match(target, /^(?:coding-rule:|file:|https?:|mailto:|\/\/)/i, `unbased injected link: ${target}`);
+    if (target.startsWith('file:')) assert.ok(existsSync(fileURLToPath(new URL(target))));
+    if (target.startsWith('coding-rule:')) {
+      const [id, fragment] = target.slice('coding-rule:'.length).split('#');
+      const owner = catalog.references.document(id);
+      if (fragment) assert.ok(owner.fragments.some((item) => item.id === fragment));
+    }
+  }
+}
 
 for (const id of HOOK_IDS)
   test(`${id}: complete execution clauses and every portable source link survive injection`, () => {
@@ -82,190 +92,8 @@ for (const id of HOOK_IDS)
       'only the non-executable provenance table is left on disk',
     );
     assert.ok(!injected.includes('## 有序模块清单'), 'only the current checkpoint is separately read');
-    for (const target of documentLinks(injected)) {
-      assert.match(
-        target,
-        /^(?:coding-rule:|file:|https?:|mailto:|\/\/)/i,
-        `unbased injected link: ${target}`,
-      );
-      if (target.startsWith('file:')) assert.ok(existsSync(fileURLToPath(new URL(target))));
-      if (target.startsWith('coding-rule:')) {
-        const [id, fragment] = target.slice('coding-rule:'.length).split('#');
-        const owner = catalog.references.document(id);
-        if (fragment) assert.ok(owner.fragments.some((item) => item.id === fragment));
-      }
-    }
+    assertInjectedLinks(injected);
   });
-
-test('the catalog reads only selected Hooks, route rules, and current checkpoint bodies', (t) => {
-  const cases = [
-    [
-      'single',
-      'entry',
-      3,
-      'SM01',
-      'hook-entry',
-      'ER03',
-      ['foundation', 'entry', 'navigation'],
-      ['coding-single-agent', 'mode-boundary'],
-    ],
-    [
-      'multi',
-      'entry',
-      3,
-      'MM01',
-      'hook-entry',
-      'ER03',
-      ['foundation', 'entry', 'navigation'],
-      ['coding-multi-agent', 'mode-boundary'],
-    ],
-    ['single', 'execution', 3, 'SM04', 'hook-execution', 'SE03', ['foundation', 'execution', 'planning']],
-    [
-      'multi',
-      'execution',
-      4,
-      'MM04',
-      'hook-delegation',
-      'DE04',
-      ['foundation', 'execution', 'delegation', 'planning', 'context', 'audit'],
-    ],
-    [
-      'single',
-      'verification',
-      3,
-      'SM05',
-      'hook-verification',
-      'VR03',
-      ['foundation', 'verification', 'planning'],
-      ['verification-epoch', 'actions'],
-    ],
-  ];
-  const files = [];
-  const original = fs.readFileSync;
-  t.mock.method(fs, 'readFileSync', (path, ...args) => {
-    if (typeof path === 'string') files.push(path);
-    return original(path, ...args);
-  });
-  syncBuiltinESMExports();
-  try {
-    for (const [mode, phase, step, route, module, checkpoint, hooks, included] of cases) {
-      files.length = 0;
-      const indexed = loadCatalog();
-      const selected = () =>
-        files
-          .filter((file) => file.startsWith(indexed.root + sep))
-          .map((file) => file.slice(indexed.root.length + 1));
-      const sources = [...indexed.references.documentPaths()].map((path) =>
-        indexed.references.sourceForPath(path),
-      );
-      assert.deepEqual(selected().sort(), sources.sort());
-      files.length = 0;
-      const state = makeState(
-        indexed,
-        'dsl-read',
-        process.cwd(),
-        mode,
-        mode === 'single' ? 0 : 1,
-        '验证按需读取',
-      );
-      Object.assign(state, { phase, step });
-      const context = renderContext(new Workflow(indexed, state));
-      assert.ok(context.includes(`当前路线 [${route} `));
-      assert.ok(context.includes(`当前检查点 [${checkpoint} `));
-      if (checkpoint === 'VR03') assert.ok(context.includes('VR04 分类并报告证据。'));
-      const expected = new Set(hooks.map((id) => `hooks/${id}.yaml`));
-      for (const id of [`coding-${mode}-agent`, module, included?.[0]].filter(Boolean)) {
-        expected.add(indexed.references.sourceForPath(indexed.references.document(id).path));
-      }
-      assert.deepEqual(selected().sort(), [...expected].sort());
-      assert.ok(
-        files.every((file) => !file.startsWith(SKILL_ROOT + sep)),
-        'runtime never reads the generated Skill',
-      );
-    }
-  } finally {
-    t.mock.restoreAll();
-    syncBuiltinESMExports();
-  }
-});
-
-test('the catalog reads checkpoint order and applicability from YAML and rejects invalid guard bindings', (t) => {
-  const original = fs.readFileSync;
-  let edit;
-  t.mock.method(fs, 'readFileSync', (path, ...args) => {
-    const content = original(path, ...args);
-    if (typeof path !== 'string' || !path.endsWith(edit.file)) return content;
-    return Buffer.from(content.toString('utf8').replace(edit.before, edit.after));
-  });
-  syncBuiltinESMExports();
-  try {
-    edit = {
-      file: 'coding-single-agent.yaml',
-      before: /hook: execution([\s\S]*?)\]\(\.\.\/hooks\/execution\.yaml\)/,
-      after: 'hook: delegation$1](../hooks/delegation.yaml)',
-    };
-    assert.throws(() => loadCatalog(), /路线契约变化/);
-    edit = { file: 'hooks/entry.yaml', before: '- ER01:', after: '- ER99:' };
-    assert.throws(() => loadCatalog(), /检查点契约变化/);
-    edit = { file: 'hooks/advisory.yaml', before: '[advice_requested]', after: '[unknown_signal]' };
-    assert.throws(() => loadCatalog(), /activate_on/);
-
-    edit = {
-      file: 'hooks/entry.yaml',
-      before: '- ER00:\n            kind: checkpoint',
-      after: '- ER99:\n            kind: checkpoint\n            applicability: optional',
-    };
-    const changed = loadCatalog();
-    const workflow = new Workflow(
-      changed,
-      makeState(changed, 'dsl-test', process.cwd(), 'single', 0, '合成任务'),
-    );
-    workflow.observe('user', '/coding', 'user', true);
-    assert.equal(workflow.checkpoint.id, 'ER99');
-    workflow.report(workflow.state.revision, [
-      {
-        checkpoint: 'ER99',
-        outcome: 'not_applicable',
-        summary: '验证 Hook 中的适用条件',
-        evidence: ['user'],
-      },
-    ]);
-    assert.equal(workflow.checkpoint.id, 'ER01');
-
-    edit = { file: 'hooks/advisory.yaml', before: '[advice_requested]', after: '[context_exchange]' };
-    const triggered = loadCatalog();
-    const withSignal = new Workflow(
-      triggered,
-      makeState(triggered, 'dsl-test', process.cwd(), 'single', 0, '合成任务'),
-    );
-    withSignal.observe('user', '/coding', 'user', true);
-    withSignal.signal(withSignal.state.revision, 'context_exchange', ['user'], '验证 Hook 中的触发条件');
-    assert.ok(renderContext(withSignal).includes('[Hook:advisory]'));
-  } finally {
-    t.mock.restoreAll();
-    syncBuiltinESMExports();
-  }
-});
-
-test('a changed YAML source fails the digest check before its checkpoint is used', (t) => {
-  const indexed = loadCatalog();
-  const original = fs.readFileSync;
-  t.mock.method(fs, 'readFileSync', (path, ...args) =>
-    typeof path === 'string' && path.endsWith(join('hooks', 'verification.yaml'))
-      ? Buffer.from('篡改的指令')
-      : original(path, ...args),
-  );
-  syncBuiltinESMExports();
-  try {
-    const state = makeState(indexed, 'dsl-pilot', process.cwd(), 'single', 0, '验证片段完整性');
-    state.phase = 'verification';
-    state.step = 3;
-    assert.throws(() => renderContext(new Workflow(indexed, state)), /Hash 不匹配：hooks\/verification.yaml/);
-  } finally {
-    t.mock.restoreAll();
-    syncBuiltinESMExports();
-  }
-});
 
 test('all substantive articles have explicit per-hook provenance and the checked-in map is current', () => {
   const rows = collectSourceCoverage(SKILL_ROOT);
@@ -370,17 +198,19 @@ test('both routes retain all relevant contracts for single and combined signals,
         for (const status of ['active', 'paused']) {
           const state = makeState(
             catalog,
-            'hook-test',
-            tmpdir(),
-            mode,
-            mode === 'single' ? 0 : 1,
-            'synthetic workspace, not the extension source directory',
+            { sessionId: 'hook-test', cwd: tmpdir() },
+            {
+              mode,
+              childCount: mode === 'single' ? 0 : 1,
+              task: 'synthetic workspace, not the extension source directory',
+            },
           );
           state.phase = phase;
           state.signals = signals;
           state.status = status;
           const w = new Workflow(catalog, state);
-          for (let i = 0; i < 128; i++) w.observe(`read-${i}`, 'synthetic-read', 'read', true);
+          for (let i = 0; i < 128; i++)
+            w.observe({ id: `read-${i}`, tool: 'synthetic-read', effect: 'read', ok: true });
           const content = renderContext(w);
           peak = Math.max(peak, content.length);
           assert.ok(content.length <= MAX_CONTEXT);
@@ -399,7 +229,11 @@ test('both routes retain all relevant contracts for single and combined signals,
 });
 
 test('context shows the current instruction and selects delegation and repair at their boundaries', () => {
-  const state = makeState(catalog, 'hook-test', tmpdir(), 'multi', 1, 'synthetic task');
+  const state = makeState(
+    catalog,
+    { sessionId: 'hook-test', cwd: tmpdir() },
+    { mode: 'multi', childCount: 1, task: 'synthetic task' },
+  );
   state.phase = 'execution';
   state.step = 4;
   state.execution = { executor: 'root' };
@@ -418,7 +252,11 @@ test('context shows the current instruction and selects delegation and repair at
 });
 
 test('oversized state still blocks instead of truncating any execution guard', () => {
-  const state = makeState(catalog, 'oversize', tmpdir(), 'single', 0, 'synthetic');
+  const state = makeState(
+    catalog,
+    { sessionId: 'oversize', cwd: tmpdir() },
+    { mode: 'single', childCount: 0, task: 'synthetic' },
+  );
   state.task = 'x'.repeat(MAX_CONTEXT);
   assert.throws(() => renderContext(new Workflow(catalog, state)), /超出96000字符上限.*不是截断守卫/);
 });

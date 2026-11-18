@@ -1,4 +1,4 @@
-// Shared, offline checks for the repository's inline/reference Markdown links and provenance tables.
+// 离线核对 Markdown 链接和规则来源对照，供构建检查与测试共用。
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, sep } from 'node:path';
@@ -10,6 +10,7 @@ import {
   WORKFLOW_DIR,
   resolveDocumentLink,
 } from '../extensions/coding-workflow/catalog.ts';
+import { markdownLines } from '../extensions/coding-workflow/rules/document-links.ts';
 
 export const SKILL_ROOT = fileURLToPath(new URL('../docs/skill', import.meta.url));
 const PROJECT_GUIDES = new Set(['../project/PI_EXTENSION.md', '../project/WORKFLOW_ARCHITECTURE.md']);
@@ -42,6 +43,18 @@ const OVERRIDES = {
   'session-audit-visibility': ['audit'],
 };
 
+function layerHooks(parts) {
+  const layer = parts.findIndex((part) => part.startsWith('layer-'));
+  if (layer < 0) return undefined;
+  const number = parts[layer].slice(6, 8);
+  if (number === '03') return ['navigation', 'execution'];
+  if (number !== '01' && number !== '02') return undefined;
+  const group = parts[layer + 1];
+  if (!group || group.endsWith('.md')) return ['navigation'];
+  const table = number === '01' ? L1_HOOKS : L2_HOOKS;
+  return Object.hasOwn(table, group) ? table[group] : undefined;
+}
+
 export function classifySource(path) {
   const parts = path.split('/');
   const stem = parts.at(-1).replace(/\.md$/, '');
@@ -49,17 +62,8 @@ export function classifySource(path) {
   if (parts.includes('multimodal')) return { path, hooks: ['foundation'], kind: 'reference' };
   if (Object.hasOwn(OVERRIDES, stem)) return { path, hooks: OVERRIDES[stem], kind };
   if (parts.includes('share') || path === 'SKILL.md') return { path, hooks: ['foundation'], kind };
-  const layer = parts.findIndex((part) => part.startsWith('layer-'));
-  if (layer >= 0) {
-    const number = parts[layer].slice(6, 8);
-    const group = parts[layer + 1];
-    if (number === '01' || number === '02') {
-      if (!group || group.endsWith('.md')) return { path, hooks: ['navigation'], kind };
-      const table = number === '01' ? L1_HOOKS : L2_HOOKS;
-      if (Object.hasOwn(table, group)) return { path, hooks: table[group], kind };
-    }
-    if (number === '03') return { path, hooks: ['navigation', 'execution'], kind };
-  }
+  const hooks = layerHooks(parts);
+  if (hooks) return { path, hooks, kind };
   if (path === 'workflows/coding.md') return { path, hooks: ['foundation', 'navigation'], kind };
   throw new Error(`没有 Hook 归属的规则：${path}`);
 }
@@ -69,7 +73,8 @@ function markdownFiles(root) {
     .flatMap((entry) => {
       assert.ok(!entry.isSymbolicLink(), `规则源不允许符号链接：${entry.name}`);
       const path = join(root, entry.name);
-      return entry.isDirectory() ? markdownFiles(path) : entry.name.endsWith('.md') ? [path] : [];
+      if (entry.isDirectory()) return markdownFiles(path);
+      return entry.name.endsWith('.md') ? [path] : [];
     })
     .sort();
 }
@@ -83,18 +88,8 @@ export function readHookSources(root) {
 export function headingAnchors(markdown) {
   const anchors = new Set();
   const counts = new Map();
-  let fence;
-  for (const line of markdown.split('\n')) {
-    const marker = line.match(/^ {0,3}(`{3,}|~{3,})/);
-    if (fence) {
-      const sameFence = marker?.[1][0] === fence[0] && marker[1].length >= fence.length;
-      if (sameFence && !line.slice(marker[0].length).trim()) fence = undefined;
-      continue;
-    }
-    if (marker) {
-      fence = marker[1];
-      continue;
-    }
+  for (const { line, fenced } of markdownLines(markdown)) {
+    if (fenced) continue;
     for (const match of line.matchAll(/<(?:a|h[1-6])\b[^>]*\b(?:id|name)=["']([^"']+)["']/gi)) {
       anchors.add(match[1]);
     }
@@ -164,12 +159,7 @@ function sourceTable(markdown, hook) {
   return table;
 }
 
-export function collectSourceCoverage(root, hooks = readHookSources(root)) {
-  const sourcePaths = markdownFiles(root)
-    .map((path) => relative(root, path).split(sep).join('/'))
-    .filter((path) => !path.startsWith('hooks/') && !path.startsWith(`${WORKFLOW_DIR}/`));
-  const coverage = sourcePaths.map(classifySource);
-  const consumingHooks = new Map(coverage.map((row) => [row.path, new Set()]));
+function registerSourceReferences(root, hooks, consumingHooks) {
   for (const id of HOOK_IDS) {
     const table = sourceTable(hooks[id], id);
     let referencesFound = 0;
@@ -184,6 +174,15 @@ export function collectSourceCoverage(root, hooks = readHookSources(root)) {
     }
     assert.ok(referencesFound > 0, `${id}: 没有真实规则来源`);
   }
+}
+
+export function collectSourceCoverage(root, hooks = readHookSources(root)) {
+  const sourcePaths = markdownFiles(root)
+    .map((path) => relative(root, path).split(sep).join('/'))
+    .filter((path) => !path.startsWith('hooks/') && !path.startsWith(`${WORKFLOW_DIR}/`));
+  const coverage = sourcePaths.map(classifySource);
+  const consumingHooks = new Map(coverage.map((row) => [row.path, new Set()]));
+  registerSourceReferences(root, hooks, consumingHooks);
   const missing = coverage.filter((row) => row.kind !== 'navigation' && !consumingHooks.get(row.path).size);
   assert.deepEqual(
     missing.map((row) => row.path),

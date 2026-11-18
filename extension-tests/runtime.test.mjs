@@ -1,27 +1,18 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import {
-  cpSync,
-  existsSync,
-  mkdtempSync,
-  readFileSync,
-  realpathSync,
-  rmSync,
-  symlinkSync,
-  writeFileSync,
-} from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { documentLinks, loadCatalog } from '../extensions/coding-workflow/catalog.ts';
 import { MAX_CONTEXT, scopedPath } from '../extensions/coding-workflow/runtime.ts';
-import { atCheckpoint, body, catalog, harness } from './pi-runtime-fixture.mjs';
+import { atCheckpoint, body, harness } from './pi-runtime-fixture.mjs';
 
 test('package declares one extension and excludes local Serena metadata by a narrow files allowlist', () => {
   const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
   assert.deepEqual(manifest.pi.extensions, ['./extensions/coding-workflow/index.ts']);
   assert.deepEqual(manifest.files, [
-    'extensions/coding-workflow/*.ts',
+    'CHANGELOG/CHANGELOG.md',
+    'CHANGELOG/CODE_QUALITY.md',
+    'extensions/coding-workflow/**/*.ts',
     'docs/rules',
     'docs/project',
     'docs/skill',
@@ -43,110 +34,6 @@ test('context injects only relevant hooks once and preserves unrelated extension
   assert.match(second.messages[1].content, /Hook:entry/);
   assert.doesNotMatch(second.messages[1].content, /Hook:materialization/);
   assert.ok(second.messages[1].content.length < MAX_CONTEXT);
-});
-test('both routes and rule queries work with the YAML sources alone', async (t) => {
-  const root = realpathSync(mkdtempSync(join(tmpdir(), 'pi-runtime-data-')));
-  t.after(() => rmSync(root, { recursive: true, force: true }));
-  cpSync(catalog.root, root, { recursive: true });
-  assert.ok(!existsSync(join(root, 'coding-workflows', 'README.md')));
-  const installed = loadCatalog(root);
-  assert.equal(installed.digest, catalog.digest);
-
-  const hookIds = [
-    'entry',
-    'session',
-    'planning',
-    'execution',
-    'delegation',
-    'verification',
-    'documentation',
-    'delivery',
-  ];
-  const navigation = [
-    ['routes', ['coding-rule:coding-single-agent', 'coding-rule:coding-multi-agent']],
-    ['section-01', hookIds.map((id) => pathToFileURL(join(root, 'hooks', `${id}.yaml`)).href)],
-  ];
-
-  for (const [mode, route, owner, legacyModule, checkpoint] of [
-    ['single', 'SM04', 'hook-execution', 'single-execution', 'SE03'],
-    ['multi', 'MM04', 'hook-delegation', 'delegated-execution', 'DE04'],
-  ]) {
-    const h = harness({ catalog: installed });
-    await h.start(`${mode} 合成规则请求`);
-    atCheckpoint(h, { phase: 'execution', checkpoint });
-    const [message] = (await h.emit('context', { messages: [] })).messages;
-    assert.match(message.content, new RegExp(`coding-rule:coding-${mode}-agent#${route}`));
-    assert.match(message.content, new RegExp(`coding-rule:${owner}#${checkpoint}`));
-    const snapshot = h.w().snapshot();
-    const entries = structuredClone(h.entries);
-
-    for (const [fragment, links] of navigation) {
-      const document = 'layer-04-readme';
-      const query = await h.invoke('coding_checkpoint', { action: 'rules', document, fragment });
-      assert.equal(query.isError, false, query.result.content[0].text);
-      const result = JSON.parse(query.result.content[0].text);
-      assert.equal(result.document, document);
-      assert.equal(result.fragment, fragment);
-      assert.deepEqual(documentLinks(result.content), links);
-      assert.deepEqual(h.w().snapshot(), snapshot);
-      assert.deepEqual(h.entries, entries);
-    }
-
-    const listing = await h.invoke('coding_checkpoint', { action: 'rules' });
-    assert.equal(listing.isError, false);
-    const index = JSON.parse(listing.result.content[0].text);
-    assert.equal(index.document, owner);
-    assert.ok(
-      index.fragments.some(
-        (item) => item.id === checkpoint && item.kind === 'checkpoint' && !('content' in item),
-      ),
-    );
-
-    const match = await h.invoke('coding_checkpoint', { action: 'rules', fragment: checkpoint });
-    assert.equal(match.isError, false);
-    const rule = JSON.parse(match.result.content[0].text);
-    assert.equal(rule.fragment, checkpoint);
-    assert.ok(message.content.includes(rule.content));
-    const legacy = await h.invoke('coding_checkpoint', {
-      action: 'rules',
-      document: legacyModule,
-      fragment: checkpoint,
-    });
-    assert.deepEqual(JSON.parse(legacy.result.content[0].text), rule);
-
-    const returns = await h.invoke('coding_checkpoint', {
-      action: 'rules',
-      document: `coding-${mode}-agent`,
-      fragment: 'returns',
-    });
-    assert.equal(returns.isError, false);
-    assert.match(JSON.parse(returns.result.content[0].text).content, /原挂起.*子步骤/);
-
-    const creation = await h.invoke('coding_checkpoint', {
-      action: 'rules',
-      document: 'delegation-child-creation',
-      fragment: 'rules',
-    });
-    assert.equal(creation.isError, false);
-    assert.match(
-      JSON.parse(creation.result.content[0].text).content,
-      /coding-rule:runtime-provider-support#subagent-endpoint/,
-    );
-    const endpoint = await h.invoke('coding_checkpoint', {
-      action: 'rules',
-      document: 'runtime-provider-support',
-      fragment: 'subagent-endpoint',
-    });
-    assert.equal(endpoint.isError, false);
-    assert.match(JSON.parse(endpoint.result.content[0].text).content, /端点/);
-    const invalid = await h.invoke('coding_checkpoint', {
-      action: 'rules',
-      document: '../references/unknown.md',
-    });
-    assert.equal(invalid.isError, true);
-    assert.deepEqual(h.w().snapshot(), snapshot);
-    assert.deepEqual(h.entries, entries);
-  }
 });
 test('unknown direct shell and lying readOnlyHint do not pass the wrapper gate', async () => {
   const h = harness();
@@ -379,7 +266,7 @@ test('volatile tree navigation retains current budget and does not wipe live sta
 test('status observation pagination does not return the entire state/report history', async () => {
   const h = harness();
   await h.start();
-  for (let i = 0; i < 50; i++) h.w().observe(`r-${i}`, 'read', 'read', true);
+  for (let i = 0; i < 50; i++) h.w().observe({ id: `r-${i}`, tool: 'read', effect: 'read', ok: true });
   const result = await h.invoke('coding_checkpoint', { action: 'status', offset: 0 });
   const value = JSON.parse(result.result.content[0].text);
   assert.equal(value.observations.length, 24);

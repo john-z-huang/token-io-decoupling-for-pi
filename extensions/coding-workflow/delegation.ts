@@ -141,7 +141,7 @@ async function dispatchJob(workflow: Workflow, dispatch: JobDispatch, host: Dele
   const { invocation, adapter, prepared, allocationId } = dispatch;
   const { job, modelInput } = prepared;
   const task = formatDelegateTask(job, allocationId, workflow.state.audit);
-  const input = subagentInput(adapter, job.agent, task, host.context.cwd, modelInput);
+  const input = subagentInput(adapter, { agent: job.agent, task, cwd: host.context.cwd, modelInput });
   const outcome = await host.context.executeTool(invocation.input.tool, input, { signal: invocation.signal });
   const allocation = findAllocation(workflow, allocationId);
   const notRun = outcome.isError && outcome.durationMs === undefined;
@@ -183,9 +183,9 @@ function settleBatch(workflow: Workflow, invocation: DelegateInvocation, batch: 
   }
   const ok =
     !uncertain && results.every((result) => result.status === "fulfilled" && !result.value.outcome.isError);
-  workflow.observe(callId, input.tool, "delegate", ok, epoch);
+  workflow.observe({ id: callId, tool: input.tool, effect: "delegate", ok }, epoch);
   if (ok && input.jobs.every((job) => job.role === "Change Verification")) {
-    workflow.observe(`${callId}:check`, input.tool, "check", true, epoch);
+    workflow.observe({ id: `${callId}:check`, tool: input.tool, effect: "check", ok: true }, epoch);
   }
   return {
     ok,
@@ -211,7 +211,7 @@ export async function runDelegation(
   workflow: Workflow,
   invocation: DelegateInvocation,
   host: DelegationHost,
-) {
+): Promise<{ ok: boolean; body: string }> {
   const { callId } = invocation;
   try {
     const { adapter, jobs, allocations } = reserveBatch(workflow, invocation, host);

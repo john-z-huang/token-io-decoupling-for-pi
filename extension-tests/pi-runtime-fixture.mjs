@@ -43,18 +43,8 @@ export function body(text) {
   return { content: [{ type: 'text', text }], details: {} };
 }
 
-export function harness(options = {}) {
-  const handlers = new Map();
-  const definitions = new Map();
-  const commands = new Map();
-  const entries = structuredClone(options.entries ?? []);
-  const messages = [];
-  const calls = [];
-  const flags = options.flags ?? {};
-  let branch;
-  let sessionId = 'runtime-test';
-  let nextId = 0;
-  const raw = new Map([
+function syntheticTools() {
+  return new Map([
     ['read', { parameters: {}, execute: async () => body('actual synthetic readback') }],
     ['write', { parameters: {}, execute: async () => body('synthetic write result') }],
     ['bash', { parameters: {}, execute: async () => body('synthetic command result') }],
@@ -66,8 +56,11 @@ export function harness(options = {}) {
       },
     ],
   ]);
+}
 
-  const pi = {
+function createPi(host) {
+  const { handlers, definitions, commands, flags, entries, messages, raw } = host;
+  return {
     on(name, handler) {
       const listeners = handlers.get(name) ?? [];
       listeners.push(handler);
@@ -78,16 +71,22 @@ export function harness(options = {}) {
     registerTool: (definition) => definitions.set(definition.name, definition),
     registerCommand: (name, definition) => commands.set(name, definition),
     appendEntry(customType, data) {
-      entries.push({ id: `entry-${++nextId}`, type: 'custom', customType, data: structuredClone(data) });
+      entries.push({
+        id: `entry-${++host.sequence}`,
+        type: 'custom',
+        customType,
+        data: structuredClone(data),
+      });
     },
     sendMessage: (message, opts) => messages.push({ message, opts }),
     getAllTools: () =>
-      [...raw].map(([name, spec]) => ({
-        name,
-        parameters: spec.parameters,
-        annotations: spec.annotations,
-      })),
+      [...raw].map(([name, { parameters, annotations }]) => ({ name, parameters, annotations })),
   };
+}
+
+function createContext(entries, options) {
+  let branch;
+  let sessionId = 'runtime-test';
   const ctx = {
     cwd: process.cwd(),
     hasUI: options.hasUI ?? false,
@@ -98,54 +97,62 @@ export function harness(options = {}) {
       getBranch: () => branch ?? entries,
     },
   };
-  // Schema 校验由真实 Pi 的入口 smoke 覆盖，这里只模拟宿主事件及实际调用结果。
-  const installed = installWorkflow(
-    pi,
-    { checkpoint: {}, slice: {}, run: {}, delegate: {} },
-    options.catalog ?? catalog,
-  );
+  return {
+    ctx,
+    setBranch(value) {
+      branch = value;
+    },
+    setSessionId(value) {
+      sessionId = value;
+    },
+  };
+}
 
+async function executeRegisteredTool(host, call, { ctx, invoke }) {
+  const { id, name, input } = call;
+  try {
+    const definition = host.definitions.get(name) ?? host.raw.get(name);
+    if (!definition) throw new Error('Unknown tool');
+    host.calls.push(call);
+    let nestedCalls = 0;
+    const tools = [...host.raw].filter(([, spec]) => !spec.hidden).map(([name, spec]) => ({ ...spec, name }));
+    const toolContext = {
+      ...ctx,
+      tools,
+      executeTool: (target, args) =>
+        invoke(target, args, { id: `${id}/${++nestedCalls}`, parentToolCallId: id }),
+    };
+    const result = await definition.execute(id, input, undefined, undefined, toolContext);
+    return { result, isError: result.isError === true, durationMs: 1 };
+  } catch (error) {
+    return { result: body(String(error)), isError: true, durationMs: 1 };
+  }
+}
+
+function createDispatcher(host, ctx) {
   async function emit(name, event = {}) {
     let output;
-    for (const handler of handlers.get(name) ?? []) {
+    for (const handler of host.handlers.get(name) ?? []) {
       output = (await handler({ type: name, ...event }, ctx)) ?? output;
     }
     return output;
   }
 
-  async function executeCall(call) {
-    const { id, name, input } = call;
-    try {
-      const definition = definitions.get(name) ?? raw.get(name);
-      if (!definition) throw new Error('Unknown tool');
-      calls.push(call);
-      let nestedCalls = 0;
-      const tools = [...raw].filter(([, spec]) => !spec.hidden).map(([name, spec]) => ({ ...spec, name }));
-      const toolContext = {
-        ...ctx,
-        tools,
-        executeTool: (target, args) =>
-          invoke(target, args, { id: `${id}/${++nestedCalls}`, parentToolCallId: id }),
-      };
-      const result = await definition.execute(id, input, undefined, undefined, toolContext);
-      return { result, isError: result.isError === true, durationMs: 1 };
-    } catch (error) {
-      return { result: body(String(error)), isError: true, durationMs: 1 };
-    }
-  }
-
-  async function invoke(name, input, { id = `call-${++nextId}`, parentToolCallId } = {}) {
+  async function invoke(name, input, { id = `call-${++host.sequence}`, parentToolCallId } = {}) {
     const event = { toolName: name, toolCallId: id, parentToolCallId };
     const decision = await emit('tool_call', { ...event, input });
     // 被 Hook 阻止的调用不带运行时长，扩展据此区分失败与实际未运行。
     const outcome = decision?.block
       ? { result: body(decision.reason), isError: true, durationMs: undefined }
-      : await executeCall({ name, input, id, parentToolCallId });
+      : await executeRegisteredTool(host, { name, input, id, parentToolCallId }, { ctx, invoke });
     await emit('tool_execution_end', { ...event, ...outcome });
     return { toolCall: { id, name, arguments: input }, ...outcome };
   }
 
-  const w = installed.getWorkflow;
+  return { emit, invoke };
+}
+
+function createActions({ commands, ctx, invoke, messages, w }) {
   const userRef = () => w().state.observations.find((observation) => observation.effect === 'user').id;
   function run(tool = 'bash', effect = 'read', input = {}) {
     return invoke('coding_run', {
@@ -162,30 +169,43 @@ export function harness(options = {}) {
     await commands.get('coding').handler(command, ctx);
     assert.ok(w(), messages.at(-1)?.message.content);
   }
+  return { userRef, run, start };
+}
 
-  return {
-    ...installed,
-    pi,
-    raw,
-    definitions,
-    ctx,
-    entries,
-    messages,
-    calls,
-    emit,
-    invoke,
-    start,
-    run,
-    w,
-    userRef,
-    commands,
-    setBranch(value) {
-      branch = value;
-    },
-    setSessionId(value) {
-      sessionId = value;
-    },
+export function harness(options = {}) {
+  const host = {
+    handlers: new Map(),
+    definitions: new Map(),
+    commands: new Map(),
+    entries: structuredClone(options.entries ?? []),
+    messages: [],
+    calls: [],
+    flags: options.flags ?? {},
+    sequence: 0,
+    raw: syntheticTools(),
   };
+  const pi = createPi(host);
+  const session = createContext(host.entries, options);
+  // Schema 校验由真实 Pi 的入口 smoke 覆盖，这里模拟宿主事件和调用结果。
+  const installed = installWorkflow(
+    pi,
+    { checkpoint: {}, slice: {}, run: {}, delegate: {} },
+    options.catalog ?? catalog,
+  );
+  const fixture = {
+    ...installed,
+    ...session,
+    ...createDispatcher(host, session.ctx),
+    w: installed.getWorkflow,
+    pi,
+    raw: host.raw,
+    definitions: host.definitions,
+    commands: host.commands,
+    entries: host.entries,
+    messages: host.messages,
+    calls: host.calls,
+  };
+  return { ...fixture, ...createActions(fixture) };
 }
 
 export function atCheckpoint(host, { phase, checkpoint, withSlice = false }) {

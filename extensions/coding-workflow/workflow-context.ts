@@ -156,7 +156,37 @@ export function renderContext(workflow: Workflow): string {
   return content;
 }
 
-export function workflowStatus(workflow: Workflow, offset?: number) {
+type WorkflowStatus = Pick<
+  State,
+  | "runId"
+  | "revision"
+  | "status"
+  | "reason"
+  | "mode"
+  | "childCount"
+  | "audit"
+  | "phase"
+  | "step"
+  | "epoch"
+  | "verified"
+  | "returnTo"
+  | "plan"
+  | "allocations"
+  | "inFlight"
+  | "slice"
+  | "decisionReturn"
+  | "observations"
+> & {
+  next: string;
+  executor?: NonNullable<State["execution"]>["executor"];
+  observationCount: number;
+  observationsOffset: number;
+  nextObservationsOffset: number | null;
+  recentReports: { checkpoint: string; epoch: State["epoch"]; notApplicable?: string[] }[];
+  hooks: HookId[];
+};
+
+export function workflowStatus(workflow: Workflow, offset?: number): WorkflowStatus {
   const { state, checkpoint } = workflow;
   const observationCount = state.observations.length;
   const start = offset ?? Math.max(0, observationCount - OBSERVATIONS_PER_PAGE);

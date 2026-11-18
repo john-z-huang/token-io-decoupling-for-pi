@@ -2,35 +2,27 @@
 // Explicit installed-contract check. Never execute the plugin tool or launch a child process.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
-import { pathToFileURL } from 'node:url';
 import {
   resolveSubagentAdapter,
   subagentInput,
   subagentModelInput,
 } from '../extensions/coding-workflow/subagent-adapter.ts';
+import { createHostLoader, hostModulePaths, loadTypeBoxCheck, openPiHost } from './pi-installed-host.mjs';
 
-const host = process.argv[2] ?? process.env.PI_EXTENSION_HOST_ROOT;
+const hostLocation = process.argv[2] ?? process.env.PI_EXTENSION_HOST_ROOT;
 const entry = process.argv[3];
-assert.ok(host && entry, '传入已有 Pi 包根与 @mjakl/pi-subagent@3.1.0/index.ts；不自动安装或发现配置');
-const root = resolve(host),
-  pluginEntry = resolve(entry),
-  pluginRoot = dirname(pluginEntry);
-const hostMetadata = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+assert.ok(
+  hostLocation && entry,
+  '传入已有 Pi 包根与 @mjakl/pi-subagent@3.1.0/index.ts；不自动安装或发现配置',
+);
+const host = openPiHost(hostLocation);
+const pluginEntry = resolve(entry);
+const pluginRoot = dirname(pluginEntry);
 const pluginMetadata = JSON.parse(readFileSync(join(pluginRoot, 'package.json'), 'utf8'));
-assert.equal(hostMetadata.name, '@earendil-works/pi-coding-agent');
 assert.equal(pluginMetadata.name, '@mjakl/pi-subagent');
 assert.equal(pluginMetadata.version, '3.1.0', '其他版本须重新审阅契约');
-const requireHost = createRequire(join(root, 'package.json'));
-const alias = {
-  typebox: requireHost.resolve('typebox'),
-  '@earendil-works/pi-coding-agent': join(root, 'dist/index.js'),
-};
-for (const name of ['pi-ai', 'pi-agent-core', 'pi-tui'])
-  alias[`@earendil-works/${name}`] = join(root, 'node_modules/@earendil-works', name, 'dist/index.js');
-const { createJiti } = requireHost('jiti');
-const jiti = createJiti(import.meta.url, { moduleCache: false, fsCache: false, alias });
+const jiti = createHostLoader(host, import.meta.url, hostModulePaths(host));
 const plugin = await jiti.import(pluginEntry);
 const tools = [],
   handlers = new Map();
@@ -48,8 +40,7 @@ const tool = tools.find((t) => t.name === 'subagent');
 assert.ok(tool, '插件应在合成根上下文注册 subagent');
 const adapter = resolveSubagentAdapter(tool.parameters);
 assert.equal(adapter?.kind, 'calls');
-const valueModule = await import(pathToFileURL(requireHost.resolve('typebox/value')).href);
-const check = valueModule.Value?.Check ?? valueModule.Check;
+const check = await loadTypeBoxCheck(host);
 const { buildPiArgs } = await jiti.import(join(pluginRoot, 'runner.ts'));
 const agent = {
   name: 'synthetic',
@@ -66,13 +57,12 @@ for (const [provider, model, thinking] of [
   ['openai', 'gpt-6-luna', 'off'],
   ['custom-provider', 'nested/gpt-6-luna', 'low'],
 ]) {
-  const input = subagentInput(
-    adapter,
-    agent.name,
-    'verbatim\n合成任务',
-    process.cwd(),
-    subagentModelInput(adapter, `${provider}/${model}:${thinking}`),
-  );
+  const input = subagentInput(adapter, {
+    agent: agent.name,
+    task: 'verbatim\n合成任务',
+    cwd: process.cwd(),
+    modelInput: subagentModelInput(adapter, `${provider}/${model}:${thinking}`),
+  });
   assert.equal(check(tool.parameters, input), true, JSON.stringify(input));
   const normalized = plugin.normalizeCalls(input.calls, process.cwd());
   assert.equal(normalized.error, undefined);
@@ -100,7 +90,12 @@ for (const [provider, model, thinking] of [
   assert.ok(!args.includes('--session-id'));
   assert.ok(!args.includes('--fork'));
 }
-const inherited = subagentInput(adapter, agent.name, 'inherit', process.cwd(), subagentModelInput(adapter));
+const inherited = subagentInput(adapter, {
+  agent: agent.name,
+  task: 'inherit',
+  cwd: process.cwd(),
+  modelInput: subagentModelInput(adapter),
+});
 assert.equal(check(tool.parameters, inherited), true);
 assert.equal('model' in inherited.calls[0], false);
 assert.equal('thinking' in inherited.calls[0], false);
@@ -116,5 +111,5 @@ assert.equal(
   undefined,
 );
 console.log(
-  `Pi ${hostMetadata.version} / @mjakl/pi-subagent ${pluginMetadata.version}：真实注册 Schema、参数规范化、模型/thinking CLI 与失败 Hook 契约通过；未执行插件工具、Pi 子进程、API 或配置写入。`,
+  `Pi ${host.version} / @mjakl/pi-subagent ${pluginMetadata.version}：真实注册 Schema、参数规范化、模型/thinking CLI 与失败 Hook 契约通过；未执行插件工具、Pi 子进程、API 或配置写入。`,
 );
