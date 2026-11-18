@@ -11,13 +11,13 @@
 
 调用方提供的输入、证据引用、修订、指纹和 Hash 始终是调用方提供的事实。检查器可以拒绝格式错误、不一致、过期或不受支持的输入，但不能认证调用方、证明权限或来源、授予授权、建立跨调用顺序或验收任务。结果不持久化状态，也不会记住先前调用。
 
-`ready_for_agent_review` 仅表示所供输入满足检查器的结构要求。`incomplete_for_agent_review` 报告缺失的必需事实或证据。`blocked_input` 报告无效、不一致、过期或不受支持的输入。无论何种状态，均须独立审阅当前 owner 和证据。
+若实际使用的检查器定义 `ready_for_agent_review`，它仅表示所供输入满足该检查器的结构要求。`incomplete_for_agent_review` 报告缺失的必需事实或证据。`blocked_input` 报告无效、不一致、过期或不受支持的输入。无论何种状态，均须独立审阅当前 owner 和证据。
 
 对于 Control，结构结果不能取代当前 Control owner、当前状态验证或必需的用户/Agent 判断。若可选结构检查不可用，应直接使用权威 owner 和可用证据；仅当无法以其他方式确立判断所需输入时，才阻塞该判断。
 
 ## Pi Coding Agent 优化指令
 
-通过 Pi codemode 的 `searchTools`、`describeTool`、`describeNamespace` 核对实际 MCP 能力及 schema，调用检查 `isError`；hidden 不得绕过。项目 Server 未迁移时不得假称支持。Pi 可授权直接读取当前 owner 文档；可选导航或结构检查不适用时，依据当前 owner 判断并记录理由。必需能力缺失只阻塞依赖该能力的判断。旧身份上下文不可伪造。
+本项目 MCP 已移除检查点评估入口。协调扩展的 `coding_checkpoint report` 校验声明字段、顺序和已观察引用，并可能更新当前扩展状态。候选合规预检只检查候选文件结构。要判断检查点事实与证据，直接按其 owner 审阅。
 
 ## 相关概念
 

@@ -14,7 +14,7 @@
 
 ## Pi Coding Agent 优化指令
 
-通过 Pi codemode 的 `searchTools`、`describeTool`、`describeNamespace` 核对实际 MCP 能力及 schema，调用检查 `isError`；hidden 不得绕过。项目 Server 未迁移时不得假称支持。Pi 可授权直接读取当前 owner 文档；可选导航或结构检查不适用时，依据当前 owner 判断并记录理由。必需能力缺失只阻塞依赖该能力的判断。旧身份上下文不可伪造。
+本项目 MCP 的 `rules_get_context` 提供已登记节点的只读 owner 摘录。`context_version=1` 可请求有界片段及已声明依赖；当 `complete=false`、存在 `missing_fragments` 或返回 `remaining_owner_refs` 时，按当前判断补读所需 owner。使用实际 Schema 和返回来源核验；旧会话身份无需填入规则读取参数。
 
 ## 相关概念
 

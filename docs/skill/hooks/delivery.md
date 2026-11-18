@@ -12,7 +12,7 @@ Git 授权逐动作判断：commit、push、branch/ref、index、remote 配置�
 
 ### 一、精确Git目标、已验证内容和实际效果
 
-Git 前检查 status 和相关历史，识别并排除用户无关改动；暂存/提交内容必须与最新已验证指纹一致且不含未验证内容。任何差异都须在继续 Git 前返回受影响的 implementation/content 或 documentation Verification。准确记录实际目标、动作、结果和 Git metadata epoch。Commit/index/branch/history 的 metadata 变化本身不使内容/文档 epoch 失效；实际内容变化则必须重新分类和验证。Git 调用结果不明时不得盲目重放，先确认实际状态。
+Git 效果前由 Root 检查 status、相关历史和当前内容/文档验证证据。扩展的交付阶段、Slice 和 epoch 记录只提供结构约束。Root 须审查暂存/提交内容与最新验证指纹一致，并排除无关或未验证改动。任何差异都须在继续 Git 前返回受影响的 implementation/content 或 documentation Verification。准确记录实际目标、动作、结果和 Git metadata epoch。Commit/index/branch/history 的 metadata 变化本身不使内容/文档 epoch 失效；实际内容变化则必须重新分类和验证。Git 调用结果不明时不得盲目重放，先确认实际状态。
 
 ### 二、区分直接能力和缺失的职责适配
 

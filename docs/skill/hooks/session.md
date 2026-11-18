@@ -12,26 +12,13 @@
 
 根父级在首次 Coding 启动按固定顺序收集：先 single/multi 与预算，后审计可见性。扩展仅由用户 `/coding start <任务>`、single/multi 快捷命令或显式 flag 启动，共用 `startup.ts` 单一问题注册表。模式菜单提供 Multi（预算1）、Single、自定义 Multi 正整数；显式模式/数量不重问，multi 省略数量沿用已确认预算或默认1，无效/取消不回退。审计菜单支持使用默认或定制缺失字段，逐字段记录 explicit/default；显式有效字段不重复问。未回复、取消或无效答案不隐式默认，答案未齐不创建 Workflow、不执行工具。非 UI 必须显式提交答案或清晰阻断，不伪造用户选择。同一 Session 已确认答案跨完成后新任务、树导航、reload/resume 保留，不重问、不回收预算；fork/new Session 重新收集。volatile 不 appendEntry，只保留当前进程状态，丢失后不能依赖日志声称可恢复。启动并发串行拒绝，取消或 Session/树导航使迟到答案失效。
 
-显式选择记 `mode_source: explicit`；缺省记 `default`。缺省路线为 Multi-Agent、数量 1。单代理记数量 0。模式固定于宿主 Session 生命周期；同会话后续指令、compact、恢复不重开门禁。唯一同会话数量例外是用户实际明确批准为不同且未占用的职责增加恰好一个名额，按数量门禁保留旧值和批准来源；不改模式、不放行 Slice、不创建子代理。能力缺失不能默默换模式/数量。
+单代理的预算为 0，已选择 Multi 且省略数量时初始预算为 1。Root 用真实启动指令或用户答复保留模式/数量来源。扩展快照记录 `mode`、`childCount` 和各审计字段来源。名额用尽且确需不同职责时，由用户按数量门禁显式执行 `/coding add-slot <完整职责名>` 增加一个名额。该命令仅更新容量；Root 仍须另行核验职责和 Slice。
 
 ### 2. 维护规范状态
 
-根父级在获授权对话上下文维护唯一规范记录，路线放行前回读；不写数据库、policy 文件或 Memory，不以短暂子代理状态、工具结果、hash、旧摘要重建历史。记录至少完整呈现：
+通过 `coding_checkpoint status` 回读实际 Session 记录，核对 `mode`、`childCount`、`allocations`、`slice`、`audit`、检查点和已知未决效果。空闲容量由预算与占用数之差表示。扩展在进入实际委派时登记 allocation，未使用的容量没有对应占位对象。Root 保留实际指令、批准来源、日志访问证据和其他宿主字段未承载的事实。使用状态记录 owner 的语义条件核验；其手动模板用于未启用扩展的回退路线。
 
-```text
-owner; run_id; gate_status; mode_source; mode; child_count; source;
-semantic_references; allocations[{allocation_id, agent, role, slice_status,
-interaction_slice, scope, mutations, return_conditions, lifecycle,
-write_content_memo}]; session_audit{audit_mode, root_reasoning_cadence,
-worker_reasoning_cadence, source各字段, worker_log_visibility,
-worker_log_evidence}; lifecycle; unavailable_capabilities; block_reason
-```
-
-字段合法状态及结构须与状态记录 owner 一致：gate 为 awaiting-mode / awaiting-count / released / blocked；初始 awaiting-mode 为未设模式/数量、空 allocations、顶层 pending；仅用户明确给出无效数量时可 awaiting-count；released 的 Single-Agent 为数量 0、空 allocations；released Multi-Agent 有稳定 run_id、正整数锁定数量、恰好同数 allocation，初始均 unbound/unassigned/pending；blocked 保留已确认值、现有生命周期，且写明能力及原因。初始 default 组合必须为 Multi-Agent/1/一个预留名额。旧 timeout-default 仅按兼容规则读回，不新建；旧值必须维持 Single-Agent/0/空名额。分配状态不得覆盖有效记录。
-
-锁定数量只预留容量，不选择职责、不授权、不初始化 Agent、不释放 Context/Decision/Slice。每个 allocation 有稳定唯一 ID；未绑定名额为 `agent: unbound`、`role: unassigned`、`slice_status: pending`、`lifecycle: pending`。不得从名额数猜职责；单个名额不是自动的 Primary Output。审阅当前任务上下文及 Decision 后，才可选择唯一未占用职责并记入一个名额。子代理四种职责分别为 Primary Output、Change Verification、Context Bootstrap/Refresh、Documentation/Comments & Git Operations；Input-side Reasoning归Root，不占子代理职责名额。当前 Session 中职责唯一，子代理身份唯一。已完成、失败、中断、取消或不可用均不释放职责、身份或名额；不得回收、替换、Fork 继承或重复分配。四职责的责任边界按 owner：Root 保留指令/环境/代码事实确认、Semantic Contract、架构/风险决策、放行、用户交互及最终语义验收；Primary 仅执行已放行实现/Skill 指令编辑，不做前置决策或最终验收；Bootstrap 仅构建有界事实 capsule；Verifier 独立只读验证且不得参与被审实现；文档/Git 角色只做已放行非简单 Git，普通文档仍由 Root 写。角色标签、名额和 agent 名称均不改变这些边界。
-
-已放行 allocation 的 Slice 必须有 role、interaction_slice、scope、mutations、return_conditions 和显式布尔 `write_content_memo`；每个序列化 Worker bundle 前明确 true/false，Worker 不猜默认值。创建任何子任务都须角色/Slice、真实扩展及权限成立；只有创建Primary Output还要求输出确为代码/配置实现或本Skill指令/参考文档编写编辑，不能把此资格误施于独立验证或Context职责。普通非 Skill 文档不触发/消耗 Primary 名额。复用不增名额；一次性调用不代表持久身份。
+按 [Session 职责 owner](../references/coding/layer-01-fundamental-concepts/session-runtime/session-role-ownership.md) 检查唯一职责和能力。Root 负责前置决策、放行、用户交互与最终验收。已启动的任务即使失败、中断或终止也占用名额和职责；只有宿主确认实际未执行才可撤销未绑定的预留。一次性任务的逻辑 allocation 用真实调用定位。Scope、影响、返回条件和显式 `write_content_memo` 随实际派发内容传递，缺少可靠承载方式时暂停依赖派发。
 
 ### 3. Pi 能力边界
 
@@ -54,7 +41,7 @@ worker_log_evidence}; lifecycle; unavailable_capabilities; block_reason
 | [Session模型](../references/coding/layer-01-fundamental-concepts/session-runtime/session-model.md) | 生命周期、Fork、拓扑、Primary affinity与一次性任务 |
 | [Session职责](../references/coding/layer-01-fundamental-concepts/session-runtime/session-role-ownership.md) | Root责任及四种子职责边界 |
 | [委派状态记录](../references/coding/layer-01-fundamental-concepts/delegation/delegation-state-record.md) | 规范字段、状态、名额与唯一性 |
-| [模式确认](../references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-confirmation.md) | 四项菜单、默认值、显式来源 |
+| [模式确认](../references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-confirmation.md) | 扩展与回退入口、默认值和选择来源 |
 | [数量门禁](../references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.md) | 正整数、无效数量、不同职责的明确加一批准 |
 | [模式重入](../references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-reentry.md) | Session锁定、Fork新身份与重入 |
 | [Pi运行时](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md) | Schema、能力/授权分离及适配缺口 |

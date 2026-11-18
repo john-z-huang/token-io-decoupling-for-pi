@@ -25,7 +25,7 @@ Control 节点的建议可以指出 `continue`、`amend`、`stop` 或 `evidence-
 
 ## Pi Coding Agent 优化指令
 
-建议能力与 Pi 会话模型无关。MCP Tools 继续使用 OpenAI API；真实调用在调用时读取非空 OPENAI_API_KEY 与 OPENAI_BASE_URL，固定 API 模型 gpt-6-luna，不输出凭据、不从宿主会话偷取凭据。默认离线 Mock；真实网络仍须出站授权。发现工具后核对契约，建议不能代替 Root 判断。
+本项目 MCP 已移除五节点建议接口。缺少实际匹配的建议服务时，Root 直接依据 owner 判断。仍在工具清单中的通用 OpenAI 工具按各自 Schema 使用，真实调用独立于 Pi 会话模型，并在调用时读取非空 `OPENAI_API_KEY` 与 `OPENAI_BASE_URL`，使用固定 API 模型 `gpt-6-luna`。普通测试使用离线 Mock；真实出站按适用授权和输入审核边界核验。
 
 
 ## 相关概念

@@ -13,7 +13,7 @@
 
 ## Pi Coding Agent 优化指令
 
-通过 Pi codemode 的 `searchTools`、`describeTool`、`describeNamespace` 核对实际 MCP 能力及 schema，调用检查 `isError`；hidden 不得绕过。项目 Server 未迁移时不得假称支持。Pi 可授权直接读取当前 owner 文档；可选导航或结构检查不适用时，依据当前 owner 判断并记录理由。必需能力缺失只阻塞依赖该能力的判断。旧身份上下文不可伪造。
+可按当前工具发现能力核验实际 Schema；暴露 codemode 时可用 `searchTools`、`describeTool` 和 `describeNamespace`。`token-io-decoupling-tools` 提供规则上下文与候选文档预检。专用工作流路由和检查点结构评估已移除。缺少可选辅助时直接读取 owner；只有缺少必需证据才暂停依赖工作。
 
 ## 相关概念
 

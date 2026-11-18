@@ -10,10 +10,10 @@
 
 ### 1. 配置字段、来源与默认
 
-Root 是会话配置唯一写入者。每个偏好字段单独记录来源 `explicit` 或 `default`，不把一个字段的选择推给其他字段。用户给出的有效偏好直接采用；用户明确选择使用默认时，仅缺失字段使用：Root `audit_mode: balanced`、`root_reasoning_cadence: milestone_only`、Worker `worker_reasoning_cadence: full`。结构如下：
+Root 核对扩展启动时收集的各字段及其 `explicit` 或 `default` 来源。用户给出的有效偏好直接采用；用户明确选择使用默认时，仅为缺失字段填值。扩展状态的 `audit` 包含以下偏好：
 
 ```yaml
-session_audit:
+audit:
   audit_mode: balanced       # economy | balanced | full
   root_reasoning_cadence: milestone_only # full | milestone_only | off
   worker_reasoning_cadence: full         # full | milestone_only | off
@@ -21,11 +21,9 @@ session_audit:
     audit_mode: default      # explicit | default
     root_reasoning_cadence: default
     worker_reasoning_cadence: default
-  worker_log_visibility: unverified # available | unverified | unavailable | Not applicable
-  worker_log_evidence: <可核对的事实/原因>
 ```
 
-会话已启动后，Root 可按用户要求更新字段及其来源。无效或冲突时仅澄清受影响偏好；无法解决时用策略默认并报告限制，无关工作可继续。忽略旧提示、计时和迁移字段。`session_audit` 由父级状态记录管理，不写入策略文件或 Worker 可控状态。
+同一 Session 的已确认偏好沿用于新任务、树导航与恢复。修改生效偏好需要在新 Session 重新确认。Root 另行保存 `worker_log_visibility` 与 `worker_log_evidence` 的实际证据，按本合同应用可见副本和摘要规则。
 
 ### 2. 实际消息正文、可见副本与日志证据
 

@@ -66,7 +66,7 @@ Output Token 路由独立判断 Root 直接生成的预期输出，而非选择�
 
 ### 8. 明确的持久化限制与保全验收
 
-只有用户明确禁止持久化或更高优先级写入限制，才可记录例外来源，并在获准上下文保留有界规划；能力缺失、权限不明和写失败不是例外。WD03用真实Memory成功观察上报 `plan=persisted`，或引用明确限制来源上报 `plan=prohibited`；字段是声明，不证明授权。生命周期服务尚未适配Pi时不伪造身份；原生Memory仅在owner允许且实际授权时使用，不通过bash/文件绕过。
+只有用户明确禁止持久化或更高优先级写入限制，才可记录例外来源，并在获准上下文保留有界规划；能力缺失、权限不明和写失败不是例外。WD03 上报 `plan=persisted` 时，引用真正持久化成功的 Memory 观察。上报 `plan=prohibited` 时，摘要说明原始限制来源，同时引用扩展实际记录的用户或启动观察以满足报告结构。不要把该观察当作限制来源或授权证明。本项目 MCP 仅提供 Memory 尾部读取及存在性检查。计划创建、更新与归档须使用宿主实际暴露且获授权的 Memory 后端，按 owner 核验存储范围和实际结果。
 
 如任务明确包含保全验收，只使用新建合成计划，不用用户已有计划：覆盖多阶段目标/约束、带来源需求变化、决策理由、他人贡献、失败及后续通过检查，保留“两份未跟踪文件清单已核验”“未发现PR模板”等小事实；替代结论须与旧结论及理由/来源并存。分别验证每条历史可追溯、最终结果仅追加、归档字节等于最终活动基线且活动项消失；摘要替代候选和已占归档目标均不得写入/覆盖。分别报告实际演练与仅场景审查，不声称工具强制不可变或恢复了过去丢失内容。
 
@@ -95,4 +95,3 @@ Output Token 路由独立判断 Root 直接生成的预期输出，而非选择�
 | [decision-context-selection](../references/coding/layer-03-workflow-checkpoints/decision-context-selection.md) | 下游背景是否需要、绑定核验与结果路线 |
 | [planning-output-selection](../references/coding/layer-03-workflow-checkpoints/planning-output-selection.md) | 默认计划输出、映射确认、例外/阻断 |
 | [work-definition](../references/coding/layer-04-workflows/modules/work-definition.md) | WD00–WD03入口、顺序、状态与不授权边界 |
-| [Context Hook](context.md) | 同目录上下文合同，适用时共同遵守 |

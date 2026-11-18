@@ -37,8 +37,8 @@
 
 ### 四、对照已释放的模式和路线（ER03）
 
-1. 复用 [Session合同](session.md) 中已锁定模式、数量、allocation 与 mode_source；本模块不重开 Mode gate。缺少/过期的已释放证据返回前置 owner；与路线冲突时阻断。
-2. Single 要求 `child_count=0` 且无子 allocation；Multi 要求正整数锁定预算和一致记录。已占用/已创建与未分配名额都可能有效，不要求所有名额保持未绑定。
+1. 通过 `coding_checkpoint status` 回读已锁定的模式、预算和 allocation，并对照实际用户启动指令或答复。此处沿用已释放的 Mode。缺少/过期的已释放证据返回前置 owner；与路线冲突时阻断。
+2. Single 要求 `childCount=0` 且无子 allocation。Multi 需要有效的正整数预算，已占用 allocation 数不得超过该预算。
 3. 核对 [Session 启动条件](session.md#1-选择并锁定模式) 的用户显式入口、模式/预算及审计答案均已满足。
 4. 通过 ER03 只证明当前路线资格，不释放 Slice、不创建代理，也不豁免计划、职责或操作守卫。
 

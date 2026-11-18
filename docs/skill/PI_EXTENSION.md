@@ -4,7 +4,7 @@
 
 ## 试用与安装
 
-基线：Pi Coding Agent **1.5.2**、Node.js **24+**。使用 Pi 提供的 `typebox` 等宿主模块，不复制宿主依赖。本轮验证的是离线状态机、模拟事件、已有宿主声明类型和入口加载，不是真实模型/客户端、子代理或 Memory 后端的端到端验收。
+基线：Pi Coding Agent **1.5.2**、Node.js **24+**。使用 Pi 提供的 `typebox` 等宿主模块，不复制宿主依赖。仓库离线检查涵盖状态机、模拟事件、宿主声明类型及入口加载。真实会话、子代理及 Memory 端到端验收需要当前环境证据。
 
 在目标项目中一次性加载本地包，无须修改用户配置：
 
@@ -18,7 +18,7 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi
 pi install /absolute/path/to/token-io-decoupling-for-pi --local
 ```
 
-上条命令会改变目标项目 `.pi/settings.json`，**本轮没有自动执行**。本地包不复制源码；扩展/Skill 修改后由用户 `/reload` 或开新会话。不要只复制 `index.ts`：它依赖同包代码、模块清单及 Hook 资源。旧 CLI 的 `skills install/update` 只安装 Skill，不安装此 Extension；MCP 配置/身份接入仍须分别核验。
+上条命令会改变目标项目 `.pi/settings.json`。本地包不复制源码；扩展/Skill 修改后由用户 `/reload` 或开新会话。不要只复制 `index.ts`：它依赖同包代码、模块清单及 Hook 资源。旧 CLI 的 `skills install/update` 只安装 Skill，不安装此 Extension；MCP 配置/身份接入仍须分别核验。
 
 ## 启动与控制
 
@@ -100,7 +100,7 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi \
 
 通过本协调器派发时，`coding_delegate.jobs[]` 可提供 `model` 与简短 `modelReason`。有显式选择而目标Schema不支持对应model/thinking字段或档位时，在预留前拒绝，不降级为仅在任务正文里写模型名；省略时不补model/thinking字段，保留目标工具的真实默认/继承行为，Root须如实记录能力限制。modelReason只是Root依据，不证明选型充分。精确模型/档位由宿主调用记录核验，不要求Worker自报。
 
-源描述和宿主适配补丁、模型卡核对记录位于仓库 `agents/`、`integrations/pi-subagent/`。加载本package不自动覆盖用户代理/安装补丁；部署属于单独明确授权的用户级文件修改，更新后需用户 `/reload` 或新会话，重新发现Schema。不能把磁盘变化当作当前会话已生效。MCP固定API模型与未迁移身份/effort合同不变。
+源描述和宿主适配补丁、模型卡核对记录位于仓库 `agents/`、`integrations/pi-subagent/`。加载本package不自动覆盖用户代理/安装补丁；部署属于单独明确授权的用户级文件修改，更新后需用户 `/reload` 或新会话，重新发现Schema。不能把磁盘变化当作当前会话已生效。
 
 ## 规则迁移边界
 
@@ -108,7 +108,7 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi \
 
 引擎约束顺序、字段、已观察引用、预算、路径与 epoch。它不证明用户授权、检查输出正确、独立性、N/A 理由、内容保全或验收真的满足；不透明工具的 effect 也是声明。它不是恶意代码沙箱或 OS ACL。真实出站、Git、Memory 权限仍按原规则独立核验。
 
-本轮不改 `mcp/`，不调用真实 OpenAI API，不迁移服务端身份、child effort、候选/结构检查或安装契约，不声称 Server 已兼容 Pi。API 内部固定模型、环境与安全约束保持不变。
+安装扩展后，分别核验 MCP 的实际工具注册、可信调用方绑定和操作授权。
 
 ## 离线验证
 

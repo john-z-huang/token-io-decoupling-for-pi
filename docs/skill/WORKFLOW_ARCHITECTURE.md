@@ -7,17 +7,17 @@
 
 入口为 `extensions/coding-workflow/index.ts`。`catalog.ts` 绑定既有 Layer-04 模块与检查点形状；`engine.ts` 维护七模块顺序、当前位置、模式/预算、Slice、三维 epoch、修复与恢复回环；`runtime.ts` 将真实 Pi 事件接到状态机及条件 Hook 包，工具调用仍经实际 `ctx.executeTool` 的宿主校验/权限链。
 
-Extension 状态使用实际 Pi Session 的 custom entry，不是 Memory 后端、服务端数据库或原子事务。按当前对话分支恢复位置，同时保留整个 Session 已绑定的子任务名额；树导航不会回退磁盘效果。每次模型请求只注入当前模块和相关 [Hook 合同](hooks/README.md)，而非预加载整个 Skill；源码/规则 Hash 变化要求重新核验。
+Extension 状态使用实际 Pi Session 的 custom entry，不是 Memory 后端、服务端数据库或原子事务。按当前对话分支恢复位置，同时保留整个 Session 已绑定的子任务名额；树导航不会回退磁盘效果。每次模型请求注入当前检查点全文、后续目录以及适用的 [Hook 合同](hooks/README.md)；源码/规则 Hash 变化要求重新核验。
 
 可观察事件自动处理；需求变化、独立性、修复范围、文档影响等语义判断由 Agent 通过结构化信号报告。顺序、字段、引用、预算、路径和 epoch 可以守卫，授权、事实真实性、验证充分性和语义验收仍须独立判断。该扩展不是 OS 沙箱，也不自动证明不透明命令的副作用分类。
 
 [使用与限制](PI_EXTENSION.md)说明安装、一次性子代理适配、有限续跑、离线测试与未验收事项。旧 Skill-only CLI 不安装此 Extension。
 
-当前指令已面向 Pi Coding Agent 改写，但 MCP Server、调用方身份、注册表和服务端结构校验尚未同步迁移。以下是既有实现的边界说明，不构成 Pi 接入完成证明。指令侧 `scripts/check-layer-01-sections.py` 独立检查“通用规范 → Pi Coding Agent 优化指令 → 相关概念”；它不改变服务端校验契约，不能据此声称候选预检、片段提取或打包安装已经兼容新结构。尚未验证的服务功能不得默认调用；依据直接 owner 执行获准路径，或在必需能力缺失处暂停。
+当前单一 `token-io-decoupling-tools` 服务提供 stdio 和 Skill 安装/更新入口。宿主的工具发现、只读服务可用性、可信绑定和具体操作授权分别核验。结构检查覆盖其声明的规则和输入范围。
 
 ## MCP 规则与通用工具
 
-MCP 中的规则工具提供当前规则上下文的有界读取、规则导航，以及对调用方所供事实的结构检查；它们是无状态辅助能力，不是宿主工作流引擎。规则文档仍具权威性。工具结果、Hash 和调用方声明不能认证调用方、证明权限或来源、判定语义真实性、通过检查点、建立跨调用顺序或验收工作。调用方必须阅读当前 owner、独立解释证据，并在对话上下文中保留父级控制任务记录。
+MCP 的 `rules_get_context` 提供有界规则读取，`validate_decoupling_compliance` 对候选内容做结构预检。检查点报告及推进由宿主 Extension 处理。规则文档仍具权威性。工具结果、Hash 和调用方声明不能认证调用方、证明权限或来源、判定语义真实性、通过检查点、建立跨调用顺序或验收工作。调用方必须阅读当前 owner、独立解释证据，并在实际宿主 Session 中回读控制记录，在父级对话中保留必要的语义来源。
 
 规则读取与结构检查路径无需 SQLite 数据库、API 凭据或网络请求。可选语义建议可以依据开发指南中的独立 API 授权和凭据规则，发送显式配置的 API 请求；其结果仍仅供建议，不能授权工作。MCP 仅保留 `token-io-decoupling-tools`；其支持的客户端及工具清单见[MCP 开发指南](../project/mcp/DEVELOPMENT.md)。
 

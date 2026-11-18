@@ -62,7 +62,7 @@
 
 ## Pi Coding Agent 优化指令
 
-计划后端是实际获准的 Memory 服务，不是 Pi 内置存储。发现工具后核验存储 scope、仓库 key、准确名称和权限，保留本 owner 全部内容保全及归档要求。生命周期工具若尚未支持 Pi 身份不得伪造上下文；原生 Memory 操作只有本 owner 允许且实际授权时才使用。不通过 bash 或文件写入绕过必需 Memory 能力。
+计划依赖实际获准的 Memory 后端。本项目 MCP 的 `serena_memory_tail_read` 和 `serena_memory_write_check` 只读启动项目的本地 Memory；后者仅检查所选尾部窗口中的文本存在性。创建、更新和归档须另有可用且获授权的 Memory 能力，并核验 scope、仓库 key、准确名称及实际结果。遵守内容保全、单写者和归档要求；禁止用 bash 或普通文件写入绕过必需的 Memory 能力。
 
 
 ## 相关概念
