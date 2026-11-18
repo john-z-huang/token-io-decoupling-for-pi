@@ -1,0 +1,185 @@
+{
+  "extension-tests/engine.test.mjs": {
+    "max-lines": {
+      "count": 1
+    }
+  },
+  "extension-tests/hooks.test.mjs": {
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 3
+    }
+  },
+  "extension-tests/pi-runtime-fixture.mjs": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "extension-tests/runtime.test.mjs": {
+    "max-lines-per-function": {
+      "count": 1
+    }
+  },
+  "extensions/coding-workflow/catalog.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    },
+    "complexity": {
+      "count": 2
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 1
+    },
+    "max-params": {
+      "count": 1
+    },
+    "max-statements": {
+      "count": 2
+    }
+  },
+  "extensions/coding-workflow/delegation.ts": {
+    "@typescript-eslint/explicit-module-boundary-types": {
+      "count": 1
+    }
+  },
+  "extensions/coding-workflow/engine.ts": {
+    "@typescript-eslint/explicit-module-boundary-types": {
+      "count": 11
+    },
+    "complexity": {
+      "count": 9
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 2
+    },
+    "max-params": {
+      "count": 4
+    },
+    "max-statements": {
+      "count": 4
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 4
+    }
+  },
+  "extensions/coding-workflow/model-selection.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    }
+  },
+  "extensions/coding-workflow/reference-data.ts": {
+    "@typescript-eslint/explicit-module-boundary-types": {
+      "count": 1
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    },
+    "complexity": {
+      "count": 3
+    },
+    "max-lines-per-function": {
+      "count": 3
+    },
+    "max-statements": {
+      "count": 4
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 1
+    }
+  },
+  "extensions/coding-workflow/runtime.ts": {
+    "@typescript-eslint/explicit-module-boundary-types": {
+      "count": 1
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 7
+    },
+    "complexity": {
+      "count": 5
+    },
+    "max-depth": {
+      "count": 8
+    },
+    "max-lines": {
+      "count": 1
+    },
+    "max-lines-per-function": {
+      "count": 3
+    },
+    "max-statements": {
+      "count": 6
+    },
+    "no-nested-ternary": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 3
+    }
+  },
+  "extensions/coding-workflow/startup.ts": {
+    "@typescript-eslint/explicit-module-boundary-types": {
+      "count": 3
+    },
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 1
+    },
+    "complexity": {
+      "count": 3
+    },
+    "max-params": {
+      "count": 2
+    },
+    "max-statements": {
+      "count": 2
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 2
+    }
+  },
+  "extensions/coding-workflow/subagent-adapter.ts": {
+    "@typescript-eslint/no-non-null-assertion": {
+      "count": 5
+    },
+    "complexity": {
+      "count": 1
+    },
+    "max-params": {
+      "count": 1
+    }
+  },
+  "extensions/coding-workflow/workflow-context.ts": {
+    "@typescript-eslint/explicit-module-boundary-types": {
+      "count": 1
+    }
+  },
+  "extensions/coding-workflow/workflow-tools.ts": {
+    "@typescript-eslint/explicit-module-boundary-types": {
+      "count": 1
+    },
+    "max-params": {
+      "count": 4
+    }
+  },
+  "scripts/pi-hook-validation.mjs": {
+    "complexity": {
+      "count": 2
+    },
+    "max-statements": {
+      "count": 3
+    },
+    "no-nested-ternary": {
+      "count": 1
+    },
+    "sonarjs/cognitive-complexity": {
+      "count": 2
+    }
+  }
+}

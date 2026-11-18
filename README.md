@@ -59,7 +59,10 @@ MCP 已收敛为 `token-io-decoupling-tools`；上面的 Pi package 命令只加
 
 ## 文档入口
 
+- [Pi Coding 工作流变更日志](CHANGELOG/CHANGELOG.md) 记录工作流路线、Extension 推进和模块演进。
+- [代码质量工具与规范自动化变更日志](CHANGELOG/CODE_QUALITY.md) 记录 Lint、格式化和代码规范自动化。
 - [Pi Extension](docs/project/PI_EXTENSION.md) 介绍安装、事件、Hook 推进、适配及验证边界。
+- [静态代码检查](docs/project/STATIC_CODE_CHECKS.md) 说明 JS、TS 和 MJS 的自动化检查与 Code Agent 审查要求。
 - [Hooks 目录](docs/skill/hooks/README.md)：明确触发条件与执行合同。
 - [Skill 入口](docs/skill/SKILL.md)：轻量入口与未启用扩展的回退路线。
 - [Coding reference](docs/skill/references)：由工作流组合使用的独立 Coding 模块和共享协议模块。
