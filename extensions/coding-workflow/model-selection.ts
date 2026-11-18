@@ -18,8 +18,8 @@ export function parseModelSelection(value: string): {
 export function validateChildSelection(value: string): void {
   const { id, thinking } = parseModelSelection(value);
   const family = id.slice(id.lastIndexOf("/") + 1);
-  if (!CHILD_MODELS.some((name) => name === family))
-    throw new Error("子任务须由 Root 从 Sol、Terra、Luna 选择实际可用模型");
+  // 已登记的模型卡仅限制对应模型。其余精确模型交给实际宿主能力核验。
+  if (!CHILD_MODELS.some((name) => name === family)) return;
   if (thinking === "minimal" || (family === "gpt-6.1-sol" && thinking === "off"))
     throw new Error("模型卡不支持该推理档位；不得默默钳制或换模型");
 }

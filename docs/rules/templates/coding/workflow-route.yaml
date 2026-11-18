@@ -31,7 +31,7 @@ document:
     - overview:
         kind: markdown
         text: |-
-          说明路线的适用 Mode、模块组合与返回边界。
+          说明适用 Mode、主阶段与按条件应用 Hook 的方式。
     - flowchart:
         kind: section
         title: 工作流路线图
@@ -41,7 +41,21 @@ document:
               text: |-
                 ```mermaid
                 flowchart TD
-                    EX01[入口就绪] --> EX02[Session 就绪]
+                    EX01[入口就绪]
+                    EX02[Session 就绪]
+                    EX03[工作定义]
+                    EX04[执行]
+                    EX05[验证]
+                    EX06[文档]
+                    EX07[交付与验收]
+                    DONE[complete]
+                    EX01 --> EX02
+                    EX02 --> EX03
+                    EX03 --> EX04
+                    EX04 --> EX05
+                    EX05 --> EX06
+                    EX06 --> EX07
+                    EX07 --> DONE
                 ```
     - checkpoints:
         kind: section
@@ -102,13 +116,13 @@ document:
                 调用[阶段 Hook](../hooks/delivery.yaml)。
     - returns:
         kind: section
-        title: 前置返回映射
+        title: 前置补证与恢复
         expose: true
         blocks:
           - returns-body:
               kind: markdown
               text: |-
-                为每个前置结果写明生产者、复核条件和原调用位置。
+                遇到前置缺失、中断或未知效果时，按[恢复 Hook](../hooks/recovery.yaml)处理，在核验通过后回到原调用位置。
     - mode-boundary:
         kind: section
         title: Mode 边界
@@ -120,9 +134,9 @@ document:
                 说明本路线读取的 Mode 证据及其允许效果。
     - related:
         kind: section
-        title: 相关概念
+        title: 按条件触发的 Hooks
         blocks:
           - related-body:
               kind: markdown
               text: |-
-                - 链接到相关所有者。
+                从 [Hook 触发目录](../hooks/README.yaml)定位适用合同。

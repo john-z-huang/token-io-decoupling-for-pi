@@ -1,4 +1,4 @@
-import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import type { Catalog } from "./catalog.ts";
 import type { Workflow } from "./engine.ts";
 import { RuntimeSession } from "./host/runtime-session.ts";
@@ -8,11 +8,13 @@ import { registerTurnHooks } from "./host/turn-events.ts";
 import { registerCodingCommand } from "./host/workflow-commands.ts";
 import { registerStartupFlags } from "./startup.ts";
 import type { WorkflowToolSchemas } from "./tool-schemas.ts";
-import { registerWorkflowTools } from "./workflow-tools.ts";
+import { registerSessionTool } from "./host/session-tool.ts";
+import { registerSliceTool, registerRunTool } from "./host/tool-execution.ts";
+import { registerDelegateTool } from "./host/delegate-tool.ts";
 
 export { compatibleSubagent } from "./subagent-adapter.ts";
 export { fileEffect, scopedPath } from "./tool-guards.ts";
-export { MAX_CONTEXT, renderContext, renderHook } from "./workflow-context.ts";
+export { MAX_CONTEXT, renderContext, renderHook } from "./rules/prompt.ts";
 
 export type Schemas = WorkflowToolSchemas;
 
@@ -36,12 +38,17 @@ export function installWorkflow(
     default: false,
   });
   registerCodingCommand(session);
-  registerWorkflowTools(pi, schemas, {
+  const host = {
     calls: session.calls,
+    activeWorkflow: () => session.activeWorkflow(),
     requireWorkflow: () => session.requireWorkflow(),
-    isDelegate: (name) => isDelegateTool(session, name),
-    persist: (context) => session.persist(context),
-  });
+    isDelegate: (name: string) => isDelegateTool(session, name),
+    persist: (context: ExtensionContext) => session.persist(context),
+  };
+  registerSessionTool(pi, schemas, host);
+  registerSliceTool(pi, schemas, host);
+  registerRunTool(pi, schemas, host);
+  registerDelegateTool(pi, schemas, host);
   registerSessionHooks(session);
   registerTurnHooks(session);
   registerToolHooks(session);

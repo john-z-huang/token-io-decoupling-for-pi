@@ -10,7 +10,7 @@ import {
   WORKFLOW_TOOL_NAMES,
   type ToolIntent,
 } from "../tool-guards.ts";
-import { EPOCH_DIMENSIONS } from "../workflow-state.ts";
+import { EPOCH_DIMENSIONS } from "./session-state.ts";
 import type { RuntimeSession } from "./runtime-session.ts";
 
 const READ_TOOLS = new Set(["read", "grep", "find", "ls", "tool_search"]);
@@ -83,7 +83,11 @@ function guardTool(
   context: ExtensionContext,
   event: ToolCallEvent,
 ): string | undefined {
-  if (runtime.starting || runtime.startupError) return runtime.startupError || "启动进行中；禁止执行工具";
+  if (runtime.starting || runtime.startupError) {
+    return READ_TOOLS.has(event.toolName)
+      ? undefined
+      : runtime.startupError || "启动进行中；暂缓可能有副作用的工具";
+  }
   if (!runtime.enabled || WORKFLOW_TOOL_NAMES.has(event.toolName)) return undefined;
   if (runtime.restoreError) return READ_TOOLS.has(event.toolName) ? undefined : runtime.restoreError;
   if (!runtime.workflow) return "工作流状态不可用，须先核对会话";

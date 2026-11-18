@@ -14,7 +14,7 @@ blocks:
         - trigger-body:
             kind: markdown
             text: |-
-              - paused/blocked、工具 abort/失败、效果未知、会话加载/恢复、树导航、压缩、新用户输入或 user_bash 后。
+              - paused/blocked、工具 abort/失败、效果未知、会话加载/恢复、树导航或 user_bash 后。普通输入或压缩只有暴露未决效果或证据缺口时才触发恢复。
               - 模块返回缺前置、owner 仍 pending、相关 epoch 失效，或需要从修复/验证/文档/交付回环恢复。
               - 本 Hook 不自行选择路线、恢复权限或重跑任务；只确定可安全继续的准确位置。
   - inputs:
@@ -24,7 +24,7 @@ blocks:
         - inputs-body:
             kind: markdown
             text: |-
-              当前 Contract、模式/预算、实际 Session 和工作目录、模块/子步骤及 revision、先前完成证据及 epoch、已尝试/已完成/未知效果、待处理 owner、外层 continuation、计划具名指针和当前性。真实文件效果不会随着对话分支回退。
+              当前 Contract、模式/预算、实际 Session 和工作目录、对话中的待处理动作及扩展 revision、先前完成证据及 epoch、已尝试/已完成/未知效果、待处理 owner、外层 continuation、计划具名指针和当前性。真实文件效果不会随着对话分支回退。
   - execution:
       kind: section
       title: 执行要求
@@ -61,7 +61,7 @@ blocks:
                   text: |-
                     1. `complete` 只表示本模块所有必需 owner 已满足当前通过条件并附证据/效果/epoch，不等于整条路线验收。待提问、待审计、pending 或未解前置均不能 complete。
                     2. `not_applicable` 仅在条件触发器实际不存在时成立，附观察和原因；不能用来跳过必需项。
-                    3. `needs_prerequisite` 逐项指出缺失的语义 owner 与证据，调用者补齐后回同一位置。通过 `coding_checkpoint report` 使用 `needs_prerequisite` 或 `blocked`；主动暂停用 `pause`。先用 `resolve_effect` 结合实际读回处置未决调用，再以暂停后成功的 read/check 证据执行 `resume`。
+                    3. `needs_prerequisite` 逐项指出缺失的语义 owner 与证据，调用者补齐后回同一位置。在对话中记录需补前置或阻断的原因。主动暂停用 `coding_checkpoint pause`。先用 `resolve_effect` 结合实际读回处置未决调用，再以暂停后成功的 read/check 证据执行 `resume`。
                     4. `blocked` 明确冲突、必需证据/能力缺失或不安全状态及解除条件。仅当位置丢失、状态矛盾或授权读回仍不能确定效果、无法安全继续时阻断恢复，不把可补齐的前置误写成全任务永久失败。
                     5. 补证所需的写入仍要独立授权。不要为前置重新启动无关已完成门禁、重复 Mode 选择或在模块内部调度兄弟模块。
         - execution-04:
@@ -74,7 +74,7 @@ blocks:
                     1. 中断后旧 Slice 撤销，重核当前范围、前置、权限和返回条件后才放行新的 Slice；恢复坐标不等于恢复写入许可。
                     2. 内容、文档或 Git 维度变化使受影响 Verification/Acceptance 失效；对当前状态取得新检查证据，不复用旧 epoch 的通过结论。
                     3. 修复保留外层 continuation：先范围门禁，再执行窄修复，再回 Verification；不能覆盖原 documentation/delivery 返回点。
-                    4. 文档写后回验恢复 DOC04，Git 后回验恢复 DA03，保留已确认效果。决策补证按调用方位置完成 WD01–WD03 的适用检查，报告批次止于原检查点。DA05 已有归档时，补证至 WD02 即返回，保留归档。能力变化在原位置重核，实质需求变化才回入口重核。
+                    4. 文档写后回验恢复 DOC04，Git 后回验恢复 DA03，保留已确认效果。决策补证按调用方位置完成 WD01–WD03 的适用检查，补齐后回原调用位置。DA05 已有归档时，补证至 WD02 即返回，保留归档。能力变化在原位置重核，实质需求变化才回入口重核。
                     5. 共享计划在实质变化、交接、暂停/完成边界按 [计划合同](planning.yaml) 更新；影响授权/范围/验收/方向/依赖动作的事实先分析并确认计划更新，再放行。普通模块切换不单独要求写入或全文重读。
         - execution-05:
             kind: section
@@ -84,7 +84,7 @@ blocks:
                   kind: markdown
                   text: |-
                     1. 同一前置被重复解析且没有新证据、epoch 或有效 owner 状态变化才是循环；有真实证据推进的修复/重验可继续。
-                    2. 只在 Pi 真实最终可行动边界且正常可继续时请求有限 continuation，每次用户启动/继续最多8次；无检查点进展停止并说明缺口，不自建 Shell/agent_end 循环。
+                    2. Pi Agent 根据实际证据决定如何继续。实际无进展时说明缺口，不通过 Shell 或会话事件自动续跑。
                     3. 等待、异步收集、取消或 resume 只用实际扩展能力。同步调用已返回终态就直接审阅，不伪造 wait/持久 Session，也不重放调用模拟异步。
                     4. 已完成历史仍保留，但后续文件/授权变化后不再证明当前状态。不要将终态任务隐式改为 active 或借 off/on 重置名额。
   - exit:
@@ -117,4 +117,4 @@ blocks:
               | [委派状态记录](../references/coding/layer-01-fundamental-concepts/delegation/delegation-state-record.yaml) | 会话模式、名额与任务事实 |
               | [任务计划生命周期](../references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.yaml) | 边界更新、保全与限制 |
               | [验证epoch](../references/coding/layer-02-workflow-concepts/verification-and-repair/verification-epoch.yaml) | 当前状态和验证失效 |
-              | [Extension使用说明](../../project/PI_EXTENSION.md) | Pi真实事件、有限续跑及DOC04/DA03恢复 |
+              | [Extension使用说明](../../project/PI_EXTENSION.md) | Pi 会话事件、效果读回及恢复 |

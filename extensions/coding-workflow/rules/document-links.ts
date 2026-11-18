@@ -136,7 +136,7 @@ function indexedLink(
 ): string {
   const fragment = findRuleFragment(document, link.fragment, yaml);
   if (fragment) return ruleLink(document.id, fragment.id);
-  if (!link.fragment && document.fragments.length && !document.path.startsWith("hooks/"))
+  if (!link.fragment && (document.fragments.length || document.id === "hook-readme"))
     return ruleLink(document.id);
   if (yaml && link.fragment && ![...document.sectionIds.values()].includes(link.fragment)) {
     throw new Error(`DSL 链接缺少规则片段：${source} -> ${target}`);

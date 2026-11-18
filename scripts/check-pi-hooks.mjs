@@ -10,7 +10,7 @@ import {
   SIGNALS,
 } from '../extensions/coding-workflow/catalog.ts';
 import { makeState, Workflow } from '../extensions/coding-workflow/engine.ts';
-import { MAX_CONTEXT, renderContext } from '../extensions/coding-workflow/workflow-context.ts';
+import { MAX_CONTEXT, renderContext } from '../extensions/coding-workflow/rules/prompt.ts';
 import {
   collectSourceCoverage,
   coverageYaml,
@@ -53,7 +53,7 @@ function checkCoverage(catalog, rows, writeRequested) {
   );
 }
 
-function measurePhaseContexts(catalog, mode, phase) {
+function measureModeContexts(catalog, mode) {
   const signalSets = [[], ...SIGNALS.map((signal) => [signal]), [...SIGNALS]];
   const samples = [];
   for (const signals of signalSets) {
@@ -64,7 +64,7 @@ function measurePhaseContexts(catalog, mode, phase) {
         { sessionId: 'hook-check', cwd: process.cwd() },
         { mode, childCount, task: '有界合成任务' },
       );
-      Object.assign(state, { phase, signals, status });
+      Object.assign(state, { signals, status });
       samples.push({
         isDefault: !signals.length && status === 'active',
         size: renderContext(new Workflow(catalog, state)).length,
@@ -77,9 +77,7 @@ function measurePhaseContexts(catalog, mode, phase) {
 function measureContexts(catalog) {
   const samples = [];
   for (const mode of ['single', 'multi']) {
-    for (const phase of catalog.routes[mode].phases) {
-      samples.push(...measurePhaseContexts(catalog, mode, phase));
-    }
+    samples.push(...measureModeContexts(catalog, mode));
   }
   const defaults = samples.filter((sample) => sample.isDefault);
   return {

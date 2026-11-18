@@ -51,7 +51,7 @@ blocks:
                     2. 记录实质决策、开放问题和验收标准；已观察事实与假设分开。影响实现的未解决问题不得进入实施放行。
                     3. task intent 与 eligible output classification 只取直接权威来源。建议内容与 Contract 分开，不能扩大输出资格、替代用户指令或授予范围。
                     4. 以一个当前 Semantic Contract 和有界 amendment 传递变化，不预读全部 references 或把任务历史当作 Contract。
-                    5. 在 ER01 明确独立验证是否必需及其来源，并在报告的 `facts.independence` 填写 `required` 或 `not_required`。Root 应核实来源和实际独立性。
+                    5. 在对话中记录独立验证是否必需及其依据。Root 应核实来源和实际独立性。
         - execution-03:
             kind: section
             title: 三、核验真实环境与路径（ER02）

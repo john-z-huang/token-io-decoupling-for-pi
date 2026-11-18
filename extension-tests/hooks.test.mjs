@@ -15,12 +15,11 @@ import { fileURLToPath } from 'node:url';
 import {
   documentLinks,
   HOOK_IDS,
+  rewriteWorkflowLinks,
   loadCatalog,
-  PHASES,
   resolveDocumentLink,
   resolveHookLink,
   rewriteDocumentLinks,
-  rewriteWorkflowLinks,
   SIGNALS,
 } from '../extensions/coding-workflow/catalog.ts';
 import { makeState, Workflow } from '../extensions/coding-workflow/engine.ts';
@@ -193,61 +192,51 @@ test('links fail on missing files, directories, bad anchors or symlink escapes; 
 test('both routes retain all relevant contracts for single and combined signals, pause and a full observation window', () => {
   let peak = 0;
   for (const mode of ['single', 'multi'])
-    for (const phase of PHASES)
-      for (const signals of [[], ...SIGNALS.map((s) => [s]), [...SIGNALS]])
-        for (const status of ['active', 'paused']) {
-          const state = makeState(
-            catalog,
-            { sessionId: 'hook-test', cwd: tmpdir() },
-            {
-              mode,
-              childCount: mode === 'single' ? 0 : 1,
-              task: 'synthetic workspace, not the extension source directory',
-            },
-          );
-          state.phase = phase;
-          state.signals = signals;
-          state.status = status;
-          const w = new Workflow(catalog, state);
-          for (let i = 0; i < 128; i++)
-            w.observe({ id: `read-${i}`, tool: 'synthetic-read', effect: 'read', ok: true });
-          const content = renderContext(w);
-          peak = Math.max(peak, content.length);
-          assert.ok(content.length <= MAX_CONTEXT);
-          assert.ok(content.includes('[Hook:foundation]'));
-          assert.ok(content.indexOf('[Hook:foundation]') < content.indexOf('{"revision":'));
-          assert.ok(
-            !documentLinks(content).some((target) => target.startsWith('../')),
-            'module and hook links must not bind to the target project',
-          );
-          if (status === 'paused') assert.ok(content.includes('[Hook:recovery]'));
-          if (signals.includes('advice_requested')) assert.ok(content.includes('[Hook:advisory]'));
-          if (signals.includes('materialization_requested'))
-            assert.ok(content.includes('[Hook:materialization]'));
-        }
+    for (const signals of [[], ...SIGNALS.map((s) => [s]), [...SIGNALS]])
+      for (const status of ['active', 'paused']) {
+        const state = makeState(
+          catalog,
+          { sessionId: 'hook-test', cwd: tmpdir() },
+          {
+            mode,
+            childCount: mode === 'single' ? 0 : 1,
+            task: 'synthetic workspace, not the extension source directory',
+          },
+        );
+        state.signals = signals;
+        state.status = status;
+        const w = new Workflow(catalog, state);
+        for (let i = 0; i < 128; i++)
+          w.observe({ id: `read-${i}`, tool: 'synthetic-read', effect: 'read', ok: true });
+        const content = renderContext(w);
+        peak = Math.max(peak, content.length);
+        assert.ok(content.length <= MAX_CONTEXT);
+        assert.ok(content.includes('[Hook:foundation]'));
+        assert.ok(content.indexOf('[Hook:foundation]') < content.indexOf('{"mode":'));
+        assert.ok(
+          !documentLinks(content).some((target) => target.startsWith('../')),
+          'module and hook links must not bind to the target project',
+        );
+        if (status === 'paused') assert.ok(content.includes('[Hook:recovery]'));
+        if (signals.includes('advice_requested')) assert.ok(content.includes('[Hook:advisory]'));
+        if (signals.includes('materialization_requested'))
+          assert.ok(content.includes('[Hook:materialization]'));
+      }
   assert.ok(peak > 32000, 'expanded contracts really exercise the increased bounded budget');
 });
 
-test('context shows the current instruction and selects delegation and repair at their boundaries', () => {
+test('context includes the complete route and only Hooks triggered by observed facts', () => {
   const state = makeState(
     catalog,
     { sessionId: 'hook-test', cwd: tmpdir() },
     { mode: 'multi', childCount: 1, task: 'synthetic task' },
   );
-  state.phase = 'execution';
-  state.step = 4;
-  state.execution = { executor: 'root' };
   const workflow = new Workflow(catalog, state);
   const context = renderContext(workflow);
-  const module = catalog.modules['delegated-execution'];
-  assert.ok(context.includes(rewriteWorkflowLinks(catalog, module.path, module.checkpoints[4].instruction)));
-  assert.ok(context.includes('DE07'));
-  assert.ok(!context.includes(rewriteWorkflowLinks(catalog, module.path, module.checkpoints[7].instruction)));
-  assert.ok(!context.includes('[Hook:delegation]'));
-  workflow.state.phase = 'verification';
-  workflow.state.step = 3;
-  assert.ok(!renderContext(workflow).includes('[Hook:repair]'));
-  workflow.state.step = 5;
+  for (const id of ['MM01', 'MM04', 'MM07', 'coding-rule:hook-delegation']) assert.ok(context.includes(id));
+  assert.ok(!context.includes('当前检查点'));
+  assert.ok(!context.includes('[Hook:repair]'));
+  workflow.state.signals = ['repair_required'];
   assert.ok(renderContext(workflow).includes('[Hook:repair]'));
 });
 
@@ -258,5 +247,5 @@ test('oversized state still blocks instead of truncating any execution guard', (
     { mode: 'single', childCount: 0, task: 'synthetic' },
   );
   state.task = 'x'.repeat(MAX_CONTEXT);
-  assert.throws(() => renderContext(new Workflow(catalog, state)), /超出96000字符上限.*不是截断守卫/);
+  assert.throws(() => renderContext(new Workflow(catalog, state)), /超出96000字符上限.*不能截断守卫/);
 });

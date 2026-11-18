@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { currentModule, loadCatalog } from '../extensions/coding-workflow/catalog.ts';
+import { loadCatalog } from '../extensions/coding-workflow/catalog.ts';
 import { installWorkflow } from '../extensions/coding-workflow/runtime.ts';
 
 export const catalog = loadCatalog();
@@ -208,31 +208,20 @@ export function harness(options = {}) {
   return { ...fixture, ...createActions(fixture) };
 }
 
-export function atCheckpoint(host, { phase, checkpoint, withSlice = false }) {
-  const { state, catalog } = host.w();
-  const module = currentModule(catalog, phase, state.mode);
-  const step = module.checkpoints.findIndex((item) => item.id === checkpoint);
-  assert.ok(step >= 0, `fixture 缺少检查点 ${phase}/${checkpoint}`);
-
-  // 各集成用例从所需边界开始，宿主事件仍执行真实的守卫和证据记录。
-  state.phase = phase;
-  state.step = step;
-  state.plan = 'prohibited';
-  if (withSlice) {
-    state.slice = {
+export async function releaseSlice(
+  host,
+  { paths = ['synthetic.ts'], mutations = ['content', 'documentation'] } = {},
+) {
+  const result = await host.invoke('coding_slice', {
+    revision: host.w().state.revision,
+    slice: {
       objective: 'synthetic scoped task',
-      paths: ['synthetic.ts'],
-      mutations: ['content', 'documentation'],
+      paths,
+      mutations,
       returnConditions: 'return evidence',
-      unreleased: 'Git/network',
+      unreleased: 'network and unrelated paths',
       evidence: [host.userRef()],
-    };
-  }
-  if (checkpoint === 'DE06') {
-    state.execution = {
-      executor: 'sub_agent',
-      roleConfirmed: true,
-      dispatchEpoch: structuredClone(state.epoch),
-    };
-  }
+    },
+  });
+  assert.equal(result.isError, false, result.result.content[0].text);
 }

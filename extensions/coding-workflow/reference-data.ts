@@ -35,12 +35,14 @@ interface IndexedDocument {
   hash: string;
   renderers: Map<string, () => string>;
   hook?: HookBody;
+  route?: () => string;
 }
 
 interface ReferenceData {
   digest: string;
   document(id: string): ReferenceDocument;
   readFragment(documentId: string, id: string): string;
+  readRoute(id: string): string;
   readHook(id: string): string;
   hookActivation(id: string): unknown;
   documentPaths(): IterableIterator<string>;
@@ -118,6 +120,14 @@ function indexDocument(file: string, content: Buffer): IndexedDocument {
     document: { id, path: header.path, title: header.title, fragments, sectionIds },
     renderers,
     hook: hookBody(raw, header, blocks),
+    route:
+      raw.document_type === "workflow-route" || id === "hook-readme"
+        ? () =>
+            renderBlocks(
+              blocks.filter(({ id }) => id !== "flowchart"),
+              2,
+            )
+        : undefined,
   };
 }
 
@@ -171,6 +181,11 @@ function openBodies(root: string, { byId, hooks }: ReturnType<typeof indexSource
       const render = byId.get(documentId)?.renderers.get(id);
       if (!render) throw new Error(`规则 DSL 缺少片段：${key}`);
       return readBody(documentId, key, render);
+    },
+    readRoute(id: string) {
+      const render = byId.get(id)?.route;
+      if (!render) throw new Error("规则 DSL 缺少路线：" + id);
+      return readBody(id, "routes/" + id, render);
     },
     readHook(id: string) {
       const hook = hooks.get(id);

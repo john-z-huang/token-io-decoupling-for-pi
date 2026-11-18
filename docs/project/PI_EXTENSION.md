@@ -1,10 +1,10 @@
 # Pi Coding Workflow Extension
 
-此包根据 YAML 绑定两条 Coding 路线，从实际 Pi 事件和当前阶段选择 Hooks。Extension 维护当前位置、宿主工具守卫与实际效果证据。
+此包向 Pi Coding Agent 提供所选 YAML 路线及适用的 Hooks。Agent 自行处理阶段条件、验证回环与交付。扩展维护工具调用约束、真实回执和会话预算。
 
 ## 试用与安装
 
-基线：Pi Coding Agent **1.5.2**、Node.js **24+**。使用 Pi 提供的 `typebox` 等宿主模块，不复制宿主依赖。仓库离线检查涵盖状态机、模拟事件、宿主声明类型及入口加载。真实会话、子代理及 Memory 端到端验收需要当前环境证据。
+基线：Pi Coding Agent **1.5.2**、Node.js **24+**。使用 Pi 提供的 `typebox` 等宿主模块，不复制宿主依赖。仓库离线检查涵盖路线注入、模拟事件、宿主声明类型及入口加载。真实会话、子代理及 Memory 端到端验收需要当前环境证据。
 
 先确保 `uv` 可用，然后在本仓库安装 YAML 解析依赖。`npm ci` 会在安装后自动生成 `docs/skill/`。
 
@@ -41,14 +41,14 @@ pi install /absolute/path/to/token-io-decoupling-for-pi --local
 /coding off
 ```
 
-启动入口共用 `startup.ts` 单一固定顺序问题注册表：**模式/预算 → 审计可见性**。有效显式字段不重问。审计菜单可选择使用默认或定制三个字段；默认值为 `audit_mode=balanced`、`root_reasoning_cadence=milestone_only`、`worker_reasoning_cadence=full`，逐字段记录 `explicit/default` 来源。默认预设只填缺失字段。取消、未回复或无效值不隐式默认；答案未齐不创建 Workflow、不执行工具。`/coding cancel` 取消正在收集的启动，Session/树导航使迟到答案失效，并发启动拒绝而不重复创建。
+启动入口共用 `startup.ts` 单一固定顺序问题注册表：**模式/预算 → 审计可见性**。有效显式字段不重问。审计菜单可选择使用默认或定制三个字段；默认值为 `audit_mode=balanced`、`root_reasoning_cadence=milestone_only`、`worker_reasoning_cadence=full`，逐字段记录 `explicit/default` 来源。默认预设只填缺失字段。取消、未回复或无效值不隐式默认；答案未齐时不创建 Workflow。CLI 启动未完成时允许已知只读工具，暂停可能产生副作用的调用。手动启动失败或取消后，未启用的扩展恢复被动。`/coding cancel` 取消正在收集的启动，Session/树导航使迟到答案失效，并发启动拒绝而不重复创建。
 
-同一 Session 已确认答案跨完成后新任务、树导航、reload/resume 保留，不重复提问或回收预算；fork/new Session 重新收集。审计偏好进入状态、context、status 和子任务 bundle，只控制安全摘要策略，不证明完整日志访问、不披露私有思维链、不改变权限或独立验证。
+没有暂停或未决效果时，用户可以在同一 Session 显式开始新任务。`coding_checkpoint finish` 可关闭旧记录。已确认答案跨新任务、树导航、reload/resume 保留，不重复提问或回收预算；fork/new Session 重新收集。审计偏好进入状态、context、status 和子任务 bundle，只控制安全摘要策略，不证明完整日志访问、不披露私有思维链、不改变权限或独立验证。
 
 - `single` 对应 `child_count=0`；`multi` 未填数量时为1。选择模式、预算或 task 不代表授权写入、Memory、联网或实际创建代理。
 - 同 Session 锁定模式/数量；此版不提供会话内切换模式。新模式使用新 Session，不通过重启任务重置名额。
 - 名额用尽后，仅用户明确 `/coding add-slot Change Verification` 等完整、不同职责名时增加一个；已绑定角色不能重复，终态不释放预算。
-- `resume` 先唤醒 Agent 读回暂停点和实际效果，再结构化恢复；不会自动重放命令。`off` 是用户明确退出协调器，不是安全沙箱开关，不能据此宣称原任务已完成。
+- `resume` 先唤醒 Agent 按恢复 Hook 读回实际效果，再按当前证据恢复；不会自动重放命令。`off` 是用户明确退出协调器，不是安全沙箱开关，不能据此宣称原任务已完成。
 
 非交互/print/RPC 可在真实用户 prompt 前显式选择：
 
@@ -61,37 +61,30 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi \
 
 ## 工作流路线与工具
 
-两条路线共享七个阶段，从入口就绪、Session 就绪和工作定义推进到执行、验证与修复、文档及交付验收。Layer-04 定义阶段顺序、Hook 绑定及跨阶段返回规则。各阶段按 Hook 中声明的检查点顺序及适用性推进。代码核对需要宿主守卫或续接的检查点。
-
-多代理路线在 `DE02` 引用实际证据并明确 `facts.executor`。选择 `root` 时，一条记录覆盖职责预留、创建和派发（`DE03 / DE05 / DE06`）的 `not_applicable`，仍须经过 `DE04` 放行 Slice 和 `DE07` 审阅结果。选择 `sub_agent` 时，依次确认职责、当前 Slice 和创建前置条件，`DE06` 才可派发。Slice 替换、审批前置复核或相关 epoch 变化后，旧派发核验不能复用。需要重新核对执行者或派发条件时，上报 `executor_changed` 返回 `DE02`，保留已占名额和实际效果，先读回待处理结果。
+两条 YAML 路线绑定七个主阶段的 Hook。Pi Agent 根据当前动作和证据判断适用项、补证、修复及回验，并在对话中保留必要的恢复信息。
 
 | 工具 | 可执行内容 |
 | --- | --- |
-| `coding_checkpoint` | 查询当前状态、证据及规则片段。按 revision 提交同模块连续结果、上报语义信号、暂停、原位恢复、读回处置未知效果或读取大结果分页。 |
-| `coding_slice` | 放行 Objective、精确路径及影响、Return conditions、Unreleased boundary，引用当前实际证据。 |
-| `coding_run` | 经 `ctx.executeTool` 的真实宿主校验/权限/Hooks 调用不透明工具，声明 read/check/content/documentation/git/memory；不自行实现 Shell/MCP 旁路。 |
-| `coding_delegate` | 在预算、职责、任务与 Slice 门禁后，调用实际暴露且 Schema 匹配的一次性单任务扩展。 |
+| `coding_checkpoint` | `rules` 读取 YAML，`status` 读回会话事实，`result` 分页读回实际结果。`signal` 提醒扩展注入适用合同，`pause`、`resolve_effect`、`resume` 处理恢复。`verify` 记录当前检查回执，`finish` 关闭任务记录。 |
+| `coding_slice` | 登记 Objective、精确路径及影响、Return conditions、Unreleased boundary，并引用实际证据。 |
+| `coding_run` | 声明实际调用的影响和依据，经 `ctx.executeTool` 进入 Pi 工具校验、权限与 Hooks。 |
+| `coding_delegate` | 核对锁定模式、预算、唯一职责、当前 Slice 和实际 Schema 后调用兼容的一次性子代理工具。 |
 
-每次模型请求按当前路线及 Hook 的 `activate_on` 注入适用合同、当前路线与检查点的完整指令、后续适用项的标题以及最近 24 项观察。各检查点在所属 Hook 说明必需的 `facts` 和证据。对 `coding-rule:文档#片段`，用 `coding_checkpoint` 的 `action=rules` 传入对应 `document` 和 `fragment`，每次读取一个片段。省略 `fragment` 时列出片段标题，省略 `document` 时定位当前阶段的 Hook。批量上报前逐项读过指令，并引用实际证据。批次限于同一模块，遇到补证返回时先核对返回位置。整个上下文包的硬上限为 96,000 字符，超限时停止并保留完整合同。
+每次模型请求注入所选路线的操作正文、由会话状态及信号触发的合同和最近 24 项回执。对 `coding-rule:文档#片段`，使用 `coding_checkpoint rules` 指定 `document` 和 `fragment`。省略 `fragment` 时返回 Hook 的执行合同及可查询片段，省略 `document` 时使用所选路线。整个上下文包上限为 96,000 字符，超限时暂停依赖操作。
 
 ## 事件与语义信号
 
-完整路由见 [Hooks 目录](../skill/hooks/README.md)。区分三类：
+`tool_call` 核对已登记的 Slice、精确路径和工具入口。`tool_execution_end` 记录实际结果和受影响 epoch，实际运行但失败的写入也会保守失效。Bash、codemode 和 MCP 的影响由 Agent 显式声明，外部进程或绕过宿主事件链的副作用需从实际来源读回。
 
-1. **真实事件**：`context`、`tool_call`、`tool_execution_end`、`session_start`、`session_tree`、`session_compact`、`input`、`user_bash`、`agent_before_settle`、`agent_settled`。
-2. **流程条件**：进入当前模块/检查点、存在未知效果或预算已占用。
-3. **语义信号**包括 `requirements_changed`、`decision_required`、`executor_changed`、`repair_required`、`documentation_impact`、`git_changed`、`context_exchange`、`advice_requested`、`materialization_requested` 和 `capability_changed`。Agent 依据直接证据识别并上报。
+Git 前按交付 Hook 核对单独授权、准确目标及适用检查，并以 `verify` 引用与当前内容和文档一致的成功检查回执。仅 Git 元数据变化时，Git 前置仍可复用这些回执。验收充分性由 Agent 根据合同及真实结果判断。
 
-内置 edit/write 按真实调用路径守卫并更新 epoch；失败也可能部分写入，保守失效。Bash/codemode/MCP 影响由调用者显式声明；readOnlyHint 不是无副作用证明，不据它跳过不透明工具分类。外部进程、其他插件内未经过宿主事件链的操作不能自动观测。
+普通用户输入撤销旧 Slice，Agent 按新指令核对范围后继续。上下文压缩保留当前会话状态。树导航、中止和未知效果按恢复 Hook 读回。旧快照中的模式、预算和未决效果可迁移，阶段位置只作为恢复参考。规则或扩展版本变化要求重新核证，旧 Slice 和验证结论需重建。正常运行由 Pi 自行结束。
 
-只影响文档维度且满足 DOC05 的证据复用条件时，使用当前文档检查更新该维度。需要回验时经 Verification 恢复 DOC04。DA02 的 Git 操作前要求当前内容和文档证据，已执行 Git 的新 epoch 在 DA03 验收前重核。需求变化先复核入口和适用的工作定义，再继续原调用位置。决策补证按调用方位置执行 WD01–WD03 中适用的检查。已归档计划保留原结果及证据。验证结束时对照实际检查 epoch，状态变化时回 VR01。修复保留外层 continuation。新用户输入、压缩、恢复、树导航或 abort 先撤销 Slice 并读回。当前分支的进度与整个 Session 的预算分开恢复，宿主文件效果按当前状态核对。
-
-只在最终可行动边界 `agent_before_settle` 请求续跑；不在 `agent_end` 自建循环。无检查点进展只提示一次，每次用户启动/继续预算最多8次；缺授权、证据或能力则 pause/blocked，不自动补授权。
 
 ## 多代理支持边界
 
 - Pi 不内置子代理。本适配器按实际暴露、可调用的 Schema 区分旧版字符串 `agent`/`task`/`cwd` 与 `@mjakl/pi-subagent@3.1.0` 的 `calls[]`。新版每个 job 生成一次 `calls: [{agent, prompt, cwd, initialContext: "empty"}]` 宿主调用，不传 `session`。未知形状、额外必需字段或不能表达空上下文的接口在预留前拒绝。必须先发现工具和配置名，不按产品名猜 Schema。
-- DE05 只核验，DE06 一次调用完成创建/派发/执行/返回，DE07 审阅正文；没有持久 ID 不阻断一次性完成，也不伪造 wait/resume。VR02 可在独立职责与容量齐备时调用只读 verifier。
+- 实际能力和创建前置必须在委派前核验。一次性调用完成创建、派发、执行和返回。主 Agent 按委派 Hook 审阅完整结果。独立验证使用真实支持的只读 verifier。
 - 多任务只对独立、无共享写入冲突的任务并行；不以终态回收预算。Root 必须向 task 提供准确来源、计划/Memory 名称、贡献范围及必要限制，不能把前置判断交给 worker。
 - 此版没有持久子会话复用、任意异步扩展、Git 专用子代理或 OS/进程级隔离适配器；需要这些能力的分支明确阻断。外部 worker 的工具链是否继承限制须单独核验，提示词不是沙箱。
 - 大结果可分页读取，不能只接受状态/摘要。分页缓存仅当前进程；重载后需从真实来源读回，不能重派任务来恢复丢失结果。
@@ -100,7 +93,7 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi \
 
 仓库 `agents/*.md` 为中文描述源：worker对应Primary Output，reviewer对应Change Verification，scout对应Context Bootstrap/Refresh；planner保留名称但不产生第五职责，在Coding仅可作获准中性Context整理的别名，Root前置决策/计划不能外包。git-operator描述第四职责及阻断条件，不代表本适配器支持Git委派。
 
-这些描述不固定model，已部署用户目录时由Root按[三模型卡参考](../skill/references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md#子代理模型与推理强度参考)为具体任务选择。旧增强版subagent支持顶层及parallel/chain每项 `model: "provider/id:thinking"`；3.1.0则使用calls[]每项独立的model与thinking。协调器将显式选择拆为 `model: "provider/id"` 和 `thinking`，调用档位覆盖代理配置及启动默认值；不改Root。选型与对应Schema能力在任何任务预留/执行前核验，不支持时拒绝，不钳制/回退。
+Root 核验当前端点和实际工具能力后选型，可参考[三模型卡](../skill/references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md#子代理模型与推理强度参考)。其他精确模型按宿主 Schema 转发。旧增强版subagent支持顶层及parallel/chain每项 `model: "provider/id:thinking"`；3.1.0则使用calls[]每项独立的model与thinking。协调器将显式选择拆为 `model: "provider/id"` 和 `thinking`，调用档位覆盖代理配置及启动默认值；不改Root。选型与对应Schema能力在任何任务预留/执行前核验，不支持时拒绝，不钳制/回退。
 
 通过本协调器派发时，`coding_delegate.jobs[]` 可提供 `model` 与简短 `modelReason`。有显式选择而目标Schema不支持对应model/thinking字段或档位时，在预留前拒绝，不降级为仅在任务正文里写模型名；省略时不补model/thinking字段，保留目标工具的真实默认/继承行为，Root须如实记录能力限制。modelReason只是Root依据，不证明选型充分。精确模型/档位由宿主调用记录核验，不要求Worker自报。
 
@@ -108,9 +101,9 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi \
 
 ## 规则迁移边界
 
-扩展启动时从 `docs/rules/` 中的 YAML 建立索引和快照指纹，按当前阶段读取路线片段、Hook 执行要求和检查点。编译器独立生成用于阅读和手动回退的 Markdown。来源和归属由 [逐篇来源整合对照](../skill/hooks/SOURCE_COVERAGE.md) 的离线检查核验。规则摘要和路径覆盖用于核对版本及归属，细节冲突以 owner 及更高优先级规则为准。
+扩展启动时从 `docs/rules/` 中的 YAML 建立索引和快照指纹，按需读取路线和 Hook 执行合同。编译器独立生成用于阅读和手动回退的 Markdown。来源和归属由 [逐篇来源整合对照](../skill/hooks/SOURCE_COVERAGE.md) 的离线检查核验。规则摘要和路径覆盖用于核对版本及归属，细节冲突以 owner 及更高优先级规则为准。
 
-引擎约束顺序、字段、已观察引用、预算、路径与 epoch。它不证明用户授权、检查输出正确、独立性、N/A 理由、内容保全或验收真的满足；不透明工具的 effect 也是声明。它不是恶意代码沙箱或 OS ACL。真实出站、Git、Memory 权限仍按原规则独立核验。
+宿主校验字段、实际回执引用、预算、路径和 epoch。它不证明用户授权、检查输出正确、独立性、N/A 理由、内容保全或验收真的满足；不透明工具的 effect 也是声明。它不是恶意代码沙箱或 OS ACL。真实出站、Git、Memory 权限仍按原规则独立核验。
 
 安装扩展后，分别核验 MCP 的实际工具注册、可信调用方绑定和操作授权。
 

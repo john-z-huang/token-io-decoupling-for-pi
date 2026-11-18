@@ -1,23 +1,22 @@
 # 工作流架构
 
 
-本文档说明 **Pi 宿主侧有状态流程引擎** 和 **MCP 通用工具服务中的无状态规则接口**。参考规则由 YAML DSL owner 定义，操作权限依用户授权和宿主守卫核验。
+本文档说明 **Pi 宿主侧 YAML 指令与 Hooks** 和 **MCP 通用工具服务中的无状态规则接口**。参考规则由 YAML DSL owner 定义，操作权限依用户授权和宿主守卫核验。
 
 ## Pi 宿主侧 Extension 与 Hooks
 
-入口为 `extensions/coding-workflow/index.ts`。`catalog.ts` 从 Layer-04 路线和 Hook YAML 读取阶段绑定、触发与检查点，核对宿主守卫所需的锚点。`engine.ts` 按载入的路线和适用检查点推进，保留当前位置、暂停与返回位置、模式与预算、Slice 和三维 epoch。`runtime.ts` 将真实 Pi 事件转成当前触发条件，工具调用仍经 `ctx.executeTool` 的宿主校验和权限链。
+入口为 `extensions/coding-workflow/index.ts`。扩展通过 `context` 提供选定的 YAML 路线和适用的 [Hook 合同](../skill/hooks/README.md)。Agent 依据对话和实际证据安排执行、回验及交付。宿主 Hooks 在会话与工具事件上记录观察、校验路径和影响，调用仍经 `ctx.executeTool` 进入 Pi 的工具校验和权限链。
 
-Extension 状态使用实际 Pi Session 的 custom entry，不是 Memory 后端、服务端数据库或原子事务。按当前对话分支恢复位置，同时保留整个 Session 已绑定的子任务名额；树导航不会回退磁盘效果。每次模型请求注入当前检查点全文、后续目录以及适用的 [Hook 合同](../skill/hooks/README.md)；源码/规则 Hash 变化要求重新核验。
+扩展使用 Pi Session 的 custom entry 保存模式、范围、工具回执、未决效果和委派记录。恢复时从当前分支读回相关事实，并保留整个 Session 已占名额。树导航不会回退磁盘效果，旧快照中的阶段位置只作读回提示。
 
-可观察事件自动处理；需求变化、独立性、修复范围、文档影响等语义判断由 Agent 通过结构化信号报告。顺序、字段、引用、预算、路径和 epoch 可以守卫，授权、事实真实性、验证充分性和语义验收仍须独立判断。该扩展不是 OS 沙箱，也不自动证明不透明命令的副作用分类。
+[使用与限制](PI_EXTENSION.md)说明安装、一次性子代理适配、离线验证和旧快照恢复。
 
-[使用与限制](PI_EXTENSION.md)说明安装、一次性子代理适配、有限续跑、离线测试与未验收事项。旧 Skill-only CLI 不安装此 Extension。
 
 当前单一 `token-io-decoupling-tools` 服务提供 stdio 和 Skill 安装/更新入口。宿主的工具发现、只读服务可用性、可信绑定和具体操作授权分别核验。结构检查覆盖其声明的规则和输入范围。
 
 ## MCP 规则与通用工具
 
-MCP 的 `rules_get_context` 提供有界规则读取，`validate_decoupling_compliance` 对候选内容做结构预检。检查点报告及推进由宿主 Extension 处理。规则文档仍具权威性。工具结果、Hash 和调用方声明不能认证调用方、证明权限或来源、判定语义真实性、通过检查点、建立跨调用顺序或验收工作。调用方必须阅读当前 owner、独立解释证据，并在实际宿主 Session 中回读控制记录，在父级对话中保留必要的语义来源。
+MCP 的 `rules_get_context` 提供有界规则读取，`validate_decoupling_compliance` 对候选内容做结构预检。Agent 根据 YAML 合同与实际证据决定下一步。规则文档仍具权威性。工具结果、Hash 和调用方声明不能认证调用方、证明权限或来源、判定语义真实性、通过检查点、建立跨调用顺序或验收工作。调用方必须阅读当前 owner、独立解释证据，并在实际宿主 Session 中回读控制记录，在父级对话中保留必要的语义来源。
 
 规则读取与结构检查路径无需 SQLite 数据库、API 凭据或网络请求。可选语义建议可以依据开发指南中的独立 API 授权和凭据规则，发送显式配置的 API 请求；其结果仍仅供建议，不能授权工作。MCP 仅保留 `token-io-decoupling-tools`；其支持的客户端及工具清单见[MCP 开发指南](mcp/DEVELOPMENT.md)。
 

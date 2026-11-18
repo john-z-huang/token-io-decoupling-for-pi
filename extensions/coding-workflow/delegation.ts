@@ -9,7 +9,7 @@ import {
 import type { Audit } from "./startup.ts";
 import { fileEffect, scopedPath, type ToolCallState } from "./tool-guards.ts";
 import type { DelegateInput, DelegateJob } from "./tool-schemas.ts";
-import { ROLES, type Allocation, type Epoch } from "./workflow-state.ts";
+import { ROLES, type Allocation, type Epoch } from "./host/session-state.ts";
 
 interface DelegateInvocation {
   callId: string;
@@ -101,11 +101,8 @@ function prepareBatch(workflow: Workflow, input: DelegateInput, host: Delegation
   ) {
     throw new Error("委派缺少真实授权/任务依据引用");
   }
-  if (
-    workflow.state.phase === "verification" &&
-    input.jobs.some((job) => job.role !== "Change Verification" || job.paths.length > 0)
-  ) {
-    throw new Error("验证边界仅允许独立只读验证任务");
+  if (input.jobs.some((job) => job.role === "Primary Output") && !workflow.state.slice) {
+    throw new Error("Primary Output 委派须有当前 Slice");
   }
   if (input.jobs.some((job) => job.role === "Documentation/Comments & Git Operations")) {
     throw new Error(

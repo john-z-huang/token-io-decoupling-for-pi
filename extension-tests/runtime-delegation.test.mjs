@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { compatibleSubagent } from '../extensions/coding-workflow/runtime.ts';
-import { atCheckpoint, body, callsSchema, harness, subSchema } from './pi-runtime-fixture.mjs';
+import { releaseSlice, body, callsSchema, harness, subSchema } from './pi-runtime-fixture.mjs';
 
 test('real delegate adapter performs one synchronous call and records no fabricated child Session ID', async () => {
   const h = harness();
   await h.start('multi 合成实现任务');
-  atCheckpoint(h, { phase: 'execution', checkpoint: 'DE06', withSlice: true });
+
+  await releaseSlice(h);
   const result = await h.invoke('coding_delegate', {
     revision: h.w().state.revision,
     tool: 'subagent',
@@ -22,7 +23,8 @@ test('real delegate adapter performs one synchronous call and records no fabrica
 test('delegate rejects a write path when the current Slice does not allow its effect', async () => {
   const h = harness();
   await h.start('multi 合成只读切片');
-  atCheckpoint(h, { phase: 'execution', checkpoint: 'DE06', withSlice: true });
+
+  await releaseSlice(h);
   h.w().state.slice.mutations = ['read'];
   const result = await h.invoke('coding_delegate', {
     revision: h.w().state.revision,
@@ -37,7 +39,8 @@ test('delegate rejects a write path when the current Slice does not allow its ef
 test('calls[] adapter maps prompt and explicit thinking without creating a named session', async () => {
   const h = harness();
   await h.start('multi 合成3.1接口');
-  atCheckpoint(h, { phase: 'execution', checkpoint: 'DE06', withSlice: true });
+
+  await releaseSlice(h);
   h.raw.get('subagent').parameters = callsSchema;
   const result = await h.invoke('coding_delegate', {
     revision: h.w().state.revision,
@@ -77,7 +80,8 @@ test('calls[] adapter maps prompt and explicit thinking without creating a named
 test('calls[] adapter preserves default model inheritance when no selection was requested', async () => {
   const h = harness();
   await h.start('multi 合成继承');
-  atCheckpoint(h, { phase: 'execution', checkpoint: 'DE06', withSlice: true });
+
+  await releaseSlice(h);
   h.raw.get('subagent').parameters = callsSchema;
   const result = await h.invoke('coding_delegate', {
     revision: h.w().state.revision,
@@ -95,7 +99,8 @@ test('calls[] preflight rejects unsupported model/thinking before any reservatio
   for (const missing of ['model', 'thinking', 'unsupported-medium']) {
     const h = harness();
     await h.start('multi 2 合成新版前检');
-    atCheckpoint(h, { phase: 'execution', checkpoint: 'DE06', withSlice: true });
+
+    await releaseSlice(h);
     const schema = structuredClone(callsSchema),
       fields = schema.properties.calls.items.properties;
     if (missing === 'unsupported-medium') fields.thinking.enum = ['low'];
@@ -125,7 +130,8 @@ test('calls[] preflight rejects unsupported model/thinking before any reservatio
 test('calls[] jobs remain separate host calls; child failure retains occupied budgets', async () => {
   const h = harness();
   await h.start('multi 2 合成新版失败');
-  atCheckpoint(h, { phase: 'execution', checkpoint: 'DE06', withSlice: true });
+
+  await releaseSlice(h);
   h.raw.get('subagent').parameters = callsSchema;
   h.raw.get('subagent').execute = async (_id, input) => ({
     ...body('实际失败与部分结果'),
@@ -151,7 +157,8 @@ test('calls[] jobs remain separate host calls; child failure retains occupied bu
 test('calls[] Schema cannot bypass direct-call and coding_run delegation guards', async () => {
   const h = harness();
   await h.start('multi 合成旁路');
-  atCheckpoint(h, { phase: 'execution', checkpoint: 'DE06', withSlice: true });
+
+  await releaseSlice(h);
   h.raw.get('subagent').parameters = callsSchema;
   const input = { calls: [{ agent: 'worker', prompt: 'must not run' }] };
   assert.equal((await h.invoke('subagent', input)).isError, true);
@@ -195,7 +202,8 @@ test('calls[] recognition rejects unsupported required fields and incompatible a
 test('calls[] incompatible required fields fail before reserving even when a prior job is valid', async () => {
   const h = harness();
   await h.start('multi 2 合成未知必需字段');
-  atCheckpoint(h, { phase: 'execution', checkpoint: 'DE06', withSlice: true });
+
+  await releaseSlice(h);
   const schema = structuredClone(callsSchema);
   schema.properties.calls.items.required.push('session');
   h.raw.get('subagent').parameters = schema;
@@ -215,30 +223,28 @@ test('calls[] incompatible required fields fail before reserving even when a pri
 test('calls[] still rejects single mode, Git roles, duplicate roles and conflicting paths', async () => {
   const primary = { role: 'Primary Output', agent: 'worker', task: 'first', paths: [] };
   const scenarios = [
-    { name: 'single', start: 'single 合成禁止委派', checkpoint: 'SE06', jobs: [primary] },
+    { name: 'single', start: 'single 合成禁止委派', jobs: [primary] },
     {
       name: 'git',
       start: 'multi 2 合成新版门禁',
-      checkpoint: 'DE06',
       jobs: [{ ...primary, role: 'Documentation/Comments & Git Operations' }],
     },
     {
       name: 'duplicate',
       start: 'multi 2 合成新版门禁',
-      checkpoint: 'DE06',
       jobs: [primary, { ...primary, task: 'duplicate' }],
     },
     {
       name: 'paths',
       start: 'multi 2 合成新版门禁',
-      checkpoint: 'DE06',
       jobs: [{ ...primary, paths: ['synthetic.ts', 'synthetic.ts'] }],
     },
   ];
-  for (const { name, start, checkpoint, jobs } of scenarios) {
+  for (const { name, start, jobs } of scenarios) {
     const h = harness();
     await h.start(start);
-    atCheckpoint(h, { phase: 'execution', checkpoint, withSlice: true });
+
+    await releaseSlice(h);
     h.raw.get('subagent').parameters = callsSchema;
 
     const result = await h.invoke('coding_delegate', {
@@ -256,7 +262,7 @@ test('calls[] still rejects single mode, Git roles, duplicate roles and conflict
 test('calls[] preserves the independent read-only verification boundary and current epoch evidence', async () => {
   const h = harness();
   await h.start('multi 合成新版验证');
-  atCheckpoint(h, { phase: 'verification', checkpoint: 'VR02' });
+
   h.raw.get('subagent').parameters = callsSchema;
   const job = { role: 'Change Verification', agent: 'reviewer', task: 'verify actual evidence', paths: [] };
   const blocked = await h.invoke('coding_delegate', {
@@ -282,7 +288,8 @@ test('calls[] preserves the independent read-only verification boundary and curr
 test('direct subagent, single mode and incompatible Schema fail without allocating', async () => {
   const h = harness();
   await h.start();
-  atCheckpoint(h, { phase: 'execution', checkpoint: 'SE06', withSlice: true });
+
+  await releaseSlice(h);
   assert.equal(
     (await h.invoke('subagent', { agent: 'worker', task: 'forbidden', cwd: process.cwd() })).isError,
     true,
@@ -301,7 +308,8 @@ test('direct subagent, single mode and incompatible Schema fail without allocati
 test('parallel delegate preflight rejects budget overflow and conflicting writes before any task', async () => {
   const h = harness();
   await h.start('multi 合成实现任务');
-  atCheckpoint(h, { phase: 'execution', checkpoint: 'DE06', withSlice: true });
+
+  await releaseSlice(h);
   const jobs = [
     { role: 'Primary Output', agent: 'worker', task: 'test', paths: [] },
     { role: 'Context Bootstrap/Refresh', agent: 'worker', task: 'test', paths: [] },

@@ -25,7 +25,10 @@ assert.deepEqual(
   ['coding_checkpoint', 'coding_slice', 'coding_run', 'coding_delegate'],
 );
 assert.ok(
-  events.includes('agent_before_settle') && events.includes('context') && events.includes('tool_call'),
+  !events.includes('agent_before_settle') &&
+    events.includes('agent_settled') &&
+    events.includes('context') &&
+    events.includes('tool_call'),
 );
 assert.ok(!events.includes('session_switch') && !events.includes('session_fork'));
 assert.equal(commands[0], 'coding');
@@ -37,7 +40,15 @@ assert.equal(
   true,
 );
 assert.equal(check(tools[0].parameters, { action: 'rules', fragment: 3 }), false);
-assert.equal(check(tools[0].parameters, { action: 'report', revision: 0, reports: [] }), false);
+assert.equal(
+  check(tools[0].parameters, {
+    action: 'report',
+    revision: 0,
+    reports: [{ checkpoint: 'ER01', outcome: 'complete', summary: 'old schema', evidence: ['source'] }],
+  }),
+  false,
+);
+assert.equal(check(tools[0].parameters, { action: 'verify', revision: 0, evidence: ['check'] }), true);
 assert.equal(
   check(tools[2].parameters, {
     revision: 0,

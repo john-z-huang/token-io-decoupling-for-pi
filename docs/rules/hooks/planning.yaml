@@ -198,7 +198,7 @@ blocks:
             kind: checkpoint
             title: 解决默认共享任务计划。
             text: |-
-              在报告的 `facts.plan` 填写 `persisted` 或 `prohibited`，分别引用实际成功的 Memory 操作或明确限制持久化的用户指令证据。
+              在对话中记录计划已持久化或禁止持久化，并引用实际成功的 Memory 操作或用户明确限制持久化的指令。
 
               需求实质变化后，先解决适用于新 Contract 的计划并引用当前内容 epoch 的 Memory 证据，或核实适用的持久化限制。已归档记录保留原样。
 

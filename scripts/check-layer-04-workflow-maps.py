@@ -218,37 +218,17 @@ def check_route(root: Path, route: str, lang: str, errors: list[str]):
         target = f"../hooks/{MODULE_HOOKS[expected_modules[i]]}.md"
         if target not in linked_paths(step_text):
             fail(errors, path, f"{expected_ids[i]} must bind its exact phase Hook {target}")
-    labels, edges, _, raw = parse_diagram(text, path, lang, errors)
-    for checkpoint in expected_ids:
-        if checkpoint not in labels:
-            fail(errors, path, f"route checkpoint missing from map: {checkpoint}")
-    forbidden = "DE" if route == "coding-single-agent" else None
-    if forbidden and re.search(r"\bDE\d{2}\b|Child Creation|Child Dispatch|Worker Memo|子代理创建|子代理派发", raw):
-        fail(errors, path, "Single-Agent route map contains delegated-execution branch")
-    graph_checks(path, lang, labels, edges, raw, expected_ids[0], errors, require_skip=False)
-    allowed = {(expected_ids[i], expected_ids[i + 1]) for i in range(6)}
-    allowed.update({(expected_ids[4], expected_ids[4]), (expected_ids[5], expected_ids[4]),
-                    (expected_ids[6], "DONE"), ("NEEDS", "RESUME"), ("NEEDS", "BLOCK"),
-                    ("RESUME", "BLOCK"), ("ROUTE_ENTRY", "RESUME"), ("ROUTE_ENTRY", "BLOCK"),
-                    (expected_ids[1], "ROUTE_ENTRY"), (expected_ids[2], "ROUTE_ENTRY")})
-    allowed.update((f"{prefix}{i:02d}", target) for i in range(1, 8) for target in ("NEEDS", "BLOCK"))
-    allowed.update(("RESUME", checkpoint) for checkpoint in expected_ids)
-    for edge in edges - allowed:
+    labels, edges, _, _ = parse_diagram(text, path, lang, errors)
+    if set(labels) != {*expected_ids, "DONE"}:
+        fail(errors, path, "route map must contain only the ordered stages and completion")
+    required_edges = set(zip(expected_ids, [*expected_ids[1:], "DONE"]))
+    for edge in sorted(edges - required_edges):
         fail(errors, path, f"unexpected route edge {edge[0]} -> {edge[1]}; possible gate bypass")
-    for edge in allowed - edges:
-        # These main-chain/continuation edges are required; outcome edges are conditional but still required.
-        if edge[0] in expected_ids or edge in {("NEEDS", "RESUME"), ("NEEDS", "BLOCK"), ("RESUME", "BLOCK"), ("ROUTE_ENTRY", "RESUME"), ("ROUTE_ENTRY", "BLOCK")}:
-            fail(errors, path, f"required route edge {edge[0]} -> {edge[1]} is missing")
-    if not re.search(r"ROUTE_ENTRY\s+--\s+[^\n]*resume original suspended caller[^\n]*-->\s+RESUME", raw, re.I) and lang == "en":
-        fail(errors, path, "Route Entry must return to the original suspended caller")
-    if lang == "zh" and not re.search(r"ROUTE_ENTRY\s+--\s+[^\n]*恢复原挂起调用位置[^\n]*-->\s+RESUME", raw):
-        fail(errors, path, "Route Entry must return to the original suspended caller")
-    for checkpoint in expected_ids:
-        guard = "recorded caller is" if lang == "en" else "记录目标为"
-        if not re.search(rf"RESUME\s+--\s+[^\n]*{re.escape(guard)}[^\n]*{checkpoint}[^\n]*-->\s+{checkpoint}", raw, re.I):
-            fail(errors, path, f"RESUME must have guarded recorded-target return for {checkpoint}")
-    if not re.search(r"RESUME\s+--\s+[^\n]*(?:record missing|conflicts|记录缺失|冲突)[^\n]*-->\s+BLOCK", raw, re.I):
-        fail(errors, path, "missing/conflicting continuation record must block")
+    for edge in sorted(required_edges - edges):
+        fail(errors, path, f"required route edge {edge[0]} -> {edge[1]} is missing")
+    recovery = get_section(text, "## 前置补证与恢复")
+    if "../hooks/recovery.md" not in linked_paths(recovery or ""):
+        fail(errors, path, "route recovery must link to the recovery Hook")
     return labels, edges
 
 

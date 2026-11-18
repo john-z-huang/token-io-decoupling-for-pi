@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'n
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { MAX_CONTEXT, scopedPath } from '../extensions/coding-workflow/runtime.ts';
-import { atCheckpoint, body, harness } from './pi-runtime-fixture.mjs';
+import { releaseSlice, body, harness } from './pi-runtime-fixture.mjs';
 
 test('package declares one extension and excludes local Serena metadata by a narrow files allowlist', () => {
   const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
@@ -31,7 +31,7 @@ test('context injects only relevant hooks once and preserves unrelated extension
   const second = await h.emit('context', { messages: first.messages });
   assert.equal(second.messages.length, 2);
   assert.equal(second.messages[0], other);
-  assert.match(second.messages[1].content, /Hook:entry/);
+  assert.match(second.messages[1].content, /Hook:foundation/);
   assert.doesNotMatch(second.messages[1].content, /Hook:materialization/);
   assert.ok(second.messages[1].content.length < MAX_CONTEXT);
 });
@@ -73,7 +73,8 @@ test('built-in writes enforce the exact released path and invalidate the correct
   const h = harness();
   await h.start();
   assert.equal((await h.invoke('write', { path: 'synthetic.ts' })).isError, true);
-  atCheckpoint(h, { phase: 'execution', checkpoint: 'SE03', withSlice: true });
+
+  await releaseSlice(h);
   assert.equal((await h.invoke('write', { path: 'other.ts' })).isError, true);
   assert.equal((await h.invoke('write', { path: 'synthetic.ts' })).isError, false);
   assert.equal(h.w().state.epoch.content, 1);
@@ -82,7 +83,8 @@ test('built-in writes enforce the exact released path and invalidate the correct
 test('failed writes may partially mutate and invalidate; blocked calls do not', async () => {
   const h = harness();
   await h.start();
-  atCheckpoint(h, { phase: 'execution', checkpoint: 'SE03', withSlice: true });
+
+  await releaseSlice(h);
   h.raw.get('write').execute = async () => {
     throw new Error('partial write failure');
   };
@@ -99,7 +101,8 @@ test('failed writes may partially mutate and invalidate; blocked calls do not', 
 test('nested writes cannot bypass exact-path gates inside a read-classified orchestrator', async () => {
   const h = harness();
   await h.start();
-  atCheckpoint(h, { phase: 'execution', checkpoint: 'SE03', withSlice: true });
+
+  await releaseSlice(h);
   h.raw.set('orchestrator', {
     parameters: {},
     execute: async (_id, _p, _s, _u, ctx) => (await ctx.executeTool('write', { path: 'escape.ts' })).result,
@@ -109,47 +112,38 @@ test('nested writes cannot bypass exact-path gates inside a read-classified orch
   assert.equal(h.calls.filter((c) => c.name === 'write').length, 0);
 });
 
-test('stop, user input, compaction and user shell revoke Slice instead of claiming completion', async () => {
-  for (const [event, payload] of [
-    ['agent_settled', { aborted: true }],
-    ['input', { source: 'rpc', text: 'new requirement' }],
-    ['session_compact', {}],
-    ['user_bash', {}],
+test('user steering rechecks write scope, compaction keeps it, and unknown effects pause', async () => {
+  for (const [event, payload, status, keepsSlice] of [
+    ['agent_settled', { aborted: true }, 'paused', false],
+    ['input', { source: 'rpc', text: 'new requirement' }, 'active', false],
+    ['session_compact', {}, 'active', true],
+    ['user_bash', {}, 'paused', false],
   ]) {
     const h = harness();
     await h.start();
-    atCheckpoint(h, { phase: 'execution', checkpoint: 'SE03', withSlice: true });
+
+    await releaseSlice(h);
     await h.emit(event, payload);
-    assert.equal(h.w().state.status, 'paused', event);
-    assert.equal(h.w().state.slice, undefined, event);
+    assert.equal(h.w().state.status, status, event);
+    assert.equal(Boolean(h.w().state.slice), keepsSlice, event);
+    if (status === 'active' && !keepsSlice) await releaseSlice(h);
   }
 });
-test('continuation occurs at final actionable boundary only and stops without progress', async () => {
+test('normal settlement leaves the agent in charge and requests no continuation', async () => {
   const h = harness();
   await h.start();
-  assert.equal(
-    await h.emit('agent_before_settle', { outcome: 'error', context: { canContinue: true } }),
-    undefined,
-  );
-  assert.equal(
-    await h.emit('agent_before_settle', { outcome: 'completed', context: { canContinue: false } }),
-    undefined,
-  );
-  assert.equal(
-    (await h.emit('agent_before_settle', { outcome: 'completed', context: { canContinue: true } })).continue,
-    true,
-  );
   assert.equal(
     await h.emit('agent_before_settle', { outcome: 'completed', context: { canContinue: true } }),
     undefined,
   );
-  assert.equal(h.w().state.status, 'paused');
+  assert.equal(h.w().state.status, 'active');
 });
-test('restore uses active branch progress but never refunds abandoned-branch child allocation', async () => {
+test('restore uses active branch session facts but never refunds abandoned-branch child allocation', async () => {
   const h = harness();
   await h.start('multi 合成任务');
   const initial = structuredClone(h.entries);
-  atCheckpoint(h, { phase: 'execution', checkpoint: 'DE06', withSlice: true });
+
+  await releaseSlice(h);
   await h.invoke('coding_delegate', {
     revision: h.w().state.revision,
     tool: 'subagent',
@@ -158,7 +152,7 @@ test('restore uses active branch progress but never refunds abandoned-branch chi
   });
   h.setBranch(initial);
   await h.emit('session_tree');
-  assert.equal(h.w().state.phase, 'entry');
+  assert.equal('phase' in h.w().state, false);
   assert.equal(h.w().state.status, 'paused');
   assert.equal(h.w().state.allocations.length, 1);
 });
@@ -175,7 +169,7 @@ test('corrupt latest snapshot is fail-closed and cannot be reset by another star
   await h.start();
   h.entries.at(-1).data.state.version = 99;
   await h.emit('session_start', { reason: 'reload' });
-  assert.match(h.getRestoreError(), /状态版本/);
+  assert.match(h.getRestoreError(), /快照版本/);
   assert.equal((await h.invoke('write', { path: 'anything.ts' })).isError, true);
   await h.commands.get('coding').handler('single 不能重置绕过', h.ctx);
   assert.equal(h.w(), undefined);
@@ -230,7 +224,8 @@ test('large actual result is paginated without rerunning the target task', async
 test('host-confirmed blocked delegate does not consume an unbound reservation after reload', async () => {
   const h = harness();
   await h.start('multi 合成任务');
-  atCheckpoint(h, { phase: 'execution', checkpoint: 'DE06', withSlice: true });
+
+  await releaseSlice(h);
   h.pi.on('tool_call', (event) =>
     event.toolName === 'subagent'
       ? { block: true, reason: 'synthetic host denial before execute' }
@@ -251,7 +246,8 @@ test('host-confirmed blocked delegate does not consume an unbound reservation af
 test('volatile tree navigation retains current budget and does not wipe live state', async () => {
   const h = harness({ flags: { 'coding-volatile': true } });
   await h.start('multi 合成任务');
-  atCheckpoint(h, { phase: 'execution', checkpoint: 'DE06', withSlice: true });
+
+  await releaseSlice(h);
   await h.invoke('coding_delegate', {
     revision: h.w().state.revision,
     tool: 'subagent',

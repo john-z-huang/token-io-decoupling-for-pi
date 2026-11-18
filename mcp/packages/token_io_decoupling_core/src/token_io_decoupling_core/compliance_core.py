@@ -101,6 +101,7 @@ _ROUTE_HOOKS = {
         "entry", "session", "planning", "delegation", "verification", "documentation", "delivery",
     ),
 }
+_SHARED_ROUTE_HOOKS = {"README", "foundation", "recovery", "repair"}
 
 
 class ComplianceInputError(ValueError):
@@ -281,7 +282,10 @@ def allowed_link(
         if source_path.suffix != ".md":
             return False
         route_name = source_path.stem.removesuffix("_zh_cn")
-        return target_path.stem in _ROUTE_HOOKS.get(route_name, ())
+        route_hooks = _ROUTE_HOOKS.get(route_name)
+        return route_hooks is not None and (
+            target_path.stem in route_hooks or target_path.stem in _SHARED_ROUTE_HOOKS
+        )
     if source == "hook":
         return target != "layer-04"
     if source == "layer-04":

@@ -68,7 +68,7 @@ blocks:
         - exit-body:
             kind: markdown
             text: |-
-              Repair的语义结果须明确区分（不是为 `coding_checkpoint` 新增参数枚举；实际报告仍用其Schema支持的状态，窄修复完成后回Verification，不能上报 `verification=passed`）：
+              在对话中区分下列修复结果。窄修复完成后按 Verification 重新验证。
               - `not_applicable`：没有具体失败，或该问题并非 Repair；列明直接证据依据，并路由决策变化至调用方。
               - `needs_prerequisite`：失败诊断需要的状态/证据/能力、Contract/Decision 或授权待补；写明具体 owner、缺项与续行条件。
               - `blocked`：范围冲突、未授权效果、状态不安全、证据不可恢复或执行边界无法确保；说明被阻断动作和不得继续的路径。

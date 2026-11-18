@@ -1,7 +1,7 @@
 import type { ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { Workflow, restoreState } from "../engine.ts";
 import { validateAnswers, type StartupAnswers } from "../startup.ts";
-import type { State } from "../workflow-state.ts";
+import type { State } from "./session-state.ts";
 import {
   CONTEXT_TYPE,
   invalidateVerification,
@@ -230,12 +230,5 @@ export function registerSessionHooks(runtime: RuntimeSession): void {
     if (pauseVolatile(runtime, context, "volatile 不回放历史流程；保留当前预算/效果，须读回后原位处理"))
       return;
     restoreSession(runtime, context, true);
-  });
-  runtime.pi.on("session_compact", (_event, context) => {
-    const current = runtime.activeWorkflow();
-    if (!current) return;
-    invalidateVerification(current);
-    current.pause("压缩后从扩展检查点读回状态；不要依摘要重复效果");
-    runtime.persist(context);
   });
 }

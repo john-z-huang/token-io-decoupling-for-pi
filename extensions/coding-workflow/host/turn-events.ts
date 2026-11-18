@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { startupFlags } from "../startup.ts";
-import { renderContext } from "../workflow-context.ts";
+import { renderContext } from "../rules/prompt.ts";
 import { CONTEXT_TYPE, type RuntimeSession } from "./runtime-session.ts";
 import { requestStart } from "./workflow-commands.ts";
 
@@ -33,7 +33,7 @@ function registerContextHook(runtime: RuntimeSession): void {
       (message) => !("customType" in message && message.customType === CONTEXT_TYPE),
     );
     if (runtime.starting || runtime.startupError) {
-      const content = `[Coding 启动阻断] ${runtime.startupError || "正在提问"}。不得执行工具，不得伪造用户答案。`;
+      const content = `[Coding 启动未完成] ${runtime.startupError || "正在提问"}。可只读查看，不得产生副作用或代替用户选择。`;
       return { messages: [...messages, contextMessage(content)] };
     }
     if (!runtime.enabled) return { messages };
@@ -46,10 +46,10 @@ function registerUserInput(runtime: RuntimeSession): void {
     const current = runtime.activeWorkflow();
     if (!current || event.source === "extension") return;
     current.observe({ id: `input:${randomUUID()}`, tool: `user:${event.source}`, effect: "user", ok: true });
-    current.state.autoTurns = 0;
-    current.state.lastNudge = -1;
-    if (current.state.status !== "complete") {
-      current.pause("收到新用户输入：先判断 Contract/授权是否变化，未变则原位恢复；变化须结构化上报");
+    current.state.signals = [];
+    if (current.state.status === "active") {
+      current.state.slice = undefined;
+      if (current.state.inFlight.length) current.pause("用户输入到达时仍有未决调用，先读回实际效果");
     }
     runtime.persist(context);
   });
@@ -61,39 +61,23 @@ function registerUserInput(runtime: RuntimeSession): void {
       event.messageType === "user"
     ) {
       try {
-        await requestStart(runtime, context, { input: startupFlags(runtime.pi), task: event.prompt });
+        await requestStart(runtime, context, {
+          input: startupFlags(runtime.pi),
+          task: event.prompt,
+          fromFlags: true,
+        });
       } catch (error) {
         runtime.reply(context, String(error));
       }
     }
     if (runtime.enabled || runtime.starting || runtime.startupError) {
       event.systemPromptOptions.sections.coding_workflow =
-        "Coding 扩展已启用：消费每次上下文中的最新 Coding Hooks/检查点。授权、身份、验收为语义判断；扩展状态不授予任何权限，不代替真实工具结果。";
+        "Coding 扩展已启用：按上下文中的 YAML 路线和适用 Hooks 行动，结合当前用户指令和实际工具回执判断授权、身份及验收。";
     }
   });
 }
 
 function registerTurnCompletion(runtime: RuntimeSession): void {
-  runtime.pi.on("agent_before_settle", (event, context) => {
-    if (event.outcome !== "completed" || !event.context.canContinue) return;
-    const current = runtime.activeWorkflow();
-    if (!current) return;
-    const canContinue = !runtime.restoreError && current.nudge();
-    runtime.persist(context);
-    if (!canContinue) return;
-    return {
-      continue: true,
-      entries: [
-        {
-          type: "custom_message",
-          customType: CONTEXT_TYPE + ".continue",
-          content:
-            "Coding 尚有未完成检查点。仅推进已授权且前置齐备的下一步；需要用户/能力/证据时立即 pause/blocked，不要把结构化流程误报为全部完成。",
-          display: false,
-        },
-      ],
-    };
-  });
   runtime.pi.on("agent_settled", (event, context) => {
     const current = runtime.activeWorkflow();
     if (!current || !event.aborted) return;

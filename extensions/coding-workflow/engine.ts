@@ -1,16 +1,15 @@
-import type { Catalog, Checkpoint } from "./catalog.ts";
-import { currentCheckpoint, isApplicable, reportCheckpoints } from "./engine/checkpoint-progress.ts";
+import type { Catalog } from "./catalog.ts";
 import { addAvailableSlot, executionBlock, releaseSlice, reserveJobs } from "./engine/workflow-execution.ts";
 import { recordSignal, resolveUnknownEffect, resumeWorkflow } from "./engine/workflow-recovery.ts";
 import {
   hasText,
   pauseWorkflow,
   recordMutation,
+  sameContentAndDocumentation,
   requireActive,
   requireEvidence,
   WORKFLOW_HISTORY_LIMIT,
   type Allocation,
-  type CheckReport,
   type Dimension,
   type Effect,
   type Epoch,
@@ -19,14 +18,13 @@ import {
   type Slice,
   type State,
   type WorkflowSignal,
-} from "./workflow-state.ts";
+} from "./host/session-state.ts";
 
 export { exactPath } from "./engine/workflow-execution.ts";
 export { makeState, restoreState } from "./engine/workflow-snapshot.ts";
-export { ROLES, sameEpoch } from "./workflow-state.ts";
+export { ROLES } from "./host/session-state.ts";
 export type {
   Allocation,
-  CheckReport,
   Dimension,
   Effect,
   Epoch,
@@ -34,9 +32,8 @@ export type {
   Role,
   Slice,
   State,
-} from "./workflow-state.ts";
+} from "./host/session-state.ts";
 
-// 会话只按当前路线和已观察证据推进，语义结论仍由实际证据核验。
 export class Workflow {
   catalog: Catalog;
   state: State;
@@ -44,14 +41,6 @@ export class Workflow {
   constructor(catalog: Catalog, state: State) {
     this.catalog = catalog;
     this.state = structuredClone(state);
-  }
-
-  get checkpoint(): Checkpoint | undefined {
-    return currentCheckpoint(this.catalog, this.state);
-  }
-
-  isApplicable(checkpoint: Checkpoint): boolean {
-    return isApplicable(this.state, checkpoint);
   }
 
   snapshot(): State {
@@ -82,21 +71,16 @@ export class Workflow {
     recordMutation(this.state, dimension);
   }
 
-  report(revision: number, reports: CheckReport[]): void {
-    this.assertRevision(revision);
-    requireActive(this.state);
-    this.state = reportCheckpoints(this.catalog, this.state, reports);
-  }
-
   release(revision: number, slice: Slice): void {
     this.assertRevision(revision);
     requireActive(this.state);
+    if (this.state.inFlight.length) throw new Error("须先读回尚未确认的操作，才能放行新 Slice");
     requireEvidence(this.state, slice.evidence);
-    releaseSlice(this.catalog, this.state, slice);
+    releaseSlice(this.state, slice);
   }
 
   canRun(effect: Effect, path?: string): string | undefined {
-    return executionBlock(this.catalog, this.state, { effect, path });
+    return executionBlock(this.state, { effect, path });
   }
 
   pause(reason: string): void {
@@ -106,7 +90,7 @@ export class Workflow {
   resume(revision: number, evidence: string[]): void {
     this.assertRevision(revision);
     requireEvidence(this.state, evidence);
-    resumeWorkflow(this.catalog, this.state, evidence);
+    resumeWorkflow(this.state, evidence);
   }
 
   resolveEffect(revision: number, callId: string, evidence: string[]): void {
@@ -118,26 +102,48 @@ export class Workflow {
   signal(revision: number, request: WorkflowSignal): void {
     this.assertRevision(revision);
     requireEvidence(this.state, request.evidence);
-    recordSignal(this.catalog, this.state, request);
+    recordSignal(this.state, request);
   }
 
   reserve(jobs: { role: Role; callId: string }[]): Allocation[] {
     requireActive(this.state);
-    return reserveJobs(this.state, this.checkpoint, jobs);
+    return reserveJobs(this.state, jobs);
   }
 
   addSlot(role: string): void {
     addAvailableSlot(this.state, role);
   }
 
-  nudge(): boolean {
-    if (this.state.status !== "active") return false;
-    if (this.state.autoTurns >= 8 || this.state.lastNudge === this.state.progress) {
-      this.pause("自动续跑已达限或无检查点进展；请检查阻塞后显式恢复");
-      return false;
+  recordVerification(revision: number, evidence: string[]): void {
+    this.assertRevision(revision);
+    requireActive(this.state);
+    requireEvidence(this.state, evidence);
+    const { observations, epoch, inFlight } = this.state;
+    if (
+      inFlight.length ||
+      !evidence.every((id) =>
+        observations.some(
+          (item) =>
+            item.id === id &&
+            item.ok &&
+            item.effect === "check" &&
+            item.revision > (this.state.pauseRevision ?? -1) &&
+            sameContentAndDocumentation(item.epoch, epoch),
+        ),
+      )
+    ) {
+      throw new Error("须引用与当前内容及文档一致的成功检查，且不存在未决调用");
     }
-    this.state.autoTurns++;
-    this.state.lastNudge = this.state.progress;
-    return true;
+    this.state.verified = { content: epoch.content, documentation: epoch.documentation };
+    this.state.revision++;
+  }
+
+  finish(revision: number): void {
+    this.assertRevision(revision);
+    requireActive(this.state);
+    if (this.state.inFlight.length) throw new Error("存在结果不明的操作，先读回再结束");
+    this.state.status = "complete";
+    this.state.slice = undefined;
+    this.state.revision++;
   }
 }

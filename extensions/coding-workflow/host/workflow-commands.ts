@@ -1,7 +1,6 @@
 import type { ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { Workflow, makeState } from "../engine.ts";
 import { collectStartup, parseStartupCommand, type StartupAnswers, type StartupRequest } from "../startup.ts";
-import { workflowStatus } from "../workflow-context.ts";
 import {
   CONTEXT_TYPE,
   recordCommand,
@@ -9,6 +8,7 @@ import {
   type RuntimeSession,
   type SessionLedger,
 } from "./runtime-session.ts";
+import { sessionStatus } from "./session-state.ts";
 import { hasStartupMarker, scanSessionLedger } from "./session-restore.ts";
 
 function matchesSessionBudget(ledger: SessionLedger, startup: StartupAnswers): boolean {
@@ -33,12 +33,16 @@ function assertSessionBudget(
   }
 }
 
-function assertPreviousRun(runtime: RuntimeSession, sessionId: string, startup: StartupAnswers): void {
+function assertReplaceableRun(runtime: RuntimeSession): void {
+  const previous = runtime.workflow?.state;
+  if (previous?.status === "paused" || previous?.inFlight.length) {
+    throw new Error("上个任务已暂停或仍有未决效果，先读回并恢复，再开始新任务");
+  }
+}
+
+function assertPreviousBudget(runtime: RuntimeSession, sessionId: string, startup: StartupAnswers): void {
   const previous = runtime.workflow?.state;
   if (!previous || previous.sessionId !== sessionId) return;
-  if (previous.status !== "complete") {
-    throw new Error("已有任务；使用 status / pause / resume，不能重建状态绕过预算或重复效果");
-  }
   if (previous.mode !== startup.mode || previous.childCount !== startup.count) {
     throw new Error("同 Session 已锁定 Mode/count；新路线请使用新 Session，扩容须显式 add-slot");
   }
@@ -51,7 +55,8 @@ function startWorkflow(
 ): void {
   assertSessionBudget(runtime, context, startup);
   const session = sessionIdentity(context);
-  assertPreviousRun(runtime, session.sessionId, startup);
+  assertReplaceableRun(runtime);
+  assertPreviousBudget(runtime, session.sessionId, startup);
   const catalog = runtime.getCatalog();
   const { mode, count, audit } = startup;
   const workflow = new Workflow(catalog, makeState(catalog, session, { mode, childCount: count, task }));
@@ -68,13 +73,11 @@ function startWorkflow(
 function beginStartup(runtime: RuntimeSession, context: ExtensionContext) {
   if (runtime.starting) throw new Error("已有启动提问进行中；不能并发或重复启动");
   if (runtime.restoreError) throw new Error(runtime.restoreError);
-  if (runtime.workflow && runtime.workflow.state.status !== "complete") {
-    throw new Error("已有任务；不能重建状态");
-  }
+  assertReplaceableRun(runtime);
   const token = ++runtime.generation;
   const sessionId = context.sessionManager.getSessionId();
   runtime.starting = true;
-  runtime.startupError = "启动答案未完成；禁止执行工具";
+  runtime.startupError = "";
   return { token, sessionId };
 }
 
@@ -96,9 +99,10 @@ function saveStartup(
 export async function requestStart(
   runtime: RuntimeSession,
   context: ExtensionContext,
-  request: StartupRequest,
+  request: StartupRequest & { fromFlags?: true },
 ): Promise<void> {
   const { token, sessionId } = beginStartup(runtime, context);
+  if (request.fromFlags) runtime.startupError = "CLI 启动答案未完成";
   const current = () => {
     if (token !== runtime.generation || context.sessionManager.getSessionId() !== sessionId) {
       throw new Error("启动已取消：Session/树导航发生变化");
@@ -111,19 +115,10 @@ export async function requestStart(
     runtime.answerSession = sessionId;
     runtime.startupError = "";
   } catch (error) {
-    if (token === runtime.generation) runtime.startupError = String(error);
+    if (token === runtime.generation && request.fromFlags) runtime.startupError = String(error);
     throw error;
   } finally {
     if (token === runtime.generation) runtime.starting = false;
-  }
-}
-
-function parseStart(runtime: RuntimeSession, input: string): StartupRequest | undefined {
-  try {
-    return parseStartupCommand(input);
-  } catch (error) {
-    if (!runtime.workflow && !runtime.starting) runtime.startupError = String(error);
-    throw error;
   }
 }
 
@@ -141,7 +136,7 @@ function sendStart(runtime: RuntimeSession, context: ExtensionContext): void {
 }
 
 function statusText(runtime: RuntimeSession): string {
-  if (runtime.workflow) return JSON.stringify(workflowStatus(runtime.workflow), null, 2);
+  if (runtime.workflow) return JSON.stringify(sessionStatus(runtime.workflow), null, 2);
   return (
     runtime.restoreError ||
     runtime.startupError ||
@@ -163,8 +158,6 @@ function disableWorkflow(runtime: RuntimeSession, context: ExtensionContext, wor
 
 function resumeCommand(runtime: RuntimeSession, context: ExtensionContext, workflow: Workflow): void {
   runtime.enabled = true;
-  workflow.state.autoTurns = 0;
-  workflow.state.lastNudge = -1;
   recordCommand(workflow, "/coding resume");
   // 读回证据由控制工具核验，收到恢复指令时仍保留暂停位置。
   runtime.persist(context);
@@ -172,7 +165,7 @@ function resumeCommand(runtime: RuntimeSession, context: ExtensionContext, workf
     {
       customType: CONTEXT_TYPE + ".resume",
       content:
-        "用户要求恢复。先读回原暂停点、已完成效果及当前状态；用 coding_checkpoint resume/resolve_effect，勿重放命令。",
+        "用户要求恢复。按恢复 Hook 读回已完成效果及当前状态；用 coding_checkpoint resume/resolve_effect，勿重放命令。",
       display: true,
     },
     { triggerTurn: true },
@@ -202,7 +195,7 @@ async function runCodingCommand(
   context: ExtensionContext,
   input: string,
 ): Promise<void> {
-  const request = parseStart(runtime, input);
+  const request = parseStartupCommand(input);
   if (request) {
     await requestStart(runtime, context, request);
     sendStart(runtime, context);
@@ -210,7 +203,9 @@ async function runCodingCommand(
   }
   if (!input || input === "status") return runtime.reply(context, statusText(runtime));
   if (input === "cancel" && runtime.starting) {
-    runtime.cancelStartup("启动已取消；没有创建 Workflow");
+    const reason = runtime.startupError ? "CLI 启动已取消" : "";
+    runtime.cancelStartup(reason);
+    runtime.reply(context, "启动已取消");
     return;
   }
   controlCommand(runtime, context, input);

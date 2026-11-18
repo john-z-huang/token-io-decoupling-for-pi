@@ -5,8 +5,9 @@ import { loadCatalog, type Catalog, type Mode } from "../catalog.ts";
 import type { Workflow } from "../engine.ts";
 import type { StartupAnswers } from "../startup.ts";
 import type { ToolCallState } from "../tool-guards.ts";
-import type { Allocation, WorkflowSession } from "../workflow-state.ts";
+import type { Allocation, WorkflowSession } from "./session-state.ts";
 
+// 沿用会话条目名称以读取旧版本，具体格式由 state.version 区分。
 export const STATE_TYPE = "token-io.coding-workflow.v1";
 export const CONTEXT_TYPE = "token-io.coding-hooks.v1";
 
@@ -26,7 +27,6 @@ export function recordCommand(workflow: Workflow, command: string): void {
 }
 
 export function invalidateVerification(workflow: Workflow): void {
-  workflow.state.checked = undefined;
   workflow.state.verified = undefined;
 }
 
@@ -103,11 +103,8 @@ export class RuntimeSession {
     if (!context.hasUI) return;
     const current = this.activeWorkflow();
     if (current) {
-      const { mode, phase, status } = current.state;
-      context.ui.setStatus(
-        "coding-workflow",
-        `Coding ${mode} · ${phase}/${current.checkpoint?.id ?? "done"} · ${status}`,
-      );
+      const { mode, status } = current.state;
+      context.ui.setStatus("coding-workflow", `Coding ${mode} · ${status}`);
       return;
     }
     context.ui.setStatus("coding-workflow", this.restoreError ? "Coding: 状态需人工恢复" : undefined);

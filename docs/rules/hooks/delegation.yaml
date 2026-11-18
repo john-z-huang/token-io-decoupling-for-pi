@@ -58,7 +58,7 @@ blocks:
               - execution-03-body:
                   kind: markdown
                   text: |-
-                    在扩展的 DE02 报告 `facts.executor=root|sub_agent` 并引用实际选择证据。确认 Root 执行时，DE02 的同一条记录覆盖 DE03、DE05、DE06 的不适用，仍经过 DE04 放行和 DE07 结果审阅。改为委派或原派发核验失效时，上报 `executor_changed` 回 DE02；保留已占名额和已发生的效果。扩展在 DE05 记录当前 Slice 的派发核验 epoch，在 DE06 调用时再检查实际 Schema、职责、预算、路径及对应写入类型。
+                    在当前上下文记录由 Root 执行还是委派，并保留决定依据。执行者或派发前提变化时，按本合同重核影响，保留已占名额和已发生的效果。实际调用 `coding_delegate` 时核对工具 Schema、职责、预算、当前 Slice 及写入范围。
 
                     Pi 不内置代理。当前实现按真实 Schema 适配旧版 `agent`/`task`/`cwd` 与 `@mjakl/pi-subagent@3.1.0` 的 `calls[]`：新版每次传一个 `agent`/`prompt`/`cwd` 任务，显式 `initialContext: "empty"`，不传 `session`，仍为一次性调用而非持久复用。先核验真实工具/扩展 Schema、可用能力和允许字段，只传真实接受的字段；未知接口或额外必需字段在预留前拒绝。扩展配置名称不是职责或权限证明。不存在兼容能力时只阻断依赖委派的分支；不得假设隐藏工具、Pi 原生代理、持久 Session、稳定 ID、续接、消息、wait、resume、取消或异步句柄，也不得模拟 Session 或将 Root 改名为子代理。没有可选模型/effort 控制时沿用扩展默认值并记录限制；明确必需设置无法满足才阻断。已移除的 MCP 调度/effort 接口不调用、不伪造回执。
 
@@ -76,7 +76,7 @@ blocks:
                   text: |-
                     创建前先执行[子代理端点跟随 Root](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml#subagent-endpoint)：Root 亲自确认当前有效 provider、模型 ID、可见 API/端点路由及来源；`openai-codex` 跟随 `openai-codex`，`openai` API 跟随同一 `openai` API 路由。先锁定同端点，再按任务选择该端点实际可用的模型/档位，核验真实 Schema 和配置覆盖优先级。启动环境元数据仅在仍反映当前值时有效，不以模型名、角色配置或 MCP API 配置猜端点；不读取凭据。元数据缺失/冲突、模型不可用或工具不能保证同端点时阻断创建，禁止静默跨 provider/端点回退；可选设置缺失的默认值规则不能豁免本条件。已创建身份不因此重建/重放，不要求 Worker 自报模型。
 
-                    不再把所有子代理固定为Luna；职责和模型独立。Root依据输入类型、任务复杂度/依赖、不确定性、风险、验证充分性、输入量与延迟/成本，在实际可用的三个模型中选择，并给出简短依据：
+                    职责和模型独立。Root 依据输入类型、任务复杂度、依赖、不确定性、风险、验证充分性、输入量与延迟成本，从当前端点已核验可用的模型中选择，并给出简短依据。可参考以下三张模型卡：
                     - Sol：模型卡面向复杂编码/专业工作，复杂实现、修复、独立反例检查可优先考虑medium/high。
                     - Terra：模型卡面向视觉推理与清晰写作，获准静态图像/图纸证据或Skill文档可考虑low/medium；不是Computer Use授权。
                     - Luna：模型卡面向聚焦高吞吐，有界事实提取、机械改动、规则明确的实现/检查可考虑low/medium。

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { atCheckpoint, catalog, harness } from './pi-runtime-fixture.mjs';
+import { releaseSlice, harness } from './pi-runtime-fixture.mjs';
 
 test('extension is passive before explicit opt-in and does not write configuration or state', async () => {
   const h = harness();
@@ -35,11 +35,7 @@ test('CLI flags start only from actual user input, preserving other system promp
 
 const command = (h, args) => h.commands.get('coding').handler(args, h.ctx);
 function finish(h) {
-  const delivery = catalog.modules['delivery-acceptance'];
-  const state = h.w().state;
-  state.status = 'complete';
-  state.phase = 'delivery';
-  state.step = delivery.checkpoints.length;
+  h.w().finish(h.w().state.revision);
 }
 for (const mode of ['single', 'multi'])
   test(`startup registry asks mode then audit for ${mode}`, async () => {
@@ -105,10 +101,9 @@ for (const choices of [
     assert.equal(h.w(), undefined);
     assert.equal(h.entries.length, 0);
     assert.equal(h.calls.length, 0);
-    assert.equal((await h.invoke('bash', {})).isError, true);
-    assert.equal(h.calls.length, 0);
+    assert.equal((await h.invoke('bash', {})).isError, false);
   });
-test('headless missing answers and invalid explicit answers block without implicit defaults', async () => {
+test('failed manual startup is passive, while missing CLI answers allow reads and block effects', async () => {
   for (const args of [
     'start task',
     'single task',
@@ -122,7 +117,8 @@ test('headless missing answers and invalid explicit answers block without implic
     await command(h, args);
     assert.equal(h.w(), undefined, args);
     assert.equal(h.entries.length, 0);
-    assert.equal((await h.invoke('read', {})).isError, true, args);
+    assert.equal((await h.invoke('read', {})).isError, false, args);
+    assert.deepEqual((await h.emit('context', { messages: [] })).messages, []);
   }
   const h = harness({ flags: { 'coding-mode': 'single' } });
   await h.emit('before_agent_start', {
@@ -131,6 +127,7 @@ test('headless missing answers and invalid explicit answers block without implic
     systemPromptOptions: { sections: {} },
   });
   assert.equal(h.w(), undefined);
+  assert.equal((await h.invoke('read', {})).isError, false);
   assert.equal((await h.invoke('bash', {})).isError, true);
 });
 test('startup race is serialized and cancel invalidates late UI results', async () => {
@@ -181,7 +178,8 @@ for (const volatile of [false, true])
   test(`confirmed answers survive tasks/reload/tree without budget refund, volatile=${volatile}`, async () => {
     const h = harness({ flags: { 'coding-volatile': volatile } });
     await command(h, 'multi --audit-defaults task');
-    atCheckpoint(h, { phase: 'execution', checkpoint: 'DE06', withSlice: true });
+
+    await releaseSlice(h);
     await h.invoke('coding_delegate', {
       revision: h.w().state.revision,
       tool: 'subagent',
@@ -197,6 +195,13 @@ for (const volatile of [false, true])
     assert.deepEqual(h.w().state.audit, audit);
     await h.emit('session_tree');
     assert.equal(h.w().state.allocations.length, 1);
+    const readback = await h.invoke('read', { path: 'synthetic.ts' });
+    const resumed = await h.invoke('coding_checkpoint', {
+      action: 'resume',
+      revision: h.w().state.revision,
+      evidence: [readback.toolCall.id],
+    });
+    assert.equal(resumed.isError, false, resumed.result.content[0].text);
     finish(h);
     await command(h, 'start third task');
     assert.deepEqual(h.w().state.audit, audit);
@@ -347,4 +352,27 @@ test('default extension never takes over normal input', async () => {
   assert.equal(h.w(), undefined);
   assert.equal(h.entries.length, 0);
   assert.equal((await h.invoke('read', {})).isError, false);
+});
+
+test('explicit next task reuses session budget without finish and refuses unresolved effects', async () => {
+  const h = harness();
+  await h.start('multi 初始任务');
+  await releaseSlice(h);
+  const first = h.w().state;
+  const delegated = await h.invoke('coding_delegate', {
+    revision: first.revision,
+    tool: 'subagent',
+    evidence: [h.userRef()],
+    jobs: [{ role: 'Primary Output', agent: 'worker', task: 'one shot', paths: [] }],
+  });
+  assert.equal(delegated.isError, false);
+  first.inFlight.push('pending');
+  await command(h, 'start 用户请求的新任务');
+  assert.equal(h.w().state.runId, first.runId);
+  first.inFlight.pop();
+  await command(h, 'start 用户请求的新任务');
+  assert.notEqual(h.w().state.runId, first.runId);
+  assert.equal(first.status, 'active');
+  assert.equal(h.w().state.slice, undefined);
+  assert.deepEqual(h.w().state.allocations, first.allocations);
 });

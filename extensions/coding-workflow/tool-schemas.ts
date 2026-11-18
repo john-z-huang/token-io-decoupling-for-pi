@@ -1,6 +1,6 @@
 import { Type, type Static } from "typebox";
 import { SIGNALS } from "./catalog.ts";
-import { ROLES } from "./workflow-state.ts";
+import { ROLES } from "./host/session-state.ts";
 
 const text = (maxLength = 2000) => Type.String({ minLength: 1, maxLength });
 const enumeration = <T extends string>(values: readonly T[]) =>
@@ -8,17 +8,6 @@ const enumeration = <T extends string>(values: readonly T[]) =>
 const evidence = Type.Array(text(), { minItems: 1, maxItems: 16 });
 const revision = Type.Integer({ minimum: 0 });
 const effect = enumeration(["read", "check", "content", "documentation", "git", "memory"]);
-
-const report = Type.Object(
-  {
-    checkpoint: text(16),
-    outcome: enumeration(["complete", "not_applicable", "needs_prerequisite", "blocked"]),
-    summary: text(),
-    evidence,
-    facts: Type.Optional(Type.Record(Type.String(), Type.String({ maxLength: 4000 }))),
-  },
-  { additionalProperties: false },
-);
 
 const slice = Type.Object(
   {
@@ -75,14 +64,8 @@ const checkpoint = Type.Union([
     },
     { additionalProperties: false },
   ),
-  Type.Object(
-    {
-      action: Type.Literal("report"),
-      revision,
-      reports: Type.Array(report, { minItems: 1, maxItems: 10 }),
-    },
-    { additionalProperties: false },
-  ),
+  Type.Object({ action: Type.Literal("verify"), revision, evidence }, { additionalProperties: false }),
+  Type.Object({ action: Type.Literal("finish"), revision }, { additionalProperties: false }),
   Type.Object(
     {
       action: Type.Literal("signal"),

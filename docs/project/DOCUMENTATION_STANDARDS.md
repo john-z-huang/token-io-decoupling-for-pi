@@ -27,7 +27,7 @@
 
 箭头从被依赖层指向使用方。跨层引用只指向当前位置左侧的目录。同层导航继续遵守各自的链接规则。编译器和 Markdown 链接检查共用这一顺序，按解析后的目标路径检查文档及目录链接。流程图别名和 Hook 执行片段引用也遵守该顺序。
 
-`blocks` 是有序列表，每项以稳定 ID 为键。`section` 生成标题和下级块，`checkpoint` 生成编号条目，`route_step` 绑定当前阶段及 Hook。`markdown` 保留列表、表格和 Mermaid 等正文。需独立读取的参考规则章节用 `expose: true` 发布片段，独立正文块还需填写 `title`。分支和返回条件保留在对应检查点、路线图和返回映射。Serena 在项目的 `language_servers` 启用 `yaml` 后，可按块 ID 定位检查点。
+`blocks` 是有序列表，每项以稳定 ID 为键。`section` 生成标题和下级块，`checkpoint` 生成编号条目，`route_step` 绑定当前阶段及 Hook。`markdown` 保留列表、表格和 Mermaid 等正文。需独立读取的参考规则章节用 `expose: true` 发布片段，独立正文块还需填写 `title`。路线图只描述主阶段间的必要顺序。条件分支、补证与恢复由对应 Hook 合同定义，路线链接到适用合同。Serena 在项目的 `language_servers` 启用 `yaml` 后，可按块 ID 定位检查点。
 
 DSL 源文件之间使用相对 `.yaml` 链接。引用具体章节时使用块 ID，例如 `runtime-provider-support.yaml#subagent-models`。编译器验证目标文件及章节，再为阅读版生成相应的 `.md` 和 Markdown 标题锚点。Pi 将同一引用解析为 `coding-rule:`，按片段 ID 查询正文。`markdown_path` 字段指定阅读版的位置。
 
@@ -43,7 +43,7 @@ Coding DSL 用 `document_type` 声明用途。类型由 `docs/rules/` 下的路�
 | `fundamental-concept` | Layer-01，定义可跨工作流复用的通用规范 | 概览 → 通用规范 → Pi 优化指令 → 相关概念 | [基础概念](../rules/templates/coding/fundamental-concept.yaml) |
 | `workflow-concept` | Layer-02，描述工作流动作、通过条件和边界 | 概览 → 动作 → 通过条件 → 边界 → 相关概念 | [工作流概念](../rules/templates/coding/workflow-concept.yaml) |
 | `workflow-checkpoint` | Layer-03，定义具名检查点的输入、决策和返回 | 概览 → 触发与输入 → 决策与结果 → 失败边界 → 相关概念 | [检查点](../rules/templates/coding/workflow-checkpoint.yaml) |
-| `workflow-route` | `coding-workflows/`，绑定七个阶段的 Hook | 概览 → 路线图 → 顺序检查清单 → 前置返回映射 → Mode 边界 → 相关概念 | [工作流路线](../rules/templates/coding/workflow-route.yaml) |
+| `workflow-route` | `coding-workflows/`，绑定七个阶段的 Hook | 概览 → 路线图 → 顺序检查清单 → 前置补证与恢复 → Mode 边界 → 按条件触发的 Hooks | [工作流路线](../rules/templates/coding/workflow-route.yaml) |
 
 新建文档时，用相应类型替换下面的 `fundamental-concept`，将输出保存到相应目录。填写文档 ID、标题、`markdown_path` 和正文，并按文件所在目录调整首行 Schema 路径和相对链接。保留模板中标识章节用途的顶层块 ID，为新增子块填写稳定 ID。模板的首种布局适合作为新文档的起点，其他布局保留已有文档的结构。
 
@@ -63,7 +63,7 @@ uv run --locked --script scripts/compile-reference-dsl.py --check-structure
 ```sh
 uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint VR04
 uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint SM04
-uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint ROUTE_ENTRY --from coding-single-agent
+uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint VR_HANDOFF --from hook-verification
 uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint 'route-entry#failure-boundary' --show
 ```
 
@@ -75,8 +75,8 @@ uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint 'r
 
 - [合同模板](../rules/templates/hooks/hook-contract.yaml) 按触发条件、输入与证据、执行要求、阶段路线图与有序检查点、输出与落点、退出与阻断、重新核验、规则来源排序。阶段路线图和检查点用于八份由路线绑定的合同。顶层块、执行子章节和检查点可以按稳定 ID 查询。
 - [目录模板](../rules/templates/hooks/hook-directory.yaml) 定义导语、合同与明确触发、宿主回调、链接基准和维护检查的顺序。
-- `activate_on` 声明额外的运行时触发条件。值为阶段名、`coding_checkpoint` 语义信号或宿主状态。宿主状态包括 `workflow`、`multi_execution`、`recovery_needed`、`repair_review`、`independent_verification` 和 `active_allocation`。阶段主 Hook 由路线绑定。检查点默认要求报告结果，可用 `applicability: optional` 开放有证据的不适用，或用 `applicability: sub_agent` 限定子代理分支。用 `npm run check:hooks` 检查运行时索引。
-- 导航引用使用相对 `.yaml#块ID`，导出时转成 Markdown 路径和标题锚点。执行要求中的 `rule_include` 用来读取所引用的底层参考规则片段。Pi 按需注入适用合同和当前检查点，路线图与来源表随阅读版发布。使用 `coding-rule:hook-entry#ER03` 等 ID 可定向查询检查点。 [入口合同示例](../rules/hooks/entry.yaml)
+- `activate_on` 声明阶段、语义信号或宿主状态对应的合同。Agent 根据路线、实际动作及证据读取阶段合同，扩展根据实际会话状态和 `coding_checkpoint signal` 提示补充合同。`applicability: optional` 标记可凭证据判断不适用的事项，`applicability: sub_agent` 限定子代理分支。用 `npm run check:hooks` 检查运行时索引。
+- 导航引用使用相对 `.yaml#块ID`，导出时转成 Markdown 路径和标题锚点。执行要求中的 `rule_include` 用来读取所引用的底层参考规则片段。Pi 注入主路线和已触发的合同，路线图与来源表随阅读版发布。使用 `coding-rule:hook-entry#ER03` 等 ID 可定向查询检查点。 [入口合同示例](../rules/hooks/entry.yaml)
 - 修改规则来源后先编译，再由 `node scripts/check-pi-hooks.mjs --write-coverage` 从合同的来源表刷新 [YAML 来源对照](../rules/hooks/SOURCE_COVERAGE.yaml)。再次执行 `npm run build:skill` 生成 [Markdown 来源对照](../skill/hooks/SOURCE_COVERAGE.md)。阶段绑定可在[路线目录](../rules/coding-workflows/README.yaml)的“分阶段 Hooks”章节查阅。日常检查用 `npm run check:hooks` 校验来源对照、链接与注入场景。
 
 ```sh

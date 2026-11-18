@@ -6,7 +6,7 @@ import {
   validateChildSelection,
   dispatchModelArgs,
 } from '../extensions/coding-workflow/model-selection.ts';
-import { atCheckpoint, harness, subSchema } from './pi-runtime-fixture.mjs';
+import { releaseSlice, harness, subSchema } from './pi-runtime-fixture.mjs';
 const cards = JSON.parse(
   readFileSync(new URL('../integrations/pi-subagent/model-cards.json', import.meta.url), 'utf8'),
 );
@@ -18,7 +18,7 @@ for (const card of cards.models)
       assert.doesNotThrow(() => validateChildSelection(value));
       assert.deepEqual(parseModelSelection(value), { provider: 'openai', id: card.id, thinking: level });
     });
-test('unsupported card levels, fuzzy patterns, missing provider, credentials and unrelated families fail', () => {
+test('known card limits and precise syntax apply without blocking other model identifiers', () => {
   for (const value of [
     'luna',
     'openai/gpt-6-luna',
@@ -26,12 +26,12 @@ test('unsupported card levels, fuzzy patterns, missing provider, credentials and
     'openai/gpt-6-luna:minimal',
     'openai/gpt-6.1-sol:off',
     'openai/*:high',
-    'openai/gpt-other:low',
     'https://key@example.invalid/gpt-6-luna:low',
     'openai/../gpt-6-luna:low',
   ])
     assert.throws(() => validateChildSelection(value), value);
   assert.doesNotThrow(() => validateChildSelection('openrouter/openai/gpt-6.1-terra:medium'));
+  assert.doesNotThrow(() => validateChildSelection('local/custom:low'));
 });
 test('request beats fixed profile and parent; no request preserves old explicit-profile/inherited behavior', () => {
   const parent = { model: 'openai/gpt-6-luna', thinkingLevel: 'max' },
@@ -65,16 +65,17 @@ test('all five Chinese profiles remove fixed model and retain Root/role/effect/r
   );
 });
 
-for (const model of ['gpt-6.1-sol', 'gpt-6.1-terra', 'gpt-6-luna'])
+for (const model of ['openai/gpt-6.1-sol', 'openai/gpt-6.1-terra', 'openai/gpt-6-luna', 'local/custom'])
   test(`Root model choice is forwarded through actual declared schema: ${model}`, async () => {
     const h = harness();
     await h.start('multi 合成模型选择');
-    atCheckpoint(h, { phase: 'execution', checkpoint: 'DE06', withSlice: true });
+
+    await releaseSlice(h);
     h.raw.get('subagent').parameters = {
       ...subSchema,
       properties: { ...subSchema.properties, model: { type: 'string' } },
     };
-    const selected = `openai/${model}:medium`;
+    const selected = `${model}:medium`;
     const result = await h.invoke('coding_delegate', {
       revision: h.w().state.revision,
       tool: 'subagent',
@@ -97,7 +98,8 @@ for (const model of ['gpt-6.1-sol', 'gpt-6.1-terra', 'gpt-6-luna'])
 test('explicit selection cannot silently degrade on an older subagent schema', async () => {
   const h = harness();
   await h.start('multi 合成旧接口');
-  atCheckpoint(h, { phase: 'execution', checkpoint: 'DE06', withSlice: true });
+
+  await releaseSlice(h);
   const result = await h.invoke('coding_delegate', {
     revision: h.w().state.revision,
     tool: 'subagent',
@@ -120,13 +122,14 @@ test('explicit selection cannot silently degrade on an older subagent schema', a
 test('invalid model or missing Root rationale rejects all jobs before reserving or calling', async () => {
   for (const choice of [
     { model: 'openai/gpt-6.1-sol:off', modelReason: 'bad level' },
-    { model: 'openai/gpt-other:medium', modelReason: 'not in requested family' },
+    { model: 'openai/*:medium', modelReason: 'not an exact identifier' },
     { model: 'openai/gpt-6-luna:medium' },
     { modelReason: 'no actual selection' },
   ]) {
     const h = harness();
     await h.start('multi 2 合成原子前检');
-    atCheckpoint(h, { phase: 'execution', checkpoint: 'DE06', withSlice: true });
+
+    await releaseSlice(h);
     h.raw.get('subagent').parameters = {
       ...subSchema,
       properties: { ...subSchema.properties, model: { type: 'string' } },
@@ -161,7 +164,8 @@ test('invalid model or missing Root rationale rejects all jobs before reserving 
 test('model selection does not enable an unsupported Git role', async () => {
   const h = harness();
   await h.start('multi 合成Git角色');
-  atCheckpoint(h, { phase: 'execution', checkpoint: 'DE06', withSlice: true });
+
+  await releaseSlice(h);
   h.raw.get('subagent').parameters = {
     ...subSchema,
     properties: { ...subSchema.properties, model: { type: 'string' } },

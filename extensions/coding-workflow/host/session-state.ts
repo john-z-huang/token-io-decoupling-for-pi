@@ -1,10 +1,11 @@
-import type { Mode, Phase, SemanticSignal } from "./catalog.ts";
-import type { Audit } from "./startup.ts";
+import type { Mode, SemanticSignal } from "../catalog.ts";
+import type { Audit } from "../startup.ts";
 
 export const EPOCH_DIMENSIONS = ["content", "documentation", "git"] as const;
 export const WORKFLOW_HISTORY_LIMIT = 128;
 export type Dimension = (typeof EPOCH_DIMENSIONS)[number];
 export type Epoch = Record<Dimension, number>;
+type ContentVerification = Pick<Epoch, "content" | "documentation">;
 export type Effect = "read" | "check" | Dimension | "memory";
 
 export const ROLES = [
@@ -52,72 +53,11 @@ export interface Slice {
   evidence: string[];
 }
 
-export interface CheckReport {
-  checkpoint: string;
-  outcome: "complete" | "not_applicable" | "needs_prerequisite" | "blocked";
-  summary: string;
-  evidence: string[];
-  facts?: Record<string, string>;
-}
-
 export interface Allocation {
   id: string;
   role: Role;
   callId: string;
   status: "running" | "completed" | "failed" | "uncertain";
-}
-
-interface ExecutionDecision {
-  executor: "root" | "sub_agent";
-  roleConfirmed?: true;
-  dispatchEpoch?: Epoch;
-}
-
-interface RecordedReport {
-  phase: Phase;
-  epoch: Epoch;
-  report: CheckReport;
-  notApplicable?: string[];
-}
-
-export interface State extends WorkflowSession, WorkflowTask {
-  version: 1;
-  catalogHash: string;
-  runId: string;
-  audit?: Audit;
-
-  phase: Phase;
-  step: number;
-  revision: number;
-  progress: number;
-  status: "active" | "paused" | "blocked" | "complete";
-  reason: string;
-  pauseRevision?: number;
-  returnTo?: { phase: Phase; step: number };
-  decisionReturn?: { phase: Phase; checkpoint: string };
-
-  epoch: Epoch;
-  checked?: Epoch;
-  verified?: Epoch;
-  independence: "unknown" | "required" | "not_required";
-  plan: "pending" | "persisted" | "prohibited" | "archived";
-  slice?: Slice;
-  execution?: ExecutionDecision;
-
-  reports: RecordedReport[];
-  observations: Observation[];
-  allocations: Allocation[];
-  inFlight: string[];
-  signals: SemanticSignal[];
-  autoTurns: number;
-  lastNudge: number;
-}
-
-export function sameEpoch(previous: Epoch | undefined, current: Epoch): boolean {
-  return (
-    previous !== undefined &&
-    EPOCH_DIMENSIONS.every((dimension) => previous[dimension] === current[dimension])
-  );
 }
 
 export function hasText(value: unknown, limit = 2000): value is string {
@@ -139,29 +79,61 @@ export function requireEvidence(state: State, evidence: string[]): void {
   }
 }
 
-export function revokeSlice(state: State): void {
-  state.slice = undefined;
-  if (state.execution) delete state.execution.dispatchEpoch;
+export interface State extends WorkflowSession, WorkflowTask {
+  version: 2;
+  catalogHash: string;
+  runId: string;
+  audit?: Audit;
+  revision: number;
+  status: "active" | "paused" | "complete";
+  reason: string;
+  pauseRevision?: number;
+  epoch: Epoch;
+  verified?: ContentVerification;
+  slice?: Slice;
+  observations: Observation[];
+  allocations: Allocation[];
+  inFlight: string[];
+  signals: SemanticSignal[];
+  recoveryHint?: string;
 }
 
 export function pauseWorkflow(state: State, reason: string): void {
   if (state.status !== "complete") state.status = "paused";
   state.reason = reason;
-  revokeSlice(state);
-  state.pauseRevision = state.revision;
-  state.revision++;
+  state.slice = undefined;
+  state.verified = undefined;
+  state.pauseRevision = state.revision++;
 }
 
 export function recordMutation(state: State, dimension: Dimension): void {
   state.epoch[dimension]++;
   state.revision++;
-  if (state.status === "complete") {
-    state.verified = undefined;
-    state.reason = "历史任务已结束；验收后实际状态变化，原证据不再证明当前状态。新工作须显式开始新任务";
-  }
 }
 
 export function hasCurrentContentAndDocumentation(state: State): boolean {
-  const { verified, epoch } = state;
-  return verified?.content === epoch.content && verified.documentation === epoch.documentation;
+  return state.verified !== undefined && sameContentAndDocumentation(state.verified, state.epoch);
+}
+
+export function sameContentAndDocumentation(previous: ContentVerification, current: Epoch): boolean {
+  return previous.content === current.content && previous.documentation === current.documentation;
+}
+
+interface SessionStatus extends State {
+  observationCount: number;
+  observationsOffset: number;
+  nextObservationsOffset: number | null;
+}
+
+export function sessionStatus({ state }: { state: State }, offset?: number): SessionStatus {
+  const { observations, ...status } = state;
+  const start = offset ?? Math.max(0, observations.length - 24);
+  const end = start + 24;
+  return {
+    ...status,
+    observationCount: observations.length,
+    observationsOffset: start,
+    nextObservationsOffset: end < observations.length ? end : null,
+    observations: observations.slice(start, end),
+  };
 }
