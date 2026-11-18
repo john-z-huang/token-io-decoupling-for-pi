@@ -44,8 +44,6 @@
 
 按当前锁定路线的 Mode 边界核对拓扑。扩展按实际模式在此加载对应片段。
 
-<!-- rule:current-route#mode-boundary -->
-
 ## 输出与落点
 
 返回当前 Contract、环境/能力缺口、已释放 mode/count、路线和导航或 N/A 证据。按当前 revision 顺序完成 ER00–ER03；跨模块依赖交给下一模块，不一批跳过其 Hooks。

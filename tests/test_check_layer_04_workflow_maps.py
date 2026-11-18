@@ -45,7 +45,7 @@ class WorkflowMapMigrationTests(unittest.TestCase):
 
     def test_every_module_edge_is_protected(self):
         for module in validator.MODULES:
-            path = self.root / validator.MODULES_DIR / f"{module}.md"
+            path = self.root / validator.HOOKS_DIR / f"{validator.MODULE_HOOKS[module]}.md"
             original = path.read_text()
             diagram = validator.FENCE.search(original)
             self.assertIsNotNone(diagram)
@@ -58,7 +58,7 @@ class WorkflowMapMigrationTests(unittest.TestCase):
 
     def test_module_checkpoints_cannot_be_removed_or_reordered(self):
         for module in validator.MODULES:
-            path = self.root / validator.MODULES_DIR / f"{module}.md"
+            path = self.root / validator.HOOKS_DIR / f"{validator.MODULE_HOOKS[module]}.md"
             original = path.read_text()
             for match in validator.STEP.finditer(original):
                 with self.subTest(module=module, checkpoint=match.group(2)):
@@ -68,11 +68,11 @@ class WorkflowMapMigrationTests(unittest.TestCase):
 
     def test_required_owner_links_must_be_operational_not_inline_code(self):
         for module, checkpoints in validator.MODULE_CHECKPOINT_L3_OWNERS.items():
-            path = self.root / validator.MODULES_DIR / f"{module}.md"
+            path = self.root / validator.HOOKS_DIR / f"{validator.MODULE_HOOKS[module]}.md"
             original = path.read_text()
             for checkpoint, owners in checkpoints.items():
                 for owner in owners:
-                    target = f"../../layer-03-workflow-checkpoints/{owner}.md"
+                    target = f"../references/coding/layer-03-workflow-checkpoints/{owner}.md"
                     with self.subTest(module=module, checkpoint=checkpoint, owner=owner):
                         changed = re.sub(r"\[[^\]]+\]\(" + re.escape(target) + r"\)", lambda m: "`" + m[0] + "`", original)
                         self.assertNotEqual(changed, original)
@@ -82,7 +82,7 @@ class WorkflowMapMigrationTests(unittest.TestCase):
 
     def test_single_agent_cannot_call_delegated_module(self):
         path = self.root / validator.ROUTES_DIR / "coding-single-agent.md"
-        path.write_text(path.read_text().replace("modules/single-execution.md", "modules/delegated-execution.md"))
+        path.write_text(path.read_text().replace("../hooks/execution.md", "../hooks/delegation.md"))
         self.assertTrue(validator.check_repository(self.root))
 
     def test_route_cannot_skip_current_state_verification(self):
@@ -107,7 +107,7 @@ class WorkflowMapMigrationTests(unittest.TestCase):
         path.write_text(original)
 
     def test_map_cannot_have_unreachable_orphan(self):
-        path = self.root / validator.MODULES_DIR / "entry-readiness.md"
+        path = self.root / validator.HOOKS_DIR / "entry.md"
         path.write_text(path.read_text().replace("```mermaid\n", '```mermaid\n    ORPHAN["不可达"]\n', 1))
         self.assertTrue(validator.check_repository(self.root))
 

@@ -1,5 +1,7 @@
 # Session Hook 合同
 
+<!-- 由 docs/rules/hooks/session.yaml 生成。请在 DSL 中维护正文。 -->
+
 ## 触发条件
 
 当首次收到 Coding 指令、进入任何依赖当前 Session 身份/模式/数量/分配的工作、恢复或 compact 后继续、出现真正新根/Fork、需更新父级控制记录，或准备使用 Worker/子代理时触发。它覆盖完整宿主 Session 生命周期，不是逐轮重选。普通后续轮次沿用已锁定状态；真正新身份的 Fork 必须重新经过模式与数量门禁。Pi 的主会话、扩展子任务、持久子代理身份不是天然一一对应；不得从工作目录、名称或一次调用推断身份或 worktree 隔离。
@@ -26,6 +28,55 @@
 
 输入输出：输入是当前身份、用户选择、规范记录和扩展能力证据；输出是已读回的规范记录、锁定路线/容量、逐项证据与未满足前置。Session readiness 可返回 complete、needs_prerequisite、blocked；审计及容量核验不授权子代理工作。
 
+## 工作流路线图
+
+```mermaid
+flowchart TD
+    SR00["SR00 解析模块入口"]
+    D_ENTRY{"入口结果？"}
+    SR01["SR01 实质变化时重核 Contract、Context、Decision"]
+    SR02["SR02 解析规范状态并完成读回"]
+    SR03["SR03 解决审计状态"]
+    SR04["SR04 仅核验 Multi-Agent 容量"]
+    D_MODE{"Multi-Agent 模式？"}
+    SR_DONE["complete"]
+    SR_NEEDS["needs_prerequisite：返回 owner 恢复"]
+    SR_BLOCK["blocked"]
+    SR00 --> D_ENTRY
+    D_ENTRY -- ready --> SR01
+    D_ENTRY -- needs_prerequisite --> SR_NEEDS
+    D_ENTRY -- blocked --> SR_BLOCK
+    SR01 -- 实质恢复事实已重核 --> SR02
+    SR01 -- 暂无已知实质恢复 / N/A --> SR02
+    SR01 -- 必需当前事实缺失 --> SR_NEEDS
+    SR01 -- Contract 冲突或状态不安全 --> SR_BLOCK
+    SR02 -- 发现实质恢复；审计前暂停 --> SR01
+    SR02 -- 当前规范状态及读回已核验 --> SR03
+    SR02 -- 前置证据缺失 --> SR_NEEDS
+    SR02 -- authority / 守卫 / 读回失败 --> SR_BLOCK
+    SR03 -- 已确认完成的审计记录 --> D_MODE
+    SR03 -- owner 结果待处理 --> SR_NEEDS
+    SR03 -- 不可用或未解决 --> SR_BLOCK
+    D_MODE -- 是 --> SR04
+    D_MODE -- Single-Agent / 容量 N/A --> SR_DONE
+    SR04 -- 有界容量状态已读回 --> SR_DONE
+    SR04 -- 状态缺失或不一致 --> SR_BLOCK
+```
+
+## 有序模块清单
+
+1. **SR00 — 解析入口。** 带入入口阶段的已释放路线/模式、当前任务范围、Session 身份/角色、路径、epoch 和 continuation/效果证据。规范记录由本阶段建立。按入口合同核验，在证据不足时记录所缺 owner 和原暂停子步骤，冲突或无法安全恢复时阻断。
+
+   依据 [模块入口解析](../references/coding/layer-03-workflow-checkpoints/module-entry-resolution.md)。
+2. **SR01 — 复核实质变化。** 若当前 Contract、Context 或 Decision 发生实质变化，在依赖它们前审阅当前直接证据。不得重做规划、请求建议、重开 Mode 或启动下游效果。无实质变化时，记录有原因的 `not_applicable`。事实缺失时返回 `needs_prerequisite`；冲突或不安全事实返回 `blocked`。
+3. **SR02 — 核验规范 parent-context 记录。** 回读已释放的 mode/count、当前真实身份和角色、逐操作权限、规范 Session 记录及适用的 allocation。结构结果和应用范围不代替身份或授权证据。证据缺失返回 `needs_prerequisite`；冲突或必需 owner 不可用返回 `blocked`。
+
+   依据 [Session 状态解决](../references/coding/layer-03-workflow-checkpoints/session-state-resolution.md)。
+4. **SR03 — 应用审计偏好。** 用实际生效的审计配置、每字段 explicit/default 来源和必要的日志访问证据作为结果。启动答案缺失则回到模式/预算 → 审计收集，保留已确认字段。fork/new Session 重新确认。仅在依赖的必需日志证据不可用或未验证时阻断。
+
+   依据 [Session 审计解决](../references/coding/layer-03-workflow-checkpoints/session-audit-resolution.md)、[Session Audit Visibility](../references/coding/layer-01-fundamental-concepts/session-runtime/session-audit-visibility.md)、[Reasoning Summary Visibility](../references/coding/layer-01-fundamental-concepts/session-runtime/reasoning-summary-visibility.md)、[委派状态记录](../references/coding/layer-01-fundamental-concepts/delegation/delegation-state-record.md)。
+5. **SR04 — 仅在 Multi-Agent 适用时核验容量。** 在已放行 Multi-Agent 模式下，读取当前父级控制分配。应用[委派数量门禁](../references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.md)、[委派状态记录](../references/coding/layer-01-fundamental-concepts/delegation/delegation-state-record.md)，并按条件应用[子代理职责分配](../references/coding/layer-01-fundamental-concepts/delegation/delegation-child-role-allocation.md)，核实锁定容量、已占用角色和未分配名额。这只是只读核验：不得选择/预留角色、释放 Slice、创建子代理或回收名额。Single-Agent 模式记录附有理由的 `not_applicable`。返回 `complete`，并附上当前父级记录读回、生效的审计偏好和适用的容量证据；这些证据均不授权子代理任务。
+
 ## 退出与阻断
 
 模式和数量有效、状态完整一致、当前身份/角色及必需权限可核实后，才能退出为可供后续 owner 消费的就绪状态。awaiting-mode/count、未解决选择、记录缺失/冲突、身份/角色证据不明、Schema 不支持必需字段、能力/权限拒绝或状态不安全时，阻断依赖该事实的操作并记录暂停点及原因。能力不可用只阻断依赖分支；有独立授权且不依赖该事实的工作可继续。单代理路线禁止创建、fork、handoff、联系、替换或管理其他 Agent/Session；独立验证仍是语义要求，但该路线不能提供独立性。不得把工具存在、菜单选择、容量记录或审计完成声称为创建授权。
@@ -46,4 +97,3 @@
 | [模式重入](../references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-reentry.md) | Session锁定、Fork新身份与重入 |
 | [Pi运行时](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md) | Schema、能力/授权分离及适配缺口 |
 | [状态解析](../references/coding/layer-03-workflow-checkpoints/session-state-resolution.md) | 当前父级记录、身份与读回 |
-| [Session就绪模块](../references/coding/layer-04-workflows/modules/session-readiness.md) | 入口、审计/容量核验顺序及当前性 |

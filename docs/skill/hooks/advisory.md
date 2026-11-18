@@ -1,5 +1,7 @@
 # 有界建议、决策上下文与语义路由
 
+<!-- 由 docs/rules/hooks/advisory.yaml 生成。请在 DSL 中维护正文。 -->
+
 ## 触发条件
 
 - Agent 上报 `advice_requested`，拟在 Decision、Control、Verification/Epoch 或任务级阶段定位中使用可选语义建议。

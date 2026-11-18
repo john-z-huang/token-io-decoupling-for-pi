@@ -1,1 +1,0 @@
-应用[Session 状态解决](../../layer-03-workflow-checkpoints/session-state-resolution.yaml)及其直接链接的 Session、角色和 Context Firewall owner。核实已释放的 mode/count、当前身份和角色、逐操作所需权限以及记录一致性。回读规范记录和适用的 allocation 状态。结构工具结果或应用请求范围不能证明身份或授权。证据缺失时返回 `needs_prerequisite`；未解决冲突或必需 owner 不可用时返回 `blocked`。

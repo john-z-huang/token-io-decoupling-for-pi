@@ -25,12 +25,13 @@ document:
   schema_version: 1
   document_type: workflow-route
   id: example-workflow-route
-  markdown_path: references/coding/layer-04-workflows/example-workflow-route.md
+  markdown_path: coding-workflows/example-workflow-route.md
   title: 工作流路线示例
   blocks:
     - overview:
         kind: markdown
-        text: 说明路线的适用 Mode、模块组合与返回边界。
+        text: |-
+          说明路线的适用 Mode、模块组合与返回边界。
     - flowchart:
         kind: section
         title: 工作流路线图
@@ -48,49 +49,57 @@ document:
         blocks:
           - preconditions:
               kind: markdown
-              text: 说明所需前置证据和调用位置。
+              text: |-
+                说明所需前置证据和调用位置。
           - EX01:
               kind: route_step
               title: 入口就绪
               phase: entry
-              module: entry-readiness
-              text: 调用[模块](modules/entry-readiness.yaml)。
+              hook: entry
+              text: |-
+                调用[阶段 Hook](../hooks/entry.yaml)。
           - EX02:
               kind: route_step
               title: Session 就绪
               phase: session
-              module: session-readiness
-              text: 调用[模块](modules/session-readiness.yaml)。
+              hook: session
+              text: |-
+                调用[阶段 Hook](../hooks/session.yaml)。
           - EX03:
               kind: route_step
               title: 工作定义
               phase: definition
-              module: work-definition
-              text: 调用[模块](modules/work-definition.yaml)。
+              hook: planning
+              text: |-
+                调用[阶段 Hook](../hooks/planning.yaml)。
           - EX04:
               kind: route_step
               title: 执行
               phase: execution
-              module: single-execution
-              text: 调用[模块](modules/single-execution.yaml)。
+              hook: execution
+              text: |-
+                调用[阶段 Hook](../hooks/execution.yaml)。
           - EX05:
               kind: route_step
               title: 验证与修复
               phase: verification
-              module: verification-repair
-              text: 调用[模块](modules/verification-repair.yaml)。
+              hook: verification
+              text: |-
+                调用[阶段 Hook](../hooks/verification.yaml)。
           - EX06:
               kind: route_step
               title: 文档
               phase: documentation
-              module: documentation
-              text: 调用[模块](modules/documentation.yaml)。
+              hook: documentation
+              text: |-
+                调用[阶段 Hook](../hooks/documentation.yaml)。
           - EX07:
               kind: route_step
               title: 交付与验收
               phase: delivery
-              module: delivery-acceptance
-              text: 调用[模块](modules/delivery-acceptance.yaml)。
+              hook: delivery
+              text: |-
+                调用[阶段 Hook](../hooks/delivery.yaml)。
     - returns:
         kind: section
         title: 前置返回映射
@@ -98,7 +107,8 @@ document:
         blocks:
           - returns-body:
               kind: markdown
-              text: 为每个前置结果写明生产者、复核条件和原调用位置。
+              text: |-
+                为每个前置结果写明生产者、复核条件和原调用位置。
     - mode-boundary:
         kind: section
         title: Mode 边界
@@ -106,11 +116,13 @@ document:
         blocks:
           - mode-boundary-body:
               kind: markdown
-              text: 说明本路线读取的 Mode 证据及其允许效果。
+              text: |-
+                说明本路线读取的 Mode 证据及其允许效果。
     - related:
         kind: section
         title: 相关概念
         blocks:
           - related-body:
               kind: markdown
-              text: '- 链接到相关所有者。'
+              text: |-
+                - 链接到相关所有者。

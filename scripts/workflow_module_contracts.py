@@ -4,8 +4,14 @@ from __future__ import annotations
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-ROUTES_DIR = Path("docs/skill/references/coding/layer-04-workflows")
-MODULES_DIR = ROUTES_DIR / "modules"
+WORKFLOW_PATH = Path("coding-workflows")
+ROUTES_DIR = Path("docs/skill") / WORKFLOW_PATH
+HOOKS_DIR = Path("docs/skill/hooks")
+MODULE_HOOKS = {
+    "entry-readiness": "entry", "session-readiness": "session", "work-definition": "planning",
+    "single-execution": "execution", "delegated-execution": "delegation",
+    "verification-repair": "verification", "documentation": "documentation", "delivery-acceptance": "delivery",
+}
 MODULES = (
     "entry-readiness", "session-readiness", "work-definition", "single-execution",
     "delegated-execution", "verification-repair", "documentation", "delivery-acceptance",
@@ -350,35 +356,35 @@ L3_REQUIRED_LAYER12_LINK = {
     "module-entry-resolution": "../layer-01-fundamental-concepts/execution-planning/workflow-module-contract.md",
 }
 MODULE_CHECKPOINT_LAYER12_TARGETS = {
-    "entry-readiness": {"ER01": "../../layer-02-workflow-concepts/entry-and-context/contract.md",
-                        "ER03": "../../layer-02-workflow-concepts/entry-and-context/mode.md"},
-    "session-readiness": {"SR04": "../../layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.md"},
+    "entry-readiness": {"ER01": "../references/coding/layer-02-workflow-concepts/entry-and-context/contract.md",
+                        "ER03": "../references/coding/layer-02-workflow-concepts/entry-and-context/mode.md"},
+    "session-readiness": {"SR04": "../references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.md"},
     "work-definition": {
-        "WD02": "../../layer-01-fundamental-concepts/execution-planning/workflow-routing-advice.md",
+        "WD02": "../references/coding/layer-01-fundamental-concepts/execution-planning/workflow-routing-advice.md",
     },
-    "single-execution": {"SE02": "../../layer-01-fundamental-concepts/execution-control/execution-control.md",
+    "single-execution": {"SE02": "../references/coding/layer-01-fundamental-concepts/execution-control/execution-control.md",
                          "SE03": (
-                             "../../layer-02-workflow-concepts/decision-and-execution/implementation.md",
-                             "../../layer-01-fundamental-concepts/execution-planning/output-materialization.md",
-                             "../../layer-01-fundamental-concepts/execution-planning/candidate-compliance.md",
+                             "../references/coding/layer-02-workflow-concepts/decision-and-execution/implementation.md",
+                             "../references/coding/layer-01-fundamental-concepts/execution-planning/output-materialization.md",
+                             "../references/coding/layer-01-fundamental-concepts/execution-planning/candidate-compliance.md",
                          ),
-                         "SE04": "../../layer-01-fundamental-concepts/execution-control/execution-stage-feedback.md"},
-    "delegated-execution": {"DE04": "../../layer-01-fundamental-concepts/execution-control/execution-control.md",
-                            "DE05": "../../layer-01-fundamental-concepts/delegation/delegation-child-creation.md",
-                            "DE06": "../../layer-01-fundamental-concepts/delegation/delegation-child-dispatch.md",
+                         "SE04": "../references/coding/layer-01-fundamental-concepts/execution-control/execution-stage-feedback.md"},
+    "delegated-execution": {"DE04": "../references/coding/layer-01-fundamental-concepts/execution-control/execution-control.md",
+                            "DE05": "../references/coding/layer-01-fundamental-concepts/delegation/delegation-child-creation.md",
+                            "DE06": "../references/coding/layer-01-fundamental-concepts/delegation/delegation-child-dispatch.md",
                             "DE07": (
-                                "../../layer-02-workflow-concepts/decision-and-execution/implementation.md",
-                                "../../layer-01-fundamental-concepts/execution-planning/output-materialization.md",
-                                "../../layer-01-fundamental-concepts/execution-planning/candidate-compliance.md",
+                                "../references/coding/layer-02-workflow-concepts/decision-and-execution/implementation.md",
+                                "../references/coding/layer-01-fundamental-concepts/execution-planning/output-materialization.md",
+                                "../references/coding/layer-01-fundamental-concepts/execution-planning/candidate-compliance.md",
                             )},
     "verification-repair": {
-        "VR01": "../../layer-01-fundamental-concepts/execution-planning/output-materialization.md",
+        "VR01": "../references/coding/layer-01-fundamental-concepts/execution-planning/output-materialization.md",
     },
     "documentation": {
-        "DOC02": "../../layer-01-fundamental-concepts/execution-planning/candidate-compliance.md",
+        "DOC02": "../references/coding/layer-01-fundamental-concepts/execution-planning/candidate-compliance.md",
     },
-    "delivery-acceptance": {"DA02": "../../layer-02-workflow-concepts/completion-and-effects/git.md",
-                            "DA03": "../../layer-02-workflow-concepts/completion-and-effects/acceptance.md"},
+    "delivery-acceptance": {"DA02": "../references/coding/layer-02-workflow-concepts/completion-and-effects/git.md",
+                            "DA03": "../references/coding/layer-02-workflow-concepts/completion-and-effects/acceptance.md"},
 }
 MODULE_CHECKPOINT_L3_OWNERS = {
     "entry-readiness": {"ER00": {"module-entry-resolution", "route-entry"}, "ER02": {"workflow-navigation-selection"}},

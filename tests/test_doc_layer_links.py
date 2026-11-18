@@ -1,5 +1,6 @@
 import importlib.util
 import io
+import posixpath
 import sys
 import tempfile
 import unittest
@@ -35,24 +36,26 @@ class DocumentLayerNavigationTests(unittest.TestCase):
     def test_layer_four_can_consume_layer_three(self):
         self.assertTrue(MODULE.allowed("layer-04", "layer-03", False))
 
-    def test_top_routes_have_exact_module_allowlists(self):
-        route = PurePosixPath("docs/skill/references/coding/layer-04-workflows/coding-single-agent.md")
-        single = PurePosixPath("docs/skill/references/coding/layer-04-workflows/modules/single-execution.md")
-        delegated = PurePosixPath("docs/skill/references/coding/layer-04-workflows/modules/delegated-execution.md")
-        self.assertTrue(MODULE.allowed("layer-04-route", "layer-04-module", False, route, single))
-        self.assertFalse(MODULE.allowed("layer-04-route", "layer-04-module", False, route, delegated))
+    def test_top_routes_have_exact_hook_allowlists(self):
+        route = PurePosixPath("docs/skill/coding-workflows/coding-single-agent.md")
+        single = PurePosixPath("docs/skill/hooks/execution.md")
+        delegated = PurePosixPath("docs/skill/hooks/delegation.md")
+        self.assertTrue(MODULE.allowed("coding-workflows", "hook", False, route, single))
+        self.assertFalse(MODULE.allowed("coding-workflows", "hook", False, route, delegated))
 
-    def test_nested_files_cannot_impersonate_route_or_module(self):
-        nested_route = PurePosixPath("docs/skill/references/coding/layer-04-workflows/nested/coding-single-agent.md")
-        nested_module = PurePosixPath("docs/skill/references/coding/layer-04-workflows/modules/nested/entry-readiness.md")
-        self.assertFalse(MODULE.allowed("layer-04-route", "layer-04-module", False, nested_route, nested_module))
+    def test_nested_files_cannot_impersonate_route_or_hook(self):
+        route = PurePosixPath("docs/skill/coding-workflows/coding-single-agent.md")
+        hook = PurePosixPath("docs/skill/hooks/execution.md")
+        nested_route = PurePosixPath("docs/skill/coding-workflows/nested/coding-single-agent.md")
+        nested_hook = PurePosixPath("docs/skill/hooks/nested/execution.md")
+        self.assertFalse(MODULE.allowed("coding-workflows", "hook", False, nested_route, hook))
+        self.assertFalse(MODULE.allowed("coding-workflows", "hook", False, route, nested_hook))
 
-    def test_modules_cannot_link_to_sibling_or_route(self):
-        module = PurePosixPath("docs/skill/references/coding/layer-04-workflows/modules/work-definition.md")
-        sibling = PurePosixPath("docs/skill/references/coding/layer-04-workflows/modules/documentation.md")
-        route = PurePosixPath("docs/skill/references/coding/layer-04-workflows/coding-single-agent.md")
-        self.assertFalse(MODULE.allowed("layer-04-module", "layer-04-module", False, module, sibling))
-        self.assertFalse(MODULE.allowed("layer-04-module", "layer-04-route", False, module, route))
+    def test_hooks_can_link_to_owners_and_cannot_depend_on_routes(self):
+        hook = PurePosixPath("docs/skill/hooks/planning.md")
+        route = PurePosixPath("docs/skill/coding-workflows/coding-single-agent.md")
+        self.assertTrue(MODULE.allowed("hook", "layer-03", False, hook))
+        self.assertFalse(MODULE.allowed("hook", "coding-workflows", False, hook, route))
 
     def test_layer_two_cannot_link_to_layer_three_or_four(self):
         self.assertFalse(MODULE.allowed("layer-02", "layer-03", False))
@@ -60,6 +63,25 @@ class DocumentLayerNavigationTests(unittest.TestCase):
 
     def test_layer_three_owner_can_consume_layer_two(self):
         self.assertTrue(MODULE.allowed("layer-03", "layer-02", False))
+
+    def test_reference_links_cannot_point_to_higher_skill_directories(self):
+        directories = (
+            "references/coding/layer-01-fundamental-concepts",
+            "references/coding/layer-02-workflow-concepts",
+            "references/coding/layer-03-workflow-checkpoints",
+            "hooks",
+            "coding-workflows",
+        )
+        for rank, source in enumerate(directories):
+            for target in directories[rank + 1:]:
+                with self.subTest(source=source, target=target):
+                    href = posixpath.relpath(target, source)
+                    result, diagnostics = self._run_checker({
+                        f"docs/skill/{source}/README.md": f"[Upper layer][target]\n\n[target]: <{href}/>",
+                        f"docs/skill/{target}/README.md": "# Upper layer\n",
+                    })
+                    self.assertEqual(result, 1)
+                    self.assertIn("反向依赖", diagnostics)
 
     def _run_checker(self, files):
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -121,9 +143,9 @@ class DocumentLayerNavigationTests(unittest.TestCase):
     def test_route_coordinates_are_allowed_in_layer_four(self):
         result, diagnostics = self._run_checker(
             {
-                "docs/skill/references/coding/layer-04-workflows/coding-single-agent.md": (
+                "docs/skill/coding-workflows/coding-single-agent.md": (
                     "## Workflow map\n```mermaid\nS01 --> S02\n```\n"
-                    "[Checkpoint](../layer-03-workflow-checkpoints/checkpoint.md)\n"
+                    "[Checkpoint](../references/coding/layer-03-workflow-checkpoints/checkpoint.md)\n"
                 ),
                 "docs/skill/references/coding/layer-03-workflow-checkpoints/checkpoint.md": (
                     "This checkpoint returns verified evidence to its caller.\n"

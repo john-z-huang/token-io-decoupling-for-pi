@@ -1,6 +1,204 @@
 {
-  "schema_version": 4,
+  "schema_version": 5,
   "documents": [
+    {
+      "id": "layer-04-index",
+      "path": "coding-workflows/INDEX.md",
+      "title": "完整路线索引",
+      "source_sha256": "c846a3d92c3968791bd94be7dd63292206aee44d7dc0d6583d9ab3a4f2c2510b",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "a52b12202402ee0e750b3c1a34f07e323ac47d2c2557d2ba10ec97b6a488dd88"
+        },
+        {
+          "id": "section-01",
+          "kind": "section",
+          "title": "分阶段 Hooks",
+          "anchor": "分阶段-hooks",
+          "sha256": "1cdcf96393b1be7012e9e1bfa0f17fa5e350ed646e9ec96b977aaaaf234e5d03"
+        }
+      ]
+    },
+    {
+      "id": "layer-04-readme",
+      "path": "coding-workflows/README.md",
+      "title": "完整 Coding 路线",
+      "source_sha256": "fec8e2fc14292a471122d8a661d24f8cc18bf08823e826fc4ac5722d545a7f84",
+      "fragments": [
+        {
+          "id": "overview",
+          "kind": "markdown",
+          "title": "概览",
+          "sha256": "ec2cd61f366248d39975d392da90d206482ebcb84e122f3492e7440e759762af"
+        },
+        {
+          "id": "entry",
+          "kind": "section",
+          "title": "入口",
+          "anchor": "入口",
+          "sha256": "a5d87e7fb8206e247c165a2949e3f0a54aeb341849b7e9543f3311c1e04591d4"
+        }
+      ]
+    },
+    {
+      "id": "coding-multi-agent",
+      "path": "coding-workflows/coding-multi-agent.md",
+      "title": "Coding 工作流 — Multi-Agent 模式",
+      "source_sha256": "af884d7f80a765c572511026fa83be21e6bf64f4ef81b12f27d54331735b0436",
+      "fragments": [
+        {
+          "id": "MM01",
+          "kind": "route_step",
+          "title": "入口就绪。",
+          "phase": "entry",
+          "hook": "entry",
+          "sha256": "63594967e1ef614788bbe602a7014b5cddf4f8a239ae8814f97be8ef30b40b88"
+        },
+        {
+          "id": "MM02",
+          "kind": "route_step",
+          "title": "Session 就绪。",
+          "phase": "session",
+          "hook": "session",
+          "sha256": "cd339d20c982c7079b2ea5dacffb2b50795a7c23ff103554229cc22502e21e93"
+        },
+        {
+          "id": "MM03",
+          "kind": "route_step",
+          "title": "工作定义。",
+          "phase": "definition",
+          "hook": "planning",
+          "sha256": "f4ad16ce77f4ba47c47a18e653923c4e72aad7bc8ae1a7150b6880d393ebea22"
+        },
+        {
+          "id": "MM04",
+          "kind": "route_step",
+          "title": "委派执行。",
+          "phase": "execution",
+          "hook": "delegation",
+          "sha256": "485ae698b1ca5d8236fff23e0805caf4873a8ed972c543456e78871452845828"
+        },
+        {
+          "id": "MM05",
+          "kind": "route_step",
+          "title": "验证与修复。",
+          "phase": "verification",
+          "hook": "verification",
+          "sha256": "6fc523a3b5402be7b890dfd0e53f93db76d8da4b5035ef311512abf0ed30da0b"
+        },
+        {
+          "id": "MM06",
+          "kind": "route_step",
+          "title": "文档。",
+          "phase": "documentation",
+          "hook": "documentation",
+          "sha256": "7bd0f0714b84f53718b6ec8028d5b01d4278823c7b4eb9417267464cc5cf97d6"
+        },
+        {
+          "id": "MM07",
+          "kind": "route_step",
+          "title": "交付与验收。",
+          "phase": "delivery",
+          "hook": "delivery",
+          "sha256": "90f26beb488a30fb22d0a5c1bb1865900cc1d8848c30293048c6c209425739f2"
+        },
+        {
+          "id": "returns",
+          "kind": "section",
+          "title": "前置返回映射",
+          "anchor": "前置返回映射",
+          "sha256": "91f82473269d1aa257b2b2a8d5d9beb267595350af7eff0911836cdb5af811b8"
+        },
+        {
+          "id": "mode-boundary",
+          "kind": "section",
+          "title": "Mode 边界",
+          "anchor": "mode-边界",
+          "sha256": "1674712354c02818790376a75120f1fb3f972aec1ad918dc7f5d41628dac0076"
+        }
+      ]
+    },
+    {
+      "id": "coding-single-agent",
+      "path": "coding-workflows/coding-single-agent.md",
+      "title": "Coding 工作流 — Single-Agent 模式",
+      "source_sha256": "1c43c51d1defc7425cb6fb7e7285790a060392556990628621e7e5911184cabb",
+      "fragments": [
+        {
+          "id": "SM01",
+          "kind": "route_step",
+          "title": "入口就绪。",
+          "phase": "entry",
+          "hook": "entry",
+          "sha256": "63594967e1ef614788bbe602a7014b5cddf4f8a239ae8814f97be8ef30b40b88"
+        },
+        {
+          "id": "SM02",
+          "kind": "route_step",
+          "title": "Session 就绪。",
+          "phase": "session",
+          "hook": "session",
+          "sha256": "cd339d20c982c7079b2ea5dacffb2b50795a7c23ff103554229cc22502e21e93"
+        },
+        {
+          "id": "SM03",
+          "kind": "route_step",
+          "title": "工作定义。",
+          "phase": "definition",
+          "hook": "planning",
+          "sha256": "f4ad16ce77f4ba47c47a18e653923c4e72aad7bc8ae1a7150b6880d393ebea22"
+        },
+        {
+          "id": "SM04",
+          "kind": "route_step",
+          "title": "Single-Agent 执行。",
+          "phase": "execution",
+          "hook": "execution",
+          "sha256": "cb07254778fc38849c75f496e615f124cb2b1c9245a8b65ad4e8aca00cd7fd1c"
+        },
+        {
+          "id": "SM05",
+          "kind": "route_step",
+          "title": "验证与修复。",
+          "phase": "verification",
+          "hook": "verification",
+          "sha256": "6fc523a3b5402be7b890dfd0e53f93db76d8da4b5035ef311512abf0ed30da0b"
+        },
+        {
+          "id": "SM06",
+          "kind": "route_step",
+          "title": "文档。",
+          "phase": "documentation",
+          "hook": "documentation",
+          "sha256": "dc714b66a50ed1202458379cc7e00caaeae9927f8dfe67fc5ec30c9aa624c1a9"
+        },
+        {
+          "id": "SM07",
+          "kind": "route_step",
+          "title": "交付与验收。",
+          "phase": "delivery",
+          "hook": "delivery",
+          "sha256": "90f26beb488a30fb22d0a5c1bb1865900cc1d8848c30293048c6c209425739f2"
+        },
+        {
+          "id": "returns",
+          "kind": "section",
+          "title": "前置返回映射",
+          "anchor": "前置返回映射",
+          "sha256": "7734352a24a7b09edc4247e70d8d1984397d513c1254b55f34efa54f2fe9d9ee"
+        },
+        {
+          "id": "mode-boundary",
+          "kind": "section",
+          "title": "Mode 边界",
+          "anchor": "mode-边界",
+          "sha256": "7fd5700cf75a526a9635394e9473164293fa9891298e12686100d6c071b8d1eb"
+        }
+      ]
+    },
     {
       "id": "layer-01-index",
       "path": "references/coding/layer-01-fundamental-concepts/INDEX.md",
@@ -3722,13 +3920,13 @@
       "id": "module-entry-resolution",
       "path": "references/coding/layer-03-workflow-checkpoints/module-entry-resolution.md",
       "title": "工作流模块入口解析",
-      "source_sha256": "8d70041c79f38d9b023e6bbc2bbfa3b1824a2bd73526b90a46c073be357b1ac4",
+      "source_sha256": "adb5008f08c7b9e160e85765f4b2378a7303c566efd1969fa7510da30ddc17cc",
       "fragments": [
         {
           "id": "overview",
           "kind": "markdown",
           "title": "概览",
-          "sha256": "2ed17e5dee2500de8fbc9f238266f3055c02d84f1c5526fcde2b554e25619ef4"
+          "sha256": "cf7cb7692ca7d4dd26e9a9da6b5c6b2ef09d779c237dace8df17d08c48c0ab9a"
         },
         {
           "id": "section-01",
@@ -4097,624 +4295,6 @@
       ]
     },
     {
-      "id": "layer-04-index",
-      "path": "references/coding/layer-04-workflows/INDEX.md",
-      "title": "完整路线索引",
-      "source_sha256": "440097c305f64bcbaf0320f172134e5812f597246b788d1d0119c505f77df208",
-      "fragments": [
-        {
-          "id": "overview",
-          "kind": "markdown",
-          "title": "概览",
-          "sha256": "a52b12202402ee0e750b3c1a34f07e323ac47d2c2557d2ba10ec97b6a488dd88"
-        },
-        {
-          "id": "section-01",
-          "kind": "section",
-          "title": "可复用模块",
-          "anchor": "可复用模块",
-          "sha256": "e3815f443397609166b75960c4caae4c40083a555022367d1ca70dcc6290765a"
-        }
-      ]
-    },
-    {
-      "id": "layer-04-readme",
-      "path": "references/coding/layer-04-workflows/README.md",
-      "title": "完整 Coding 路线",
-      "source_sha256": "668001297e28e1f5b4570587d746abe22501ffa88b83d1780b6d0f64da3f79d6",
-      "fragments": [
-        {
-          "id": "overview",
-          "kind": "markdown",
-          "title": "概览",
-          "sha256": "2b92189ac5b37969ad6238c044d755bd48dcb942f214213110149b9968963540"
-        },
-        {
-          "id": "entry",
-          "kind": "section",
-          "title": "入口",
-          "anchor": "入口",
-          "sha256": "1c43078674468250bdd732dbdf97f3d108973a4e713e3a98b8762f7121f90e88"
-        }
-      ]
-    },
-    {
-      "id": "coding-multi-agent",
-      "path": "references/coding/layer-04-workflows/coding-multi-agent.md",
-      "title": "Coding 工作流 — Multi-Agent 模式",
-      "source_sha256": "bfa20f134f0f7d7f46eb11cbebbabc0caf6e41b4d3a3a6f6e53d6451128e849b",
-      "fragments": [
-        {
-          "id": "MM01",
-          "kind": "route_step",
-          "title": "入口就绪。",
-          "phase": "entry",
-          "module": "entry-readiness",
-          "sha256": "c1be3be4adfb933ae6e0c4cd07d1e5c9f7fb4ba4d71f97d92b011e00ef7d4212"
-        },
-        {
-          "id": "MM02",
-          "kind": "route_step",
-          "title": "Session 就绪。",
-          "phase": "session",
-          "module": "session-readiness",
-          "sha256": "fcfce17e8e2b7e70caa44ea9d501a17e22e6a2a1aa6ea49af5ad87a692fe56fe"
-        },
-        {
-          "id": "MM03",
-          "kind": "route_step",
-          "title": "工作定义。",
-          "phase": "definition",
-          "module": "work-definition",
-          "sha256": "41168f04a5e978568c12d1eafe4aab5ce9dccf7977364fc13ac58acac71cd7ba"
-        },
-        {
-          "id": "MM04",
-          "kind": "route_step",
-          "title": "委派执行。",
-          "phase": "execution",
-          "module": "delegated-execution",
-          "sha256": "8f96882b1ff3ef7e8a2d3e39fc6839c32753486d356822dc3abd0e9cb192b026"
-        },
-        {
-          "id": "MM05",
-          "kind": "route_step",
-          "title": "验证与修复。",
-          "phase": "verification",
-          "module": "verification-repair",
-          "sha256": "41b4a9e93b9fa1280d3da1f7216abc5df94703dc0f876abef6471d8f4544a198"
-        },
-        {
-          "id": "MM06",
-          "kind": "route_step",
-          "title": "文档。",
-          "phase": "documentation",
-          "module": "documentation",
-          "sha256": "0a9d7b04d04b53b5bfc10dacf9c6f05c6a7f8701d062ea0be2c005bd7aea89ec"
-        },
-        {
-          "id": "MM07",
-          "kind": "route_step",
-          "title": "交付与验收。",
-          "phase": "delivery",
-          "module": "delivery-acceptance",
-          "sha256": "a1845551bc471ba7b9d1e58c1d428a47b5b194660db384890989f736085089db"
-        },
-        {
-          "id": "returns",
-          "kind": "section",
-          "title": "前置返回映射",
-          "anchor": "前置返回映射",
-          "sha256": "91f82473269d1aa257b2b2a8d5d9beb267595350af7eff0911836cdb5af811b8"
-        },
-        {
-          "id": "mode-boundary",
-          "kind": "section",
-          "title": "Mode 边界",
-          "anchor": "mode-边界",
-          "sha256": "1674712354c02818790376a75120f1fb3f972aec1ad918dc7f5d41628dac0076"
-        }
-      ]
-    },
-    {
-      "id": "coding-single-agent",
-      "path": "references/coding/layer-04-workflows/coding-single-agent.md",
-      "title": "Coding 工作流 — Single-Agent 模式",
-      "source_sha256": "0aad9c5fd1285e71c5b3bed7a49a322ad6ddbb8ddf8bd02066df36d158626c7d",
-      "fragments": [
-        {
-          "id": "SM01",
-          "kind": "route_step",
-          "title": "入口就绪。",
-          "phase": "entry",
-          "module": "entry-readiness",
-          "sha256": "5f72691f0ae38885e04274ba04ff7ae2e3c306e2a15e322ea4a37b3bd7e73fbf"
-        },
-        {
-          "id": "SM02",
-          "kind": "route_step",
-          "title": "Session 就绪。",
-          "phase": "session",
-          "module": "session-readiness",
-          "sha256": "9b503d5096453353fbef21979596e3c3fd2791117f89f8bea479965e92a6d263"
-        },
-        {
-          "id": "SM03",
-          "kind": "route_step",
-          "title": "工作定义。",
-          "phase": "definition",
-          "module": "work-definition",
-          "sha256": "a9c7ec7bd665e29bb4bfc604a5cee3fc1b4e673b1632553d6430b0af616c5fdf"
-        },
-        {
-          "id": "SM04",
-          "kind": "route_step",
-          "title": "Single-Agent 执行。",
-          "phase": "execution",
-          "module": "single-execution",
-          "sha256": "a1892d6a6f59b707664d48b117247d368b3aac0e2bd5aa0a3b23a93a81d5ec26"
-        },
-        {
-          "id": "SM05",
-          "kind": "route_step",
-          "title": "验证与修复。",
-          "phase": "verification",
-          "module": "verification-repair",
-          "sha256": "ba4feef09bdac174aa14d365e79db4fcceed636e6b83bb983110b6689987be6e"
-        },
-        {
-          "id": "SM06",
-          "kind": "route_step",
-          "title": "文档。",
-          "phase": "documentation",
-          "module": "documentation",
-          "sha256": "df6710182350793076724ec676830c02c96afda1c47d7516662ee21a9ed9ef92"
-        },
-        {
-          "id": "SM07",
-          "kind": "route_step",
-          "title": "交付与验收。",
-          "phase": "delivery",
-          "module": "delivery-acceptance",
-          "sha256": "756f277ca8500aae111522b1bf320c54c104cece627a272ac5d126cad5c06e6a"
-        },
-        {
-          "id": "returns",
-          "kind": "section",
-          "title": "前置返回映射",
-          "anchor": "前置返回映射",
-          "sha256": "7734352a24a7b09edc4247e70d8d1984397d513c1254b55f34efa54f2fe9d9ee"
-        },
-        {
-          "id": "mode-boundary",
-          "kind": "section",
-          "title": "Mode 边界",
-          "anchor": "mode-边界",
-          "sha256": "7fd5700cf75a526a9635394e9473164293fa9891298e12686100d6c071b8d1eb"
-        }
-      ]
-    },
-    {
-      "id": "delegated-execution",
-      "path": "references/coding/layer-04-workflows/modules/delegated-execution.md",
-      "title": "Multi-Agent 委派执行模块",
-      "source_sha256": "0b387e68f1c4c2cf11454fd2aed41f8e1e07d0df1896220f2558fc7f24e15f8d",
-      "fragments": [
-        {
-          "id": "entry",
-          "kind": "section",
-          "title": "入口声明",
-          "anchor": "入口声明",
-          "sha256": "490724bc256a2c0410f4f5f7c745163c641df251923e5d8ac32acae97320a9c4"
-        },
-        {
-          "id": "DE00",
-          "kind": "checkpoint",
-          "title": "解析入口。",
-          "sha256": "2f2525bd1c0a39c097a98f5dd12929020edeef229811faaecc06c3ee7d6fcbaa"
-        },
-        {
-          "id": "DE01",
-          "kind": "checkpoint",
-          "title": "评估 Bootstrap 并授权实际任务。",
-          "sha256": "7b118cfbb1500d52370632246ea2f880759bc7d019e7563a49878b98e05382b1"
-        },
-        {
-          "id": "DE02",
-          "kind": "checkpoint",
-          "title": "分别解析执行者和输出。",
-          "sha256": "91efc205299b0fdc6d85c8f558884758b28cefeaabbd9f829898ee388328fa8c"
-        },
-        {
-          "id": "DE03",
-          "kind": "checkpoint",
-          "title": "仅为新执行者预留角色。",
-          "sha256": "14e2106ab48bb0f624d9795562b54b827a937af3cb02c1b3fb3e98a7b8c17b38"
-        },
-        {
-          "id": "DE04",
-          "kind": "checkpoint",
-          "title": "应用共用 Control 门禁并释放当前 Slice。",
-          "sha256": "b9d37a5ab5e829da6f7559dc5a017dea17a1b83c7d1b02bc4301ed3001b80d1d"
-        },
-        {
-          "id": "DE05",
-          "kind": "checkpoint",
-          "title": "创建新合格子代理并绑定身份。",
-          "sha256": "7b352955f316b7b14b11d64418be82edc65b362f72f5077775c08c2e4c4abe8f"
-        },
-        {
-          "id": "DE06",
-          "kind": "checkpoint",
-          "title": "仅在子代理分支派发。",
-          "sha256": "edfd84f6584fb85a9ca3190425c683aac68af1234033e18efa44a6c347e756db"
-        },
-        {
-          "id": "DE07",
-          "kind": "checkpoint",
-          "title": "执行实际任务并返回结果。",
-          "sha256": "ca9a0172c0c148895b705240fa89896c68709430dc4c7de5b2ad802630d3a431"
-        },
-        {
-          "id": "DE08",
-          "kind": "checkpoint",
-          "title": "对所有执行者解决当前 Control。",
-          "sha256": "1bea2219f91ea09cd7a9c48fd0c530487d62b825058a200d9c1478a38814a146"
-        },
-        {
-          "id": "DE09",
-          "kind": "checkpoint",
-          "title": "返回实施/结果状态。",
-          "sha256": "425e1d13c0d0cecf9e27f040c2f208f4664d768f8e96838df902ad1b22942ad9"
-        }
-      ]
-    },
-    {
-      "id": "delivery-acceptance",
-      "path": "references/coding/layer-04-workflows/modules/delivery-acceptance.md",
-      "title": "交付与验收模块",
-      "source_sha256": "8a2ad8c5757c63bae16ac6df7af059eca7a2f4a91c76b50ca3fd5aca871e86a4",
-      "fragments": [
-        {
-          "id": "entry",
-          "kind": "section",
-          "title": "入口声明",
-          "anchor": "入口声明",
-          "sha256": "4b497cc71e9fe673a45b725d93558178660bcadfd181e0fda21def21ef0e593b"
-        },
-        {
-          "id": "DA00",
-          "kind": "checkpoint",
-          "title": "解析入口。",
-          "sha256": "0ef855ea363b857853afdc8742d47d2b9aed2607f8ed401fdaca03da40882d57"
-        },
-        {
-          "id": "DA01",
-          "kind": "checkpoint",
-          "title": "交付前核验当前 Verification。",
-          "sha256": "7cd59ae45284b2c748ba24c340d7e9eab45bb6ee61b1db4445430a24d70487eb"
-        },
-        {
-          "id": "DA02",
-          "kind": "checkpoint",
-          "title": "仅执行已请求并授权的 Git 交付。",
-          "sha256": "31c251b8372bdb48b79741ab64cda25386cbdce76252a4efb1cde45ac19c2e5f"
-        },
-        {
-          "id": "DA03",
-          "kind": "checkpoint",
-          "title": "将每项 Acceptance 标准映射到当前 epoch。",
-          "sha256": "c93b9f3c606c1c192f2c950a13bc759fc6413f65de9e471133e5c4feb0427554"
-        },
-        {
-          "id": "DA04",
-          "kind": "checkpoint",
-          "title": "完成最终更新并仅归档匹配的已完成计划。",
-          "sha256": "c6eaa4d497169853600027485d4781049726a4c63c67c92e6f011ae0219b5869"
-        },
-        {
-          "id": "DA05",
-          "kind": "checkpoint",
-          "title": "返回 Acceptance。",
-          "sha256": "b500ddc84a6e9dfa1f93349ff56990fd46d0d10b40c3516e9282b3ecd36799f5"
-        }
-      ]
-    },
-    {
-      "id": "documentation",
-      "path": "references/coding/layer-04-workflows/modules/documentation.md",
-      "title": "文档模块",
-      "source_sha256": "f9de3076437a3449400237e6eaa95b84c2adbc2e5878d23afa7f75048c4de220",
-      "fragments": [
-        {
-          "id": "entry",
-          "kind": "section",
-          "title": "入口声明",
-          "anchor": "入口声明",
-          "sha256": "5b456c5b6a5de3245449666e9c2587852c5e1a8e8f4380469fbf3771062a8b8b"
-        },
-        {
-          "id": "DOC00",
-          "kind": "checkpoint",
-          "title": "解析入口。",
-          "sha256": "695a2b46061f48ba586144424e1a3850a9d398ce0a26ae4316e042450b04330a"
-        },
-        {
-          "id": "DOC01",
-          "kind": "checkpoint",
-          "title": "核验状态并判断适用输出。",
-          "sha256": "53f3331d704e863d36326ab9eadfffb5f2030a7b87c6a00874e26ef904387a50"
-        },
-        {
-          "id": "DOC02",
-          "kind": "checkpoint",
-          "title": "编写获准输出或记录有证据的无变化。",
-          "sha256": "e59049f71de606c87553b773c3cfaef1dc9fb02e3892530d0f5e3827db1b879b"
-        },
-        {
-          "id": "DOC03",
-          "kind": "checkpoint",
-          "title": "仅持久化已授权项目 Memory。",
-          "sha256": "e72b4609550e4e2ec49ab918638f26052282f029f3c24b70fa58576f973d5c97"
-        },
-        {
-          "id": "DOC04",
-          "kind": "checkpoint",
-          "title": "分类写后影响。",
-          "sha256": "2b615b74167606b9449f18acfb41df8bdd7b8e678382374fd630367553bbe7f5"
-        },
-        {
-          "id": "DOC05",
-          "kind": "checkpoint",
-          "title": "运行文档检查并评估证据复用。",
-          "sha256": "6e3474998c4b460d3fbeb7ced03f1e8a16d7f3cda4283f90b0f4cd0b1b003356"
-        },
-        {
-          "id": "DOC06",
-          "kind": "checkpoint",
-          "title": "返回文档证据。",
-          "sha256": "6436dc3da80b3dc0294ca7effdf793a96e8c44d0d4fea4f9c36dc75a556efd78"
-        }
-      ]
-    },
-    {
-      "id": "entry-readiness",
-      "path": "references/coding/layer-04-workflows/modules/entry-readiness.md",
-      "title": "入口就绪模块",
-      "source_sha256": "a0c0d8558737d116fa3994da6f27b7bb4a7f146c7ccdec874782a123801dd97e",
-      "fragments": [
-        {
-          "id": "entry",
-          "kind": "section",
-          "title": "入口声明",
-          "anchor": "入口声明",
-          "sha256": "0e2e04b3081efabbc3521600897cdcb95ea805c717aabec42c54808ce5cf1ae5"
-        },
-        {
-          "id": "ER00",
-          "kind": "checkpoint",
-          "title": "解析入口。",
-          "sha256": "e2f90b7d44871369b1d24ae1a81a0c9a873615f99ade08cacf1f2916932c0bc8"
-        },
-        {
-          "id": "ER01",
-          "kind": "checkpoint",
-          "title": "核验 Contract 和共享协议。",
-          "sha256": "c8a7cb8362a18f81aff762db1e3c3fe531c74a78787471595f88445d6938f62f"
-        },
-        {
-          "id": "ER02",
-          "kind": "checkpoint",
-          "title": "核验 Environment 和导航路径。",
-          "sha256": "c7a4dfde3684543412402a5fd8a330a360cc6744b2bf5b312456687099b2f966"
-        },
-        {
-          "id": "ER03",
-          "kind": "checkpoint",
-          "title": "对照已选路线核验已释放 Mode。",
-          "sha256": "ac8d2ee104e88b5e1ca7b209192a8608eb93d6d56c127bfae55666ceb3e5382a"
-        }
-      ]
-    },
-    {
-      "id": "session-readiness",
-      "path": "references/coding/layer-04-workflows/modules/session-readiness.md",
-      "title": "Session 就绪模块",
-      "source_sha256": "e19994cba274143c334ac36d41aa97da7a27435eff2a6e896a8e5415f403b315",
-      "fragments": [
-        {
-          "id": "entry",
-          "kind": "section",
-          "title": "入口声明",
-          "anchor": "入口声明",
-          "sha256": "aa3b16562cb641eff2465226db9a10072d58848ab0cae718f0d20414246560c1"
-        },
-        {
-          "id": "SR00",
-          "kind": "checkpoint",
-          "title": "解析入口。",
-          "sha256": "2b8bf720246bb722550d589e95e39f18acf8074e8028d1c2ccb1f50299288dbd"
-        },
-        {
-          "id": "SR01",
-          "kind": "checkpoint",
-          "title": "复核实质变化。",
-          "sha256": "780af9e9f705bfb69c3f1db7d5e9407d8e042f2bb28d45f6e3a9ab90a5786e6c"
-        },
-        {
-          "id": "SR02",
-          "kind": "checkpoint",
-          "title": "核验规范 parent-context 记录。",
-          "sha256": "ed6410aed60855182a3c36f545a81105bb025e92947e59dff92b94c12a489ad5"
-        },
-        {
-          "id": "SR03",
-          "kind": "checkpoint",
-          "title": "应用审计偏好。",
-          "sha256": "16dd42f6fa0a058f9147a2bbd4f0f335da9572e130d730b0bdc056288c91aec8"
-        },
-        {
-          "id": "SR04",
-          "kind": "checkpoint",
-          "title": "仅在 Multi-Agent 适用时核验容量。",
-          "sha256": "7029d80ca574ab6ced613a2bd82dfada64b678ecb1bae76bffe4f0d4e7cc1e46"
-        }
-      ]
-    },
-    {
-      "id": "single-execution",
-      "path": "references/coding/layer-04-workflows/modules/single-execution.md",
-      "title": "Single-Agent 执行模块",
-      "source_sha256": "e9d75cd1225b900824586b785ba2421222ae0650c29a634e1fb7df78dc3bd70c",
-      "fragments": [
-        {
-          "id": "entry",
-          "kind": "section",
-          "title": "入口声明",
-          "anchor": "入口声明",
-          "sha256": "5954bc104cae798484c18b579169e76068ca04a487f527a436f0f8c86c2b25ba"
-        },
-        {
-          "id": "SE00",
-          "kind": "checkpoint",
-          "title": "解析入口。",
-          "sha256": "2f24191812cc783dddcceade928ab3633d1120b677610277d82e4aa197fcd2a4"
-        },
-        {
-          "id": "SE01",
-          "kind": "checkpoint",
-          "title": "分别解析执行者和输出。",
-          "sha256": "11409a936b44095c0897d1beac418222ce0e27d7932774c4884bee10026321b3"
-        },
-        {
-          "id": "SE02",
-          "kind": "checkpoint",
-          "title": "应用当前 Control 门禁并释放 Slice。",
-          "sha256": "b8bebd44d52c58b7263d6d56e8ecd5b898b9e2d7f06b9eb6e3ead9d3cb8ff6f6"
-        },
-        {
-          "id": "SE03",
-          "kind": "checkpoint",
-          "title": "实施并返回初步检查。",
-          "sha256": "b786ff4e8f89f3480b07d747f749a5adec900bb2fbba649b0cdb2aff05402504"
-        },
-        {
-          "id": "SE04",
-          "kind": "checkpoint",
-          "title": "提供阶段反馈。",
-          "sha256": "3a198f04378ea500c5858050a9153dad3c31c2cb6e494222c420b4eaaf47164d"
-        },
-        {
-          "id": "SE05",
-          "kind": "checkpoint",
-          "title": "解决当前 Control。",
-          "sha256": "407d1c9cfab72df03e6279ca06de2795a9ab029c069f4011f40832293e6c6482"
-        },
-        {
-          "id": "SE06",
-          "kind": "checkpoint",
-          "title": "返回实施状态。",
-          "sha256": "2e73961692140ee586e77b6a1a99afb510b726e434e57d2951fa22b4d5aa4542"
-        }
-      ]
-    },
-    {
-      "id": "verification-repair",
-      "path": "references/coding/layer-04-workflows/modules/verification-repair.md",
-      "title": "验证与修复模块",
-      "source_sha256": "d71bd71cf4adaa1e4cd281f5e8622642d1b75be797485a6e0c879d8088a57ba2",
-      "fragments": [
-        {
-          "id": "entry",
-          "kind": "section",
-          "title": "入口声明",
-          "anchor": "入口声明",
-          "sha256": "a0616b1893926bd19ad6060d77b07b519c5dc11a3230aca305a4cdbb0df30768"
-        },
-        {
-          "id": "VR00",
-          "kind": "checkpoint",
-          "title": "解析入口。",
-          "sha256": "9c60e866e69f364dc18f4d29b25b1c98eabf74eb3dfb0ac6b80d3fd1fca72e5c"
-        },
-        {
-          "id": "VR01",
-          "kind": "checkpoint",
-          "title": "捕获实际当前最终状态。",
-          "sha256": "547629cc0d09ed7bf1ed338a10ccd7c1d77ec29161fe1bfc85ea122a6589a326"
-        },
-        {
-          "id": "VR02",
-          "kind": "checkpoint",
-          "title": "解析独立性要求。",
-          "sha256": "52a0b5b9d58f4d3c381903944c7f3c503644ed2c000da7ea3a31a9e4c851e0f7"
-        },
-        {
-          "id": "VR03",
-          "kind": "checkpoint",
-          "title": "运行当前检查。",
-          "sha256": "f3988106e470cf30c94dd7c54849460dde8bf57db8fb391b38f9ec77b9ed536e"
-        },
-        {
-          "id": "VR04",
-          "kind": "checkpoint",
-          "title": "分类并报告证据。",
-          "sha256": "0d6c0bfb34c8f746b53cb98e502a48a91ed15da2f7b9e37a2192924a4fa4cf4c"
-        },
-        {
-          "id": "VR05",
-          "kind": "checkpoint",
-          "title": "路由失败或确立 Repair N/A。",
-          "sha256": "a11ba1939e425c32913c722c851b66996d944e6f760257ef012715f66b1df8ab"
-        },
-        {
-          "id": "VR06",
-          "kind": "checkpoint",
-          "title": "返回当前最终 Verification。",
-          "sha256": "c3f981d54ab8c4afdc8318293f9cec59e916b4e2344742fc12fc3ad7a8aa71a7"
-        }
-      ]
-    },
-    {
-      "id": "work-definition",
-      "path": "references/coding/layer-04-workflows/modules/work-definition.md",
-      "title": "工作定义模块",
-      "source_sha256": "7fb25c7a91aff7cc92a2f01d91d4fd5667dbd0575e395ef5be0f822176e4cbbe",
-      "fragments": [
-        {
-          "id": "entry",
-          "kind": "section",
-          "title": "入口声明",
-          "anchor": "入口声明",
-          "sha256": "7d4697f8c529fda6cb18d99327be436242593162bdb48ae2d2c64c033e877a30"
-        },
-        {
-          "id": "WD00",
-          "kind": "checkpoint",
-          "title": "解析入口。",
-          "sha256": "490990ba217a71cd2945e442f295ddddb9ac05530e84a8946bab7039378de077"
-        },
-        {
-          "id": "WD01",
-          "kind": "checkpoint",
-          "title": "建立有界当前 Context。",
-          "sha256": "d57696c9bf20f138b14c6022bab89b8c82b070b196379b5c644bd80f7162becc"
-        },
-        {
-          "id": "WD02",
-          "kind": "checkpoint",
-          "title": "在 Contract 范围内决策。",
-          "sha256": "17ac3da22c9df1f6a577e12346a76b1670540cc7ef75b1b55c5a37a7d51f5b35"
-        },
-        {
-          "id": "WD03",
-          "kind": "checkpoint",
-          "title": "解决默认共享任务计划。",
-          "sha256": "ade91016be12ace179867b8de2c5bd353713e83b35fc3c2239dc6c98807a4a0d"
-        }
-      ]
-    },
-    {
       "id": "multimodal-flow",
       "path": "references/multimodal/multimodal-flow.md",
       "title": "Multimodal Flow",
@@ -4888,6 +4468,370 @@
           "sha256": "aa1e6155b34be9f375834e32c66b361d7b5a784c00b7ea286857abce6862e8e2"
         }
       ]
+    },
+    {
+      "id": "hook-delegation",
+      "path": "hooks/delegation.md",
+      "title": "有界委派与一次性任务",
+      "source_sha256": "c311b5c9b6a20f65ef789cf92c4af9ff723eacab7d8aa2bb437b97ae006fbf1f",
+      "fragments": [
+        {
+          "id": "DE00",
+          "kind": "checkpoint",
+          "title": "解析入口。",
+          "sha256": "f607adff24c70fe8307c749edcd6b88a485562cfc1c274f224ff296245d42ccc"
+        },
+        {
+          "id": "DE01",
+          "kind": "checkpoint",
+          "title": "评估 Bootstrap 并授权实际任务。",
+          "sha256": "9eb19e8c79a8b6822b47bb17ad7091f5bbe695f81630aa7eb81e6bb6434c760d"
+        },
+        {
+          "id": "DE02",
+          "kind": "checkpoint",
+          "title": "分别解析执行者和输出。",
+          "sha256": "fd69bda697c79373cc6c6d8a28d4bdafff4126e97b88161aa59208ebc9bc1754"
+        },
+        {
+          "id": "DE03",
+          "kind": "checkpoint",
+          "title": "仅为新执行者预留角色。",
+          "sha256": "a05fd621b5ec3366e8bd200b4a681feb8dc8af03c8e50171161ce34b633da49a"
+        },
+        {
+          "id": "DE04",
+          "kind": "checkpoint",
+          "title": "应用共用 Control 门禁并释放当前 Slice。",
+          "sha256": "3ec2677e552050062c14c8ce7e9a6a32696c25f7b06846922b59b60ca053d938"
+        },
+        {
+          "id": "DE05",
+          "kind": "checkpoint",
+          "title": "创建新合格子代理并绑定身份。",
+          "sha256": "559887bf48ffdcf3a43821f2246bdb95e0a659d63d9ad789657fe559c5ae261f"
+        },
+        {
+          "id": "DE06",
+          "kind": "checkpoint",
+          "title": "仅在子代理分支派发。",
+          "sha256": "8ff66002fa4879de953a5502d0ec88a3d0bb7724a237e7b082b7459b3b8d1c37"
+        },
+        {
+          "id": "DE07",
+          "kind": "checkpoint",
+          "title": "执行实际任务并返回结果。",
+          "sha256": "5f389eb616a2b0aaa0adc7a95434c6df9b1d0c36e1349708f1f48490048de07a"
+        },
+        {
+          "id": "DE08",
+          "kind": "checkpoint",
+          "title": "对所有执行者解决当前 Control。",
+          "sha256": "c31d6640e020061e383b3ba0a7e1ef24d8d98206050e3bc32626d363d354dc2b"
+        },
+        {
+          "id": "DE09",
+          "kind": "checkpoint",
+          "title": "返回实施/结果状态。",
+          "sha256": "e1a6b5c7b9357eba78b05007fea0fbea4dbaac50e0fbe2aa1bcd080e0cafe7a1"
+        }
+      ]
+    },
+    {
+      "id": "hook-delivery",
+      "path": "hooks/delivery.md",
+      "title": "交付与 Acceptance Hook",
+      "source_sha256": "7db2691266bdccc24fd283da2da09584e085a0901a2eba1aa85ef936c1d0ec42",
+      "fragments": [
+        {
+          "id": "DA00",
+          "kind": "checkpoint",
+          "title": "解析入口。",
+          "sha256": "8f58b4f33c49523b55b3752b91ab70528ef56d86ff39c4dc74400b0aa76a0c9b"
+        },
+        {
+          "id": "DA01",
+          "kind": "checkpoint",
+          "title": "交付前核验当前 Verification。",
+          "sha256": "c8550f8fd3c2f59836f666ff238f6df54d4eb6be0a2f1baebc78167dcf115b20"
+        },
+        {
+          "id": "DA02",
+          "kind": "checkpoint",
+          "title": "仅执行已请求并授权的 Git 交付。",
+          "sha256": "193750e4eae9f45a2be102916b4bd65a449a1546dd4db264d29d9bc15bd50121"
+        },
+        {
+          "id": "DA03",
+          "kind": "checkpoint",
+          "title": "将每项 Acceptance 标准映射到当前 epoch。",
+          "sha256": "b3e2325083f9b31f28ad74c40ed77f3a1c75a10e749c800d8fd803191f08d965"
+        },
+        {
+          "id": "DA04",
+          "kind": "checkpoint",
+          "title": "完成最终更新并仅归档匹配的已完成计划。",
+          "sha256": "2025664c436efbde4178d89ff3919091cb743cd3a45213a2c191e44aacebbed5"
+        },
+        {
+          "id": "DA05",
+          "kind": "checkpoint",
+          "title": "返回 Acceptance。",
+          "sha256": "b500ddc84a6e9dfa1f93349ff56990fd46d0d10b40c3516e9282b3ecd36799f5"
+        }
+      ]
+    },
+    {
+      "id": "hook-documentation",
+      "path": "hooks/documentation.md",
+      "title": "文档、注释与可复用项目知识",
+      "source_sha256": "0f9d012cfe7e6f7ba0b8bccd789e52d9e631147d1485abeb9ac6a54b423324f3",
+      "fragments": [
+        {
+          "id": "DOC00",
+          "kind": "checkpoint",
+          "title": "解析入口。",
+          "sha256": "16e703ce381b62e7da9252d1b0f30816a9c70dd846a638e6945a638e30c9a38c"
+        },
+        {
+          "id": "DOC01",
+          "kind": "checkpoint",
+          "title": "核验状态并判断适用输出。",
+          "sha256": "3cb70fce06fa53a5253c7bb3f22aebb10e11c5ef6fa8b1aca5e45ced013868f6"
+        },
+        {
+          "id": "DOC02",
+          "kind": "checkpoint",
+          "title": "编写获准输出或记录有证据的无变化。",
+          "sha256": "d12694d2d10a74143f9792041cc6d8e5ca51124fd1684acd62fda01f50e98075"
+        },
+        {
+          "id": "DOC03",
+          "kind": "checkpoint",
+          "title": "仅持久化已授权项目 Memory。",
+          "sha256": "d75ff4536c5e660e9470719dd7570249090a74102aa3db3a590a0112a4b957d5"
+        },
+        {
+          "id": "DOC04",
+          "kind": "checkpoint",
+          "title": "分类写后影响。",
+          "sha256": "66e1b02d41ca807b73c0dcbbf8cf668d594fa3a2f22ccfc1b02328fb7a7e2474"
+        },
+        {
+          "id": "DOC05",
+          "kind": "checkpoint",
+          "title": "运行文档检查并评估证据复用。",
+          "sha256": "6e3474998c4b460d3fbeb7ced03f1e8a16d7f3cda4283f90b0f4cd0b1b003356"
+        },
+        {
+          "id": "DOC06",
+          "kind": "checkpoint",
+          "title": "返回文档证据。",
+          "sha256": "6436dc3da80b3dc0294ca7effdf793a96e8c44d0d4fea4f9c36dc75a556efd78"
+        }
+      ]
+    },
+    {
+      "id": "hook-entry",
+      "path": "hooks/entry.md",
+      "title": "入口就绪、Contract 与能力清单",
+      "source_sha256": "88bcd67f242ceaa2a1d850fc3080de1092075d8cce62381b75cb5e6928fce6e1",
+      "fragments": [
+        {
+          "id": "ER00",
+          "kind": "checkpoint",
+          "title": "解析入口。",
+          "sha256": "c43ea128759dde0f0cd5a444c6e5f403d853a4adc977cea24b3e4a294283c111"
+        },
+        {
+          "id": "ER01",
+          "kind": "checkpoint",
+          "title": "核验 Contract 和共享协议。",
+          "sha256": "987c84fcedb4f26dea10f67e85fa6a32a020204a5f68b41c6064dc372281036f"
+        },
+        {
+          "id": "ER02",
+          "kind": "checkpoint",
+          "title": "核验 Environment 和导航路径。",
+          "sha256": "9a104b4b1f9c3633c4724cf0e175330a376e497d66276abfbfc8f1b5dd9c13c4"
+        },
+        {
+          "id": "ER03",
+          "kind": "checkpoint",
+          "title": "对照已选路线核验已释放 Mode。",
+          "sha256": "acba5727af4870101b97c0a2bda3ef22bac55c18cda2cacf9231d292aa792841"
+        }
+      ]
+    },
+    {
+      "id": "hook-execution",
+      "path": "hooks/execution.md",
+      "title": "执行 Hook：Slice、Control 与阶段反馈",
+      "source_sha256": "4d93c9a3fae6652d87ca8cbb4cf47ba2370ddb07d3619c3d730588f760d27d43",
+      "fragments": [
+        {
+          "id": "SE00",
+          "kind": "checkpoint",
+          "title": "解析入口。",
+          "sha256": "535c16d5c932b83b11eca91c8c6c4e758e8dbef19df335f447721af7f8c432f5"
+        },
+        {
+          "id": "SE01",
+          "kind": "checkpoint",
+          "title": "分别解析执行者和输出。",
+          "sha256": "273b34e33f2e0d21d2bff5606e30d8c52bc4838bc39e65376909223b54225d2f"
+        },
+        {
+          "id": "SE02",
+          "kind": "checkpoint",
+          "title": "应用当前 Control 门禁并释放 Slice。",
+          "sha256": "612742f965c61d5dcf042a5c2c4ea2753b0a41a4a7b3bdc40c9195d33aa82f8f"
+        },
+        {
+          "id": "SE03",
+          "kind": "checkpoint",
+          "title": "实施并返回初步检查。",
+          "sha256": "1d2a412ce0cf3e3b55b716c1c9138e1692bda426190fe126c7c9803cc585c6c8"
+        },
+        {
+          "id": "SE04",
+          "kind": "checkpoint",
+          "title": "提供阶段反馈。",
+          "sha256": "54a04203fbd265f883db7a5d2bb4d607c796369f201272a62aab4cd751f12e94"
+        },
+        {
+          "id": "SE05",
+          "kind": "checkpoint",
+          "title": "解决当前 Control。",
+          "sha256": "a4b46bc164730237b7b10f369215b49976f1b9545bd2e59dc1c7a48a6e8932d4"
+        },
+        {
+          "id": "SE06",
+          "kind": "checkpoint",
+          "title": "返回实施状态。",
+          "sha256": "1e565603305022dc60c28e992f8918b3f50a1a3e9d58b282bac65ad945c073bf"
+        }
+      ]
+    },
+    {
+      "id": "hook-planning",
+      "path": "hooks/planning.md",
+      "title": "Context、Decision与共享任务计划",
+      "source_sha256": "0cc6136289230d689294a8e6d87a0982f68aaf343f1f9a6cb7d907abcdf25755",
+      "fragments": [
+        {
+          "id": "WD00",
+          "kind": "checkpoint",
+          "title": "解析入口。",
+          "sha256": "3821c2fb0866c22b6077c73b5d08de405c893ed2d0a1bf4afdc39b8644ab5cb6"
+        },
+        {
+          "id": "WD01",
+          "kind": "checkpoint",
+          "title": "建立有界当前 Context。",
+          "sha256": "bcb2165b925e246d8441cfd0701bcaf43e27455e6a16f024c0993f29da30155e"
+        },
+        {
+          "id": "WD02",
+          "kind": "checkpoint",
+          "title": "在 Contract 范围内决策。",
+          "sha256": "d0f15b226c4308696d7bfb2535e4c23bd1bf3b0750729f7bfbf8156189ca84f4"
+        },
+        {
+          "id": "WD03",
+          "kind": "checkpoint",
+          "title": "解决默认共享任务计划。",
+          "sha256": "23b8c29cae93a0f0dc69cf1b0c2b0219c624e98baa1a519e8b806e7b502b935a"
+        }
+      ]
+    },
+    {
+      "id": "hook-session",
+      "path": "hooks/session.md",
+      "title": "Session Hook 合同",
+      "source_sha256": "3dc105a47832d505679324cc725dbd214bddfef222fdacbddd3fe9de096719bc",
+      "fragments": [
+        {
+          "id": "SR00",
+          "kind": "checkpoint",
+          "title": "解析入口。",
+          "sha256": "8b2e51f7baffa1c295640b3caa1eeb2ad190c0ec711ea168b484f0dc97eeaf4a"
+        },
+        {
+          "id": "SR01",
+          "kind": "checkpoint",
+          "title": "复核实质变化。",
+          "sha256": "780af9e9f705bfb69c3f1db7d5e9407d8e042f2bb28d45f6e3a9ab90a5786e6c"
+        },
+        {
+          "id": "SR02",
+          "kind": "checkpoint",
+          "title": "核验规范 parent-context 记录。",
+          "sha256": "5469423173b1013c9fe4bee33aec784dd1bb02fd2ef45166ef0796c31867301c"
+        },
+        {
+          "id": "SR03",
+          "kind": "checkpoint",
+          "title": "应用审计偏好。",
+          "sha256": "a5053213f0bf0c67d11219c8232ce4794217a0f31f84427c7c3f59c5c68f8614"
+        },
+        {
+          "id": "SR04",
+          "kind": "checkpoint",
+          "title": "仅在 Multi-Agent 适用时核验容量。",
+          "sha256": "a2db7809c76ab3611b404161766c62e3f6077c2c5b146841d0c957b0a511926a"
+        }
+      ]
+    },
+    {
+      "id": "hook-verification",
+      "path": "hooks/verification.md",
+      "title": "Verification Hook",
+      "source_sha256": "9c7978e73eec93feadce51657979796e36922e49de69bf164c7b068b47d231ca",
+      "fragments": [
+        {
+          "id": "VR00",
+          "kind": "checkpoint",
+          "title": "解析入口。",
+          "sha256": "e4f2f59b2fb11ebe19a6bb50978b684ccfb42935e73667f42b781f695cfa0664"
+        },
+        {
+          "id": "VR01",
+          "kind": "checkpoint",
+          "title": "捕获实际当前最终状态。",
+          "sha256": "911945419c98a3e50c5eca7b500fb8fa96672e17c971761af696612152ad2b72"
+        },
+        {
+          "id": "VR02",
+          "kind": "checkpoint",
+          "title": "解析独立性要求。",
+          "sha256": "1fcb5bcb7098d0f154940988699a49560250fa53947d6dfa05e97a765496ee71"
+        },
+        {
+          "id": "VR03",
+          "kind": "checkpoint",
+          "title": "运行当前检查。",
+          "sha256": "f3988106e470cf30c94dd7c54849460dde8bf57db8fb391b38f9ec77b9ed536e"
+        },
+        {
+          "id": "VR04",
+          "kind": "checkpoint",
+          "title": "分类并报告证据。",
+          "sha256": "39bd28aa661d31d4c1abbb06e8761575299439f14ad5026e75747b2bc4416efb"
+        },
+        {
+          "id": "VR05",
+          "kind": "checkpoint",
+          "title": "路由失败或确立 Repair N/A。",
+          "sha256": "b6ae5e2fe45beea3c41ea2460707bd1380101e2ec1fb669f5817d99d213ff042"
+        },
+        {
+          "id": "VR06",
+          "kind": "checkpoint",
+          "title": "返回当前最终 Verification。",
+          "sha256": "c3f981d54ab8c4afdc8318293f9cec59e916b4e2344742fc12fc3ad7a8aa71a7"
+        }
+      ]
     }
   ],
   "hooks": {
@@ -4897,7 +4841,7 @@
     "delegation": "2b2f130345627a6e34e30283573ceb1de36507f973819adec84222425604804c",
     "delivery": "da4d46ee5f71ecbb046ab29734ab5d31f224dcc2b9ebbfc8e0ddf25f6b52a576",
     "documentation": "c2c8fc41b40f345bda5c56780e4c4840b6b56e3300e5e7e536cb03e95e39e333",
-    "entry": "0ecf1e3b7b4273fd7492d4811e7ad4900fa6371be88126ab58982de51ab037a6",
+    "entry": "74296ff6caf13b89162cdd5da2ef994de60952f69b28a390a21bc745e0969caf",
     "execution": "2595ada4bcf5f7d796b48186444c0e10863917ddb0989c64b2599a010ef2fb90",
     "foundation": "87746216aa484b29d9f85b581bd2e4d335b58d539a84f23deae325c2ba123429",
     "materialization": "d73f7753af4503c7ef0cb1d10faaf41773414fd27ea23757fdde176799f8823d",
@@ -4908,5 +4852,5 @@
     "session": "983ada1d5b1b460d2bd5af0bdf339442ee4478a6600475edcd41ec99ba43138d",
     "verification": "cd86357fe8a956a1230586de8c6c9810a41e3185fb971fc9d02638d5c38517b2"
   },
-  "legacy_rule_sha256": "c3ee727073b263bfbeb215917f2434bd75f991758485e13164c9990692a7003e"
+  "legacy_rule_sha256": "08cf3f967b691305f45cec9d4263d15020e0421ff572a8a1476b2e6112da2d35"
 }

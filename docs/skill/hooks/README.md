@@ -1,5 +1,7 @@
 # Coding Hooks 触发目录
 
+<!-- 由 docs/rules/hooks/README.yaml 生成。请在 DSL 中维护正文。 -->
+
 这些文件是由 `extensions/coding-workflow` 的实际 Pi 回调选择并注入的执行合同，**不是仅因文件名叫 Hook 就自动执行的 Markdown**。每份按主题整合相关owner的前置条件、动作、条件分支、禁止项、证据、退出/阻断与重新核验，并逐篇列出“来源—本合同落点”；不是摘要或必须重新通读所有owner才能执行的目录。原owner仍保留权威，冲突/新规则需要定向核验，不能由省略推导豁免。
 
 用户启动与安装见 [Extension 使用说明](../PI_EXTENSION.md)。不启用 Extension 时，Skill 仍通过 [Coding selector](../workflows/coding.md) 定向消费原 owner。
@@ -47,18 +49,18 @@
 
 Coding 参考规则由 YAML DSL owner 定义，`references/coding` 提供阅读版。Hook 将规则逐篇映射到运行时动作与证据，执行引用单向指向 DSL owner。目录、索引和逐篇来源对照供导航。Hook 间协作依当前事件与调用边界触发，共用规则直接引用相应 owner。
 
-- [逐篇来源整合对照](SOURCE_COVERAGE.md) 列出全部120份非Hook文档：89份实质规则、29份导航、2份仅参考文章。实质文章必须在至少一份Hook的“规则来源”表中逐篇列出真实落点；目录归属不冒充条款整合。每份Hook末表进一步说明各来源对应的主题。
+- [逐篇来源整合对照](SOURCE_COVERAGE.md) 列出 Hook 消费的规则和导航。各合同末尾的“规则来源”表记录具体消费位置。
 - DSL 源引用相对 `.yaml` 文件及块 ID，阅读版引用对应的 `.md` 和标题锚点。Pi 注入时将参考规则链接转换为 `coding-rule:文档#片段`，通过 `coding_checkpoint action=rules` 定向读取。其余本地链接以包内资源为基准生成 `file:` URL。
-- 运行时按需读取编译后的 Hook 正文，注入触发、输入、执行条款、退出及重核。完整合同及“规则来源”对照表在原 Markdown 中查阅。
+- 运行时按需读取编译后的 Hook 正文，注入触发、输入、执行条款、退出及重核。完整合同及“规则来源”对照表在 Markdown 阅读版中查阅。
 - 上下文按模块、当前检查点、执行者、语义信号、恢复状态和 allocation 状态选择 Hook。每个注入包先发共享及适用合同，再发当前状态、当前指令、后续目录和观察。硬上限为 96,000 字符，超限阻断。
-- 两条 Coding 路线和八个模块从生成索引取得原有 ID、标题和模块关系。扩展按需读取当前检查点和适用 Hook，后续检查点显示标题。Entry Hook 查锁定路线的 Mode 边界，Verification Hook 查 Epoch 动作，均按片段 ID 读取。
-- Hook 正文可通过独占一行的 `<!-- rule:文档ID#片段ID -->` 引用已导出的 DSL 片段。`current-route` 由启动时锁定的模式解析，编译器校验两条路线上的目标。DSL 正文中的 Markdown 链接供定位和按需阅读，运行时规则引用只从 Hook 指向 DSL。
+- 两条 Coding 路线提供阶段绑定和返回规则。八份阶段 Hook 维护检查点，扩展从生成索引按需读取当前检查点，后续检查点显示标题。入口上下文组合当前路线的 Mode 边界，验证 Hook 按 ID 读取 Epoch 动作。
+- Hook YAML 的执行要求可用 `rule_include` 块引用参考 DSL 片段，编译时转换为运行时引用。编译器校验目标参考规则与片段。DSL 正文中的链接供定位和按需阅读。
 
 ## 维护与验收
 
-- `catalog.ts` 用运行时索引核对 16 个 Hook、8 个模块、两条路线和现有检查点 ID。Markdown 路径、层级和归属由离线脚本检查。改变检查点或模块形状时同步审阅引擎。
+- `catalog.ts` 用运行时索引核对 16 个 Hook、两条路线的阶段绑定和检查点 ID。Markdown 路径、层级和归属由离线脚本检查。改变检查点或模块形状时同步审阅引擎。
 - `npm run check:hooks` 默认只读。检查 16 份合同及目录和对照表的本地链接、标题锚点、路径与符号链接边界，核对来源引用与对照表，并覆盖两种模式、七个模块、单个及组合信号和暂停状态。检查范围为本地资源。
-- 调整来源表后用 `node scripts/check-pi-hooks.mjs --write-coverage` 显式更新逐篇对照，再审阅变化；不因此改写原owner或获得额外授权。来源表只能放非执行性映射，执行规则须写入正文。
+- 合同和目录在 `docs/rules/hooks/` 下维护。用 `uv run --locked --script scripts/compile-reference-dsl.py` 生成阅读版和注入正文。调整规则来源后用 `node scripts/check-pi-hooks.mjs --write-coverage` 刷新 YAML 和 Markdown 来源对照。来源表记录归属及落点，执行规则写入正文。
 - `npm test` 还验证跨工作区注入链接、中文/重复标题、坏锚点、源引用缺失、超限拒绝及正文不截断；宿主声明/入口smoke另见使用说明。
 - 覆盖率和 Hash 只说明文本/归属/形状，不证明压缩合同逐条语义等价。详细 owner 保留权威；扩展不是新的授权来源、OS 沙箱或完整静态副作用分析器。
 - 原生/其他扩展工具是否经过当前事件链必须实际核验；不可观测的外部操作通过真实读回与语义信号处理，不伪造自动检测。

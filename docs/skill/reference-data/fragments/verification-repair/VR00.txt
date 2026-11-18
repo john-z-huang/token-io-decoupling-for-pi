@@ -1,1 +1,0 @@
-提供本声明、当前 Contract/标准、实施或子代理实际结果、任务范围、来源/效果证据和 continuation，调用[模块入口解析](../../layer-03-workflow-checkpoints/module-entry-resolution.yaml)。不要求预先存在最终 Verification 结果。证据缺失时返回 `needs_prerequisite`；冲突、状态不安全或效果无法恢复时返回 `blocked`。

@@ -1,0 +1,3 @@
+带入入口阶段的已释放路线/模式、当前任务范围、Session 身份/角色、路径、epoch 和 continuation/效果证据。规范记录由本阶段建立。按入口合同核验，在证据不足时记录所缺 owner 和原暂停子步骤，冲突或无法安全恢复时阻断。
+
+依据 [模块入口解析](../references/coding/layer-03-workflow-checkpoints/module-entry-resolution.yaml)。

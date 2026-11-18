@@ -1,6 +1,0 @@
-| 字段 | 要求 |
-| --- | --- |
-| 必需输入 | Coding selector 当前已通过的 `Contract`、`Environment`、能力清单和 `Mode` 证据；指出已选路线的[路线入口](../../layer-03-workflow-checkpoints/route-entry.yaml)结果；当前任务范围和已知效果状态。 |
-| 允许效果 | 读取并核验声明的证据；选择有界导航或直接读取 owner。不得修改工作流状态、重开 Mode，也不得创建/派发 Agent。 |
-| 结果 | 以当前 Contract、Environment/能力、已释放的 Mode/count、已选路线证据，以及导航结果或有依据的 `not_applicable` 返回 `complete`；否则以暂停位置返回 `needs_prerequisite` 或 `blocked`。 |
-| 新鲜度 | 根据当前任务/Session 及其来源/revision 确认证据。范围、Environment、能力或 Mode 有实质变化时，返回 `complete` 前须重核相关 owner。 |

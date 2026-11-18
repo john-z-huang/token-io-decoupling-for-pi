@@ -14,8 +14,8 @@ import posixpath
 import re
 import sys
 import unicodedata
-from collections.abc import Callable, Iterator
-from pathlib import Path
+from collections.abc import Callable, Iterable, Iterator
+from pathlib import Path, PurePosixPath
 from urllib.parse import unquote
 
 from jsonschema import Draft202012Validator, ValidationError
@@ -23,18 +23,24 @@ from ruamel.yaml import YAML, YAMLError
 from ruamel.yaml.tokens import AliasToken, AnchorToken
 
 from coding_dsl_templates import DOCUMENT_TYPES, document_type, load_templates, validate_coding_document
+from compliance_core_loader import load_compliance_core
+from hook_dsl_templates import HOOK_TYPES, hook_type, load_hook_templates, validate_hook_document
 from workflow_checkpoint_lookup import NUMBERED_BLOCKS, check_flowchart_references, locate_checkpoint
+from workflow_module_contracts import WORKFLOW_PATH
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "docs/rules"
 REFERENCES = SOURCE / "references"
 CODING = REFERENCES / "coding"
+ROUTES = SOURCE / WORKFLOW_PATH
 TEMPLATES = SOURCE / "templates/coding"
+HOOK_SOURCE = SOURCE / "hooks"
+HOOK_TEMPLATES = SOURCE / "templates/hooks"
+HOOK_COVERAGE = "hooks/SOURCE_COVERAGE.md"
 SKILL = ROOT / "docs/skill"
 DATA = SKILL / "reference-data"
-HOOK_NAME = re.compile(r"[a-z][a-z0-9-]*")
 RULE_INCLUDE = re.compile(r"^<!-- rule:([a-z][a-z0-9-]*)#([A-Za-z][A-Za-z0-9-]*) -->$")
-ROUTE_IDS = ("coding-single-agent", "coding-multi-agent")
+COMPLIANCE = load_compliance_core()
 FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})")
 INLINE_LINK = re.compile(r"(`+)[^\n]*?\1|(!?\[[^\]\n]*\]\()(<[^>\n]+>|[^\s)]+)(?=[ \t]*(?:\)|[\"']))")
 REFERENCE_LINK = re.compile(r"^( {0,3}\[[^\]\n]+\]:[ \t]*)(<[^>\n]+>|[^\s]+)(?=[ \t]|$)")
@@ -77,7 +83,8 @@ def heading_anchor(title: str, counts: dict[str, int]) -> str:
 
 
 def render_blocks(
-    blocks: list[dict], level: int, seen: set[str], fragments: dict[str, dict[str, str]], heading_counts: dict[str, int]
+    blocks: list[dict], level: int, seen: set[str], fragments: dict[str, dict[str, str]], heading_counts: dict[str, int],
+    anchors: dict[str, str] | None = None,
 ) -> str:
     parts = []
     previous = None
@@ -101,8 +108,12 @@ def render_blocks(
             anchor = heading_anchor(block["title"], heading_counts)
             if fragment is not None:
                 fragment["anchor"] = anchor
-            body = render_blocks(block["blocks"], level + 1, seen, fragments, heading_counts)
+            if anchors is not None:
+                anchors[block_id] = anchor
+            body = render_blocks(block["blocks"], level + 1, seen, fragments, heading_counts, anchors)
             parts.append(f"{'#' * level} {block['title']}\n\n{body}")
+        elif kind == "rule_include":
+            parts.append(f"<!-- rule:{block['document']}#{block['fragment']} -->")
         else:
             body = block["text"].rstrip("\n")
             if not body.strip():
@@ -118,10 +129,10 @@ def render_blocks(
         if fragment is not None:
             fragment["content"] = body + "\n"
             if kind == "route_step":
-                module = block["module"]
-                if f"](modules/{module}.yaml)" not in body:
-                    raise ValueError(f"路线项 {block_id} 的模块与 DSL 链接不一致：{module}")
-                fragment.update(phase=block["phase"], module=module)
+                hook = block["hook"]
+                if f"](../hooks/{hook}.yaml)" not in body:
+                    raise ValueError(f"路线项 {block_id} 的 Hook 与 DSL 链接不一致：{hook}")
+                fragment.update(phase=block["phase"], hook=hook)
         previous = kind
     return "".join(parts)
 
@@ -148,58 +159,117 @@ def map_markdown_links(markdown: str, rewrite: Callable[[str], str]) -> str:
     return "\n".join(lines)
 
 
-def render_reference_links(path: str, markdown: str, documents: dict[str, dict]) -> str:
+def check_dsl_dependencies(path: str, markdown: str) -> None:
+    source = PurePosixPath(path)
+    for line, _, href in COMPLIANCE.links_in_markdown(markdown):
+        if COMPLIANCE.reverse_dependency_target(source, href) is not None:
+            raise ValueError(f"DSL 反向依赖：{path}:{line} -> {href}")
+
+
+def render_dsl_links(path: str, markdown: str, targets: dict[str, dict[str, str]]) -> str:
+    check_dsl_dependencies(path, markdown)
+
     def rewrite(href: str) -> str:
         if EXTERNAL_LINK.match(href):
             return href
         before_hash, has_fragment, fragment = href.partition("#")
         target, query_mark, query = before_hash.partition("?")
         resolved = posixpath.normpath(posixpath.join(posixpath.dirname(path), unquote(target)))
-        if resolved.startswith("references/") and resolved.endswith(".md"):
+        if path.startswith("references/") and resolved.startswith("hooks/"):
+            raise ValueError(f"参考规则不能引用 Hook：{path} -> {href}")
+        if resolved.startswith(("references/", "hooks/", f"{WORKFLOW_PATH.as_posix()}/")) and resolved.endswith(".md"):
             raise ValueError(f"DSL 内部引用须指向 YAML：{path} -> {href}")
         if not target.endswith(".yaml"):
             return href
-        owner = documents.get(resolved.removesuffix(".yaml") + ".md")
-        if not owner:
+        anchors = targets.get(resolved.removesuffix(".yaml") + ".md")
+        if anchors is None:
             raise ValueError(f"DSL 引用目标不存在：{path} -> {href}")
         if has_fragment:
-            block = next((item for item in owner["fragments"] if item["id"] == unquote(fragment)), None)
-            if not block or not block.get("anchor"):
+            anchor = anchors.get(unquote(fragment))
+            if not anchor:
                 raise ValueError(f"DSL 引用缺少可导出的章节：{path} -> {href}")
-            fragment = block["anchor"]
+            fragment = anchor
         return target.removesuffix(".yaml") + ".md" + query_mark + query + has_fragment + fragment
 
     return map_markdown_links(markdown, rewrite)
 
 
-def compile_hooks(fragment_ids: dict[str, set[str]], outputs: dict[Path, str]) -> dict[str, str]:
+def compile_hooks(
+    fragment_ids: dict[str, set[str]], targets: dict[str, dict[str, str]], outputs: dict[Path, str],
+    documents: list[dict], source_documents: dict[Path, dict],
+) -> dict[str, str]:
+    markdown = {}
+    bodies = {}
+    reference_layers = {document["id"]: COMPLIANCE.path_layer(PurePosixPath(document["path"]))
+                        for document in documents}
+    targets[HOOK_COVERAGE] = {}
+    for path, document in read_hook_documents():
+        source_documents[path] = document
+        target = document["markdown_path"]
+        anchors: dict[str, str] = {}
+        counts: dict[str, int] = {}
+        heading_anchor(document["title"], counts)
+        fragments: dict[str, dict[str, str]] = {}
+        body = render_blocks(document["blocks"], 2, set(), fragments, counts, anchors)
+        if "\0" in body or "\0" in document["title"]:
+            raise ValueError(f"Hook 文档包含 NUL：{path.name}")
+        heading = f"# {document['title']}"
+        gap = "\n" * document.get("blank_lines_after_title", 2)
+        provenance = source_notice(path)
+        markdown[target] = f"{heading}\n\n{provenance}{gap}{body}\n"
+        targets[target] = anchors
+        if fragments:
+            document_id = f"hook-{document['id']}"
+            if document_id in fragment_ids:
+                raise ValueError(f"Hook 与参考规则的文档 ID 重复：{document_id}")
+            documents.append(dict(
+                id=document_id, path=target, title=document["title"],
+                source_sha256=hashlib.sha256(source_bytes(path)).hexdigest(),
+                fragments=write_fragments(document_id, fragments, outputs),
+            ))
+        if document["document_type"] == "hook-contract":
+            execution_blocks = [entry for entry in document["blocks"]
+                                if next(iter(entry)) not in {"flowchart", "checkpoints", "sources"}]
+            execution = render_blocks(execution_blocks, 2, set(), {}, {})
+            bodies[target] = f"{heading}{gap}{execution}\n"
+    for path in (SKILL / "hooks").glob("*.md"):
+        target = path.relative_to(SKILL).as_posix()
+        if target != HOOK_COVERAGE and target not in markdown:
+            raise ValueError(f"Hook 文档缺少对应的 YAML 源：{target}")
+
+    for path, content in markdown.items():
+        outputs[SKILL / path] = render_dsl_links(path, content, targets)
     hooks = {}
-    for path in sorted((SKILL / "hooks").glob("*.md")):
-        if not HOOK_NAME.fullmatch(path.stem):
-            continue
-        content = source_bytes(path).decode("utf-8")
-        titles = ("触发条件", "执行要求", "退出与阻断", "重新核验", "规则来源")
-        positions = [content.find(f"\n## {title}\n") for title in titles]
-        if "\0" in content or -1 in positions or positions != sorted(positions):
-            raise ValueError(f"Hook 合同章节缺失、次序错误或包含 NUL：{path.name}")
-        body = content[:positions[-1]].rstrip() + "\n"
-        sources = content[positions[-1]:]
-        if "<!-- rule:" in sources:
-            raise ValueError(f"规则引用须放在 Hook 执行正文：{path.name}")
+    for path, content in bodies.items():
+        body = render_dsl_links(path, content, targets)
         for line in body.splitlines():
             if "<!-- rule:" not in line:
                 continue
             include = RULE_INCLUDE.fullmatch(line)
             if not include:
-                raise ValueError(f"无效的 Hook 规则引用：{path.name}: {line}")
+                raise ValueError(f"无效的 Hook 规则引用：{path}: {line}")
             document, fragment = include.groups()
-            targets = ROUTE_IDS if document == "current-route" else (document,)
-            for target in targets:
-                if fragment not in fragment_ids.get(target, set()):
-                    raise ValueError(f"Hook 引用缺少 DSL 片段：{path.name} -> {target}#{fragment}")
-        outputs[DATA / "hooks" / f"{path.stem}.txt"] = body
-        hooks[path.stem] = sha256(body)
+            if fragment not in fragment_ids.get(document, set()):
+                raise ValueError(f"Hook 引用缺少 DSL 片段：{path} -> {document}#{fragment}")
+            if COMPLIANCE.is_reverse_dependency("hook", reference_layers[document]):
+                raise ValueError(f"Hook 执行引用存在反向依赖：{path} -> {document}#{fragment}")
+        hook_id = Path(path).stem
+        outputs[DATA / "hooks" / f"{hook_id}.txt"] = body
+        hooks[hook_id] = sha256(body)
     return hooks
+
+
+def source_notice(path: Path) -> str:
+    return f"<!-- 由 {path.relative_to(ROOT).as_posix()} 生成。请在 DSL 中维护正文。 -->"
+
+
+def write_fragments(document_id: str, fragments: dict[str, dict[str, str]], outputs: dict[Path, str]) -> list[dict]:
+    manifest = []
+    for fragment_id, fragment in fragments.items():
+        content = fragment.pop("content")
+        outputs[DATA / "fragments" / document_id / f"{fragment_id}.txt"] = content
+        manifest.append({**fragment, "sha256": sha256(content)})
+    return manifest
 
 
 def legacy_rule_digest(outputs: dict[Path, str]) -> str:
@@ -219,30 +289,41 @@ def rule_validator() -> Draft202012Validator:
     return Draft202012Validator(schema)
 
 
-def read_rules(directory: Path) -> Iterator[tuple[Path, bytes, dict]]:
+def read_hook_documents() -> Iterator[tuple[Path, dict]]:
+    validator = rule_validator()
+    templates = load_hook_templates(HOOK_TEMPLATES, validator)
+    for path in sorted(HOOK_SOURCE.glob("*.yaml")):
+        if path.name == "SOURCE_COVERAGE.yaml":
+            continue
+        document = read_rule(path, source_bytes(path).decode("utf-8"), validator)
+        validate_hook_document(path, document, templates[hook_type(path)])
+        yield path, document
+
+
+def read_rules(paths: Iterable[Path]) -> Iterator[tuple[Path, bytes, dict]]:
     validator = rule_validator()
     templates = load_templates(TEMPLATES, validator)
     ids = {"current-route"}
-    coding_documents = {}
-    for path in sorted(directory.rglob("*.yaml")):
+    for path in sorted(paths):
         source = source_bytes(path)
         document = read_rule(path, source.decode("utf-8"), validator)
         if document["id"] in ids:
             raise ValueError(f"重复或保留的文档 ID：{path.relative_to(ROOT)}#{document['id']}")
         ids.add(document["id"])
-        if path.is_relative_to(CODING):
-            relative = path.relative_to(CODING)
+        if path.is_relative_to(CODING) or path.is_relative_to(ROUTES):
+            relative = path.relative_to(SOURCE)
             validate_coding_document(relative, document, templates[document_type(relative)])
-            coding_documents[path] = document
         yield path, source, document
-    check_flowchart_references(coding_documents)
 
 
 def compile_rules() -> dict[Path, str]:
     outputs: dict[Path, str] = {}
     documents = []
+    source_documents = {}
     fragment_ids: dict[str, set[str]] = {}
-    for source_path, source, document in read_rules(REFERENCES):
+    sources = (*REFERENCES.rglob("*.yaml"), *ROUTES.rglob("*.yaml"))
+    for source_path, source, document in read_rules(sources):
+        source_documents[source_path] = document
         document_id = document["id"]
         markdown_path = SKILL / document["markdown_path"]
         fragments: dict[str, dict[str, str]] = {}
@@ -251,31 +332,33 @@ def compile_rules() -> dict[Path, str]:
         body = render_blocks(document["blocks"], 2, set(), fragments, heading_counts)
         if "<!-- rule:" in body:
             raise ValueError(f"DSL 规则正文不包含 Hook 执行引用：{source_path.relative_to(ROOT)}")
-        provenance = f"<!-- 由 {source_path.relative_to(ROOT).as_posix()} 生成。请在 DSL 中维护正文。 -->"
+        provenance = source_notice(source_path)
         title_gap = "\n" * document.get("blank_lines_after_title", 2)
         markdown = f"# {document['title']}\n\n{provenance}\n{title_gap}{body}\n"
         outputs[markdown_path] = markdown
-        manifest_fragments = []
-        for fragment_id, fragment in fragments.items():
-            content = fragment.pop("content")
-            outputs[DATA / "fragments" / document_id / f"{fragment_id}.txt"] = content
-            manifest_fragments.append({**fragment, "sha256": sha256(content)})
         fragment_ids[document_id] = set(fragments)
         documents.append(dict(
             id=document_id, path=document["markdown_path"], title=document["title"],
-            source_sha256=hashlib.sha256(source).hexdigest(), fragments=manifest_fragments,
+            source_sha256=hashlib.sha256(source).hexdigest(), fragments=write_fragments(document_id, fragments, outputs),
         ))
     if not documents:
         raise ValueError("没有可编译的规则 DSL")
-    for path in sorted((SKILL / "references").rglob("*.md")):
+    rendered_sources = (*(SKILL / "references").rglob("*.md"), *(SKILL / WORKFLOW_PATH).rglob("*.md"))
+    for path in sorted(rendered_sources):
         if path not in outputs:
             raise ValueError(f"参考文档缺少对应的 YAML 源：{path.relative_to(SKILL)}")
-    by_path = {document["path"]: document for document in documents}
-    for path in by_path:
+    targets = {
+        document["path"]: {item["id"]: item["anchor"] for item in document["fragments"] if item.get("anchor")}
+        for document in documents
+    }
+    references = tuple(targets)
+    hooks = compile_hooks(fragment_ids, targets, outputs, documents, source_documents)
+    check_flowchart_references(source_documents)
+    for path in references:
         target = SKILL / path
-        outputs[target] = render_reference_links(path, outputs[target], by_path)
+        outputs[target] = render_dsl_links(path, outputs[target], targets)
     manifest = dict(
-        schema_version=4, documents=documents, hooks=compile_hooks(fragment_ids, outputs),
+        schema_version=5, documents=documents, hooks=hooks,
         legacy_rule_sha256=legacy_rule_digest(outputs),
     )
     outputs[DATA / "manifest.json"] = json.dumps(manifest, ensure_ascii=False, indent=2) + "\n"
@@ -286,8 +369,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--check", action="store_true", help="只检查已生成的文件是否与 DSL 一致")
-    mode.add_argument("--check-structure", action="store_true", help="按模板检查 Coding DSL 结构")
-    mode.add_argument("--template", choices=DOCUMENT_TYPES, help="输出指定类型的 YAML 示例")
+    mode.add_argument("--check-structure", action="store_true", help="按模板检查 Coding 与 Hook DSL 结构")
+    mode.add_argument("--template", choices=(*DOCUMENT_TYPES, *HOOK_TYPES), help="输出指定类型的 YAML 示例")
     mode.add_argument("--locate-checkpoint", metavar="ID", help="定位检查点 ID 或文档ID#块ID")
     parser.add_argument("--from", dest="origin", metavar="文档ID", help="在指定流程图中定位节点")
     parser.add_argument("--show", action="store_true", help="定位时同时输出对应的 YAML 块内容")
@@ -298,11 +381,15 @@ def main() -> int:
         parser.error("使用 --from 时请指定流程图节点 ID")
     try:
         if args.locate_checkpoint is not None:
-            location = locate_checkpoint(ROOT, CODING, args.locate_checkpoint, args.origin, args.show)
+            location = locate_checkpoint(
+                ROOT, REFERENCES, HOOK_SOURCE, args.locate_checkpoint, args.origin, args.show,
+            )
             print(json.dumps(location, ensure_ascii=False, indent=2))
             return 0
         if args.template:
-            templates = load_templates(TEMPLATES, rule_validator())
+            validator = rule_validator()
+            templates = (load_hook_templates(HOOK_TEMPLATES, validator) if args.template in HOOK_TYPES
+                         else load_templates(TEMPLATES, validator))
             sample = templates[args.template]["document"]
             relative = Path(sample["markdown_path"])
             print(f"# yaml-language-server: $schema={'../' * len(relative.parent.parts)}reference.schema.json")
@@ -312,13 +399,22 @@ def main() -> int:
             yaml.dump(sample, sys.stdout)
             return 0
         if args.check_structure:
-            count = 0
-            for _, _, document in read_rules(CODING):
-                render_blocks(document["blocks"], 2, set(), {}, {})
-                count += 1
-            if not count:
-                raise ValueError("没有可校验的 Coding DSL")
-            print(f"Coding DSL 结构校验通过，共 {count} 份文档。")
+            sources = (*CODING.rglob("*.yaml"), *ROUTES.rglob("*.yaml"))
+            coding = {path: document for path, _, document in read_rules(sources)}
+            hooks = dict(read_hook_documents())
+            if not coding or not hooks:
+                raise ValueError("没有可校验的 Coding 或 Hook DSL")
+            for document in (*coding.values(), *hooks.values()):
+                markdown = render_blocks(document["blocks"], 2, set(), {}, {})
+                check_dsl_dependencies(document["markdown_path"], markdown)
+            check_flowchart_references(coding | hooks)
+            schema = json.loads((SOURCE / "hook-coverage.schema.json").read_text(encoding="utf-8"))
+            coverage = (SOURCE / HOOK_COVERAGE).with_suffix(".yaml")
+            report = read_rule(coverage, source_bytes(coverage).decode("utf-8"), Draft202012Validator(schema))
+            for row in report["rows"]:
+                if COMPLIANCE.reverse_dependency_target(PurePosixPath(coverage.relative_to(ROOT)), row["source"]):
+                    raise ValueError(f"Hook 来源对照存在反向依赖：{row['source']}")
+            print(f"DSL 结构校验通过，共 {len(coding)} 份 Coding 文档、{len(hooks)} 份 Hook 源文档和 1 份来源对照。")
             return 0
         outputs = compile_rules()
         for path in outputs:

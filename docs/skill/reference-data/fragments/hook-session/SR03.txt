@@ -1,0 +1,3 @@
+用实际生效的审计配置、每字段 explicit/default 来源和必要的日志访问证据作为结果。启动答案缺失则回到模式/预算 → 审计收集，保留已确认字段。fork/new Session 重新确认。仅在依赖的必需日志证据不可用或未验证时阻断。
+
+依据 [Session 审计解决](../references/coding/layer-03-workflow-checkpoints/session-audit-resolution.yaml)、[Session Audit Visibility](../references/coding/layer-01-fundamental-concepts/session-runtime/session-audit-visibility.yaml)、[Reasoning Summary Visibility](../references/coding/layer-01-fundamental-concepts/session-runtime/reasoning-summary-visibility.yaml)、[委派状态记录](../references/coding/layer-01-fundamental-concepts/delegation/delegation-state-record.yaml)。

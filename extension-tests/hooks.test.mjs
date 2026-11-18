@@ -16,24 +16,29 @@ const hookSources = readHookSources(catalog.root);
 for (const id of HOOK_IDS) test(`${id}: complete execution clauses and every portable source link survive injection`, () => {
   const document = `hooks/${id}.md`, source = hookSources[id];
   assert.ok(validateMarkdownLinks(catalog.root, document, source) > 0);
-  const body = source.slice(0, source.indexOf('\n## 规则来源\n')).trimEnd();
+  const notice = `\n\n<!-- 由 docs/rules/hooks/${id}.yaml 生成。请在 DSL 中维护正文。 -->`;
+  assert.ok(source.includes(notice));
+  const body = source.slice(0, source.indexOf('\n## 规则来源\n')).replace(notice, '')
+    .replace(/\n## 工作流路线图\n[\s\S]*?(?=\n## (?:输出与落点|退出与阻断)\n)/, '').trimEnd();
   assert.equal(catalog.references.readHook(id), body);
   const injected = renderHook(catalog, id, 'single');
   let expected = rewriteWorkflowLinks(catalog, document, body);
   const include = {
-    entry: ['current-route', 'coding-single-agent', 'mode-boundary'],
+    entry: [null, 'coding-single-agent', 'mode-boundary'],
     verification: ['verification-epoch', 'verification-epoch', 'actions'],
   }[id];
   if (include) {
     const [marker, sourceId, block] = include;
     const owner = catalog.references.document(sourceId);
     const fragment = rewriteWorkflowLinks(catalog, owner.path, catalog.references.readFragment(owner.id, block));
-    expected = expected.replace(`<!-- rule:${marker}#${block} -->`, () => fragment);
+    expected = marker ? expected.replace(`<!-- rule:${marker}#${block} -->`, () => fragment)
+      : expected + "\n\n## 当前路线的 Mode 边界\n\n" + fragment;
     assert.ok(injected.includes(fragment));
   }
   assert.equal(injected.slice(injected.indexOf('\n\n') + 2), expected);
   for (const title of ['触发条件', '执行要求', '退出与阻断', '重新核验']) assert.ok(injected.includes(`\n## ${title}\n`));
   assert.ok(!injected.includes('| 来源 | 本合同落点 |'), 'only the non-executable provenance table is left on disk');
+  assert.ok(!injected.includes('## 有序模块清单'), 'only the current checkpoint is separately read');
   for (const target of documentLinks(injected)) {
     assert.match(target, /^(?:coding-rule:|file:|https?:|mailto:|\/\/)/i, `unbased injected link: ${target}`);
     if (target.startsWith('file:')) assert.ok(existsSync(fileURLToPath(new URL(target))));
@@ -47,11 +52,11 @@ for (const id of HOOK_IDS) test(`${id}: complete execution clauses and every por
 
 test('the catalog reads only selected Hooks, route rules, and current checkpoint bodies', t => {
   const cases = [
-    ['single', 'entry', 3, 'SM01', 'entry-readiness', 'ER03', ['foundation', 'entry', 'navigation'], ['coding-single-agent', 'mode-boundary']],
-    ['multi', 'entry', 3, 'MM01', 'entry-readiness', 'ER03', ['foundation', 'entry', 'navigation'], ['coding-multi-agent', 'mode-boundary']],
-    ['single', 'execution', 3, 'SM04', 'single-execution', 'SE03', ['foundation', 'execution', 'planning']],
-    ['multi', 'execution', 4, 'MM04', 'delegated-execution', 'DE04', ['foundation', 'execution', 'delegation', 'planning', 'context', 'audit']],
-    ['single', 'verification', 3, 'SM05', 'verification-repair', 'VR03', ['foundation', 'verification', 'planning'], ['verification-epoch', 'actions']],
+    ['single', 'entry', 3, 'SM01', 'hook-entry', 'ER03', ['foundation', 'entry', 'navigation'], ['coding-single-agent', 'mode-boundary']],
+    ['multi', 'entry', 3, 'MM01', 'hook-entry', 'ER03', ['foundation', 'entry', 'navigation'], ['coding-multi-agent', 'mode-boundary']],
+    ['single', 'execution', 3, 'SM04', 'hook-execution', 'SE03', ['foundation', 'execution', 'planning']],
+    ['multi', 'execution', 4, 'MM04', 'hook-delegation', 'DE04', ['foundation', 'execution', 'delegation', 'planning', 'context', 'audit']],
+    ['single', 'verification', 3, 'SM05', 'hook-verification', 'VR03', ['foundation', 'verification', 'planning'], ['verification-epoch', 'actions']],
   ];
   const files = [];
   const original = fs.readFileSync;
@@ -95,9 +100,9 @@ test('the generated catalog rejects changed route or checkpoint bindings', t => 
   });
   syncBuiltinESMExports();
   try {
-    mutate = documents => { documents.find(doc => doc.id === 'coding-single-agent').fragments.find(item => item.id === 'SM04').module = 'delegated-execution'; };
+    mutate = documents => { documents.find(doc => doc.id === 'coding-single-agent').fragments.find(item => item.id === 'SM04').hook = 'delegation'; };
     assert.throws(() => loadCatalog(), /路线契约变化/);
-    mutate = documents => { documents.find(doc => doc.id === 'entry-readiness').fragments.find(item => item.id === 'ER00').id = 'ER99'; };
+    mutate = documents => { documents.find(doc => doc.id === 'hook-entry').fragments.find(item => item.id === 'ER00').id = 'ER99'; };
     assert.throws(() => loadCatalog(), /检查点契约变化/);
   } finally {
     t.mock.restoreAll();
@@ -108,14 +113,14 @@ test('the generated catalog rejects changed route or checkpoint bindings', t => 
 test('a modified checkpoint fragment fails the digest check before use', t => {
   const indexed = loadCatalog();
   const original = fs.readFileSync;
-  t.mock.method(fs, 'readFileSync', (path, ...args) => typeof path === 'string' && path.endsWith(join('verification-repair', 'VR03.txt'))
+  t.mock.method(fs, 'readFileSync', (path, ...args) => typeof path === 'string' && path.endsWith(join('hook-verification', 'VR03.txt'))
     ? Buffer.from('篡改的指令') : original(path, ...args));
   syncBuiltinESMExports();
   try {
     const state = makeState(indexed, 'dsl-pilot', process.cwd(), 'single', 0, '验证片段完整性');
     state.phase = 'verification';
     state.step = 3;
-    assert.throws(() => renderContext(new Workflow(indexed, state)), /Hash 不匹配：verification-repair#VR03/);
+    assert.throws(() => renderContext(new Workflow(indexed, state)), /Hash 不匹配：hook-verification#VR03/);
   } finally {
     t.mock.restoreAll();
     syncBuiltinESMExports();
@@ -124,10 +129,11 @@ test('a modified checkpoint fragment fails the digest check before use', t => {
 
 test('all substantive articles have explicit per-hook provenance and the checked-in map is current', () => {
   const rows = collectSourceCoverage(catalog);
-  assert.ok(rows.length >= 119);
+  assert.ok(rows.length >= 108);
+  assert.ok(rows.every(row => !row.path.startsWith('coding-workflows/')));
   assert.equal(rows.filter(row => row.path.includes('layer-01-') && row.kind === 'rule').length, 41);
   assert.ok(rows.every(row => row.declaredHooks.length));
-  assert.throws(() => classifySource(catalog, 'references/new-policy/rule.md'), /没有 Hook/);
+  assert.throws(() => classifySource('references/new-policy/rule.md'), /没有 Hook/);
   assert.ok(rows.filter(row => row.kind === 'rule').every(row => row.hooks.length));
   assert.equal(readFileSync(join(catalog.root, 'hooks/SOURCE_COVERAGE.md'), 'utf8'), coverageMarkdown(rows));
   for (const name of ['README', 'SOURCE_COVERAGE']) validateMarkdownLinks(catalog.root, `hooks/${name}.md`, readFileSync(join(catalog.root, `hooks/${name}.md`), 'utf8'));

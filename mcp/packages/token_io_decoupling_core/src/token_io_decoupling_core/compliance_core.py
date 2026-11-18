@@ -7,6 +7,7 @@ import re
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from pathlib import PurePosixPath
 from typing import Any
+from urllib.parse import unquote
 
 MAX_CANDIDATES = 64
 MAX_PATH_CHARS = 512
@@ -58,6 +59,8 @@ _FENCE_RE = re.compile(r"^( {0,3})(`{3,}|~{3,})(.*)$")
 
 _LINK_RE = re.compile(r"\[([^\]]*)\]\(([^)]+)\)")
 _INLINE_CODE_RE = re.compile(r"(`+)(.*?)\1")
+_REFERENCE_LINK_RE = re.compile(r"^ {0,3}\[([^\]]+)\]:[ \t]*(<[^>]+>|[^\s]+)")
+_EXTERNAL_LINK_RE = re.compile(r"^(?:[a-z][a-z0-9+.-]*:|//)", re.IGNORECASE)
 
 
 def _advance_fence(line: str, fence_char: str = "", fence_width: int = 0) -> tuple[str, int]:
@@ -81,34 +84,21 @@ def _advance_fence(line: str, fence_char: str = "", fence_width: int = 0) -> tup
 _MULTILINGUAL_FENCE_RE = re.compile(r"```.*?```", re.DOTALL)
 _LANGUAGE_SWITCH_LABELS = {"english", "简体中文"}
 
-_MODULES = (
-    "entry-readiness",
-    "session-readiness",
-    "work-definition",
-    "single-execution",
-    "delegated-execution",
-    "verification-repair",
-    "documentation",
-    "delivery-acceptance",
-)
-_ROUTE_MODULES = {
+_SKILL_LAYERS = {
+    ("references", "coding", "layer-01-fundamental-concepts"): "layer-01",
+    ("references", "coding", "layer-02-workflow-concepts"): "layer-02",
+    ("references", "coding", "layer-03-workflow-checkpoints"): "layer-03",
+    ("hooks",): "hook",
+    ("coding-workflows",): "coding-workflows",
+}
+_LAYER_RANK = {layer: index for index, layer in enumerate(_SKILL_LAYERS.values())}
+
+_ROUTE_HOOKS = {
     "coding-single-agent": (
-        "entry-readiness",
-        "session-readiness",
-        "work-definition",
-        "single-execution",
-        "verification-repair",
-        "documentation",
-        "delivery-acceptance",
+        "entry", "session", "planning", "execution", "verification", "documentation", "delivery",
     ),
     "coding-multi-agent": (
-        "entry-readiness",
-        "session-readiness",
-        "work-definition",
-        "delegated-execution",
-        "verification-repair",
-        "documentation",
-        "delivery-acceptance",
+        "entry", "session", "planning", "delegation", "verification", "documentation", "delivery",
     ),
 }
 
@@ -193,16 +183,11 @@ def validate_candidate_list(candidates: Any) -> list[dict[str, Any]]:
 
 def path_layer(path: PurePosixPath) -> str:
     parts = path.parts
-    if parts[:2] == ("docs", "skill"):
+    if parts[:2] in {("docs", "skill"), ("docs", "rules")}:
         parts = parts[2:]
-    if parts[:3] == ("references", "coding", "layer-01-fundamental-concepts"):
-        return "layer-01"
-    if parts[:3] == ("references", "coding", "layer-02-workflow-concepts"):
-        return "layer-02"
-    if parts[:3] == ("references", "coding", "layer-03-workflow-checkpoints"):
-        return "layer-03"
-    if parts[:3] == ("references", "coding", "layer-04-workflows"):
-        return "layer-04-module" if len(parts) > 3 and parts[3] == "modules" else "layer-04-route"
+    for prefix, layer in _SKILL_LAYERS.items():
+        if parts[:len(prefix)] == prefix:
+            return layer
     if parts[:2] == ("references", "share"):
         return "shared-protocols"
     if parts and parts[0] == "references":
@@ -214,6 +199,27 @@ def path_layer(path: PurePosixPath) -> str:
     if str(path) in {"docs/skill/workflows/coding.md", "docs/skill/workflows/coding_zh_cn.md"}:
         return "coding-selector"
     return "entry"
+
+
+def is_reverse_dependency(source_layer: str, target_layer: str) -> bool:
+    return (
+        source_layer in _LAYER_RANK
+        and target_layer in _LAYER_RANK
+        and _LAYER_RANK[source_layer] < _LAYER_RANK[target_layer]
+    )
+
+
+def reverse_dependency_target(source: PurePosixPath, href: str) -> str | None:
+    """识别跨层回链，包括目录链接和带转义的相对路径。"""
+    if _EXTERNAL_LINK_RE.match(href):
+        return None
+    target = unquote(href.split("#", 1)[0].split("?", 1)[0])
+    if not target:
+        return None
+    resolved = posixpath.normpath(posixpath.join(source.parent.as_posix(), target)).lstrip("/")
+    if is_reverse_dependency(path_layer(source), path_layer(PurePosixPath(resolved))):
+        return resolved
+    return None
 
 
 def path_language(path: PurePosixPath) -> str:
@@ -245,6 +251,8 @@ def allowed_link(
     source_path: PurePosixPath | None = None,
     target_path: PurePosixPath | None = None,
 ) -> bool:
+    if is_reverse_dependency(source, target):
+        return False
     same_layer_navigation = is_navigation and source == target
     if source in {"references", "layer-01"}:
         return same_layer_navigation or target == "layer-01"
@@ -252,13 +260,7 @@ def allowed_link(
         return same_layer_navigation or target in {"references", "layer-01"}
     if source in {"exist-workflow", "layer-03"}:
         return same_layer_navigation or target in {"shared-protocols", "layer-01", "layer-02"}
-    if source == "layer-04-route":
-        module_root = PurePosixPath("docs/skill/references/coding/layer-04-workflows/modules")
-        canonical_modules = {
-            module_root / f"{module}{suffix}.md" for module in _MODULES for suffix in ("", "_zh_cn")
-        }
-        if is_navigation and target == "layer-04-module" and target_path is not None:
-            return target_path.parent == module_root and target_path in canonical_modules
+    if source == "coding-workflows":
         if same_layer_navigation or target in {
             "shared-protocols",
             "layer-01",
@@ -266,17 +268,23 @@ def allowed_link(
             "layer-03",
         }:
             return True
-        if target != "layer-04-module" or source_path is None or target_path is None:
+        if target != "hook" or source_path is None or target_path is None:
             return False
-        route_root = PurePosixPath("docs/skill/references/coding/layer-04-workflows")
+        hook_root = PurePosixPath("docs/skill/hooks")
+        if target_path.parent != hook_root or target_path.suffix != ".md":
+            return False
+        route_root = PurePosixPath("docs/skill/coding-workflows")
+        if source_path.parent != route_root:
+            return False
+        if is_navigation:
+            return any(target_path.stem in hooks for hooks in _ROUTE_HOOKS.values())
+        if source_path.suffix != ".md":
+            return False
         route_name = source_path.stem.removesuffix("_zh_cn")
-        canonical_route = route_root / f"{route_name}.md"
-        if source_path not in {canonical_route, route_root / f"{route_name}_zh_cn.md"}:
-            return False
-        if target_path.parent != module_root or target_path not in canonical_modules:
-            return False
-        return target_path.stem.removesuffix("_zh_cn") in _ROUTE_MODULES.get(route_name, ())
-    if source in {"layer-04-module", "layer-04"}:
+        return target_path.stem in _ROUTE_HOOKS.get(route_name, ())
+    if source == "hook":
+        return target != "layer-04"
+    if source == "layer-04":
         return same_layer_navigation or target in {
             "shared-protocols",
             "layer-01",
@@ -290,8 +298,8 @@ def allowed_link(
             "layer-02",
             "layer-03",
             "layer-04",
-            "layer-04-route",
-            "layer-04-module",
+            "coding-workflows",
+            "hook",
         }
     return True
 
@@ -325,15 +333,25 @@ def normalize_multilingual_target(source: PurePosixPath, raw: str) -> PurePosixP
 
 
 def links_in_markdown(content: str) -> Iterable[tuple[int, str, str]]:
-    fenced = False
+    fence_char, fence_width = "", 0
     for line_number, line in enumerate(content.splitlines(), 1):
-        if line.strip().startswith("```"):
-            fenced = not fenced
+        previous = fence_char
+        fence_char, fence_width = _advance_fence(line, fence_char, fence_width)
+        if previous or fence_char:
             continue
-        if fenced:
-            continue
-        for label, raw_target in _LINK_RE.findall(_INLINE_CODE_RE.sub("", line)):
-            yield line_number, label, raw_target
+        line = _INLINE_CODE_RE.sub("", line)
+        links = _LINK_RE.findall(line)
+        definition = _REFERENCE_LINK_RE.match(line)
+        if definition:
+            links.append(definition.groups())
+        for label, raw in links:
+            target = raw.strip()
+            if target.startswith("<") and ">" in target:
+                target = target[1:target.index(">")]
+            elif target:
+                target = target.split(maxsplit=1)[0]
+            if target:
+                yield line_number, label, target
 
 
 def document_link_findings(
@@ -347,6 +365,13 @@ def document_link_findings(
     source_language = path_language(source)
     findings: list[dict[str, Any]] = []
     for line_number, label, raw_target in links_in_markdown(content):
+        reverse = reverse_dependency_target(source, raw_target)
+        if reverse is not None:
+            findings.append(_finding(
+                "markdown_link_layer", "fail", path, line_number,
+                "reverse Skill layer dependency is not allowed", target_path=reverse,
+            ))
+            continue
         target_text = raw_target.split("#", 1)[0].split("?", 1)[0]
         if (
             not target_text
@@ -439,6 +464,10 @@ def document_link_issues(documents: Mapping[str, str]) -> list[str]:
         source_layer = path_layer(source)
         source_language = path_language(source)
         for line_number, label, raw_target in links_in_markdown(content):
+            reverse = reverse_dependency_target(source, raw_target)
+            if reverse is not None:
+                issues.append(f"layer violation: {path}:{line_number} -> {reverse} (反向依赖)")
+                continue
             target_text = raw_target.split("#", 1)[0].split("?", 1)[0]
             if (
                 not target_text

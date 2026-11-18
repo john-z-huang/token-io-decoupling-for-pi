@@ -1,8 +1,8 @@
 # Hook 来源整合对照
 
-由 `node scripts/check-pi-hooks.mjs --write-coverage` 根据各 Hook 的“规则来源”表生成；默认检查只读。
+由 `node scripts/check-pi-hooks.mjs --write-coverage` 根据各 Hook 的“规则来源”表生成。
 
-实质文章逐篇指向实际引用它的执行合同；各合同末尾列明具体主题落点。目录/索引未逐篇引用时只保留导航归属，不把目录计作已整合的实质指令。Multimodal 两篇仅作范围参考，不启用可执行路线。
+本表列出 Hook 消费的规则和导航。实质文章逐篇指向引用它的合同，各合同末尾列明主题落点。路线的阶段绑定由路线索引与静态检查核对。
 
 **此表检查路径和显式归属，不证明所有条款语义等价、授权真实或验收通过。** 原 owner 保留权威；阅读正文和逐条审阅不能由数量、Hash或关键词替代。
 
@@ -112,18 +112,6 @@
 | [references/coding/layer-03-workflow-checkpoints/session-audit-resolution.md](../references/coding/layer-03-workflow-checkpoints/session-audit-resolution.md) | rule | [context](context.md#执行要求)、[audit](audit.md#执行要求) |
 | [references/coding/layer-03-workflow-checkpoints/session-state-resolution.md](../references/coding/layer-03-workflow-checkpoints/session-state-resolution.md) | rule | [session](session.md#执行要求) |
 | [references/coding/layer-03-workflow-checkpoints/workflow-navigation-selection.md](../references/coding/layer-03-workflow-checkpoints/workflow-navigation-selection.md) | rule | [navigation](navigation.md#执行要求) |
-| [references/coding/layer-04-workflows/INDEX.md](../references/coding/layer-04-workflows/INDEX.md) | navigation | 仅导航：[navigation](navigation.md#执行要求) |
-| [references/coding/layer-04-workflows/README.md](../references/coding/layer-04-workflows/README.md) | navigation | 仅导航：[navigation](navigation.md#执行要求) |
-| [references/coding/layer-04-workflows/coding-multi-agent.md](../references/coding/layer-04-workflows/coding-multi-agent.md) | rule | [entry](entry.md#执行要求)、[navigation](navigation.md#执行要求) |
-| [references/coding/layer-04-workflows/coding-single-agent.md](../references/coding/layer-04-workflows/coding-single-agent.md) | rule | [entry](entry.md#执行要求)、[navigation](navigation.md#执行要求) |
-| [references/coding/layer-04-workflows/modules/delegated-execution.md](../references/coding/layer-04-workflows/modules/delegated-execution.md) | rule | [execution](execution.md#执行要求)、[delegation](delegation.md#执行要求) |
-| [references/coding/layer-04-workflows/modules/delivery-acceptance.md](../references/coding/layer-04-workflows/modules/delivery-acceptance.md) | rule | [delivery](delivery.md#执行要求) |
-| [references/coding/layer-04-workflows/modules/documentation.md](../references/coding/layer-04-workflows/modules/documentation.md) | rule | [documentation](documentation.md#执行要求) |
-| [references/coding/layer-04-workflows/modules/entry-readiness.md](../references/coding/layer-04-workflows/modules/entry-readiness.md) | rule | [entry](entry.md#执行要求) |
-| [references/coding/layer-04-workflows/modules/session-readiness.md](../references/coding/layer-04-workflows/modules/session-readiness.md) | rule | [session](session.md#执行要求)、[context](context.md#执行要求)、[audit](audit.md#执行要求) |
-| [references/coding/layer-04-workflows/modules/single-execution.md](../references/coding/layer-04-workflows/modules/single-execution.md) | rule | [execution](execution.md#执行要求) |
-| [references/coding/layer-04-workflows/modules/verification-repair.md](../references/coding/layer-04-workflows/modules/verification-repair.md) | rule | [verification](verification.md#执行要求)、[repair](repair.md#执行要求) |
-| [references/coding/layer-04-workflows/modules/work-definition.md](../references/coding/layer-04-workflows/modules/work-definition.md) | rule | [planning](planning.md#执行要求) |
 | [references/multimodal/multimodal-flow.md](../references/multimodal/multimodal-flow.md) | reference | 仅参考：[foundation](foundation.md#执行要求) |
 | [references/multimodal/multimodal-openai-profile.md](../references/multimodal/multimodal-openai-profile.md) | reference | 仅参考：[foundation](foundation.md#执行要求) |
 | [references/share/shared-protocols.md](../references/share/shared-protocols.md) | rule | [foundation](foundation.md#执行要求) |

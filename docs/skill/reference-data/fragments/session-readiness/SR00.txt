@@ -1,1 +1,0 @@
-提供本声明、当前任务范围、已释放的入口/路线/模式证据、Session 身份/角色事实、所选路径、epoch 和 continuation/效果状态，调用[模块入口解析](../../layer-03-workflow-checkpoints/module-entry-resolution.yaml)。规范记录由本模块建立，不是入口前置条件。从记录的子步骤恢复。缺少前置条件时，以 owner 和暂停位置返回 `needs_prerequisite`；状态不安全或无法恢复时返回 `blocked`。

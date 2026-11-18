@@ -109,7 +109,7 @@ class PiRuntimeSupportTests(unittest.TestCase):
             self.assertIn(fact, advisory)
 
     def test_delegated_module_handles_synchronous_results_without_replay(self):
-        module = ROOT / "docs/skill/references/coding/layer-04-workflows/modules/delegated-execution.md"
+        module = ROOT / "docs/skill/hooks/delegation.md"
         text = module.read_text(encoding="utf-8")
         self.assertIn("同一次工具调用创建、派发、执行并返回", text)
         self.assertIn("同步一次性调用返回后直接在 DE07 审阅", text)

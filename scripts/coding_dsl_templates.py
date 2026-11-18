@@ -9,24 +9,22 @@ from pathlib import Path
 from jsonschema import Draft202012Validator
 from ruamel.yaml import YAML
 
-from workflow_module_contracts import MODULE_CHECKPOINTS, ROUTE_MODULES, TOP_PREFIXES
+from workflow_module_contracts import MODULE_HOOKS, ROUTE_MODULES, TOP_PREFIXES
 
 LAYER_TYPES = {
     "layer-01-fundamental-concepts": "fundamental-concept",
     "layer-02-workflow-concepts": "workflow-concept",
     "layer-03-workflow-checkpoints": "workflow-checkpoint",
-    "layer-04-workflows": "workflow-route",
+    "coding-workflows": "workflow-route",
 }
 NAVIGATION_TYPES = {"README": "directory-guide", "INDEX": "directory-index"}
-DOCUMENT_TYPES = (*NAVIGATION_TYPES.values(), *LAYER_TYPES.values(), "workflow-module")
+DOCUMENT_TYPES = (*NAVIGATION_TYPES.values(), *LAYER_TYPES.values())
 
 
 def document_type(path: Path) -> str:
     if path.stem in NAVIGATION_TYPES:
         return NAVIGATION_TYPES[path.stem]
-    layer, *parts = path.parts
-    if layer == "layer-04-workflows" and parts[:1] == ["modules"]:
-        return "workflow-module"
+    layer = path.parts[2] if path.parts[:2] == ("references", "coding") else path.parts[0]
     if layer not in LAYER_TYPES:
         raise ValueError(f"{path} 所在目录没有对应的 Coding DSL 类型")
     return LAYER_TYPES[layer]
@@ -78,15 +76,11 @@ def validate_coding_document(path: Path, document: dict, template: dict) -> None
             raise ValueError(f"{path}#checkpoints 应先声明 preconditions，再依次列出 {' → '.join(phases)}")
         if path.stem in ROUTE_MODULES:
             expected = tuple(
-                (f"{TOP_PREFIXES[path.stem]}{index:02d}", module)
+                (f"{TOP_PREFIXES[path.stem]}{index:02d}", MODULE_HOOKS[module])
                 for index, module in enumerate(ROUTE_MODULES[path.stem], 1)
             )
-            if tuple((block_id, block["module"]) for block_id, block in steps[1:]) != expected:
-                raise ValueError(f"{path}#checkpoints 的路线步骤 ID 或模块顺序与工作流合同不一致")
-    if expected_type == "workflow-module" and path.stem in MODULE_CHECKPOINTS:
-        ids = tuple(block_id for block_id, _ in block_entries(blocks["checkpoints"]["blocks"]))
-        if ids != MODULE_CHECKPOINTS[path.stem]:
-            raise ValueError(f"{path}#checkpoints 的检查点 ID 或顺序与模块合同不一致")
+            if tuple((block_id, block["hook"]) for block_id, block in steps[1:]) != expected:
+                raise ValueError(f"{path}#checkpoints 的路线步骤 ID 或 Hook 顺序与工作流合同不一致")
 
 
 def load_templates(directory: Path, validator: Draft202012Validator) -> dict[str, dict]:
@@ -97,10 +91,10 @@ def load_templates(directory: Path, validator: Draft202012Validator) -> dict[str
         if {block_id for layout in template["layouts"] for block_id in layout} != set(template["block_rules"]):
             raise ValueError(f"{path.name} 的 layouts 和 block_rules 须声明相同的块 ID")
         sample = template["document"]
-        path_from_coding = Path(sample["markdown_path"]).relative_to("references/coding").with_suffix(".yaml")
-        if document_type(path_from_coding) != name:
+        sample_path = Path(sample["markdown_path"]).with_suffix(".yaml")
+        if document_type(sample_path) != name:
             raise ValueError(f"{path.name} 的示例路径须对应 {name}")
         validator.validate(sample)
-        validate_coding_document(path_from_coding, sample, template)
+        validate_coding_document(sample_path, sample, template)
         templates[name] = template
     return templates

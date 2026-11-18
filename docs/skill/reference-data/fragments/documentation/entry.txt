@@ -1,7 +1,0 @@
-| 字段 | 要求 |
-| --- | --- |
-| 入口前置条件 | 适用的 Single-Agent 或 Multi-Agent Mode 门禁已有当前释放证据；当前 Session 身份与 authority 已确认；调用方 continuation 和已完成效果均已知，且无未解决的效果歧义。 |
-| 必需输入 | 当前 Contract 和范围、待记录状态的当前 implementation/content Verification，以及写前指纹。适用文档、注释或 Memory 输出时，须提供批准路径、读者、目的、来源证据和作者/职责授权。 |
-| 允许效果 | 编辑已放行的文档/注释路径；有条件地持久化明确请求或触发的可复用项目 Memory；运行适用的文档检查并分类影响。普通非 Skill 文档由 parent 编写。 |
-| 结果 | 以当前 documentation epoch、检查、前后指纹、受影响/未受影响维度，以及可复用 Memory 写入/读回结果返回 `complete`；否则连同所需 owner 和 continuation 返回 `needs_prerequisite` 或 `blocked`。 |
-| 新鲜度 | 将来源 Verification 和文档结果绑定到当前指纹及适用 epoch。写后变化只使受影响维度失效；可执行内容、Contract 或验收变化也会使 implementation/content 证据失效。 |

@@ -11,7 +11,7 @@ interface FragmentMetadata {
 type Fragment = FragmentMetadata & (
   | { kind: "checkpoint" | "markdown" }
   | { kind: "section"; anchor: string }
-  | { kind: "route_step"; phase: string; module: string }
+  | { kind: "route_step"; phase: string; hook: string }
 );
 
 interface ReferenceDocument {
@@ -24,7 +24,7 @@ interface ReferenceDocument {
 
 const DOCUMENT_ID = /^[a-z][a-z0-9-]*$/;
 const FRAGMENT_ID = /^[A-Za-z][A-Za-z0-9-]*$/;
-const MARKDOWN_PATH = /^references\/(?:[A-Za-z0-9_-]+\/)+[A-Za-z0-9_-]+\.md$/;
+const MARKDOWN_PATH = /^(?:references\/(?:[A-Za-z0-9_-]+\/)+[A-Za-z0-9_-]+|hooks\/[a-z][a-z0-9-]*|coding-workflows\/[A-Za-z0-9_-]+)\.md$/;
 const SHA256 = /^[0-9a-f]{64}$/;
 
 export function loadReferenceData(root: string) {
@@ -37,7 +37,7 @@ export function loadReferenceData(root: string) {
 
   const manifest = read("reference-data", "manifest.json").toString("utf8");
   const parsed = JSON.parse(manifest) as { schema_version?: unknown; documents?: ReferenceDocument[]; hooks?: Record<string, string>; legacy_rule_sha256?: unknown } | null;
-  if (parsed?.schema_version !== 4 || !Array.isArray(parsed.documents) || !parsed.hooks || typeof parsed.hooks !== "object" || Array.isArray(parsed.hooks) ||
+  if (parsed?.schema_version !== 5 || !Array.isArray(parsed.documents) || !parsed.hooks || typeof parsed.hooks !== "object" || Array.isArray(parsed.hooks) ||
       typeof parsed.legacy_rule_sha256 !== "string" || !SHA256.test(parsed.legacy_rule_sha256)) {
     throw new Error("规则片段索引版本或结构不匹配");
   }
@@ -64,7 +64,7 @@ export function loadReferenceData(root: string) {
       if (fragment.kind === "section" && (typeof fragment.anchor !== "string" || !fragment.anchor)) {
         throw new Error(`规则片段索引缺少章节锚点：${document.id}#${fragment.id}`);
       }
-      if (fragment.kind === "route_step" && (typeof fragment.phase !== "string" || typeof fragment.module !== "string" || !DOCUMENT_ID.test(fragment.module))) {
+      if (fragment.kind === "route_step" && (typeof fragment.phase !== "string" || typeof fragment.hook !== "string" || !DOCUMENT_ID.test(fragment.hook))) {
         throw new Error(`规则片段索引含无效路线项：${document.id}#${fragment.id}`);
       }
       seen.add(fragment.id);

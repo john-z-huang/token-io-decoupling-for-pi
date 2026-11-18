@@ -1,5 +1,7 @@
 # 中断、前置补证与原位恢复
 
+<!-- 由 docs/rules/hooks/recovery.yaml 生成。请在 DSL 中维护正文。 -->
+
 ## 触发条件
 
 - paused/blocked、工具 abort/失败、效果未知、会话加载/恢复、树导航、压缩、新用户输入或 user_bash 后。

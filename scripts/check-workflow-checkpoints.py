@@ -6,11 +6,11 @@ import re
 import sys
 from pathlib import Path
 from urllib.parse import unquote
-from workflow_module_contracts import MODULE_CHECKPOINT_L3_OWNERS, MODULE_L3_OWNERS, MODULE_PREFIXES
+from workflow_module_contracts import MODULE_CHECKPOINT_L3_OWNERS, MODULE_L3_OWNERS, MODULE_PREFIXES, MODULE_HOOKS
 
 ROOT = Path(__file__).resolve().parents[1]
 L3 = ROOT / "docs/skill/references/coding/layer-03-workflow-checkpoints"
-MODULES = ROOT / "docs/skill/references/coding/layer-04-workflows/modules"
+HOOKS = ROOT / "docs/skill/hooks"
 SLUGS = (
     "route-entry", "workflow-navigation-selection", "session-audit-resolution",
     "session-state-resolution", "context-source-selection", "decision-context-selection",
@@ -93,7 +93,7 @@ def markdown_link_targets(text: str) -> list[str]:
     without_inline_code = INLINE_CODE_SPAN_RE.sub("", without_fences)
     return LINK_RE.findall(without_inline_code)
 STEP_RE = re.compile(r"^(\d+)\. \*\*([A-Z]+\d{2}) —")
-REL_LINK_PREFIX = "../../layer-03-workflow-checkpoints/"
+REL_LINK_PREFIX = "../references/coding/layer-03-workflow-checkpoints/"
 
 
 def numbered_steps(path: Path) -> list[tuple[str, str, list[str]]]:
@@ -151,7 +151,7 @@ def main() -> int:
     for module in MODULE_NAMES:
         for suffix, lang in ((".md", "zh"),):
             module_consumed: set[str] = set()
-            path = MODULES / f"{module}{suffix}"
+            path = HOOKS / f"{MODULE_HOOKS[module]}{suffix}"
             if not path.is_file():
                 errors.append(f"missing module: {path.relative_to(ROOT)}")
                 continue

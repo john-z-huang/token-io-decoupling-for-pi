@@ -1,5 +1,7 @@
 # 执行 Hook：Slice、Control 与阶段反馈
 
+<!-- 由 docs/rules/hooks/execution.yaml 生成。请在 DSL 中维护正文。 -->
+
 ## 触发条件
 
 当任务进入 coding execution、准备释放或恢复 Slice、执行者收到任务、到达返回条件/阶段边界、出现新事实或工具失败时适用。它是声明式动作合同，不是宿主回调、命令脚本或工具授权。Root 先读取当前 Contract、Decision、Context、模式/执行者、授权与效果状态；依据当前直接证据判断，不能把未知、未检查或调用成功等同于否。
@@ -53,6 +55,99 @@ Slice 必须同时具有以下四字段，缺一不得释放：
 
 路线建议仅作输入。核对当前 Root 状态、直接 owner、适用性、输入/上下文/政策 Hash 和证据时效；建议失败、过期或不可信且直接证据不足时保持未决，绝不默认 Root、no 或 Continue。单代理内部暂停；多代理不得让 Worker 自我批准后续工作。
 
+## 工作流路线图
+
+```mermaid
+flowchart TD
+    SE00["SE00 解析模块入口"]
+    D_ENTRY{"入口结果？"}
+    SE01["SE01 分别解析执行者和输出"]
+    SE02["SE02 恢复门禁和当前 Slice"]
+    D_GATE{"恢复门禁与释放有效？"}
+    SE03["SE03 实施；返回初步检查"]
+    D_OUTPUT{"是否已选择且当前有效的受控候选路径？"}
+    SE_OUTPUT_PREP["准备并检查同一有界候选及 manifest"]
+    SE_OUTPUT_PREFLIGHT["在同一固定 root 和政策下进行新鲜的 whole-batch 预检"]
+    SE_OUTPUT_APPLY["重新核验授权、artifact 和 baseline；应用准确候选"]
+    SE_OUTPUT_REVIEW["审阅收据和实际当前状态"]
+    SE_OUTPUT_NA["not_applicable：未选择可选候选路径；已记录原因"]
+    SE_OUTPUT_NEEDS["needs_prerequisite：解决已选输出守卫/预检/状态；恢复 SE03 子步骤"]
+    SE04["SE04 阶段反馈"]
+    SE05["SE05 当前 Control 决策"]
+    D_RECOVERY{"恢复处置？"}
+    D_CONTROL{"Control 结果和后续工作？"}
+    SE06["SE06 返回已完成实施状态和初步证据"]
+    SE_NEEDS_ENTRY["needs_prerequisite：解析入口 owner"]
+    SE_NEEDS_EOD["needs_prerequisite：补充证据；恢复同一 Control"]
+    SE_NEEDS_AMEND["needs_prerequisite：更新 Contract/Decision；按需更新 Context；恢复 Control"]
+    SE_NEEDS_NEXT["needs_prerequisite：解析下一 Slice 的 Context/Decision"]
+    D_CONTINUE_COVERS{"先前 Continue 是否仍覆盖该有界 Slice 且当前状态/epoch有效？"}
+    D_REROUTE{"任务、授权、执行者或输出证据是否变化？"}
+    SE_BLOCK["blocked"]
+    SE00 --> D_ENTRY
+    D_ENTRY -- 就绪 --> SE01
+    D_ENTRY -- 证据缺失 --> SE_NEEDS_ENTRY
+    D_ENTRY -- 冲突或状态不安全 --> SE_BLOCK
+    SE01 -- Root 且输出已处置 --> SE02
+    SE01 -- 明确 sub_agent 或 output yes 拓扑暂停 --> SE_BLOCK
+    SE01 -- 必需处置未知 --> SE_NEEDS_ENTRY
+    SE02 --> D_GATE
+    D_GATE -- 当前已授权 Slice --> SE03
+    D_GATE -- post-floor Continue 缺失/过期 --> SE05
+    D_GATE -- Slice 未授权或 Stop --> SE_BLOCK
+    SE03 --> D_OUTPUT
+    D_OUTPUT -- 已选择；执行者、class、capability、授权、root 和 baseline 当前有效 --> SE_OUTPUT_PREP
+    D_OUTPUT -- 未选择可选候选路径；记录原因 --> SE_OUTPUT_NA
+    D_OUTPUT -- 所选路径缺少当前必需能力/证据 --> SE_OUTPUT_NEEDS
+    D_OUTPUT -- 效果未授权或不安全 --> SE_BLOCK
+    SE_OUTPUT_PREP -- 同一候选及 manifest 已审阅 --> SE_OUTPUT_PREFLIGHT
+    SE_OUTPUT_PREP -- 准备、检查或完整性未解决 --> SE_OUTPUT_NEEDS
+    SE_OUTPUT_PREFLIGHT -- 在同一固定 root 和政策下新鲜 whole-batch 预检通过 --> SE_OUTPUT_APPLY
+    SE_OUTPUT_PREFLIGHT -- 已选检查失败、未知、遗漏或过期 --> SE_OUTPUT_NEEDS
+    SE_OUTPUT_APPLY -- 准确应用完成；收据和实际状态已审阅 --> SE_OUTPUT_REVIEW
+    SE_OUTPUT_APPLY -- 部分完成、冲突、不确定或状态已改变 --> SE_OUTPUT_NEEDS
+    SE_OUTPUT_NA --> SE04
+    SE_OUTPUT_REVIEW --> SE04
+    SE04 -- 有阶段反馈触发条件 --> SE05
+    SE04 -- 无触发条件；记录 not_applicable 原因 --> SE05
+    SE05 --> D_RECOVERY
+    D_RECOVERY -- recovery Continue --> SE02
+    D_RECOVERY -- Evidence-on-Demand --> SE_NEEDS_EOD
+    D_RECOVERY -- Amend --> SE_NEEDS_AMEND
+    D_RECOVERY -- Stop --> SE_BLOCK
+    D_RECOVERY -- normal Continue --> D_CONTROL
+    SE_NEEDS_EOD -- 必需证据已当前 --> SE05
+    SE_NEEDS_AMEND -- Contract/Decision及所需Context已当前 --> SE05
+    D_CONTROL -- 存在下一 Slice --> SE_NEEDS_NEXT
+    SE_NEEDS_NEXT -- Context/Decision 已当前 --> D_CONTINUE_COVERS
+    D_CONTINUE_COVERS -- Continue仍覆盖该Slice；边界与epoch当前 --> D_REROUTE
+    D_CONTINUE_COVERS -- 范围/Contract/授权/边界或epoch使Continue失效 --> SE05
+    D_REROUTE -- 受影响的路线证据变化 --> SE01
+    D_REROUTE -- 路线证据仍当前 --> SE02
+    D_CONTROL -- 任务当前 post-implementation 证据成立；无下一 Slice 或待处理恢复 --> SE06
+    SE02 -- 必需计划访问、持久化或核验失败 --> SE_BLOCK
+
+```
+
+## 有序模块清单
+
+1. **SE00 — 解析入口。** 用当前授权、路线及模式、Session/审计读回、Context/Decision 和已有效果核对入口。按入口合同返回缺失证据的 owner 和原暂停位置；冲突或已有效果无法安全恢复时阻断。
+
+   依据 [模块入口解析](../references/coding/layer-03-workflow-checkpoints/module-entry-resolution.md)。
+2. **SE01 — 分别解析执行者和输出。** 应用[任务分配](../references/coding/layer-01-fundamental-concepts/execution-planning/task-assignment.md)和[执行者选择](../references/coding/layer-03-workflow-checkpoints/executor-selection.md)，再应用[输出 Token 路由](../references/coding/layer-01-fundamental-concepts/execution-planning/output-token-routing.md)及[输出路由选择](../references/coding/layer-03-workflow-checkpoints/output-route-selection.md)。在已释放 Single-Agent 模式下，明确的 `sub_agent` 结果与锁定 Mode 冲突，返回 `blocked`。Root 直接输出为 `yes` 时，报告锁定的拓扑边界并阻塞 Slice 释放；不得暗示本 Session 可以更改 Mode。必需的执行者/输出证据未知时返回 `needs_prerequisite`。仅当 Root 执行已确认且输出已处置时继续。
+3. **SE02 — 应用当前 Control 门禁并释放 Slice。** 以当前 Context 和 Decision 放行有界 Slice，记录目标、授权路径和影响、返回条件、未放行边界，并读回父级控制记录。先确认计划持久化及适用核验，或记录获准例外。Control 因实质变化失效时先回 SE05；`Stop` 或必需计划证据失败时阻断。
+
+   依据 [执行控制](../references/coding/layer-01-fundamental-concepts/execution-control/execution-control.md)、[执行规划](../references/coding/layer-01-fundamental-concepts/execution-planning/execution-planning.md)、[委派状态记录](../references/coding/layer-01-fundamental-concepts/delegation/delegation-state-record.md)、[任务计划 Memory 生命周期](../references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md)。
+4. **SE03 — 实施并返回初步检查。** 应用[实施](../references/coding/layer-02-workflow-concepts/decision-and-execution/implementation.md)。仅检查必要来源并作最小授权改动。只有当前执行者、输出 class、capability、单独授权、固定 root、准确路径和 baseline 都符合[输出物料化](../references/coding/layer-01-fundamental-concepts/execution-planning/output-materialization.md)时，才应用该 owner。准备并检查有界候选，保留其 manifest 身份/hash。应用前，按[候选合规预检](../references/coding/layer-01-fundamental-concepts/execution-planning/candidate-compliance.md)在同一固定 root 和政策下进行新鲜 whole-batch 预检；然后重新核验授权、artifact 完整性和 baseline，再应用准确候选。审阅收据和实际当前文件；准备、预检和收据不是最终 Verification。未选择可选路径时，记录有原因的 `not_applicable`，且仅在独立授权的直接路径下继续。已选路径缺少必需能力/守卫/预检，或返回失败、未知、遗漏、过期、不确定时，在依赖操作前返回 `needs_prerequisite` 或 `blocked`；不得静默回退。部分、冲突或不确定的应用须先根据实际当前状态解决；不得覆盖已改变内容进行重放。仅在需要代码结构证据且能力可用时才使用[LSP MCP Tools](../references/coding/layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.md)。所需 LSP 语义不可用时，说明限制并回退到定向文本搜索和路径范围较小的读取；不得将这些发现称为 LSP 证据。只有不需要代码结构证据时才能记录 `not_applicable`。必需关系仍未知时阻塞。运行聚焦的初步检查，返回变更路径、效果、当前指纹、检查输出、适用时的收据/当前状态证据和未解决问题。这不是最终验证。
+5. **SE04 — 提供阶段反馈。** 触发时应用[执行阶段反馈](../references/coding/layer-01-fundamental-concepts/execution-control/execution-stage-feedback.md)，在实质阶段边界返回有界 Progress Signal。无触发条件时，记录带观察原因的 `not_applicable`。两条路径都进入 SE05；不得跳过 Control。
+6. **SE05 — 解决当前 Control。** 应用[Control](../references/coding/layer-02-workflow-concepts/decision-and-execution/control.md)、[执行控制](../references/coding/layer-01-fundamental-concepts/execution-control/execution-control.md)、[建议选择](../references/coding/layer-03-workflow-checkpoints/advisory-selection.md)及[Decisions Advisory](../references/coding/layer-01-fundamental-concepts/execution-planning/decisions-advisory.md)。消费当前 Progress Signal 的 status、findings、change scope、verification、issue、need 和当前未释放边界证据。仅在建议当前可信、符合条件、已启用且已授权时消费；否则记录带原因的建议 `not_applicable`，并根据当前直接证据决策。为各结果保留当前 continuation：
+   - post-floor `Continue` 缺失/过期时，进入或恢复同一 Control 检查。新的 recovery `Continue` 返回 SE02 处理下一/恢复 Slice。
+   - `Evidence-on-Demand` 暂停释放并返回 `needs_prerequisite`；保留同一 Control continuation，证据到达后回到此处。
+   - `Amend` 返回 `needs_prerequisite`；按 owners 更新 Contract 和 Decision，并在需要时更新 Context。随后恢复同一 Control 检查，并取得新的明确 `Continue` 后才返回 SE02；先前结果不释放工作。
+   - `Stop` 返回 `blocked`。
+   - 普通 `Continue` 后若有下一 Slice，则返回 `needs_prerequisite`，先为该 Slice 解析当前 Context/Decision，并核验此 `Continue` 仍覆盖新的有界 Slice 且状态/epoch 当前。若范围、Contract、授权、未释放边界或相关 epoch 使其失效，则恢复此 Control 检查并取得新的明确 `Continue`；否则仅在 SE01 重核已变化的执行者/输出证据，然后进入 SE02，不重放已完成效果。若没有下一 Slice 且没有待处理恢复结果，只有当前 post-implementation 证据确认任务已完成后才进入 SE06。
+7. **SE06 — 返回实施状态。** 返回实际实施结果、路径与效果、当前指纹、初步检查、Control 处置、continuation 及限制。待恢复或下一 Slice 尚未处理时保留原返回位置。最终验证和验收由后续阶段完成。
+
 ## 退出与阻断
 
 结束时返回实际完成/未完成状态、精确路径和效果、读回/收据与初步检查证据、失败/部分效果、未决项及仍未释放的边界。仅在本 Slice 返回条件满足、无待处理恢复/效果不明且当前 Control 处置明确时返回；否则返回 needs-prerequisite 或 blocked 并说明缺项。未授权路径或效果、Slice 四字段缺失、冲突/过期证据、必需验证未知、候选守卫未通过、真实效果不明、越界风险或 Stop 均阻断依赖动作。不得把局部实施标为最终完成/验收。
@@ -75,5 +170,3 @@ Slice 必须同时具有以下四字段，缺一不得释放：
 | [executor-selection](../references/coding/layer-03-workflow-checkpoints/executor-selection.md) | 身份、模式、候选预检、忙碌和未决处置。 |
 | [output-route-selection](../references/coding/layer-03-workflow-checkpoints/output-route-selection.md) | 输出路由输入、Hash、结果与拓扑边界。 |
 | [role-reservation](../references/coding/layer-03-workflow-checkpoints/role-reservation.md) | 仅新执行者的角色、allocation、容量及阻断条件。 |
-| [single-execution](../references/coding/layer-04-workflows/modules/single-execution.md) | Root 单代理执行、拓扑限制、恢复及 Control 回环。 |
-| [delegated-execution](../references/coding/layer-04-workflows/modules/delegated-execution.md) | Root/Worker 共用 Slice、父级控制、实际结果审阅及禁止重放。 |

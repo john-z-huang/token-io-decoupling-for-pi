@@ -1,1 +1,0 @@
-根据当前任务、角色、名额和 Memory 事实应用[Bootstrap 选择](../../layer-03-workflow-checkpoints/bootstrap-selection.yaml)。建议不预留角色，也不释放 Slice。Root 重核当前 Context 和 Decision，然后明确授权实际任务：适用时采用有界 Bootstrap/Refresh 任务，否则采用原任务。独立辅助 Bootstrap 任务需要 Root 另行授权，并将原任务保留为 continuation；辅助任务完成后返回 DE01，单独授权并评估原任务，不得依据辅助结果将原任务标为完成。实际任务缺少授权时阻塞。

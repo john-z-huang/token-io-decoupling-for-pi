@@ -1,5 +1,7 @@
 # 有界上下文、Memory 与交接 Hook
 
+<!-- 由 docs/rules/hooks/context.yaml 生成。请在 DSL 中维护正文。 -->
+
 本合同约束上下文发现、消费、持久化与交接；不授予代码访问、子任务、Memory 写入或调度权限。按任务依赖逐项应用，互不替代。
 
 ## 触发条件
@@ -68,4 +70,3 @@ Capsule 是精简上下文包：事实、权威来源指针、必要 hash 与新
 | [LSP-MCP-Tools.md](../references/coding/layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.md) | 项目激活、结构查询、长期知识、维护与按需读回 |
 | [context.md](../references/coding/layer-02-workflow-concepts/entry-and-context/context.md) | 当前问题、有界事实及Context通过条件 |
 | [session-audit-resolution.md](../references/coding/layer-03-workflow-checkpoints/session-audit-resolution.md) | 会话审计状态应用 |
-| [session-readiness.md](../references/coding/layer-04-workflows/modules/session-readiness.md) | 上下文消费前准备 |

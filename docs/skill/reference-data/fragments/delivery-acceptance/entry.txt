@@ -1,7 +1,0 @@
-| 字段 | 要求 |
-| --- | --- |
-| 入口前置条件 | 适用的 Single-Agent 或 Multi-Agent Mode 门禁已有当前释放证据；当前 Session 身份与 authority 已确认；调用方 continuation 和已完成效果均已知，且无未解决的效果歧义。 |
-| 必需输入 | 当前 Contract 和全部验收标准、当前 implementation/content 与 documentation Verification 结果、当前范围/指纹/epoch、准确的 Git 目标和效果意图，以及请求 Git 效果时针对该操作的实际授权。 |
-| 允许效果 | 仅检查并针对准确目标执行明确授权的 Git 操作；读取当前 Acceptance 证据；通过计划 owner 要求的内容保留核验路径完成和归档匹配的已完成 active plan。不得重放已完成效果或产生新授权。 |
-| 结果 | 仅当每项适用 Contract 标准都映射到当前证据，且所请求并已授权的交付结果符合已验证指纹时返回 `complete`；否则针对未解决标准、授权或 owner 返回 `needs_prerequisite` 或 `blocked`。 |
-| 新鲜度 | 将交付绑定到当前目标、范围、已验证内容/文档指纹与 epoch，以及 Git metadata epoch。任何差异都须在进一步 Git 效果或 Acceptance 前返回受影响的 Verification 维度。 |

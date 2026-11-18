@@ -10,14 +10,14 @@
 1. 在路线选择前完成 Contract 检查点。
 2. 识别真实运行环境，完成运行环境检查点，并建立或加载[运行环境能力清单](../references/coding/layer-02-workflow-concepts/entry-and-context/environment-capability-inventory.md)进行能力检查。
 3. 通过消费已建立的运行环境能力清单的模式检查点，组合根指令模式门禁所需的委派 references。
-4. 使用当前证据调用[路线入口](../references/coding/layer-03-workflow-checkpoints/route-entry.md)，确认 Contract、运行环境、能力清单和 Mode 均已通过。只选择其授权的完整路线，并将已释放的 mode/count 证据交给首个模块检查点 SM01/MM01。每条路线依次组合[入口就绪](../references/coding/layer-04-workflows/modules/entry-readiness.md)、[Session 就绪](../references/coding/layer-04-workflows/modules/session-readiness.md)、[工作定义](../references/coding/layer-04-workflows/modules/work-definition.md)、对应模式的执行模块、[验证与修复](../references/coding/layer-04-workflows/modules/verification-repair.md)、[文档](../references/coding/layer-04-workflows/modules/documentation.md)和[交付与验收](../references/coding/layer-04-workflows/modules/delivery-acceptance.md)。只在到达时加载已选路线及对应模块。
+4. 使用当前证据调用[路线入口](../references/coding/layer-03-workflow-checkpoints/route-entry.md)，确认 Contract、运行环境、能力清单和 Mode 均已通过。只选择其授权的完整路线，并将已释放的 mode/count 证据交给首个模块检查点 SM01/MM01。每条路线依次组合[入口就绪](../hooks/entry.md)、[Session 就绪](../hooks/session.md)、[工作定义](../hooks/planning.md)、对应模式的执行模块、[验证与修复](../hooks/verification.md)、[文档](../hooks/documentation.md)和[交付与验收](../hooks/delivery.md)。按已选路线和当前阶段读取相应 Hook 的触发条件及检查点。
 
 所有现有及未来路线均通过工作定义和执行检查点消费[任务计划 Memory 生命周期](../references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md)。向执行阶段传递共享计划身份、当前计划证据与持久化确认，或有记录的限制例外；完成 owner 要求的任何内容核验。在 owner 规定的阶段、交接、暂停和完成边界记录更新；影响授权、范围、验收、方向或依赖动作的变化仍须在该动作前记录。只有匹配计划生命周期已解决后才完成。无需额外规划请求。
 
 ## 路线
 
-- [单代理 Coding](../references/coding/layer-04-workflows/coding-single-agent.md)：用户明确选择 `mode: Single-Agent Coding` 时使用；与指令相关的任务事项留在当前 Session 中完成。
-- [多代理 Coding](../references/coding/layer-04-workflows/coding-multi-agent.md)：已释放的 Mode 选择 Multi-Agent Coding 且已锁定正整数 `child_count` 时使用。Mode 检查点负责四项菜单、默认值和无效输入处理；锁定预算不初始化子代理。
+- [单代理 Coding](../coding-workflows/coding-single-agent.md)：用户明确选择 `mode: Single-Agent Coding` 时使用；与指令相关的任务事项留在当前 Session 中完成。
+- [多代理 Coding](../coding-workflows/coding-multi-agent.md)：已释放的 Mode 选择 Multi-Agent Coding 且已锁定正整数 `child_count` 时使用。Mode 检查点负责四项菜单、默认值和无效输入处理；锁定预算不初始化子代理。
 
 不要同时加载两条路线。如果后续实质事实使路线失效，停止当前切片，按需修改 Contract，并返回路线入口。
 
@@ -30,7 +30,8 @@
 | [`layer-01-fundamental-concepts`](../references/coding/layer-01-fundamental-concepts) | 基础原子概念 | layer-01 概念 |
 | [`layer-02-workflow-concepts`](../references/coding/layer-02-workflow-concepts) | 通用工作流检查点动作与证据 | `layer-01-fundamental-concepts`；不得链接 layer-03/04 |
 | [`layer-03-workflow-checkpoints`](../references/coding/layer-03-workflow-checkpoints) | 当前任务的适用性、分支与组合决策 | layer-01、layer-02；不得链接 layer-04 |
-| [`layer-04-workflows`](../references/coding/layer-04-workflows) | 完整可执行路线 | 共享协议、layer-01、layer-02 和 layer-03；路线也可调用其精确批准的同语言 Layer-04 模块，模块仅依赖共享协议与 Layers 01–03 且不得调用同级模块 |
+| [`hooks`](../hooks/README.md) | 阶段检查点及触发合同 | 共享协议和 Layers 01–03 的规则 |
+| [`coding-workflows`](../coding-workflows/INDEX.md) | 两条完整路线和跨阶段返回规则 | 绑定各阶段 Hook，按需引用前置规则 |
 | `workflows/coding.md` | 路线选择器和四层索引 | 四个层级；只负责导航，不拥有策略 |
 
 如果低层文档需要由高层拥有的概念，应将其视为原子化失败：拆分低层文档，并把组合关系上移到高层。`SKILL.md`、`README.md` 和 `docs/` 等根入口文档可以向下链接到入口。使用 `python3 scripts/check-doc-layer-links.py` 检查边界；不再维护语言切换链接或平行语言版本。

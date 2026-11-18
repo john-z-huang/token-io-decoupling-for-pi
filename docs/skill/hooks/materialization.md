@@ -1,5 +1,7 @@
 # 候选预检与受控输出物化
 
+<!-- 由 docs/rules/hooks/materialization.yaml 生成。请在 DSL 中维护正文。 -->
+
 ## 触发条件
 
 - Agent 上报 `materialization_requested`，拟对一批候选仓库输出作结构预检，或准备/审阅/应用受保护候选产物。

@@ -1,10 +1,10 @@
-路线按序组合这些模块，并负责所有跨模块顺序和 continuation。当模块声明的工作与效果已包含在现有用户授权范围内且入口前置条件通过时，可进入该模块；无需额外按模块名称授权。模块不调用同级模块。
+路线按序绑定这些 Hook，并保留跨阶段顺序和 continuation。进入阶段前核验 Hook 的触发、输入和授权边界，按清单读取当前检查点。
 
-- [入口就绪](modules/entry-readiness.yaml)
-- [Session 就绪](modules/session-readiness.yaml)
-- [工作定义](modules/work-definition.yaml)
-- [Single-Agent 执行](modules/single-execution.yaml)
-- [委派执行](modules/delegated-execution.yaml)
-- [验证与修复](modules/verification-repair.yaml)
-- [文档](modules/documentation.yaml)
-- [交付与验收](modules/delivery-acceptance.yaml)
+- [入口就绪](../hooks/entry.yaml)
+- [Session 就绪](../hooks/session.yaml)
+- [工作定义](../hooks/planning.yaml)
+- [Single-Agent 执行](../hooks/execution.yaml)
+- [委派执行](../hooks/delegation.yaml)
+- [验证与修复](../hooks/verification.yaml)
+- [文档](../hooks/documentation.yaml)
+- [交付与验收](../hooks/delivery.yaml)

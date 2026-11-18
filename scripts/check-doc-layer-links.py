@@ -19,7 +19,6 @@ ROUTE_COORDINATE_RE = re.compile(
     r"(?<![A-Za-z0-9_])(?:SM|MM|ER|SR|WD|SE|DE|VR|DOC|DA|S|M)[0-9]{2}(?![A-Za-z0-9_])"
 )
 LANGUAGE_SWITCH_LABELS = _COMPLIANCE_CORE._LANGUAGE_SWITCH_LABELS
-NAVIGATION_MODULES = set(_COMPLIANCE_CORE._MODULES)
 
 
 def layer(path: PurePosixPath) -> str:

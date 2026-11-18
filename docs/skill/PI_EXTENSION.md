@@ -55,7 +55,7 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi \
 
 ## 工作流路线与工具
 
-两条路线共享七模块：入口就绪 → Session 就绪 → 工作定义 → 执行 → 验证/修复 → 文档 → 交付/验收。执行模块分别为 single-execution 与 delegated-execution。检查点 ID 和指令取自 Layer-04，模块形状变化时要求同步审阅引擎。
+两条路线共享七个阶段：入口就绪 → Session 就绪 → 工作定义 → 执行 → 验证/修复 → 文档 → 交付/验收。执行阶段分别绑定执行 Hook 和委派 Hook。Layer-04 负责阶段绑定及跨阶段返回规则。检查点 ID 和指令由相应 Hook 提供，形状变化时须同步审阅引擎。
 
 多代理路线在 `DE02` 引用实际证据并明确 `facts.executor`。选择 `root` 时，一条记录覆盖职责预留、创建和派发（`DE03 / DE05 / DE06`）的 `not_applicable`，仍须经过 `DE04` 放行 Slice 和 `DE07` 审阅结果。选择 `sub_agent` 时，依次确认职责、当前 Slice 和创建前置条件，`DE06` 才可派发。Slice 替换、审批前置复核或相关 epoch 变化后，旧派发核验不能复用。需要重新核对执行者或派发条件时，上报 `executor_changed` 返回 `DE02`，保留已占名额和实际效果，先读回待处理结果。
 
@@ -66,7 +66,7 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi \
 | `coding_run` | 经 `ctx.executeTool` 的真实宿主校验/权限/Hooks 调用不透明工具，声明 read/check/content/documentation/git/memory；不自行实现 Shell/MCP 旁路。 |
 | `coding_delegate` | 在预算、职责、任务与 Slice 门禁后，调用实际暴露且 Schema 匹配的一次性单任务扩展。 |
 
-每次模型请求注入适用 Hook 合同、当前检查点完整指令、后续适用项的标题以及最近 24 项观察。对 `coding-rule:文档#片段`，用 `coding_checkpoint` 的 `action=rules` 传入对应 `document` 和 `fragment`，每次读取一个片段。省略 `fragment` 时列出片段标题，省略 `document` 时定位当前模块。批量上报前逐项读过指令，并引用实际证据。批次限于同一模块。整个上下文包的硬上限为 96,000 字符，超限时停止并保留完整合同。
+每次模型请求注入适用 Hook 合同、当前检查点完整指令、后续适用项的标题以及最近 24 项观察。对 `coding-rule:文档#片段`，用 `coding_checkpoint` 的 `action=rules` 传入对应 `document` 和 `fragment`，每次读取一个片段。省略 `fragment` 时列出片段标题，省略 `document` 时定位当前阶段的 Hook。批量上报前逐项读过指令，并引用实际证据。批次限于同一模块。整个上下文包的硬上限为 96,000 字符，超限时停止并保留完整合同。
 
 必需的 `facts` 包括 ER01 的 independence、WD03 的 plan=persisted/prohibited、DE02 的 executor=root/sub_agent、VR03 的 verification=passed、DA03 的 acceptance=satisfied 以及适用时 DA04 的 plan=archived。Agent 须为这些语义声明提供证据。WD03 引用真实 Memory 操作或明确禁止持久化的来源。
 

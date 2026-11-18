@@ -1,5 +1,7 @@
 # 入口就绪、Contract 与能力清单
 
+<!-- 由 docs/rules/hooks/entry.yaml 生成。请在 DSL 中维护正文。 -->
+
 ## 触发条件
 
 - 进入 `entry`（ER00–ER03），或 `requirements_changed / capability_changed` 要求重核入口事实。
@@ -44,7 +46,45 @@
 
 按当前锁定路线的 Mode 边界核对拓扑。扩展按实际模式在此加载对应片段。
 
-<!-- rule:current-route#mode-boundary -->
+## 工作流路线图
+
+```mermaid
+flowchart TD
+    ER00["ER00 解析模块入口"]
+    D_ENTRY{"入口结果？"}
+    ER01["ER01 核验 Contract"]
+    ER02["ER02 核验 Environment 和路径"]
+    ER03["ER03 核验已释放 Mode"]
+    ER_DONE["complete"]
+    ER_NA["not_applicable：不需要可选导航"]
+    ER_NEEDS["needs_prerequisite：调用方返回 owner"]
+    ER_BLOCK["blocked"]
+    ER00 --> D_ENTRY
+    D_ENTRY -- ready --> ER01
+    D_ENTRY -- needs_prerequisite --> ER_NEEDS
+    D_ENTRY -- blocked --> ER_BLOCK
+    ER01 -- 当前 Contract 已核验 --> ER02
+    ER01 -- 证据缺失 --> ER_NEEDS
+    ER01 -- 范围冲突或未经授权 --> ER_BLOCK
+    ER02 -- 已选择导航或可直接读取 owner --> ER03
+    ER02 -- 不需要可选导航 / N/A --> ER_NA
+    ER_NA --> ER03
+    ER02 -- 必需能力缺失 --> ER_BLOCK
+    ER03 -- 模式与数量证据已释放 --> ER_DONE
+    ER03 -- 已释放证据缺失或过期 --> ER_NEEDS
+    ER03 -- 模式或数量与已选路线冲突 --> ER_BLOCK
+```
+
+## 有序模块清单
+
+1. **ER00 — 解析入口。** 核对调用方的任务、授权、Session 和已有效果，以及 selector 已通过的 Contract、Environment、能力、Mode 和已选路线。按底层入口合同判定 `ready`、`needs_prerequisite` 或 `blocked`，在返回中保留原调用位置。直接调用方可记录 continuation。这里只复用已选路线。
+
+   依据 [模块入口解析](../references/coding/layer-03-workflow-checkpoints/module-entry-resolution.md)、[路线入口](../references/coding/layer-03-workflow-checkpoints/route-entry.md)。
+2. **ER01 — 核验 Contract 和共享协议。** 对照直接权威来源核验当前 Contract、验收条件和未决边界，重点确认动作 5 要求的 task intent 与 eligible output classification 已记录。用共享协议区分事实、假设和有界增量。必需上下文或返回路径缺失时停止依赖工作。
+
+   依据 [Contract](../references/coding/layer-02-workflow-concepts/entry-and-context/contract.md)、[共享协议](../references/share/shared-protocols.md)。
+3. **ER02 — 核验 Environment 和导航路径。** 应用[Environment](../references/coding/layer-02-workflow-concepts/entry-and-context/environment.md)与[Environment 能力清单](../references/coding/layer-02-workflow-concepts/entry-and-context/environment-capability-inventory.md)，确认当前环境及任务所需能力。调用[工作流导航选择](../references/coding/layer-03-workflow-checkpoints/workflow-navigation-selection.md)。若无需可选导航，记录附有理由的 `Not applicable` 并直接读取必需 owner。若选择导航，仅使用当前有界导航证据；该证据不能证明身份、权限、状态或检查点完成。导航不可用时遵循直接读取 owner 的回退；无法读取必需 owner 时阻塞依赖工作。
+4. **ER03 — 对照已选路线核验已释放 Mode。** 应用[Mode](../references/coding/layer-02-workflow-concepts/entry-and-context/mode.md)、[模式确认](../references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-confirmation.md)、[委派数量门禁](../references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.md)、[委派状态记录](../references/coding/layer-01-fundamental-concepts/delegation/delegation-state-record.md)和[模式重入](../references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-reentry.md)。核验准确的已释放模式及锁定数量/状态；Single-Agent 要求 `child_count: 0` 且无 allocations。Multi-Agent 要求正数锁定数量及有效且与记录一致的当前 allocation；已占用/已创建和未分配的名额都可能是有效状态，不得要求每个名额都保持未绑定。已释放证据缺失或过期时返回 `needs_prerequisite`；模式/count 与已选路线冲突时返回 `blocked`。后续指令复用已锁定拓扑。这只确认路线资格，不释放具体 Slice 或授权创建子代理。以当前门禁证据返回 `complete`。
 
 ## 输出与落点
 
@@ -68,10 +108,7 @@
 | [Environment](../references/coding/layer-02-workflow-concepts/entry-and-context/environment.md) | 明确运行时、禁止GUI探测及冲突 |
 | [能力清单](../references/coding/layer-02-workflow-concepts/entry-and-context/environment-capability-inventory.md) | 必需/未知/可选能力与依赖阻断 |
 | [Pi运行时](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.md) | 真实工具、模型与宿主边界 |
-| [入口就绪模块](../references/coding/layer-04-workflows/modules/entry-readiness.md) | ER00–ER03顺序、允许效果与当前证据 |
 | [模块入口解析](../references/coding/layer-03-workflow-checkpoints/module-entry-resolution.md) | 模块声明、缺前置与恢复 |
 | [路线入口](../references/coding/layer-03-workflow-checkpoints/route-entry.md) | 只消费已选路线 |
 | [Mode](../references/coding/layer-02-workflow-concepts/entry-and-context/mode.md) | 已释放拓扑证据 |
-| [Single-Agent 路线](../references/coding/layer-04-workflows/coding-single-agent.md#mode-边界) | 单代理模式边界 |
-| [Multi-Agent 路线](../references/coding/layer-04-workflows/coding-multi-agent.md#mode-边界) | 多代理模式及锁定预算边界 |
 | [Coding selector](../workflows/coding.md) | 未启用扩展的入口回退 |

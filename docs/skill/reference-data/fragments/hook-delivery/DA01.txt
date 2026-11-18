@@ -1,0 +1,3 @@
+把准确的 Contract 标准和验收范围映射到当前内容及文档 Verification。任何 Git 效果前，核验适用的最新 epoch 和实际指纹；缺失或过期时先返回对应 Verification。
+
+依据 [Acceptance](../references/coding/layer-02-workflow-concepts/completion-and-effects/acceptance.yaml)、[Verification](../references/coding/layer-02-workflow-concepts/verification-and-repair/verification.yaml)、[Verification Epoch](../references/coding/layer-02-workflow-concepts/verification-and-repair/verification-epoch.yaml)、[Documentation](../references/coding/layer-02-workflow-concepts/completion-and-effects/documentation.yaml)。

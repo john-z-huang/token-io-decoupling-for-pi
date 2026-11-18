@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 from urllib.parse import unquote
 
-from workflow_module_contracts import L3_REQUIRED_LAYER12_LINK, MANIFEST_ROUTE_SHA256, MIXED_STEP_CONTRACTS, MODULES, MODULE_CHECKPOINTS, MODULE_CHECKPOINT_L3_OWNERS, MODULE_CHECKPOINT_LAYER12_TARGETS, MODULE_GRAPH_SHA256, MODULE_PREFIXES, MODULES_DIR, MODULE_REQUIRED_EDGES, MODULE_REQUIRED_EDGE_LABELS, MODULE_REQUIRED_LABEL_FRAGMENTS, MIGRATION_MANIFEST, MODULE_SEMANTIC_FRAGMENTS, ROUTE_MODULES, ROUTES_DIR, TOP_PREFIXES, VERIFICATION_STEP_CONTRACTS
+from workflow_module_contracts import L3_REQUIRED_LAYER12_LINK, MANIFEST_ROUTE_SHA256, MIXED_STEP_CONTRACTS, MODULES, MODULE_CHECKPOINTS, MODULE_CHECKPOINT_L3_OWNERS, MODULE_CHECKPOINT_LAYER12_TARGETS, MODULE_GRAPH_SHA256, MODULE_PREFIXES, HOOKS_DIR, MODULE_HOOKS, MODULE_REQUIRED_EDGES, MODULE_REQUIRED_EDGE_LABELS, MODULE_REQUIRED_LABEL_FRAGMENTS, MIGRATION_MANIFEST, MODULE_SEMANTIC_FRAGMENTS, ROUTE_MODULES, ROUTES_DIR, TOP_PREFIXES, VERIFICATION_STEP_CONTRACTS
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = Path(".github/workflows/multilingual-docs.yml")
@@ -145,7 +145,7 @@ def required_layer12_targets(module: str, checkpoint: str, suffix: str) -> tuple
 
 def check_module(root: Path, module: str, lang: str, errors: list[str]):
     suffix = ""
-    path = root / MODULES_DIR / f"{module}{suffix}.md"
+    path = root / HOOKS_DIR / f"{MODULE_HOOKS[module]}.md"
     if not path.is_file():
         errors.append(f"missing module map/checklist: {path}")
         return None
@@ -187,7 +187,7 @@ def check_module(root: Path, module: str, lang: str, errors: list[str]):
         fail(errors, path, "final module checkpoint must define its completion result")
     # All modules resolve their own entry prerequisites first; all results must return, skip, complete, or block.
     step_section = get_section(text, LIST_HEADERS[lang]) or ""
-    if "../../layer-03-workflow-checkpoints/module-entry-resolution.md" not in linked_paths(step_section):
+    if "../references/coding/layer-03-workflow-checkpoints/module-entry-resolution.md" not in linked_paths(step_section):
         fail(errors, path, "numbered entry step does not consume module-entry-resolution")
     if "needs_prerequisite" not in raw:
         fail(errors, path, "map has no needs_prerequisite node")
@@ -215,9 +215,9 @@ def check_route(root: Path, route: str, lang: str, errors: list[str]):
     expected_modules = ROUTE_MODULES[route]
     for i, match in enumerate(matches[:len(expected_modules)]):
         step_text = checklist[match.start():matches[i + 1].start() if i + 1 < len(matches) else len(checklist)]
-        target = f"modules/{expected_modules[i]}{suffix}.md"
+        target = f"../hooks/{MODULE_HOOKS[expected_modules[i]]}.md"
         if target not in linked_paths(step_text):
-            fail(errors, path, f"{expected_ids[i]} must call its exact same-language module {target}")
+            fail(errors, path, f"{expected_ids[i]} must bind its exact phase Hook {target}")
     labels, edges, _, raw = parse_diagram(text, path, lang, errors)
     for checkpoint in expected_ids:
         if checkpoint not in labels:
@@ -331,7 +331,7 @@ def validate_migration_manifest(root: Path, errors: list[str]) -> None:
                 if sorted(refs) != expected_refs:
                     fail(errors, path, f"{route}/{entry.get('source_step')}: owner_refs must match owners consumed at the designated checkpoints: {expected_refs}")
                 for lang, suffix in (("zh", ""),):
-                    module_path = root / MODULES_DIR / f"{module}{suffix}.md"
+                    module_path = root / HOOKS_DIR / f"{MODULE_HOOKS[module]}.md"
                     if not module_path.is_file():
                         fail(errors, path, f"missing same-language target module: {module_path}")
                         continue
@@ -358,7 +358,7 @@ def validate_migration_manifest(root: Path, errors: list[str]) -> None:
                         if not owner_path.is_file():
                             fail(errors, path, f"{route}/{entry.get('source_step')}: missing {lang} owner reference {owner}")
                             continue
-                        expected_link = f"../../layer-03-workflow-checkpoints/{owner}{suffix}.md"
+                        expected_link = f"../references/coding/layer-03-workflow-checkpoints/{owner}{suffix}.md"
                         owner_checkpoints = [checkpoint for checkpoint in checkpoints
                                              if owner in MODULE_CHECKPOINT_L3_OWNERS.get(module, {}).get(checkpoint, set())]
                         if not owner_checkpoints or not any(expected_link in linked_paths(module_steps[checkpoint]) for checkpoint in owner_checkpoints):
@@ -385,7 +385,7 @@ def main() -> int:
         for error in errors:
             print(f"- {error}", file=sys.stderr)
         return 1
-    print("Layer-04 workflow map validation passed (seven-checkpoint routes and eight Chinese module maps).")
+    print("Layer-04 workflow map validation passed (seven-checkpoint routes and eight Hook phase maps).")
     return 0
 
 

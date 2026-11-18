@@ -1,5 +1,7 @@
 # 共享协议、Contract 与不可越界
 
+<!-- 由 docs/rules/hooks/foundation.yaml 生成。请在 DSL 中维护正文。 -->
+
 ## 触发条件
 
 - 已启用 Coding Extension 的每次模型请求；所有模块、工具包装和其他 Hook 共同适用。

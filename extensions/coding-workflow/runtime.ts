@@ -3,7 +3,7 @@ import { existsSync, realpathSync, statSync } from "node:fs";
 import { dirname, relative, resolve, sep } from "node:path";
 import type { ExtensionAPI, ExtensionContext, ExtensionToolContext, ToolCallEvent } from "@earendil-works/pi-coding-agent";
 import type { TSchema } from "typebox";
-import { currentModule, loadCatalog, phaseHooks, signalHooks, rewriteWorkflowLinks, ruleLink, type Catalog, type HookId, type Mode } from "./catalog.ts";
+import { currentModule, hookDocument, loadCatalog, phaseHooks, signalHooks, rewriteWorkflowLinks, ruleLink, type Catalog, type HookId, type Mode } from "./catalog.ts";
 import { exactPath, makeState, restoreState, ROOT_EXECUTION_NOT_APPLICABLE, ROLES, Workflow, type Effect, type Role, type State } from "./engine.ts";
 
 import { collectStartup, parseStartupCommand, registerStartupFlags, startupFlags, validateAnswers, type StartupAnswers, type StartupInput } from "./startup.ts";
@@ -15,7 +15,6 @@ const CONTEXT_TYPE = "token-io.coding-hooks.v1";
 const INTERNAL = new Set(["coding_checkpoint", "coding_slice", "coding_run", "coding_delegate"]);
 const READ_TOOLS = new Set(["read", "grep", "find", "ls", "tool_search"]);
 const REQUIRED_HOOK_RULES: Partial<Record<HookId, string>> = {
-  entry: "current-route#mode-boundary",
   verification: "verification-epoch#actions",
 };
 export const MAX_CONTEXT = 96000;
@@ -49,10 +48,14 @@ export function renderHook(catalog: Catalog, id: HookId, mode: Mode): string {
     throw new Error(`Hook ${id} 缺少必需规则片段：${required}`);
   }
   const body = template.replace(/^<!-- rule:([a-z][a-z0-9-]*)#([A-Za-z][A-Za-z0-9-]*) -->$/gm, (_marker, owner: string, fragment: string) => {
-    const document = catalog.references.document(owner === "current-route" ? catalog.routes[mode].documentId : owner);
+    const document = catalog.references.document(owner);
     return rewriteWorkflowLinks(catalog, document.path, catalog.references.readFragment(document.id, fragment));
   });
-  return `[Hook:${id}]\n\n${body}`;
+  const route = catalog.routes[mode].documentId;
+  const modeBoundary = id === "entry"
+    ? "\n\n## 当前路线的 Mode 边界\n\n" + rewriteWorkflowLinks(catalog, catalog.references.document(route).path, catalog.references.readFragment(route, "mode-boundary"))
+    : "";
+  return `[Hook:${id}]\n\n${body}${modeBoundary}`;
 }
 
 function activeHooks(workflow: Workflow): HookId[] {
@@ -78,13 +81,13 @@ export function renderContext(workflow: Workflow): string {
   const content = [
     "[Coding Extension：结构化流程，不是权限或事实证明]",
     "用 coding_checkpoint 上报已完成项及真实证据；同模块连续项可在读过各项指令后批量提交。语义变化用 signal，缺前置用 pause/blocked。恢复后从原位推进。facts 由 Agent 提供，须有来源。",
-    "用 coding_checkpoint 的 rules 动作查询规则。coding-rule:文档#片段 对应 document 和 fragment；省略 fragment 可列出片段，省略 document 默认为当前模块。",
+    "用 coding_checkpoint 的 rules 动作查询规则。coding-rule:文档#片段 对应 document 和 fragment；省略 fragment 可列出片段，省略 document 默认为当前阶段的 Hook。",
     "facts 要求：ER01 independence=required/not_required；WD03 plan=persisted/prohibited；DE02 executor=root/sub_agent（据实说明并引用选择证据；重核执行者或派发条件用 executor_changed）；VR03 verification=passed（引用 effect=check 实际结果）；DA03 acceptance=satisfied（逐项映射标准）；DA04 plan=archived（用户禁止持久化时除外）。",
     "写前用 coding_slice 放行四字段和精确文件。Bash、codemode 和不透明 MCP 经 coding_run 声明 effect/rationale/evidence，先核验实际效果和授权。子任务只经 coding_delegate，禁止递归和其他入口绕过。",
     ...activeHooks(workflow).map(id => renderHook(workflow.catalog, id, s.mode)),
     JSON.stringify({ revision: s.revision, status: s.status, reason: s.reason, mode: s.mode, child_count: s.childCount, audit: s.audit, phase: s.phase, checkpoint: current?.id ?? "done", epoch: s.epoch, verified: s.verified, returnTo: s.returnTo, decisionReturn: s.decisionReturn, executor: s.execution?.executor, plan: s.plan, allocations: s.allocations, inFlight: s.inFlight, slice: s.slice, task: s.task }),
-    ...(current ? [`当前路线 [${routeStep.id} ${routeStep.title}](${ruleLink(route.documentId, routeStep.id)})\n当前检查点 [${current.id} ${current.title}](${ruleLink(module.name, current.id)})\n${rewriteWorkflowLinks(workflow.catalog, module.path, current.instruction)}`] : []),
-    ...(upcoming.length ? [`[本模块后续检查点](${ruleLink(module.name)})\n${upcoming.map(item => `${item.id} ${item.title}`).join("\n")}`] : []),
+    ...(current ? [`当前路线 [${routeStep.id} ${routeStep.title}](${ruleLink(route.documentId, routeStep.id)})\n当前检查点 [${current.id} ${current.title}](${ruleLink(hookDocument(module.hook), current.id)})\n${rewriteWorkflowLinks(workflow.catalog, module.path, current.instruction)}`] : []),
+    ...(upcoming.length ? [`[当前阶段后续检查点](${ruleLink(hookDocument(module.hook))})\n${upcoming.map(item => `${item.id} ${item.title}`).join("\n")}`] : []),
     `可引用的最近24项实际观察（更早引用可通过 status 查找；被128项窗口淘汰的证据须重读）：\n${JSON.stringify(s.observations.slice(-24))}`,
     ...(!workflow.checkpoint ? ["已完成结构化检查点，向用户报告实际验收结果和限制。"] : []),
   ].join("\n\n");
@@ -260,7 +263,9 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
         const w = requireWorkflow();
         if (p.action === "status") return text(output(p.offset));
         if (p.action === "rules") {
-          const document = w.catalog.references.document(p.document ?? currentModule(w.catalog, w.state.phase, w.state.mode).name);
+          const selected = p.document ?? hookDocument(currentModule(w.catalog, w.state.phase, w.state.mode).hook);
+          const legacy = w.catalog.modules[selected];
+          const document = w.catalog.references.document(legacy ? hookDocument(legacy.hook) : selected);
           if (p.fragment === undefined) return text({ document: document.id, title: document.title, fragments: document.fragments.map(({ id, kind, title }) => ({ id, kind, title })) });
           const body = rewriteWorkflowLinks(w.catalog, document.path, w.catalog.references.readFragment(document.id, p.fragment));
           if (body.length > MAX_RESULT) throw new Error(`规则片段超出读取上限：${document.id}#${p.fragment}`);

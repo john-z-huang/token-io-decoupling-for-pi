@@ -5,7 +5,7 @@
 
 ## Pi 宿主侧 Extension 与 Hooks
 
-入口为 `extensions/coding-workflow/index.ts`。`catalog.ts` 绑定既有 Layer-04 模块与检查点形状；`engine.ts` 维护七模块顺序、当前位置、模式/预算、Slice、三维 epoch、修复与恢复回环；`runtime.ts` 将真实 Pi 事件接到状态机及条件 Hook 包，工具调用仍经实际 `ctx.executeTool` 的宿主校验/权限链。
+入口为 `extensions/coding-workflow/index.ts`。`catalog.ts` 核对 Layer-04 的阶段与 Hook 绑定以及检查点形状；`engine.ts` 维护七模块顺序、当前位置、模式/预算、Slice、三维 epoch、修复与恢复回环；`runtime.ts` 将真实 Pi 事件接到状态机及条件 Hook 包，工具调用仍经实际 `ctx.executeTool` 的宿主校验/权限链。
 
 Extension 状态使用实际 Pi Session 的 custom entry，不是 Memory 后端、服务端数据库或原子事务。按当前对话分支恢复位置，同时保留整个 Session 已绑定的子任务名额；树导航不会回退磁盘效果。每次模型请求注入当前检查点全文、后续目录以及适用的 [Hook 合同](hooks/README.md)；源码/规则 Hash 变化要求重新核验。
 

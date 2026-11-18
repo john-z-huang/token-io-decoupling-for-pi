@@ -1,5 +1,7 @@
 # Session Audit Hook 合同
 
+<!-- 由 docs/rules/hooks/audit.yaml 生成。请在 DSL 中维护正文。 -->
+
 ## 触发条件
 
 首次 Session 就绪、恢复父级状态、审阅 Worker 返回、输出安全摘要、偏好变化或需核验完整 Worker 日志时触发。审计偏好仅控制安全摘要和展示副本，不授予权限。启动时按 [Session 门禁](session.md#1-选择并锁定模式) 收集答案。
@@ -60,4 +62,3 @@ Session readiness 先核实当前身份/角色及规范父级记录，再应用�
 | [子代理消息正文](../references/coding/layer-01-fundamental-concepts/delegation/delegation-child-message-visibility.md) | 依赖前全读实际正文、展示副本与方向证据 |
 | [委派状态记录](../references/coding/layer-01-fundamental-concepts/delegation/delegation-state-record.md) | session_audit结构和Root所有权 |
 | [审计解决](../references/coding/layer-03-workflow-checkpoints/session-audit-resolution.md) | 默认应用、冲突处理与日志依赖分支 |
-| [Session就绪模块](../references/coding/layer-04-workflows/modules/session-readiness.md) | 状态读回、审计顺序和新鲜度 |

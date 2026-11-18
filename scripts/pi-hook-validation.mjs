@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
 import { isAbsolute, join, relative, sep } from 'node:path';
-import { documentLinks, headingSlug, HOOK_IDS, PHASES, phaseHooks, resolveDocumentLink } from '../extensions/coding-workflow/catalog.ts';
+import { documentLinks, headingSlug, HOOK_IDS, WORKFLOW_DIR, resolveDocumentLink } from '../extensions/coding-workflow/catalog.ts';
 
 const L1_HOOKS = {
   'context-exchange': ['context'], delegation: ['delegation', 'session'],
@@ -21,7 +21,7 @@ const OVERRIDES = {
   'session-context-firewall': ['context'], 'reasoning-summary-visibility': ['audit'], 'session-audit-visibility': ['audit'],
 };
 
-export function classifySource(catalog, path) {
+export function classifySource(path) {
   const parts = path.split('/');
   const stem = parts.at(-1).replace(/\.md$/, '');
   const kind = ['INDEX', 'README'].includes(stem) ? 'navigation' : 'rule';
@@ -38,10 +38,6 @@ export function classifySource(catalog, path) {
       if (Object.hasOwn(table, group)) return { path, hooks: table[group], kind };
     }
     if (number === '03') return { path, hooks: ['navigation', 'execution'], kind };
-    if (number === '04') {
-      const phase = PHASES.find(item => ['single', 'multi'].some(mode => catalog.routes[mode].steps[item].module === stem));
-      return { path, hooks: phase ? phaseHooks(phase, 'multi') : ['navigation'], kind };
-    }
   }
   if (path === 'PI_EXTENSION.md') return { path, hooks: ['foundation', 'navigation'], kind: 'navigation' };
   if (path === 'workflows/coding.md' || path === 'WORKFLOW_ARCHITECTURE.md') return { path, hooks: ['foundation', 'navigation'], kind };
@@ -94,7 +90,7 @@ export function validateMarkdownLinks(root, document, markdown) {
 
 export function collectSourceCoverage(catalog, hooks = readHookSources(catalog.root)) {
   const coverage = markdownFiles(catalog.root).map(path => relative(catalog.root, path).split(sep).join('/'))
-    .filter(path => !path.startsWith('hooks/')).map(path => classifySource(catalog, path));
+    .filter(path => !path.startsWith('hooks/') && !path.startsWith(`${WORKFLOW_DIR}/`)).map(classifySource);
   const bySource = new Map(coverage.map(row => [row.path, new Set()]));
   for (const id of HOOK_IDS) {
     const text = hooks[id];
@@ -122,8 +118,8 @@ export function collectSourceCoverage(catalog, hooks = readHookSources(catalog.r
 export function coverageMarkdown(rows) {
   const lines = [
     '# Hook 来源整合对照', '',
-    '由 `node scripts/check-pi-hooks.mjs --write-coverage` 根据各 Hook 的“规则来源”表生成；默认检查只读。', '',
-    '实质文章逐篇指向实际引用它的执行合同；各合同末尾列明具体主题落点。目录/索引未逐篇引用时只保留导航归属，不把目录计作已整合的实质指令。Multimodal 两篇仅作范围参考，不启用可执行路线。', '',
+    '由 `node scripts/check-pi-hooks.mjs --write-coverage` 根据各 Hook 的“规则来源”表生成。', '',
+    '本表列出 Hook 消费的规则和导航。实质文章逐篇指向引用它的合同，各合同末尾列明主题落点。路线的阶段绑定由路线索引与静态检查核对。', '',
     '**此表检查路径和显式归属，不证明所有条款语义等价、授权真实或验收通过。** 原 owner 保留权威；阅读正文和逐条审阅不能由数量、Hash或关键词替代。', '',
     '| 源文档（相对 Skill） | 类型 | 合同落点或导航归属 |', '| --- | --- | --- |',
   ];
@@ -131,6 +127,32 @@ export function coverageMarkdown(rows) {
     const ids = row.hooks.length ? row.hooks : row.declaredHooks;
     const label = row.kind === 'navigation' && !row.hooks.length ? '仅导航：' : row.kind === 'reference' ? '仅参考：' : '';
     lines.push(`| [${row.path}](../${row.path}) | ${row.kind} | ${label}${ids.map(id => `[${id}](${id}.md#执行要求)`).join('、')} |`);
+  }
+  return lines.join('\n') + '\n';
+}
+
+export function coverageYaml(rows) {
+  const lines = [
+    '# yaml-language-server: $schema=../hook-coverage.schema.json',
+    '# 由 node scripts/check-pi-hooks.mjs --write-coverage 根据 Hook 来源块生成。',
+    'schema_version: 1',
+    'document_type: hook-coverage',
+    'id: source-coverage',
+    'markdown_path: hooks/SOURCE_COVERAGE.md',
+    'title: Hook 来源整合对照',
+    'rows:',
+  ];
+  for (const row of rows) {
+    const source = row.path.startsWith('references/')
+      ? `../${row.path.replace(/\.md$/, '.yaml')}`
+      : `../../skill/${row.path}`;
+    const hooks = row.hooks.length ? row.hooks : row.declaredHooks;
+    lines.push(
+      `  - source: ${JSON.stringify(source)}`,
+      `    kind: ${row.kind}`,
+      `    hooks: ${JSON.stringify(hooks)}`,
+      `    explicit: ${row.hooks.length > 0}`,
+    );
   }
   return lines.join('\n') + '\n';
 }

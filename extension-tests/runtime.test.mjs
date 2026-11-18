@@ -143,23 +143,23 @@ test('both routes and rule queries work with only the compiled resources install
   const installed = loadCatalog(root);
   assert.equal(installed.digest, catalog.digest);
 
-  for (const [mode, step, route, module, checkpoint] of [
-    ['single', 3, 'SM04', 'single-execution', 'SE03'],
-    ['multi', 4, 'MM04', 'delegated-execution', 'DE04'],
+  for (const [mode, step, route, owner, legacyModule, checkpoint] of [
+    ['single', 3, 'SM04', 'hook-execution', 'single-execution', 'SE03'],
+    ['multi', 4, 'MM04', 'hook-delegation', 'delegated-execution', 'DE04'],
   ]) {
     const h = harness({ catalog: installed });
     await h.start(`${mode} 合成规则请求`);
     position(h, 'execution', step);
     const [message] = (await h.emit('context', { messages: [] })).messages;
     assert.match(message.content, new RegExp(`coding-rule:coding-${mode}-agent#${route}`));
-    assert.match(message.content, new RegExp(`coding-rule:${module}#${checkpoint}`));
+    assert.match(message.content, new RegExp(`coding-rule:${owner}#${checkpoint}`));
     const snapshot = h.w().snapshot();
     const entries = h.entries.length;
 
     const listing = await h.invoke('coding_checkpoint', { action: 'rules' });
     assert.equal(listing.isError, false);
     const index = JSON.parse(listing.result.content[0].text);
-    assert.equal(index.document, module);
+    assert.equal(index.document, owner);
     assert.ok(index.fragments.some(item => item.id === checkpoint && item.kind === 'checkpoint' && !('content' in item)));
 
     const match = await h.invoke('coding_checkpoint', { action: 'rules', fragment: checkpoint });
@@ -167,6 +167,8 @@ test('both routes and rule queries work with only the compiled resources install
     const rule = JSON.parse(match.result.content[0].text);
     assert.equal(rule.fragment, checkpoint);
     assert.ok(message.content.includes(rule.content));
+    const legacy = await h.invoke('coding_checkpoint', { action: 'rules', document: legacyModule, fragment: checkpoint });
+    assert.deepEqual(JSON.parse(legacy.result.content[0].text), rule);
 
     const returns = await h.invoke('coding_checkpoint', { action: 'rules', document: `coding-${mode}-agent`, fragment: 'returns' });
     assert.equal(returns.isError, false);

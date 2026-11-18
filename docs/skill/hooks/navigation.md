@@ -1,5 +1,7 @@
 # 工作流导航 Hook 合同
 
+<!-- 由 docs/rules/hooks/navigation.yaml 生成。请在 DSL 中维护正文。 -->
+
 ## 触发条件
 
 在 Coding 工作流中需要确定当前权威规则、路线/模块入口、当前检查点上下文时触发；当导航、可选路由建议或检查点结构检查可能帮助定位/检查所供材料时，评估其是否适用。还包括路线事实变化、模块恢复、规则或工具能力不确定、导航结果不完整，以及检查点 owner 要求某项输入/检查结果的情形。先使用当前环境和能力清单，确认已完成的入口门禁及当前调用上下文；本 Hook 不代替 Contract、Environment、能力清单、Mode 或 Route Entry。
@@ -44,6 +46,4 @@
 | [导航选择](../references/coding/layer-03-workflow-checkpoints/workflow-navigation-selection.md) | 可选分支、失败与返回 |
 | [模块入口解析](../references/coding/layer-03-workflow-checkpoints/module-entry-resolution.md) | 前置补证、恢复、不重放 |
 | [路线入口](../references/coding/layer-03-workflow-checkpoints/route-entry.md) | 唯一已授权路线及缺前置 |
-| [单代理路线](../references/coding/layer-04-workflows/coding-single-agent.md) | 七模块顺序、单代理边界 |
-| [多代理路线](../references/coding/layer-04-workflows/coding-multi-agent.md) | 七模块顺序、锁定预算与委派 |
 | [架构](../WORKFLOW_ARCHITECTURE.md) | 有状态宿主与无状态MCP区别 |

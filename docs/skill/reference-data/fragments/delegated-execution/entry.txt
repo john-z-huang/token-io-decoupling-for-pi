@@ -1,6 +1,0 @@
-| 字段 | 要求 |
-| --- | --- |
-| 必需输入 | 当前已授权 Contract/任务、已释放 Multi-Agent 模式和正数锁定数量、完整且当前的 Session/审计、有来源的 Context 和 Decision、当前 allocation/角色事实、continuation/效果状态、恢复底线/Control 证据；仅在恢复既有已释放 Worker bundle 时，还须提供该 bundle 记录的显式 `write_content_memo` 值。新 Worker bundle 的显式值在 DE04 确定。 |
-| 允许效果 | 评估 Bootstrap 并授权实际任务；解析执行者/输出/角色；释放和持久化已授权 Slice；有条件地创建/复用子代理并只派发该任务；本地实施或接收子代理实际结果；提供阶段反馈并解决 Control。所有效果仍受直接 owners 和现有授权约束。 |
-| 结果 | 仅在返回当前实施/结果状态、指纹、初步检查、Control 处置且无待处理恢复/下一 Slice 时返回 `complete`；否则以 continuation 返回 `needs_prerequisite` 或 `blocked`。条件子代理、角色、memo 及受控输出子步骤可根据观察到的原因标为 `not_applicable`。 |
-| 新鲜度 | 将任务/Slice 指纹、Contract/Decision、当前父级控制任务记录和分配证据、子代理身份、显式 memo 值、Control 规则及相关 epoch 绑定到其来源。实质变化会使受影响证据失效，并要求从受影响检查点重新进入。 |

@@ -11,7 +11,7 @@ from pathlib import Path
 LAYERS = (
     Path("docs/skill/references/coding/layer-02-workflow-concepts"),
     Path("docs/skill/references/coding/layer-03-workflow-checkpoints"),
-    Path("docs/skill/references/coding/layer-04-workflows"),
+    Path("docs/skill/coding-workflows"),
 )
 FORBIDDEN = {
     "厂商或 Agent 产品": re.compile(r"\b(?:Codex|ChatGPT|OpenAI|Claude|Anthropic)\b", re.IGNORECASE),

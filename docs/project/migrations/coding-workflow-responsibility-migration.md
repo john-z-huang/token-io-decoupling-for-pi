@@ -20,4 +20,4 @@
 | Layer-02 Repair 及路线修复/决策返回逻辑 | [修复处置](../../skill/references/coding/layer-03-workflow-checkpoints/repair-disposition.md) | S11/M13；重大决策返回 S01/S06 或 M01/M07 | 诊断、授权、修复范围、handoff 和变更 epoch 验证仍归 Layer-02 repair owners。 |
 | Layer-02 Documentation 及路线影响返回逻辑 | [文档影响](../../skill/references/coding/layer-03-workflow-checkpoints/documentation-impact.md) | S12/M14 | 文档 epoch、必需检查、受影响内容重新验证和证据复用仍归 Documentation 与 Verification Epoch。 |
 
-完整路线模板现位于 `docs/skill/references/coding/layer-04-workflows/`；Layer-04 保留有序调度、owner 调用、结果门禁、阻塞和返回。Layer-03 负责可执行的任务特定决策流程，但不重新定义 Layer-01/02 政策。以上职责行列明了从路线正文迁出的流程；路线摘要消费这些证据，不重复完整流程。
+完整路线模板现位于 `docs/skill/coding-workflows/`；Layer-04 保留有序调度、owner 调用、结果门禁、阻塞和返回。Layer-03 负责可执行的任务特定决策流程，但不重新定义 Layer-01/02 政策。以上职责行列明了从路线正文迁出的流程；路线摘要消费这些证据，不重复完整流程。

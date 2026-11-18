@@ -1,5 +1,7 @@
 # Repair Hook
 
+<!-- 由 docs/rules/hooks/repair.yaml 生成。请在 DSL 中维护正文。 -->
+
 ## 触发条件
 
 当前 Verification 有具体失败证据，或调用方确认需处理失败时适用。Repair 是对失败的诊断与受控恢复，不是一般性改进、语义变更或顺手清理。入口输入须包括当前 Contract/Decision、验收条件与批准范围，当前 Verification 指纹/epoch 和各项结果，失败证据、受影响路径及可核实的实际状态；已完成实施/子代理结果、Session authority、调用方 continuation 和已发生效果亦须明确。缺少事实时不猜测、不写入，说明所需证据并返回 `needs_prerequisite`；状态矛盾或效果不安全时 `blocked`。
@@ -59,5 +61,4 @@ Repair的语义结果须明确区分（不是为 `coding_checkpoint` 新增参�
 | [repair-execution.md](../references/coding/layer-02-workflow-concepts/verification-and-repair/repair-execution.md) | 仅获准窄修复、聚焦检查及执行边界 |
 | [repair-verification-handoff.md](../references/coding/layer-02-workflow-concepts/verification-and-repair/repair-verification-handoff.md) | 新指纹/epoch、交回 Verification 与交接阻断 |
 | [repair-disposition.md](../references/coding/layer-03-workflow-checkpoints/repair-disposition.md) | 路线级失败路由、无失败 N/A、重大决策回调用方及当前重验 |
-| [verification-repair.md](../references/coding/layer-04-workflows/modules/verification-repair.md) | 入口输入、完整循环、状态/结果类别、独立性和 continuation |
 | [verification-epoch.md](../references/coding/layer-02-workflow-concepts/verification-and-repair/verification-epoch.md) | 三维状态变化、失效证据及按影响重新验证 |

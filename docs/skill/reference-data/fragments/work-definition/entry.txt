@@ -1,6 +1,0 @@
-| 字段 | 要求 |
-| --- | --- |
-| 必需输入 | 当前已授权 Contract 和任务范围、已释放路线/模式证据、当前规范 Session state 和已完成的审计读回、已知任务事实/来源指针、取得所需 Context 的已授权可用方式，以及调用方 continuation/效果状态。WD01 建立当前 Context；它不是入口前置条件。 |
-| 允许效果 | 有界且已授权的只读 Context 检索；仅在已有授权的当前 Root Session 下请求符合条件的语义建议；在既有授权内默认持久化任务计划，并遵守明确持久化限制。不得执行 executor/output 路由、角色预留、Slice 释放、Bootstrap、实施或子代理派发。 |
-| 结果 | 本模块以当前有来源的 Context、符合 Contract 的 Decision/未释放边界，以及计划证据或有依据的子步骤 `not_applicable` 返回 `complete`；否则返回带暂停位置的 `needs_prerequisite` 或 `blocked`。Context/建议/计划子步骤可根据触发证据标为 `not_applicable`，但不得整体跳过必需的工作定义模块。建议是待审证据，不是授权。 |
-| 新鲜度 | 保留来源/出处/新鲜度及相关 input/policy hash 和 epoch。建议或依赖决策前重新确认；实质变化会使受影响证据失效，并要求调用方从受影响子步骤重新进入。 |

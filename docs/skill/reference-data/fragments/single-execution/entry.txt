@@ -1,6 +1,0 @@
-| 字段 | 要求 |
-| --- | --- |
-| 必需输入 | 当前已授权任务和 Contract、已释放的 Single-Agent 模式、完整且当前的 Session/审计、有来源的 Context 和 Decision、continuation/效果状态，以及任何恢复底线和当前 Control 证据。 |
-| 允许效果 | 解析执行者/输出、释放和实施已授权 Slice、在 owner 规定边界提交获准的计划更新、提供阶段反馈及解决 Control。不得创建/派发子代理、预留角色、扩大范围或进行最终验证。 |
-| 结果 | 仅在返回当前实施状态、指纹、初步检查和 Control 处置且无待处理恢复/下一 Slice 时返回 `complete`；否则以 continuation 返回 `needs_prerequisite` 或 `blocked`。条件子步骤可带原因标为 `not_applicable`。 |
-| 新鲜度 | 将证据绑定到当前 Contract、任务/Slice 指纹、规范 state revision、Control 规则及相关 epoch。实质变化会使受影响证据失效，并要求从指定检查点重新进入。 |

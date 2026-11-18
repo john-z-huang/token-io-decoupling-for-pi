@@ -1,1 +1,0 @@
-提供本声明、当前已授权 Contract 和任务范围、已释放路线/模式证据、当前规范 Session state 和已完成的审计读回、已知任务事实/来源指针、取得所需 Context 的已授权可用方式，以及 continuation/效果状态，调用[模块入口解析](../../layer-03-workflow-checkpoints/module-entry-resolution.yaml)。规范 state 和已完成审计读回是必需输入；当前任务 Context 在 WD01 建立。从记录的子步骤恢复。缺少前置条件时，连同语义 owner 一起返回；冲突或无法恢复的状态则阻塞。没有已授权的当前 Session 时，不请求建议。

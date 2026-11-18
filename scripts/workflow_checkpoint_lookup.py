@@ -5,9 +5,14 @@ from __future__ import annotations
 import re
 from collections.abc import Iterator
 from os.path import normpath
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 from ruamel.yaml import YAML
+
+from compliance_core_loader import load_compliance_core
+from workflow_module_contracts import WORKFLOW_PATH
+
+COMPLIANCE = load_compliance_core()
 
 NUMBERED_BLOCKS = {"checkpoint", "route_step"}
 
@@ -64,20 +69,28 @@ def check_flowchart_references(documents: dict[Path, dict]) -> None:
             target_path, _ = resolve_reference(documents, path, target)
             if target_path == path:
                 raise ValueError(f"{path.name} 的流程图引用 {alias} 须指向其他 DSL 文件")
+            if COMPLIANCE.reverse_dependency_target(PurePosixPath(document["markdown_path"]), target):
+                raise ValueError(f"{path.name} 的流程图节点 {alias} 存在反向依赖：{target}")
 
 
-def locate_checkpoint(root: Path, coding: Path, selector: str, origin: str | None, show: bool) -> dict:
+def locate_checkpoint(root: Path, references: Path, hooks: Path, selector: str, origin: str | None, show: bool) -> dict:
     # 保留 YAML 中的键位置，与 LSP 的列表索引对齐。
     yaml = YAML(typ="rt")
-    documents = {path: yaml.load(path) for path in sorted(coding.rglob("*.yaml"))}
-    by_id = {document["id"]: path for path, document in documents.items()}
+    routes = references.parent / WORKFLOW_PATH
+    sources = [*(references / "coding").rglob("*.yaml"), *routes.rglob("*.yaml"), *hooks.glob("*.yaml")]
+    documents = {path: yaml.load(path) for path in sorted(sources) if path.name != "SOURCE_COVERAGE.yaml"}
+    def document_id(path: Path) -> str:
+        name = documents[path]["id"]
+        return f"hook-{name}" if path.parent == hooks else name
+
+    by_id = {document_id(path): path for path in documents}
     wanted, separator, block_id = selector.partition("#")
 
     def describe(path: Path, match: tuple[str, dict, dict]) -> dict:
         symbol, block, entry = match
         name = next(iter(entry))
         result = dict(
-            document_id=documents[path]["id"],
+            document_id=document_id(path),
             block_id=name,
             relative_path=path.relative_to(root).as_posix(),
             name_path=symbol,
@@ -93,10 +106,10 @@ def locate_checkpoint(root: Path, coding: Path, selector: str, origin: str | Non
         output = describe(path, match)
         _, block, _ = match
         if block["kind"] == "route_step":
-            module = path.parent / "modules" / f"{block['module']}.yaml"
-            if module not in documents:
-                raise ValueError(f"{path.name} 中的路线步骤引用了缺失的模块 {block['module']}")
-            output["module_entry"] = describe(module, find_block(documents[module], "entry"))
+            hook = hooks / f"{block['hook']}.yaml"
+            if hook not in documents:
+                raise ValueError(f"{path.name} 中的路线步骤引用了缺失的 Hook {block['hook']}")
+            output["hook_entry"] = describe(hook, find_block(documents[hook], "trigger"))
         return output
 
     if separator or (not origin and wanted in by_id):
@@ -123,7 +136,7 @@ def locate_checkpoint(root: Path, coding: Path, selector: str, origin: str | Non
 
     candidates = []
     for path, document in documents.items():
-        if document["document_type"] not in {"workflow-route", "workflow-module"}:
+        if document["document_type"] not in {"workflow-route", "hook-contract"}:
             continue
         for match in walk_blocks(document["blocks"]):
             _, block, entry = match
@@ -134,7 +147,7 @@ def locate_checkpoint(root: Path, coding: Path, selector: str, origin: str | Non
     if len(candidates) == 1:
         return result(*candidates[0])
     if candidates:
-        files = "、".join(documents[path]["id"] for path, _ in candidates)
+        files = "、".join(document_id(path) for path, _ in candidates)
         raise ValueError(f"检查点 {wanted} 存在多个定义（{files}），请用文档ID#块ID 查询")
     if origin:
         raise ValueError(f"{origin} 的图中节点 {wanted} 没有独立检查点或跨文件引用")

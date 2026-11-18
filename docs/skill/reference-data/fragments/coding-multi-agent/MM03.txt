@@ -1,2 +1,1 @@
-调用[工作定义模块](modules/work-definition.yaml)，解决来源明确的 Context、Decision、规划输出、适用 advice 和未释放边界。仅在来源事实以及符合 Contract 的 Decision/plan 当前有效时继续。缺失事实/决定交语义 owner 后恢复 MM03。该模块不授权实际委派任务、不预留角色、不释放 Slice、不创建或派发子代理。 执行前要求该模块返回默认共享计划身份、当前计划证据与持久化确认，或有记录的持久化限制例外；完成 owner 要求的任何内容核验。必需计划证据缺失时阻塞；无需额外规划请求。 验证所选仓库存储范围及对应活动/归档命名空间；共享存储时，同仓库各工作区指向同一规划，其他仓库保持隔离。映射未知或冲突时返回规划 owner，不得静默回退另一存储范围。
-- 在 WD02，[工作流路由建议](../layer-01-fundamental-concepts/execution-planning/workflow-routing-advice.yaml)与 Decision 建议分开。仅在 WD01 事实当前有效、锁定的 mode/count 和所选路线已直接确认后考虑；根据该路线及其哈希审阅建议。只有分支确实未选择或不符合条件时，才记录有原因的 `not_applicable`。所选证据过期/不足或缺少必需能力时，返回解决前置条件或阻塞该依赖路径；建议不能改变路线、通过门禁、选择执行者/输出或释放工作。
+调用[工作定义 Hook](../hooks/planning.yaml)。取得当前 Context、Decision、未释放边界和计划证据后才进入执行。缺失或过期时回对应 owner，授权或路线事实实质变化时交调用方重核。

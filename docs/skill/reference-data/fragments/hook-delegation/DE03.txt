@@ -1,0 +1,3 @@
+仅在 DE02 已处置输出且需要新执行者时，核对锁定容量与 allocation，取得唯一且有效的当前角色预留。证据缺失返回 `needs_prerequisite`，不一致或未授权时阻断。Root 和现有执行者沿既有路径。
+
+依据 [角色预留](../references/coding/layer-03-workflow-checkpoints/role-reservation.yaml)、[子代理角色选择](../references/coding/layer-01-fundamental-concepts/delegation/child-role-selection.yaml)、[子代理职责分配](../references/coding/layer-01-fundamental-concepts/delegation/delegation-child-role-allocation.yaml)、[委派数量门禁](../references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.yaml)、[委派状态记录](../references/coding/layer-01-fundamental-concepts/delegation/delegation-state-record.yaml)。

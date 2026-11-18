@@ -1,1 +1,1 @@
-启动已固定先确认 single/multi 与预算，再确认审计可见性及每字段 explicit/default 来源；缺失答案须返回启动收集，不静默默认。 调用[Session 就绪模块](modules/session-readiness.yaml)，确认规范 authority/state，并在消费审计结果前完成读回。仅在 Session 和审计证据当前时继续。恢复若改变事实，遵循模块内重核/读回顺序，不重开 Mode 或重复已完成的提问；`needs_prerequisite` 时保留暂停位置，authority 或读回问题未解决时阻塞。
+调用[Session 就绪 Hook](../hooks/session.yaml)。在消费审计结果前完成规范 Session 读回。Multi-Agent 另核对锁定容量。恢复时保留已锁定的模式与已确认的启动答案。

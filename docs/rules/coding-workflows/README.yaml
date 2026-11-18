@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=../reference.schema.json
+schema_version: 1
+document_type: directory-guide
+id: layer-04-readme
+markdown_path: coding-workflows/README.md
+title: "完整 Coding 路线"
+blocks:
+  - overview:
+      kind: markdown
+      title: "概览"
+      expose: true
+      text: |-
+        Layer-04 维护 Single-Agent 和 Multi-Agent 两条路线。路线负责七个阶段的 Hook 绑定、跨阶段顺序、调用方位置和 epoch 变化后的回返。各阶段的执行合同、清单和图由对应 Hook 维护。
+  - entry:
+      kind: section
+      title: "入口"
+      expose: true
+      blocks:
+        - entry-body:
+            kind: markdown
+            text: |-
+              从[路线索引](INDEX.yaml)选择获授权路线，在相应阶段按需读取绑定的 Hook。

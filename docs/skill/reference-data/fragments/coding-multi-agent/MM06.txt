@@ -1,2 +1,1 @@
-带上当前 Verification、Contract 和写前指纹，调用[文档模块](modules/documentation.yaml)。该模块判断适用输出，输出适用时要求授权/来源/路径，处理请求 Memory 的 owner 要求内容核验、影响分类和检查。仅在当前文档结果齐备时继续。内容/Contract/验收变化需要重验时返回 MM05；受影响 epoch 通过后，恢复挂起的 MM06 子步骤，完成当前影响分类和文档检查后再进入 MM07。
-- 在 DOC02，可选[候选合规预检](../layer-01-fundamental-concepts/execution-planning/candidate-compliance.yaml)仅适用于确实已选择且适用的写前分支：先准备有界候选并捕获可信基线，再运行检查；然后在应用前解决已选检查的失败、未知、遗漏或过期结果。已选分支缺少候选或基线时返回 `needs_prerequisite`，不得标为 `not_applicable`。只有分支确实未选择或不适用时才记录有原因的 `not_applicable`。DOC05 的写后检查仍必需，预检不能替代它。
+调用[文档 Hook](../hooks/documentation.yaml)。传入当前验证、Contract 和写前指纹。仅在当前文档结果齐备时进入交付。内容、Contract 或验收变化时返回 MM05，验证通过后恢复挂起的 MM06 子步骤。

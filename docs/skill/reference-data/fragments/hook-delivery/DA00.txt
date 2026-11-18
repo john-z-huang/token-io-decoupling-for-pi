@@ -1,0 +1,3 @@
+核验已释放 Mode、Session 身份及权限、原挂起位置和已有效果。输入须覆盖当前 Contract/标准、内容及文档 Verification、范围/指纹/epoch 和准确交付目标。缺失项交 Contract、Verification 或 Git owner 补齐。冲突或已有效果无法安全恢复时阻断。
+
+依据 [模块入口解析](../references/coding/layer-03-workflow-checkpoints/module-entry-resolution.yaml)。
