@@ -45,7 +45,7 @@ export const HOOK_IDS = [
   "materialization",
 ] as const;
 export type HookId = (typeof HOOK_IDS)[number];
-export const SIGNALS = [
+const SEMANTIC_TRIGGERS = [
   "requirements_changed",
   "decision_required",
   "executor_changed",
@@ -57,11 +57,10 @@ export const SIGNALS = [
   "materialization_requested",
   "capability_changed",
 ] as const;
-export type SemanticSignal = (typeof SIGNALS)[number];
 const HOOK_TRIGGERS = [
   "workflow",
   ...PHASES,
-  ...SIGNALS,
+  ...SEMANTIC_TRIGGERS,
   "multi_execution",
   "recovery_needed",
   "repair_review",

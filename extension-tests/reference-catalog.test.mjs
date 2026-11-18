@@ -67,24 +67,23 @@ test('unknown YAML activation is rejected', (t) => {
 });
 
 test('additional Hook activation is read from YAML', (t) => {
-  patchSource(t, { file: 'hooks/advisory.yaml', before: '[advice_requested]', after: '[context_exchange]' });
-  const workflow = syntheticWorkflow(loadCatalog());
-  workflow.observe({ id: 'user', tool: '/coding', effect: 'user', ok: true });
-  workflow.signal(workflow.state.revision, {
-    signal: 'context_exchange',
-    evidence: ['user'],
-    reason: '验证 Hook 中的触发条件',
+  patchSource(t, {
+    file: 'hooks/advisory.yaml',
+    before: '[advice_requested]',
+    after: '[capability_changed]',
   });
+  const workflow = syntheticWorkflow(loadCatalog());
+  workflow.state.capabilityChanged = true;
   assert.ok(renderContext(workflow).includes('[Hook:advisory]'));
 });
 
 test('a changed YAML source fails the digest check before its triggered Hook is used', (t) => {
   const workflow = syntheticWorkflow(loadCatalog());
   interceptReads(t, (path, content) =>
-    typeof path === 'string' && path.endsWith(join('hooks', 'verification.yaml'))
+    typeof path === 'string' && path.endsWith(join('hooks', 'entry.yaml'))
       ? Buffer.from('篡改的指令')
       : content,
   );
-  workflow.state.signals = ['repair_required'];
-  assert.throws(() => renderContext(workflow), /Hash 不匹配：hooks\/verification.yaml/);
+  workflow.state.capabilityChanged = true;
+  assert.throws(() => renderContext(workflow), /Hash 不匹配：hooks\/entry.yaml/);
 });

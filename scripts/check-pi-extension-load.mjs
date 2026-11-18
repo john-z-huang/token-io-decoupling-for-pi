@@ -48,7 +48,25 @@ assert.equal(
   }),
   false,
 );
-assert.equal(check(tools[0].parameters, { action: 'verify', revision: 0, evidence: ['check'] }), true);
+for (const input of [
+  { action: 'verify', revision: 0, evidence: ['check'] },
+  { action: 'signal', revision: 0, signal: 'capability_changed', reason: 'test', evidence: ['source'] },
+  { action: 'finish', revision: 0 },
+]) {
+  assert.equal(check(tools[0].parameters, input), false);
+}
+assert.equal(
+  check(tools[2].parameters, {
+    revision: 0,
+    tool: 'bash',
+    input: {},
+    effect: 'git',
+    rationale: 'test',
+    evidence: ['source'],
+    verificationEvidence: ['check'],
+  }),
+  true,
+);
 assert.equal(
   check(tools[2].parameters, {
     revision: 0,

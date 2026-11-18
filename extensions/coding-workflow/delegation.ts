@@ -31,7 +31,6 @@ interface PreparedJob {
 
 interface JobDispatch {
   invocation: DelegateInvocation;
-  adapter: SubagentAdapter;
   prepared: PreparedJob;
   allocationId: string;
 }
@@ -91,7 +90,7 @@ function prepareBatch(workflow: Workflow, input: DelegateInput, host: Delegation
   const adapter = tool && resolveSubagentAdapter(tool.parameters);
   if (!adapter || !host.isDelegate(input.tool)) {
     throw new Error(
-      "未找到可调用的 subagent Schema（agent/task/cwd 或 calls[].agent/prompt/cwd/initialContext）。缺少兼容能力只阻断委派，不伪造子会话",
+      "委派需要 @mjakl/pi-subagent@3.1.0 的可调用 calls[] Schema，且须支持 initialContext: empty",
     );
   }
   const observations = workflow.state.observations;
@@ -112,8 +111,7 @@ function prepareBatch(workflow: Workflow, input: DelegateInput, host: Delegation
 
   // 整批预检完成才占用名额，任何后续任务不合格时也不触发前面的调用。
   const preflight = { adapter, cwd: host.context.cwd, claimedPaths: new Set<string>() };
-  const jobs = input.jobs.map((job) => prepareJob(workflow, job, preflight));
-  return { adapter, jobs };
+  return input.jobs.map((job) => prepareJob(workflow, job, preflight));
 }
 
 function formatDelegateTask(job: DelegateJob, allocationId: string, audit: Audit | undefined): string {
@@ -135,10 +133,10 @@ function findAllocation(workflow: Workflow, id: string) {
 }
 
 async function dispatchJob(workflow: Workflow, dispatch: JobDispatch, host: DelegationHost) {
-  const { invocation, adapter, prepared, allocationId } = dispatch;
+  const { invocation, prepared, allocationId } = dispatch;
   const { job, modelInput } = prepared;
   const task = formatDelegateTask(job, allocationId, workflow.state.audit);
-  const input = subagentInput(adapter, { agent: job.agent, task, cwd: host.context.cwd, modelInput });
+  const input = subagentInput({ agent: job.agent, task, cwd: host.context.cwd, modelInput });
   const outcome = await host.context.executeTool(invocation.input.tool, input, { signal: invocation.signal });
   const allocation = findAllocation(workflow, allocationId);
   const notRun = outcome.isError && outcome.durationMs === undefined;
@@ -195,13 +193,13 @@ function settleBatch(workflow: Workflow, invocation: DelegateInvocation, batch: 
 function reserveBatch(workflow: Workflow, invocation: DelegateInvocation, host: DelegationHost) {
   const { callId, input } = invocation;
   workflow.assertRevision(input.revision);
-  const { adapter, jobs } = prepareBatch(workflow, input, host);
+  const jobs = prepareBatch(workflow, input, host);
   const allocations = workflow.reserve(jobs.map(({ job }) => ({ role: job.role, callId })));
   workflow.state.inFlight.push(callId);
   host.calls.allowedDelegates.add(callId);
   host.calls.intents.set(callId, { effect: "read", delegate: true });
   host.persist(host.context);
-  return { adapter, jobs, allocations };
+  return { jobs, allocations };
 }
 
 export async function runDelegation(
@@ -211,7 +209,7 @@ export async function runDelegation(
 ): Promise<{ ok: boolean; body: string }> {
   const { callId } = invocation;
   try {
-    const { adapter, jobs, allocations } = reserveBatch(workflow, invocation, host);
+    const { jobs, allocations } = reserveBatch(workflow, invocation, host);
     const epoch = structuredClone(workflow.state.epoch);
     const results = await Promise.allSettled(
       jobs.map((prepared, index) =>
@@ -219,7 +217,6 @@ export async function runDelegation(
           workflow,
           {
             invocation,
-            adapter,
             prepared,
             allocationId: allocations[index].id,
           },

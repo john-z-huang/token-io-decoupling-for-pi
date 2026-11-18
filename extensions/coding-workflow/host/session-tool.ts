@@ -54,15 +54,6 @@ type CheckpointChange = Exclude<CheckpointInput, { action: "status" | "rules" | 
 
 function applyCheckpointChange(workflow: Workflow, change: CheckpointChange): void {
   switch (change.action) {
-    case "verify":
-      workflow.recordVerification(change.revision, change.evidence);
-      return;
-    case "finish":
-      workflow.finish(change.revision);
-      return;
-    case "signal":
-      workflow.signal(change.revision, change);
-      return;
     case "pause":
       workflow.assertRevision(change.revision);
       workflow.pause(change.reason);
@@ -82,7 +73,7 @@ export function registerSessionTool(pi: ExtensionAPI, schemas: WorkflowToolSchem
   pi.registerTool({
     name: "coding_checkpoint",
     label: "Coding 规则与会话",
-    description: "按 ID 查询规则与回执，提示适用 Hook，读回效果、记录当前验证或结束会话任务",
+    description: "按 ID 查询规则与回执，或处理暂停、未确认效果和恢复",
     parameters: schemas.checkpoint,
     executionMode: "sequential",
     exposure: "model-only",

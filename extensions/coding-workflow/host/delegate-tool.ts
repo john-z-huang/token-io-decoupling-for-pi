@@ -9,7 +9,7 @@ export function registerDelegateTool(pi: ExtensionAPI, schemas: WorkflowToolSche
     name: "coding_delegate",
     label: "Coding 有界委派",
     description:
-      "经实际 Schema 适配 agent/task/cwd 或 calls[] 一次性子任务；串行预留职责预算后并行独立任务，不传 session、不假装持久复用。",
+      "通过 @mjakl/pi-subagent@3.1.0 的 calls[] 派发一次性任务。预留职责预算后可并行执行独立任务。",
     parameters: schemas.delegate,
     executionMode: "sequential",
     exposure: "model-only",

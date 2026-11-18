@@ -1,5 +1,4 @@
 import { Type, type Static } from "typebox";
-import { SIGNALS } from "./catalog.ts";
 import { ROLES } from "./host/session-state.ts";
 
 const text = (maxLength = 2000) => Type.String({ minLength: 1, maxLength });
@@ -64,18 +63,6 @@ const checkpoint = Type.Union([
     },
     { additionalProperties: false },
   ),
-  Type.Object({ action: Type.Literal("verify"), revision, evidence }, { additionalProperties: false }),
-  Type.Object({ action: Type.Literal("finish"), revision }, { additionalProperties: false }),
-  Type.Object(
-    {
-      action: Type.Literal("signal"),
-      revision,
-      signal: enumeration(SIGNALS),
-      evidence,
-      reason: text(),
-    },
-    { additionalProperties: false },
-  ),
   Type.Object({ action: Type.Literal("pause"), revision, reason: text() }, { additionalProperties: false }),
   Type.Object({ action: Type.Literal("resume"), revision, evidence }, { additionalProperties: false }),
   Type.Object(
@@ -95,6 +82,13 @@ export const workflowToolSchemas = {
       effect,
       rationale: text(),
       evidence,
+      verificationEvidence: Type.Optional(
+        Type.Array(text(), {
+          minItems: 1,
+          maxItems: 16,
+          description: "effect=git 时须给出当前内容和文档的成功检查回执 ID",
+        }),
+      ),
     },
     { additionalProperties: false },
   ),

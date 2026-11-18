@@ -4,9 +4,8 @@ import { readFileSync } from 'node:fs';
 import {
   parseModelSelection,
   validateChildSelection,
-  dispatchModelArgs,
 } from '../extensions/coding-workflow/model-selection.ts';
-import { releaseSlice, harness, subSchema } from './pi-runtime-fixture.mjs';
+import { releaseSlice, harness } from './pi-runtime-fixture.mjs';
 const cards = JSON.parse(
   readFileSync(new URL('../integrations/pi-subagent/model-cards.json', import.meta.url), 'utf8'),
 );
@@ -33,23 +32,6 @@ test('known card limits and precise syntax apply without blocking other model id
   assert.doesNotThrow(() => validateChildSelection('openrouter/openai/gpt-6.1-terra:medium'));
   assert.doesNotThrow(() => validateChildSelection('local/custom:low'));
 });
-test('request beats fixed profile and parent; no request preserves old explicit-profile/inherited behavior', () => {
-  const parent = { model: 'openai/gpt-6-luna', thinkingLevel: 'max' },
-    profile = 'openai/gpt-6-luna:low';
-  assert.deepEqual(dispatchModelArgs('openai/gpt-6.1-sol:medium', profile, parent), {
-    model: 'openai/gpt-6.1-sol:medium',
-    args: ['--model', 'openai/gpt-6.1-sol:medium'],
-  });
-  assert.deepEqual(dispatchModelArgs(undefined, profile, parent).args, ['--model', profile]);
-  assert.deepEqual(dispatchModelArgs(undefined, undefined, parent).args, [
-    '--model',
-    parent.model,
-    '--thinking',
-    'max',
-  ]);
-  assert.deepEqual(parent, { model: 'openai/gpt-6-luna', thinkingLevel: 'max' });
-  assert.deepEqual(dispatchModelArgs(undefined, undefined, {}).args, []);
-});
 test('all five Chinese profiles remove fixed model and retain Root/role/effect/recursion boundaries', () => {
   for (const name of ['worker', 'reviewer', 'scout', 'planner', 'git-operator']) {
     const text = readFileSync(new URL(`../agents/${name}.md`, import.meta.url), 'utf8');
@@ -71,10 +53,6 @@ for (const model of ['openai/gpt-6.1-sol', 'openai/gpt-6.1-terra', 'openai/gpt-6
     await h.start('multi 合成模型选择');
 
     await releaseSlice(h);
-    h.raw.get('subagent').parameters = {
-      ...subSchema,
-      properties: { ...subSchema.properties, model: { type: 'string' } },
-    };
     const selected = `${model}:medium`;
     const result = await h.invoke('coding_delegate', {
       revision: h.w().state.revision,
@@ -92,33 +70,11 @@ for (const model of ['openai/gpt-6.1-sol', 'openai/gpt-6.1-terra', 'openai/gpt-6
       ],
     });
     assert.equal(result.isError, false);
-    assert.equal(h.calls.find((c) => c.name === 'subagent').input.model, selected);
+    const [call] = h.calls.find((c) => c.name === 'subagent').input.calls;
+    assert.equal(call.model, model);
+    assert.equal(call.thinking, 'medium');
     assert.equal(h.w().state.allocations.length, 1);
   });
-test('explicit selection cannot silently degrade on an older subagent schema', async () => {
-  const h = harness();
-  await h.start('multi 合成旧接口');
-
-  await releaseSlice(h);
-  const result = await h.invoke('coding_delegate', {
-    revision: h.w().state.revision,
-    tool: 'subagent',
-    evidence: [h.userRef()],
-    jobs: [
-      {
-        role: 'Primary Output',
-        agent: 'worker',
-        task: 'synthetic',
-        paths: [],
-        model: 'openai/gpt-6-luna:low',
-        modelReason: 'bounded',
-      },
-    ],
-  });
-  assert.equal(result.isError, true);
-  assert.equal(h.w().state.allocations.length, 0);
-  assert.equal(h.calls.filter((c) => c.name === 'subagent').length, 0);
-});
 test('invalid model or missing Root rationale rejects all jobs before reserving or calling', async () => {
   for (const choice of [
     { model: 'openai/gpt-6.1-sol:off', modelReason: 'bad level' },
@@ -130,10 +86,6 @@ test('invalid model or missing Root rationale rejects all jobs before reserving 
     await h.start('multi 2 合成原子前检');
 
     await releaseSlice(h);
-    h.raw.get('subagent').parameters = {
-      ...subSchema,
-      properties: { ...subSchema.properties, model: { type: 'string' } },
-    };
     const result = await h.invoke('coding_delegate', {
       revision: h.w().state.revision,
       tool: 'subagent',
@@ -166,10 +118,6 @@ test('model selection does not enable an unsupported Git role', async () => {
   await h.start('multi 合成Git角色');
 
   await releaseSlice(h);
-  h.raw.get('subagent').parameters = {
-    ...subSchema,
-    properties: { ...subSchema.properties, model: { type: 'string' } },
-  };
   const result = await h.invoke('coding_delegate', {
     revision: h.w().state.revision,
     tool: 'subagent',

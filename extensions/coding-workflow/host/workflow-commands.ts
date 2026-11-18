@@ -122,13 +122,15 @@ export async function requestStart(
   }
 }
 
-function sendStart(runtime: RuntimeSession, context: ExtensionContext): void {
+function sendStart(runtime: RuntimeSession, context: ExtensionContext, task: string): void {
   runtime.pi.sendMessage(
     {
       customType: CONTEXT_TYPE + ".start",
       details: { sessionId: context.sessionManager.getSessionId() },
-      content:
+      content: [
         "用户已通过 /coding 明确选择路线与目标。按当前 Coding Hooks 开始，先核验 Contract/能力；模式选择不授权写入、Memory 或子任务。",
+        task,
+      ].join("\n\n"),
       display: true,
     },
     { triggerTurn: true },
@@ -152,7 +154,6 @@ function pauseCommand(runtime: RuntimeSession, context: ExtensionContext, workfl
 function disableWorkflow(runtime: RuntimeSession, context: ExtensionContext, workflow: Workflow): void {
   workflow.pause("用户停用扩展；恢复前须读取实际状态");
   runtime.enabled = false;
-  workflow.state.verified = undefined;
   runtime.persist(context);
 }
 
@@ -198,7 +199,7 @@ async function runCodingCommand(
   const request = parseStartupCommand(input);
   if (request) {
     await requestStart(runtime, context, request);
-    sendStart(runtime, context);
+    sendStart(runtime, context, request.task);
     return;
   }
   if (!input || input === "status") return runtime.reply(context, statusText(runtime));

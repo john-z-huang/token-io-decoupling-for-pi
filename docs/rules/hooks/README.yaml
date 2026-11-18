@@ -39,7 +39,7 @@ blocks:
               | [advisory](advisory.yaml) | advice_requested | 外部建议的最少事实、独立出站授权、API 配置/模型边界。 |
               | [materialization](materialization.yaml) | materialization_requested | 候选预检与真实应用分离、可信身份/grant、守卫失败不绕过。 |
 
-              路线绑定各阶段的主 Hook，由 Agent 按当前动作读取。扩展用 `activate_on` 匹配实际会话状态与可选的 `coding_checkpoint signal` 提示。Agent 根据证据判断任务变化、授权、验证充分性及适用性。
+              路线绑定各阶段的主 Hook，由 Agent 按当前动作读取。扩展用 `activate_on` 匹配可观察状态，例如工具失败、未决效果或活动委派。语义变化由 Agent 在上下文判断后读取对应合同。Agent 根据证据判断任务变化、授权、验证充分性及适用性。
   - host-events:
       kind: section
       title: 真正的宿主回调
@@ -54,9 +54,9 @@ blocks:
               | tool_call | 约束内置写入路径/Slice、子代理入口和不透明调用包装；不凭 Shell 关键词或 readOnlyHint 证明安全。 |
               | tool_execution_end | 绑定实际调用证据；已运行写入即使失败也保守失效 epoch；被阻断而未运行的不冒充实际效果。 |
               | session_start | 核对 Session、目录及规则指纹，恢复本分支记录和会话内已占用的名额。 |
-              | session_tree | 分支位置与会话级已占预算分开恢复，不能把树回退当作文件系统/预算回退。 |
+              | session_tree | 读取活动分支的会话绑定，并保留整个会话的已占名额与未决调用。 |
               | input / user_bash | 用户输入撤销旧 Slice，Agent 按当前指令重新核对范围。未决调用或用户 Shell 影响未知时读回实际效果。 |
-              | agent_settled | abort 时暂停并要求读回，不在通知边界启动循环。 |
+              | agent_settled | 结束时撤销 Slice。中止或仍有未决调用时暂停并要求读回。 |
   - references:
       kind: section
       title: 来源整合与链接基准
@@ -80,9 +80,9 @@ blocks:
             kind: markdown
             text: |-
               - `catalog.ts` 从 YAML 建立路线和 Hook 索引，核对触发条件和 YAML 路线入口。Markdown 路径、层级、归属与路线图由离线脚本检查。
-              - `npm run check:hooks` 默认只读。检查 16 份合同及目录和对照表的本地链接、标题锚点、路径与符号链接边界，核对来源引用与对照表，并覆盖两种模式、单个及组合信号和暂停状态。检查范围为本地资源。
+              - `npm run check:hooks` 默认只读。检查 16 份合同及目录和对照表的本地链接、标题锚点、路径与符号链接边界，核对来源引用与对照表，并覆盖两种模式、工具失败提示与暂停状态。检查范围为本地资源。
               - 合同和目录在 `docs/rules/hooks/` 下维护。用 `uv run --locked --script scripts/compile-reference-dsl.py` 生成阅读版和注入正文。调整规则来源后用 `node scripts/check-pi-hooks.mjs --write-coverage` 刷新 YAML 和 Markdown 来源对照。来源表记录归属及落点，执行规则写入正文。
               - `npm test` 还验证跨工作区注入链接、中文/重复标题、坏锚点、源引用缺失、超限拒绝及正文不截断；宿主声明/入口smoke另见使用说明。
               - 覆盖率和 Hash 只说明文本/归属/形状，不证明压缩合同逐条语义等价。详细 owner 保留权威；扩展不是新的授权来源、OS 沙箱或完整静态副作用分析器。
-              - 原生/其他扩展工具是否经过当前事件链必须实际核验；不可观测的外部操作通过真实读回与语义信号处理，不伪造自动检测。
+              - 原生/其他扩展工具是否经过当前事件链必须实际核验；不可观测的外部操作通过真实读回与相关 Hook 处理，不伪造自动检测。
               - MCP 仅保留通用 tools 服务；本地 Hooks 测试通过不证明服务端可信身份或受保护物化已配置。

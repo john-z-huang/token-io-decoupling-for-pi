@@ -7,7 +7,6 @@ import {
   HOOK_IDS,
   loadCatalog,
   resolveDocumentLink,
-  SIGNALS,
 } from '../extensions/coding-workflow/catalog.ts';
 import { makeState, Workflow } from '../extensions/coding-workflow/engine.ts';
 import { MAX_CONTEXT, renderContext } from '../extensions/coding-workflow/rules/prompt.ts';
@@ -54,9 +53,8 @@ function checkCoverage(catalog, rows, writeRequested) {
 }
 
 function measureModeContexts(catalog, mode) {
-  const signalSets = [[], ...SIGNALS.map((signal) => [signal]), [...SIGNALS]];
   const samples = [];
-  for (const signals of signalSets) {
+  for (const capabilityChanged of [false, true]) {
     for (const status of ['active', 'paused']) {
       const childCount = mode === 'single' ? 0 : 1;
       const state = makeState(
@@ -64,9 +62,9 @@ function measureModeContexts(catalog, mode) {
         { sessionId: 'hook-check', cwd: process.cwd() },
         { mode, childCount, task: '有界合成任务' },
       );
-      Object.assign(state, { signals, status });
+      Object.assign(state, { capabilityChanged, status });
       samples.push({
-        isDefault: !signals.length && status === 'active',
+        isDefault: !capabilityChanged && status === 'active',
         size: renderContext(new Workflow(catalog, state)).length,
       });
     }

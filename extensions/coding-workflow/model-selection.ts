@@ -23,16 +23,3 @@ export function validateChildSelection(value: string): void {
   if (thinking === "minimal" || (family === "gpt-6.1-sol" && thinking === "off"))
     throw new Error("模型卡不支持该推理档位；不得默默钳制或换模型");
 }
-export function dispatchModelArgs(
-  request: string | undefined,
-  profile: string | undefined,
-  defaults: { model?: string; thinkingLevel?: string },
-): { model: string | undefined; args: string[] } {
-  if (request !== undefined) parseModelSelection(request);
-  const model = request ?? profile ?? defaults.model;
-  const args = model ? ["--model", model] : [];
-  // 显式请求中的推理档位随模型参数传递，覆盖配置和父级默认值。
-  if (request === undefined && !profile && defaults.thinkingLevel)
-    args.push("--thinking", defaults.thinkingLevel);
-  return { model, args };
-}

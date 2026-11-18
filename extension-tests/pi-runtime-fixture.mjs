@@ -4,16 +4,6 @@ import { installWorkflow } from '../extensions/coding-workflow/runtime.ts';
 
 export const catalog = loadCatalog();
 
-export const subSchema = {
-  type: 'object',
-  properties: {
-    agent: { type: 'string' },
-    task: { type: 'string' },
-    cwd: { type: 'string' },
-  },
-  required: ['agent', 'task'],
-};
-
 export const callsSchema = {
   type: 'object',
   properties: {
@@ -51,7 +41,7 @@ function syntheticTools() {
     [
       'subagent',
       {
-        parameters: structuredClone(subSchema),
+        parameters: structuredClone(callsSchema),
         execute: async () => body('actual synthetic task result with paths/checks/failures'),
       },
     ],
@@ -154,7 +144,7 @@ function createDispatcher(host, ctx) {
 
 function createActions({ commands, ctx, invoke, messages, w }) {
   const userRef = () => w().state.observations.find((observation) => observation.effect === 'user').id;
-  function run(tool = 'bash', effect = 'read', input = {}) {
+  function run(tool = 'bash', effect = 'read', input = {}, verificationEvidence) {
     return invoke('coding_run', {
       revision: w().state.revision,
       tool,
@@ -162,6 +152,7 @@ function createActions({ commands, ctx, invoke, messages, w }) {
       effect,
       rationale: '合成测试中已明确该实际调用的影响范围',
       evidence: [userRef()],
+      verificationEvidence,
     });
   }
   async function start(args = 'single 合成任务，用户明确禁止持久化计划') {

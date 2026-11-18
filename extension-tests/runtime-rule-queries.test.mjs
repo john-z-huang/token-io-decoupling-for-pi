@@ -35,7 +35,7 @@ async function verifyNavigation(host, before) {
     assert.equal(result.document, document);
     assert.equal(result.fragment, fragment);
     assert.deepEqual(documentLinks(result.content), links);
-    assert.deepEqual(host.w().snapshot(), before.state);
+    assert.deepEqual(structuredClone(host.w().state), before.state);
     assert.deepEqual(host.entries, before.entries);
   }
 }
@@ -95,7 +95,7 @@ test('both routes and rule queries work with the YAML sources alone', async (t) 
     const [message] = (await host.emit('context', { messages: [] })).messages;
     assert.match(message.content, new RegExp(route));
     assert.match(message.content, new RegExp(owner));
-    const before = { state: host.w().snapshot(), entries: structuredClone(host.entries) };
+    const before = { state: structuredClone(host.w().state), entries: structuredClone(host.entries) };
 
     await verifyNavigation(host, before);
     await verifyCurrentRule(host, scenario);
@@ -105,7 +105,7 @@ test('both routes and rule queries work with the YAML sources alone', async (t) 
       document: '../references/unknown.md',
     });
     assert.equal(invalid.isError, true);
-    assert.deepEqual(host.w().snapshot(), before.state);
+    assert.deepEqual(structuredClone(host.w().state), before.state);
     assert.deepEqual(host.entries, before.entries);
   }
 });

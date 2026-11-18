@@ -3,9 +3,9 @@ import type { WorkflowToolSchemas } from "../tool-schemas.ts";
 import { MAX_RESULT, RESULT_PAGE_SIZE, toolResult, type ToolHost } from "./tool-results.ts";
 import type { ExecuteToolOptions, ExtensionToolContext } from "@earendil-works/pi-coding-agent";
 import type { Workflow } from "../engine.ts";
-import { affectsEpoch, scopedPath, WORKFLOW_TOOL_NAMES } from "../tool-guards.ts";
+import { affectsEpoch, scopedPath, WORKFLOW_TOOL_NAMES, type ToolIntent } from "../tool-guards.ts";
 import type { RunInput } from "../tool-schemas.ts";
-import { sessionStatus } from "./session-state.ts";
+import { requireEvidence, sessionStatus } from "./session-state.ts";
 import { reachedTool } from "./tool-results.ts";
 
 export function registerSliceTool(pi: ExtensionAPI, schemas: WorkflowToolSchemas, host: ToolHost): void {
@@ -37,12 +37,13 @@ interface OpaqueToolCall {
   callId: string;
   input: RunInput;
   options: ExecuteToolOptions;
+  intent: ToolIntent;
 }
 
 type ToolExecutionHost = ToolHost & { context: ExtensionToolContext };
 type ToolOutcome = Awaited<ReturnType<ExtensionToolContext["executeTool"]>>;
 
-function checkRunRequest(workflow: Workflow, input: RunInput, host: ToolExecutionHost): void {
+function prepareRunIntent(workflow: Workflow, input: RunInput, host: ToolExecutionHost): ToolIntent {
   workflow.assertRevision(input.revision);
   const { tool, effect, evidence } = input;
   if (
@@ -52,16 +53,13 @@ function checkRunRequest(workflow: Workflow, input: RunInput, host: ToolExecutio
   ) {
     throw new Error("工具不存在/hidden/递归/子代理旁路；先发现真实工具与 Schema");
   }
-  const observations = workflow.state.observations;
-  const validEvidence =
-    Array.isArray(evidence) &&
-    evidence.length > 0 &&
-    evidence.every((id) => observations.some((observation) => observation.id === id));
-  if (!input.rationale?.trim() || !validEvidence) {
-    throw new Error("缺少效果分类依据和真实授权/上下文证据引用");
-  }
-  const blocked = workflow.canRun(effect);
+  if (!input.rationale?.trim()) throw new Error("缺少效果分类依据");
+  requireEvidence(workflow.state, evidence);
+  const verification =
+    effect === "git" ? workflow.checkGitEvidence(input.verificationEvidence ?? []) : undefined;
+  const blocked = workflow.canRun(effect, undefined, verification);
   if (blocked) throw new Error(blocked);
+  return { effect, verification };
 }
 
 function storeRunReceipt(host: ToolExecutionHost, callId: string, outcome: ToolOutcome) {
@@ -85,11 +83,11 @@ function storeRunReceipt(host: ToolExecutionHost, callId: string, outcome: ToolO
 }
 
 async function runOpaqueTool(workflow: Workflow, call: OpaqueToolCall, host: ToolExecutionHost) {
-  const { callId, input, options } = call;
+  const { callId, input, options, intent } = call;
   const { calls, context } = host;
 
   // 保存调用中状态后再进入宿主工具，中断恢复才能定位具体调用。
-  calls.intents.set(callId, { effect: input.effect });
+  calls.intents.set(callId, intent);
   workflow.state.inFlight.push(callId);
   host.persist(context);
   const epochAtCall = structuredClone(workflow.state.epoch);
@@ -132,8 +130,12 @@ export function registerRunTool(pi: ExtensionAPI, schemas: WorkflowToolSchemas, 
       const executionHost = { ...host, context };
       try {
         const workflow = host.requireWorkflow();
-        checkRunRequest(workflow, input, executionHost);
-        return await runOpaqueTool(workflow, { callId, input, options: { signal, onUpdate } }, executionHost);
+        const intent = prepareRunIntent(workflow, input, executionHost);
+        return await runOpaqueTool(
+          workflow,
+          { callId, input, intent, options: { signal, onUpdate } },
+          executionHost,
+        );
       } catch (error) {
         const workflow = host.activeWorkflow();
         if (workflow?.state.inFlight.includes(callId))

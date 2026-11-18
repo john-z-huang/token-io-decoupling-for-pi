@@ -1,11 +1,11 @@
-import type { Mode, SemanticSignal } from "../catalog.ts";
+import type { Mode } from "../catalog.ts";
 import type { Audit } from "../startup.ts";
 
 export const EPOCH_DIMENSIONS = ["content", "documentation", "git"] as const;
 export const WORKFLOW_HISTORY_LIMIT = 128;
 export type Dimension = (typeof EPOCH_DIMENSIONS)[number];
 export type Epoch = Record<Dimension, number>;
-type ContentVerification = Pick<Epoch, "content" | "documentation">;
+export type ContentVerification = Pick<Epoch, "content" | "documentation">;
 export type Effect = "read" | "check" | Dimension | "memory";
 
 export const ROLES = [
@@ -36,12 +36,6 @@ export interface WorkflowTask {
   mode: Mode;
   childCount: number;
   task: string;
-}
-
-export interface WorkflowSignal {
-  signal: SemanticSignal;
-  evidence: string[];
-  reason: string;
 }
 
 export interface Slice {
@@ -79,30 +73,28 @@ export function requireEvidence(state: State, evidence: string[]): void {
   }
 }
 
-export interface State extends WorkflowSession, WorkflowTask {
-  version: 2;
+export interface State extends WorkflowSession, Omit<WorkflowTask, "task"> {
   catalogHash: string;
   runId: string;
   audit?: Audit;
   revision: number;
-  status: "active" | "paused" | "complete";
+  status: "active" | "paused";
   reason: string;
   pauseRevision?: number;
   epoch: Epoch;
-  verified?: ContentVerification;
+  scopeRevision?: number;
   slice?: Slice;
   observations: Observation[];
   allocations: Allocation[];
   inFlight: string[];
-  signals: SemanticSignal[];
+  capabilityChanged?: boolean;
   recoveryHint?: string;
 }
 
 export function pauseWorkflow(state: State, reason: string): void {
-  if (state.status !== "complete") state.status = "paused";
+  state.status = "paused";
   state.reason = reason;
   state.slice = undefined;
-  state.verified = undefined;
   state.pauseRevision = state.revision++;
 }
 
@@ -111,12 +103,11 @@ export function recordMutation(state: State, dimension: Dimension): void {
   state.revision++;
 }
 
-export function hasCurrentContentAndDocumentation(state: State): boolean {
-  return state.verified !== undefined && sameContentAndDocumentation(state.verified, state.epoch);
-}
-
-export function sameContentAndDocumentation(previous: ContentVerification, current: Epoch): boolean {
-  return previous.content === current.content && previous.documentation === current.documentation;
+export function sameContentAndDocumentation(
+  previous: ContentVerification | undefined,
+  current: Epoch,
+): boolean {
+  return previous?.content === current.content && previous.documentation === current.documentation;
 }
 
 interface SessionStatus extends State {

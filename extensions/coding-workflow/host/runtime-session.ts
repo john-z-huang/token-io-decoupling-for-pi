@@ -3,6 +3,7 @@ import { realpathSync } from "node:fs";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { loadCatalog, type Catalog, type Mode } from "../catalog.ts";
 import type { Workflow } from "../engine.ts";
+import { sessionSnapshot } from "../engine/workflow-snapshot.ts";
 import type { StartupAnswers } from "../startup.ts";
 import type { ToolCallState } from "../tool-guards.ts";
 import type { Allocation, WorkflowSession } from "./session-state.ts";
@@ -26,10 +27,6 @@ export function recordCommand(workflow: Workflow, command: string): void {
   workflow.observe({ id: `command:${randomUUID()}`, tool: command, effect: "user", ok: true });
 }
 
-export function invalidateVerification(workflow: Workflow): void {
-  workflow.state.verified = undefined;
-}
-
 export class RuntimeSession {
   readonly pi: ExtensionAPI;
   readonly calls: ToolCallState = {
@@ -49,6 +46,7 @@ export class RuntimeSession {
   startupError = "";
   ledger: SessionLedger | undefined;
   private catalog: Catalog | undefined;
+  private persistedLedger: string | undefined;
 
   constructor(pi: ExtensionAPI, catalog?: Catalog) {
     this.pi = pi;
@@ -88,18 +86,11 @@ export class RuntimeSession {
     this.calls.allowedDelegates.clear();
     this.calls.observedMutations.clear();
     this.calls.results.clear();
+    this.persistedLedger = undefined;
   }
 
   persist(context: ExtensionContext): void {
-    if (!this.isVolatile()) {
-      this.pi.appendEntry(STATE_TYPE, {
-        enabled: this.enabled,
-        state: this.workflow?.snapshot(),
-        answers: this.answers,
-        error: this.restoreError,
-        releasedReservations: [...this.calls.releasedReservations],
-      });
-    }
+    this.persistLedger();
     if (!context.hasUI) return;
     const current = this.activeWorkflow();
     if (current) {
@@ -108,6 +99,19 @@ export class RuntimeSession {
       return;
     }
     context.ui.setStatus("coding-workflow", this.restoreError ? "Coding: 状态需人工恢复" : undefined);
+  }
+
+  private persistLedger(): void {
+    if (this.isVolatile() || !this.workflow || this.restoreError) return;
+    const entry = {
+      enabled: this.enabled,
+      state: sessionSnapshot(this.workflow.state),
+      releasedReservations: [...this.calls.releasedReservations],
+    };
+    const serialized = JSON.stringify(entry);
+    if (serialized === this.persistedLedger) return;
+    this.pi.appendEntry(STATE_TYPE, structuredClone(entry));
+    this.persistedLedger = serialized;
   }
 
   reply(context: ExtensionContext, message: string): void {

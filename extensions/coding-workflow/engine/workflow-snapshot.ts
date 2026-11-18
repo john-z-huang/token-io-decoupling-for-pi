@@ -1,8 +1,7 @@
 import { randomUUID } from "node:crypto";
-import { SIGNALS, type Catalog } from "../catalog.ts";
+import type { Catalog } from "../catalog.ts";
 import { validateAnswers } from "../startup.ts";
 import {
-  EPOCH_DIMENSIONS,
   hasText,
   ROLES,
   type State,
@@ -20,14 +19,12 @@ export function makeState(catalog: Catalog, session: WorkflowSession, request: W
     throw new Error("模式与子代理数量不一致");
   }
   return {
-    version: 2,
     sessionId,
     cwd,
     catalogHash: catalog.digest,
     runId: randomUUID(),
     mode,
     childCount,
-    task,
     revision: 0,
     status: "active",
     reason: "",
@@ -35,21 +32,11 @@ export function makeState(catalog: Catalog, session: WorkflowSession, request: W
     observations: [],
     allocations: [],
     inFlight: [],
-    signals: [],
   };
 }
 
-function hasValidBudget({ mode, childCount }: WorkflowTask): boolean {
+function hasValidBudget({ mode, childCount }: Pick<WorkflowTask, "mode" | "childCount">): boolean {
   return mode === "single" ? childCount === 0 : childCount >= 1;
-}
-
-function hasValidEpoch(state: Pick<State, "epoch">): boolean {
-  const { epoch } = state;
-  return (
-    Boolean(epoch) &&
-    Object.values(epoch).length === EPOCH_DIMENSIONS.length &&
-    EPOCH_DIMENSIONS.every((dimension) => Number.isSafeInteger(epoch[dimension]) && epoch[dimension] >= 0)
-  );
 }
 
 function validateAllocations(state: Pick<State, "allocations" | "childCount">): void {
@@ -71,18 +58,25 @@ function validateAllocations(state: Pick<State, "allocations" | "childCount">): 
   }
 }
 
-type SavedState = Omit<State, "version" | "status"> & {
-  version: number;
-  status: State["status"] | "blocked";
-  phase?: unknown;
-  step?: unknown;
-};
+// 只写入重载和切换分支后仍需核验的会话事实。
+type SessionFacts = Pick<
+  State,
+  "sessionId" | "cwd" | "catalogHash" | "runId" | "mode" | "childCount" | "audit" | "allocations" | "inFlight"
+>;
+export type SessionSnapshot = SessionFacts & { version: 3 };
+
+type SavedState = SessionFacts & { version: number; phase?: unknown; step?: unknown };
+
+export function sessionSnapshot(state: State): SessionSnapshot {
+  const { sessionId, cwd, catalogHash, runId, mode, childCount, audit, allocations, inFlight } = state;
+  return { version: 3, sessionId, cwd, catalogHash, runId, mode, childCount, audit, allocations, inFlight };
+}
 
 function boundSnapshot(data: unknown, session: WorkflowSession): SavedState {
   const state = data as SavedState;
   if (
     !state ||
-    ![1, 2].includes(state.version) ||
+    ![1, 2, 3].includes(state.version) ||
     state.sessionId !== session.sessionId ||
     state.cwd !== session.cwd ||
     !hasText(state.runId) ||
@@ -90,85 +84,50 @@ function boundSnapshot(data: unknown, session: WorkflowSession): SavedState {
   ) {
     throw new Error("会话快照版本、身份或目录不匹配");
   }
+  validateAnswers({ mode: state.mode, count: state.childCount, audit: state.audit });
   return state;
 }
 
-function validateSnapshot(state: SavedState): void {
-  validateAnswers({ mode: state.mode, count: state.childCount, audit: state.audit });
-  if (
-    !hasValidBudget(state) ||
-    !hasValidEpoch(state) ||
-    !hasText(state.task, 8000) ||
-    !Number.isSafeInteger(state.revision) ||
-    state.revision < 0 ||
-    !["active", "paused", "blocked", "complete"].includes(state.status) ||
-    typeof state.reason !== "string"
-  ) {
-    throw new Error("工作流快照结构无效");
-  }
-}
-
 function validateActivity(state: SavedState): void {
-  for (const field of ["observations", "allocations", "inFlight", "signals"] as const) {
-    if (!Array.isArray(state[field]) || state[field].length > 256) throw new Error("无效状态字段：" + field);
+  if (
+    !Array.isArray(state.allocations) ||
+    !Array.isArray(state.inFlight) ||
+    state.inFlight.length > 256 ||
+    state.inFlight.some((id) => !hasText(id))
+  ) {
+    throw new Error("会话效果记录无效");
   }
   validateAllocations(state);
-  if (
-    state.inFlight.some((id) => !hasText(id)) ||
-    state.signals.some((signal) => !SIGNALS.includes(signal))
-  ) {
-    throw new Error("会话效果或触发记录无效");
-  }
 }
 
 function recoveryHint(state: SavedState, changed: boolean): string | undefined {
   const hints: string[] = [];
   if (changed) hints.push("规则或扩展版本变化，按当前合同重核受影响事实");
   if (hasText(state.phase, 32) && Number.isSafeInteger(state.step)) {
-    hints.push(`旧路线位置 ${state.phase}/${String(state.step)}，仅供读回参考`);
-  } else if (hasText(state.recoveryHint, 4096)) {
-    hints.push(state.recoveryHint);
+    hints.push("旧路线位置 " + state.phase + "/" + String(state.step) + "，仅供读回参考");
   }
   return hints.join("。") || undefined;
 }
 
 export function restoreState(catalog: Catalog, data: unknown, session: WorkflowSession): State {
   const state = boundSnapshot(data, session);
-  validateSnapshot(state);
   validateActivity(state);
-  const {
-    sessionId,
-    cwd,
-    runId,
-    mode,
-    childCount,
-    task,
-    audit,
-    revision,
-    reason,
-    epoch,
-    allocations,
-    inFlight,
-  } = state;
-  const changed = state.catalogHash !== catalog.digest;
+  const { sessionId, cwd, runId, mode, childCount, audit, allocations, inFlight } = state;
   return structuredClone({
-    version: 2,
     catalogHash: catalog.digest,
     sessionId,
     cwd,
     runId,
     mode,
     childCount,
-    task,
     audit,
-    revision,
-    reason,
-    epoch,
     allocations,
     inFlight,
-    status: state.status === "complete" ? "complete" : "paused",
-    signals: [],
-    observations: changed || state.version === 1 ? [] : state.observations,
-    recoveryHint: recoveryHint(state, changed),
+    status: "paused",
+    reason: "",
+    revision: 0,
+    epoch: { content: 0, documentation: 0, git: 0 },
+    observations: [],
+    recoveryHint: recoveryHint(state, state.catalogHash !== catalog.digest),
   });
 }

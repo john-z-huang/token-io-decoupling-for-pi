@@ -7,7 +7,7 @@
 
 入口为 `extensions/coding-workflow/index.ts`。扩展通过 `context` 提供选定的 YAML 路线和适用的 [Hook 合同](../skill/hooks/README.md)。Agent 依据对话和实际证据安排执行、回验及交付。宿主 Hooks 在会话与工具事件上记录观察、校验路径和影响，调用仍经 `ctx.executeTool` 进入 Pi 的工具校验和权限链。
 
-扩展使用 Pi Session 的 custom entry 保存模式、范围、工具回执、未决效果和委派记录。恢复时从当前分支读回相关事实，并保留整个 Session 已占名额。树导航不会回退磁盘效果，旧快照中的阶段位置只作读回提示。
+扩展使用 Pi Session 的 custom entry 保存恢复所需的会话身份、已确认的模式与审计、预算、已占名额和未决调用。回执、Slice 和证据版本只在当前运行中有效，任务目标及进展沿用 Pi 对话。恢复以活动分支绑定会话，并读回整个会话的名额和未决效果。树导航不回退真实副作用。
 
 [使用与限制](PI_EXTENSION.md)说明安装、一次性子代理适配、离线验证和旧快照恢复。
 

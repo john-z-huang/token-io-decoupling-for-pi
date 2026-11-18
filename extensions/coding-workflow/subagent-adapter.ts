@@ -12,7 +12,6 @@ interface Schema {
   const?: unknown;
 }
 export interface SubagentAdapter {
-  kind: "legacy" | "calls";
   fields: Record<string, Schema>;
 }
 
@@ -57,7 +56,9 @@ function acceptsSingleCall(calls: Schema | undefined): calls is Schema {
   return true;
 }
 
-function callsAdapter(top: ObjectSchema): SubagentAdapter | undefined {
+export function resolveSubagentAdapter(parameters: unknown): SubagentAdapter | undefined {
+  const top = object(parameters);
+  if (!top) return undefined;
   const { calls } = top.properties;
   if (!acceptsSingleCall(calls) || !requiredWithin(top, ["calls"])) return undefined;
   const item = object(calls.items);
@@ -69,19 +70,9 @@ function callsAdapter(top: ObjectSchema): SubagentAdapter | undefined {
   ) {
     return undefined;
   }
-  return { kind: "calls", fields };
+  return { fields };
 }
 
-export function resolveSubagentAdapter(parameters: unknown): SubagentAdapter | undefined {
-  const top = object(parameters);
-  if (!top) return undefined;
-  const fields = top.properties;
-  // 声明了 calls 的宿主必须通过该接口的校验，避免误发旧版参数。
-  if (fields.calls !== undefined) return callsAdapter(top);
-  const keys = ["agent", "task", "cwd"];
-  if (!requiredWithin(top, keys) || !keys.every((name) => acceptsString(fields[name]))) return undefined;
-  return { kind: "legacy", fields };
-}
 export function compatibleSubagent(parameters: unknown): boolean {
   return !!resolveSubagentAdapter(parameters);
 }
@@ -90,11 +81,6 @@ export function compatibleSubagent(parameters: unknown): boolean {
 export function subagentModelInput(adapter: SubagentAdapter, model?: string): Record<string, string> {
   if (model === undefined) return {};
   validateChildSelection(model);
-  if (adapter.kind === "legacy") {
-    if (!acceptsString(adapter.fields.model, model))
-      throw new Error("显式模型选择须有真实 model 参数能力；不静默忽略设置");
-    return { model };
-  }
   const { provider, id, thinking } = parseModelSelection(model);
   const selected = `${provider}/${id}`;
   if (!acceptsString(adapter.fields.model, selected) || !acceptsString(adapter.fields.thinking, thinking))
@@ -109,9 +95,7 @@ interface SubagentCall {
   modelInput: Record<string, string>;
 }
 
-export function subagentInput(adapter: SubagentAdapter, call: SubagentCall): Record<string, unknown> {
+export function subagentInput(call: SubagentCall): Record<string, unknown> {
   const { agent, task, cwd, modelInput } = call;
-  return adapter.kind === "calls"
-    ? { calls: [{ agent, prompt: task, cwd, initialContext: "empty", ...modelInput }] }
-    : { agent, task, cwd, ...modelInput };
+  return { calls: [{ agent, prompt: task, cwd, initialContext: "empty", ...modelInput }] };
 }

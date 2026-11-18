@@ -1,9 +1,10 @@
 import { randomUUID } from "node:crypto";
 import {
-  hasCurrentContentAndDocumentation,
+  sameContentAndDocumentation,
   hasText,
   ROLES,
   type Allocation,
+  type ContentVerification,
   type Effect,
   type Slice,
   type State,
@@ -50,6 +51,7 @@ export function releaseSlice(state: State, slice: Slice): void {
 interface ExecutionEffect {
   effect: Effect;
   path: string | undefined;
+  verification?: ContentVerification;
 }
 
 export function executionBlock(state: State, request: ExecutionEffect): string | undefined {
@@ -60,7 +62,7 @@ export function executionBlock(state: State, request: ExecutionEffect): string |
   if (effect === "memory") return undefined;
   const slice = state.slice;
   if (!slice?.mutations.includes(effect)) return "该影响未被当前 Slice 放行";
-  if (effect === "git" && !hasCurrentContentAndDocumentation(state)) {
+  if (effect === "git" && !sameContentAndDocumentation(request.verification, state.epoch)) {
     return "Git 操作须另获授权，并引用当前内容与文档验证证据";
   }
   if (path !== undefined && !slice.paths.includes(path)) return "路径不在本次 Slice 的精确路径集合中";

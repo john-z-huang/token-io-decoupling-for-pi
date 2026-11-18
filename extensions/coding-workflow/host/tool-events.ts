@@ -51,7 +51,7 @@ function guardOpaqueTool(
   if (!intent || intent.delegate) {
     return "不透明工具须通过 coding_run 声明影响、依据和当前 Slice；不根据 Shell 名称猜测安全性";
   }
-  const block = workflow.canRun(intent.effect);
+  const block = workflow.canRun(intent.effect, undefined, intent.verification);
   if (!block) intents.set(event.toolCallId, intent);
   return block;
 }
@@ -113,9 +113,7 @@ function recordOutcome(
   }
   workflow.state.inFlight = workflow.state.inFlight.filter((id) => id !== event.toolCallId);
   workflow.observe({ id: event.toolCallId, tool: event.toolName, effect, ok: ran && !event.isError });
-  if (event.isError && !workflow.state.signals.includes("capability_changed")) {
-    workflow.state.signals.push("capability_changed");
-  }
+  if (event.isError) workflow.state.capabilityChanged = true;
 }
 
 function finishTool(runtime: RuntimeSession, context: ExtensionContext, event: ToolExecutionEndEvent): void {

@@ -20,7 +20,6 @@ import {
   resolveDocumentLink,
   resolveHookLink,
   rewriteDocumentLinks,
-  SIGNALS,
 } from '../extensions/coding-workflow/catalog.ts';
 import { makeState, Workflow } from '../extensions/coding-workflow/engine.ts';
 import { MAX_CONTEXT, renderContext, renderHook } from '../extensions/coding-workflow/runtime.ts';
@@ -189,10 +188,10 @@ test('links fail on missing files, directories, bad anchors or symlink escapes; 
   assert.throws(() => validateMarkdownLinks(root, 'hooks/a.md', '[x](../escaped.md)'), /符号链接/);
 });
 
-test('both routes retain all relevant contracts for single and combined signals, pause and a full observation window', () => {
+test('both routes retain all relevant contracts for observed capability changes, pause and a full observation window', () => {
   let peak = 0;
   for (const mode of ['single', 'multi'])
-    for (const signals of [[], ...SIGNALS.map((s) => [s]), [...SIGNALS]])
+    for (const capabilityChanged of [false, true])
       for (const status of ['active', 'paused']) {
         const state = makeState(
           catalog,
@@ -203,7 +202,7 @@ test('both routes retain all relevant contracts for single and combined signals,
             task: 'synthetic workspace, not the extension source directory',
           },
         );
-        state.signals = signals;
+        state.capabilityChanged = capabilityChanged;
         state.status = status;
         const w = new Workflow(catalog, state);
         for (let i = 0; i < 128; i++)
@@ -218,11 +217,21 @@ test('both routes retain all relevant contracts for single and combined signals,
           'module and hook links must not bind to the target project',
         );
         if (status === 'paused') assert.ok(content.includes('[Hook:recovery]'));
-        if (signals.includes('advice_requested')) assert.ok(content.includes('[Hook:advisory]'));
-        if (signals.includes('materialization_requested'))
-          assert.ok(content.includes('[Hook:materialization]'));
+        assert.equal(content.includes('[Hook:entry]'), capabilityChanged);
       }
-  assert.ok(peak > 32000, 'expanded contracts really exercise the increased bounded budget');
+  assert.ok(
+    peak >
+      renderContext(
+        new Workflow(
+          catalog,
+          makeState(
+            catalog,
+            { sessionId: 'default', cwd: tmpdir() },
+            { mode: 'single', childCount: 0, task: 'synthetic' },
+          ),
+        ),
+      ).length,
+  );
 });
 
 test('context includes the complete route and only Hooks triggered by observed facts', () => {
@@ -236,8 +245,8 @@ test('context includes the complete route and only Hooks triggered by observed f
   for (const id of ['MM01', 'MM04', 'MM07', 'coding-rule:hook-delegation']) assert.ok(context.includes(id));
   assert.ok(!context.includes('当前检查点'));
   assert.ok(!context.includes('[Hook:repair]'));
-  workflow.state.signals = ['repair_required'];
-  assert.ok(renderContext(workflow).includes('[Hook:repair]'));
+  workflow.state.capabilityChanged = true;
+  assert.ok(renderContext(workflow).includes('[Hook:entry]'));
 });
 
 test('oversized state still blocks instead of truncating any execution guard', () => {
@@ -246,6 +255,6 @@ test('oversized state still blocks instead of truncating any execution guard', (
     { sessionId: 'oversize', cwd: tmpdir() },
     { mode: 'single', childCount: 0, task: 'synthetic' },
   );
-  state.task = 'x'.repeat(MAX_CONTEXT);
+  state.reason = 'x'.repeat(MAX_CONTEXT);
   assert.throws(() => renderContext(new Workflow(catalog, state)), /超出96000字符上限.*不能截断守卫/);
 });

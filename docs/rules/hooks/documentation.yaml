@@ -16,7 +16,7 @@ blocks:
         - trigger-body:
             kind: markdown
             text: |-
-              - 进入 documentation（DOC00–DOC06）、上报 `documentation_impact`，或已授权任务实际改变文档/注释/可复用项目 Memory。
+              - 进入 documentation（DOC00–DOC06）、发现文档影响，或已授权任务实际改变文档/注释/可复用项目 Memory。
               - 用户请求项目知识持久化，或对应 owner 的知识/memo 触发条件成立；`write_content_memo: false` 不等于所有项目知识输出都不适用。
               - 没有适用输出或批准输出确实无变化时，须有当前匹配指纹及原因才能记 N/A；缺授权、来源、路径、工具或检查不是 N/A。
   - inputs:

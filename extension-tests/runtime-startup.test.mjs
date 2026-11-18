@@ -28,15 +28,13 @@ test('CLI flags start only from actual user input, preserving other system promp
     prompt: '真实合成用户目标',
     systemPromptOptions: options,
   });
-  assert.equal(h.w().state.task, '真实合成用户目标');
+  assert.ok(h.w());
+  assert.equal('task' in h.entries.at(-1).data.state, false);
   assert.equal(options.sections.existing, 'keep');
   assert.ok(options.sections.coding_workflow);
 });
 
 const command = (h, args) => h.commands.get('coding').handler(args, h.ctx);
-function finish(h) {
-  h.w().finish(h.w().state.revision);
-}
 for (const mode of ['single', 'multi'])
   test(`startup registry asks mode then audit for ${mode}`, async () => {
     const prompts = [],
@@ -186,8 +184,11 @@ for (const volatile of [false, true])
       evidence: [h.userRef()],
       jobs: [{ role: 'Primary Output', agent: 'worker', task: 'task', paths: [] }],
     });
-    assert.match(h.calls.find((c) => c.name === 'subagent').input.task, /会话审计偏好及每字段来源/);
-    finish(h);
+    assert.match(
+      h.calls.find((c) => c.name === 'subagent').input.calls[0].prompt,
+      /会话审计偏好及每字段来源/,
+    );
+
     await command(h, 'start second task');
     assert.equal(h.w().state.allocations.length, 1);
     const audit = structuredClone(h.w().state.audit);
@@ -202,7 +203,7 @@ for (const volatile of [false, true])
       evidence: [readback.toolCall.id],
     });
     assert.equal(resumed.isError, false, resumed.result.content[0].text);
-    finish(h);
+
     await command(h, 'start third task');
     assert.deepEqual(h.w().state.audit, audit);
     assert.equal(h.w().state.allocations.length, 1);
@@ -224,20 +225,17 @@ test('answers survive navigation before the first workflow branch entry', async 
 test('a fresh extension instance restores confirmed answers and rejects corrupted answer envelopes', async () => {
   const h = harness();
   await command(h, 'multi 2 --audit-defaults task');
-  finish(h);
-  // Persist a structurally complete snapshot using a real runtime persistence boundary.
-  await h.emit('agent_settled', { aborted: true });
+
   const reloaded = harness({ entries: h.entries });
   await reloaded.emit('session_start', { reason: 'resume' });
   assert.equal(reloaded.getRestoreError(), '');
-  await command(reloaded, 'start next task');
-  assert.ok(reloaded.w());
+  assert.equal(reloaded.w().state.status, 'paused');
   assert.equal(reloaded.w().state.childCount, 2);
   const bad = structuredClone(h.entries);
-  bad.at(-1).data.answers.audit.audit_mode = 'economy';
+  bad.at(-1).data.state.audit.audit_mode = 'invalid';
   const corrupt = harness({ entries: bad });
   await corrupt.emit('session_start', { reason: 'resume' });
-  assert.match(corrupt.getRestoreError(), /冲突/);
+  assert.match(corrupt.getRestoreError(), /审计启动快照无效/);
   await command(corrupt, 'single --audit-defaults reset');
   assert.equal(corrupt.w(), undefined);
 });
@@ -285,7 +283,7 @@ test('headless explicit audit fields skip menus without marking them default', a
   assert.equal(h.w().state.childCount, 2);
   assert.ok(Object.values(h.w().state.audit.source).every((s) => s === 'explicit'));
 });
-test('CLI does not implicitly restart a completed task and late cancellation cannot poison a replacement', async () => {
+test('CLI does not implicitly restart a running task and late cancellation cannot poison a replacement', async () => {
   let release;
   const h = harness({
     flags: { 'coding-mode': 'single' },
@@ -305,10 +303,10 @@ test('CLI does not implicitly restart a completed task and late cancellation can
   await pending;
   assert.equal(h.w().state.runId, id);
   assert.equal((await h.invoke('read', {})).isError, false);
-  finish(h);
+
   await h.emit('before_agent_start', event('later'));
   assert.equal(h.w().state.runId, id);
-  assert.equal(h.w().state.status, 'complete');
+  assert.equal(h.w().state.status, 'active');
   await command(h, 'start explicitly requested later task');
   assert.notEqual(h.w().state.runId, id);
 });
@@ -373,6 +371,7 @@ test('explicit next task reuses session budget without finish and refuses unreso
   await command(h, 'start 用户请求的新任务');
   assert.notEqual(h.w().state.runId, first.runId);
   assert.equal(first.status, 'active');
+  assert.match(h.messages.at(-1).message.content, /用户请求的新任务/);
   assert.equal(h.w().state.slice, undefined);
   assert.deepEqual(h.w().state.allocations, first.allocations);
 });

@@ -7,49 +7,54 @@ test('Git preflight uses actual check receipts and rejects stale content without
   const host = harness();
   await host.start();
   await releaseSlice(host, { mutations: ['content', 'git'] });
-  const verify = (evidence) =>
-    host.invoke('coding_checkpoint', {
-      action: 'verify',
-      revision: host.w().state.revision,
-      evidence,
-    });
-  assert.equal((await verify([host.userRef()])).isError, true);
+  const git = (ids) => host.run('bash', 'git', {}, ids);
+  assert.equal((await git([host.userRef()])).isError, true);
   assert.equal((await host.run('bash', 'git')).isError, true);
 
   const firstCheck = await host.run('bash', 'check');
-  assert.equal((await verify([firstCheck.toolCall.id])).isError, false);
   assert.equal((await host.invoke('write', { path: 'synthetic.ts' })).isError, false);
   assert.equal((await host.run('bash', 'git')).isError, true);
-  assert.equal((await verify([firstCheck.toolCall.id])).isError, true);
+  assert.equal((await git([firstCheck.toolCall.id])).isError, true);
 
   const freshCheck = await host.run('bash', 'check');
-  assert.equal((await verify([freshCheck.toolCall.id])).isError, false);
-  assert.equal((await host.run('bash', 'git')).isError, false);
+  assert.equal((await git([freshCheck.toolCall.id])).isError, false);
   assert.equal(host.w().state.epoch.git, 1);
-  assert.equal((await verify([freshCheck.toolCall.id])).isError, false);
-  assert.equal('git' in host.w().state.verified, false);
+  assert.equal((await git([freshCheck.toolCall.id])).isError, false);
+  assert.equal(host.w().state.epoch.git, 2);
+  await host.emit('input', { source: 'rpc', text: 'new scope' });
+  await releaseSlice(host, { mutations: ['git'] });
+  assert.equal((await git([freshCheck.toolCall.id])).isError, true);
 });
 
-test('the agent can close a task directly while unresolved effects prevent closure', async () => {
+test('settled turns revoke write scope without a finish report and retain pending effects', async () => {
   const host = harness();
   await host.start();
-  const finish = () =>
-    host.invoke('coding_checkpoint', {
-      action: 'finish',
-      revision: host.w().state.revision,
-    });
-  host.w().state.inFlight.push('unresolved');
-  assert.equal((await finish()).isError, true);
-  host.w().state.inFlight.pop();
-  assert.equal((await finish()).isError, false);
-  assert.equal(host.w().state.status, 'complete');
+  const saved = host.entries.length;
+  await releaseSlice(host);
+  await host.invoke('read', { path: 'synthetic.ts' });
+  await host.emit('agent_settled', { aborted: false });
+  assert.equal(host.w().state.status, 'active');
+  assert.equal(host.w().state.slice, undefined);
   assert.equal((await host.invoke('write', { path: 'synthetic.ts' })).isError, true);
+  assert.equal(host.entries.length, saved);
+  const snapshot = host.entries.at(-1).data.state;
+  assert.equal(snapshot.version, 3);
+  for (const key of ['task', 'status', 'slice', 'observations', 'epoch', 'revision']) {
+    assert.equal(key in snapshot, false, key);
+  }
+
+  host.w().state.inFlight.push('unresolved');
+  await host.emit('agent_settled', { aborted: false });
+  assert.equal(host.w().state.status, 'paused');
+  assert.deepEqual(host.entries.at(-1).data.state.inFlight, ['unresolved']);
 });
 
 test('legacy snapshots retain allocations and pending effects but drop the old cursor and write scope', async () => {
   const host = harness();
   await host.start('multi 合成任务');
-  const snapshot = host.entries.at(-1).data.state;
+  const entry = host.entries.at(-1).data;
+  const snapshot = entry.state;
+  entry.answers = { mode: snapshot.mode, count: snapshot.childCount, audit: snapshot.audit };
   Object.assign(snapshot, {
     version: 1,
     catalogHash: 'previous-rules',
@@ -61,7 +66,8 @@ test('legacy snapshots retain allocations and pending effects but drop the old c
   });
   const restored = harness({ entries: host.entries });
   await restored.emit('session_start', { reason: 'resume' });
-  assert.equal(restored.w().state.version, 2);
+  await restored.invoke('read', { path: 'synthetic.ts' });
+  assert.equal(restored.entries.at(-1).data.state.version, 3);
   assert.match(restored.w().state.recoveryHint, /execution\/4/);
   assert.equal('phase' in restored.w().state, false);
   assert.equal(restored.w().state.slice, undefined);

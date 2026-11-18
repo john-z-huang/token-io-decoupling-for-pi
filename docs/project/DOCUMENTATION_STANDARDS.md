@@ -75,7 +75,7 @@ uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint 'r
 
 - [合同模板](../rules/templates/hooks/hook-contract.yaml) 按触发条件、输入与证据、执行要求、阶段路线图与有序检查点、输出与落点、退出与阻断、重新核验、规则来源排序。阶段路线图和检查点用于八份由路线绑定的合同。顶层块、执行子章节和检查点可以按稳定 ID 查询。
 - [目录模板](../rules/templates/hooks/hook-directory.yaml) 定义导语、合同与明确触发、宿主回调、链接基准和维护检查的顺序。
-- `activate_on` 声明阶段、语义信号或宿主状态对应的合同。Agent 根据路线、实际动作及证据读取阶段合同，扩展根据实际会话状态和 `coding_checkpoint signal` 提示补充合同。`applicability: optional` 标记可凭证据判断不适用的事项，`applicability: sub_agent` 限定子代理分支。用 `npm run check:hooks` 检查运行时索引。
+- `activate_on` 声明阶段、语义信号或宿主状态对应的合同。Agent 根据路线、实际动作及证据读取阶段合同，扩展根据实际会话状态及可观察事件补充合同。语义变化由 Agent 在上下文中判断，再定向读取适用规则。`applicability: optional` 标记可凭证据判断不适用的事项，`applicability: sub_agent` 限定子代理分支。用 `npm run check:hooks` 检查运行时索引。
 - 导航引用使用相对 `.yaml#块ID`，导出时转成 Markdown 路径和标题锚点。执行要求中的 `rule_include` 用来读取所引用的底层参考规则片段。Pi 注入主路线和已触发的合同，路线图与来源表随阅读版发布。使用 `coding-rule:hook-entry#ER03` 等 ID 可定向查询检查点。 [入口合同示例](../rules/hooks/entry.yaml)
 - 修改规则来源后先编译，再由 `node scripts/check-pi-hooks.mjs --write-coverage` 从合同的来源表刷新 [YAML 来源对照](../rules/hooks/SOURCE_COVERAGE.yaml)。再次执行 `npm run build:skill` 生成 [Markdown 来源对照](../skill/hooks/SOURCE_COVERAGE.md)。阶段绑定可在[路线目录](../rules/coding-workflows/README.yaml)的“分阶段 Hooks”章节查阅。日常检查用 `npm run check:hooks` 校验来源对照、链接与注入场景。
 

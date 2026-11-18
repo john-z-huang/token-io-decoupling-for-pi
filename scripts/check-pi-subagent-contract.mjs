@@ -39,7 +39,7 @@ plugin.default({
 const tool = tools.find((t) => t.name === 'subagent');
 assert.ok(tool, '插件应在合成根上下文注册 subagent');
 const adapter = resolveSubagentAdapter(tool.parameters);
-assert.equal(adapter?.kind, 'calls');
+assert.ok(adapter, '实际工具须注册可用的 calls[] Schema');
 const check = await loadTypeBoxCheck(host);
 const { buildPiArgs } = await jiti.import(join(pluginRoot, 'runner.ts'));
 const agent = {
@@ -57,7 +57,7 @@ for (const [provider, model, thinking] of [
   ['openai', 'gpt-6-luna', 'off'],
   ['custom-provider', 'nested/gpt-6-luna', 'low'],
 ]) {
-  const input = subagentInput(adapter, {
+  const input = subagentInput({
     agent: agent.name,
     task: 'verbatim\n合成任务',
     cwd: process.cwd(),
@@ -90,7 +90,7 @@ for (const [provider, model, thinking] of [
   assert.ok(!args.includes('--session-id'));
   assert.ok(!args.includes('--fork'));
 }
-const inherited = subagentInput(adapter, {
+const inherited = subagentInput({
   agent: agent.name,
   task: 'inherit',
   cwd: process.cwd(),

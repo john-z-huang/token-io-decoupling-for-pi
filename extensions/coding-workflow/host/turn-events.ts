@@ -46,7 +46,8 @@ function registerUserInput(runtime: RuntimeSession): void {
     const current = runtime.activeWorkflow();
     if (!current || event.source === "extension") return;
     current.observe({ id: `input:${randomUUID()}`, tool: `user:${event.source}`, effect: "user", ok: true });
-    current.state.signals = [];
+    current.state.capabilityChanged = undefined;
+    current.state.scopeRevision = current.state.revision;
     if (current.state.status === "active") {
       current.state.slice = undefined;
       if (current.state.inFlight.length) current.pause("用户输入到达时仍有未决调用，先读回实际效果");
@@ -80,8 +81,13 @@ function registerUserInput(runtime: RuntimeSession): void {
 function registerTurnCompletion(runtime: RuntimeSession): void {
   runtime.pi.on("agent_settled", (event, context) => {
     const current = runtime.activeWorkflow();
-    if (!current || !event.aborted) return;
-    current.pause("执行被中止；先读回实际效果，再决定恢复");
+    if (!current) return;
+    if (event.aborted || current.state.inFlight.length) {
+      current.pause("本轮中止或仍有未决调用；先读回实际效果，再决定恢复");
+    } else if (current.state.slice) {
+      current.state.slice = undefined;
+      current.state.revision++;
+    }
     runtime.persist(context);
   });
 }

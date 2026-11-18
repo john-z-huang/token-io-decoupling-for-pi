@@ -179,12 +179,13 @@ test('unresolved effects survive restoration and block resume until actual readb
   await h.start();
   h.w().state.inFlight.push('unknown-op');
   await h.emit('agent_settled', { aborted: true });
+  const pendingBranch = structuredClone(h.entries);
   await h.emit('session_start', { reason: 'reload' });
   assert.ok(h.w().state.inFlight.includes('unknown-op'));
   const resume = await h.invoke('coding_checkpoint', {
     action: 'resume',
     revision: h.w().state.revision,
-    evidence: [h.userRef()],
+    evidence: ['obsolete-receipt'],
   });
   assert.equal(resume.isError, true);
   const read = await h.invoke('read', { path: 'synthetic.ts' });
@@ -199,6 +200,9 @@ test('unresolved effects survive restoration and block resume until actual readb
     ).isError,
     false,
   );
+  h.setBranch(pendingBranch);
+  await h.emit('session_tree');
+  assert.deepEqual(h.w().state.inFlight, []);
 });
 test('explicit volatile flag avoids appendEntry; no global configuration is modified', async () => {
   const h = harness({ flags: { 'coding-volatile': true } });

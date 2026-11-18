@@ -1,5 +1,4 @@
-import { SIGNALS } from "../catalog.ts";
-import { hasText, recordMutation, type State, type WorkflowSignal } from "../host/session-state.ts";
+import type { State } from "../host/session-state.ts";
 
 function hasReadback(state: State, evidence: string[], after: number): boolean {
   return state.observations.some(
@@ -31,28 +30,5 @@ export function resolveUnknownEffect(state: State, callId: string, evidence: str
   }
   state.inFlight = state.inFlight.filter((id) => id !== callId);
   // 读回可解除执行阻断，不能替宿主推断子任务的终态或归还已占预算。
-  state.revision++;
-}
-
-export function recordSignal(state: State, { signal, reason }: WorkflowSignal): void {
-  if (state.status === "complete" || !SIGNALS.includes(signal) || !hasText(reason)) {
-    throw new Error("语义信号或说明无效");
-  }
-  if (!state.signals.includes(signal)) state.signals.push(signal);
-  if (
-    [
-      "requirements_changed",
-      "decision_required",
-      "executor_changed",
-      "capability_changed",
-      "repair_required",
-    ].includes(signal)
-  ) {
-    state.slice = undefined;
-    state.verified = undefined;
-  }
-  if (signal === "requirements_changed" || signal === "documentation_impact")
-    recordMutation(state, "content");
-  if (signal === "git_changed") recordMutation(state, "git");
   state.revision++;
 }

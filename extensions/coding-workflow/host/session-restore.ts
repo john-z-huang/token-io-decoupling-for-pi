@@ -1,10 +1,10 @@
 import type { ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { Workflow, restoreState } from "../engine.ts";
+import type { SessionSnapshot } from "../engine/workflow-snapshot.ts";
 import { validateAnswers, type StartupAnswers } from "../startup.ts";
 import type { State } from "./session-state.ts";
 import {
   CONTEXT_TYPE,
-  invalidateVerification,
   sessionIdentity,
   STATE_TYPE,
   type RuntimeSession,
@@ -12,7 +12,7 @@ import {
 } from "./runtime-session.ts";
 
 interface SnapshotEnvelope {
-  state?: State;
+  state?: Omit<SessionSnapshot, "version"> & { version: number };
   answers?: StartupAnswers;
   enabled?: boolean;
   error?: string;
@@ -37,18 +37,24 @@ export function hasStartupMarker(context: ExtensionContext): boolean {
   });
 }
 
-function sessionSnapshots(context: ExtensionContext): (SnapshotEnvelope & { state: State })[] {
+type BoundSnapshot = SnapshotEnvelope & { state: NonNullable<SnapshotEnvelope["state"]> };
+
+function sessionSnapshots(context: ExtensionContext): BoundSnapshot[] {
   const sessionId = context.sessionManager.getSessionId();
   const candidates = context.sessionManager
     .getEntries()
     .map(snapshotEnvelope)
-    .filter((entry): entry is SnapshotEnvelope & { state: State } => entry?.state?.sessionId === sessionId);
+    .filter((entry): entry is BoundSnapshot => entry?.state?.sessionId === sessionId);
   if (!candidates.length) return [];
   const { cwd } = sessionIdentity(context);
   return candidates.filter(({ state }) => state.cwd === cwd);
 }
 
-function summarizeLedger(states: State[], latest: State, releasedReservations: Set<string>): SessionLedger {
+function summarizeLedger(
+  states: State[],
+  latestVersion: number,
+  releasedReservations: Set<string>,
+): SessionLedger {
   const allocations = new Map<string, State["allocations"][number]>();
   const runs = new Map<string, State>();
   for (const state of states) {
@@ -57,11 +63,17 @@ function summarizeLedger(states: State[], latest: State, releasedReservations: S
     }
     runs.set(state.runId, state);
   }
+  const latest = states[states.length - 1];
+  // v3 每次写入整个 Session 的未决调用，避免旧分支把已处置调用重新带回。
+  const inFlight =
+    latestVersion === 3
+      ? latest.inFlight
+      : [...new Set([...runs.values()].flatMap((state) => state.inFlight))];
   return {
     mode: latest.mode,
     count: Math.max(...states.map((state) => state.childCount)),
     allocations: [...allocations.values()],
-    inFlight: [...new Set([...runs.values()].flatMap((state) => state.inFlight))],
+    inFlight,
   };
 }
 
@@ -77,19 +89,19 @@ export function scanSessionLedger(
   const session = sessionIdentity(context);
   const catalog = runtime.getCatalog();
   const states = snapshots.map(({ state }) => restoreState(catalog, state, session));
-  const latest = states[states.length - 1];
-  return summarizeLedger(states, latest, runtime.calls.releasedReservations);
+  return summarizeLedger(
+    states,
+    snapshots[snapshots.length - 1].state.version,
+    runtime.calls.releasedReservations,
+  );
 }
 
 function restoreAnswers(runtime: RuntimeSession, context: ExtensionContext): void {
-  const latest = context.sessionManager
-    .getEntries()
-    .map(snapshotEnvelope)
-    .findLast((entry) => entry?.state?.sessionId === runtime.answerSession);
+  const latest = sessionSnapshots(context).at(-1);
   if (!latest?.state) return;
-  const answers = validateAnswers(latest.answers);
-  runtime.answers = answers;
   const snapshot = latest.state;
+  const facts = { mode: snapshot.mode, count: snapshot.childCount, audit: snapshot.audit };
+  const answers = validateAnswers(snapshot.version === 3 ? facts : latest.answers);
   if (
     answers.mode !== snapshot.mode ||
     answers.count !== snapshot.childCount ||
@@ -98,12 +110,13 @@ function restoreAnswers(runtime: RuntimeSession, context: ExtensionContext): voi
     throw new Error("会话启动答案与工作流快照冲突");
   }
   if (runtime.ledger) answers.count = runtime.ledger.count;
+  runtime.answers = answers;
 }
 
 function applyLedger(workflow: Workflow, ledger: SessionLedger): void {
   workflow.state.childCount = ledger.count;
   workflow.state.allocations = ledger.allocations;
-  workflow.state.inFlight = [...new Set([...workflow.state.inFlight, ...ledger.inFlight])];
+  workflow.state.inFlight = [...ledger.inFlight];
 }
 
 function blockRestore(runtime: RuntimeSession, error: string): void {
@@ -115,8 +128,16 @@ function restoreBranch(runtime: RuntimeSession, context: ExtensionContext, navig
   const entry = context.sessionManager
     .getBranch()
     .findLast((item) => item.type === "custom" && item.customType === STATE_TYPE);
-  if (!entry) return true;
-  const envelope = snapshotEnvelope(entry);
+  if (!entry && !runtime.ledger?.inFlight.length) return true;
+  const envelope = entry ? snapshotEnvelope(entry) : sessionSnapshots(context).at(-1);
+  return restoreEnvelope(runtime, context, { envelope, navigation });
+}
+
+function restoreEnvelope(
+  runtime: RuntimeSession,
+  context: ExtensionContext,
+  { envelope, navigation }: { envelope: SnapshotEnvelope | undefined; navigation: boolean },
+): boolean {
   const state = envelope?.state;
   if (!envelope || !state?.sessionId) {
     blockRestore(runtime, "工作流快照缺少 Session 身份，不能隐式重置");
@@ -125,7 +146,11 @@ function restoreBranch(runtime: RuntimeSession, context: ExtensionContext, navig
   if (state.sessionId !== context.sessionManager.getSessionId()) return true;
   try {
     if (envelope.error) throw new Error(envelope.error);
-    restoreWorkflow(runtime, context, { state, enabled: envelope.enabled === true, navigation });
+    restoreWorkflow(runtime, context, {
+      state,
+      enabled: envelope.enabled === true,
+      navigation,
+    });
   } catch (error) {
     blockRestore(runtime, String(error));
   }
@@ -135,7 +160,7 @@ function restoreBranch(runtime: RuntimeSession, context: ExtensionContext, navig
 function restoreWorkflow(
   runtime: RuntimeSession,
   context: ExtensionContext,
-  request: { state: State; enabled: boolean; navigation: boolean },
+  request: { state: NonNullable<SnapshotEnvelope["state"]>; enabled: boolean; navigation: boolean },
 ): void {
   const catalog = runtime.getCatalog();
   const workflow = new Workflow(catalog, restoreState(catalog, request.state, sessionIdentity(context)));
@@ -143,18 +168,12 @@ function restoreWorkflow(
   runtime.enabled = request.enabled;
   if (runtime.ledger) applyLedger(workflow, runtime.ledger);
   // 文件系统效果不会随会话树回退，恢复后必须重新核对。
-  invalidateVerification(workflow);
-  workflow.state.slice = undefined;
   for (const slot of workflow.state.allocations) {
     if (slot.status === "running") slot.status = "uncertain";
   }
-  if (workflow.state.status !== "complete") {
-    workflow.pause(
-      request.navigation
-        ? "分支/会话导航后须读回实际文件及效果；只恢复原位置"
-        : "重载/恢复后须读回当前状态，不自动重放操作",
-    );
-  }
+  workflow.pause(
+    request.navigation ? "分支/会话导航后须读回实际文件及效果" : "重载/恢复后须读回当前状态，不自动重放操作",
+  );
 }
 
 function resetForRestore(runtime: RuntimeSession, sessionId: string): void {
@@ -180,7 +199,6 @@ function pauseVolatile(runtime: RuntimeSession, context: ExtensionContext, reaso
   )
     return false;
   runtime.cancelStartup();
-  invalidateVerification(workflow);
   workflow.pause(reason);
   runtime.persist(context);
   return true;

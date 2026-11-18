@@ -38,7 +38,7 @@ blocks:
                   text: |-
                     1. 模块调用前核对声明中的范围、允许效果、授权、前置证据和新鲜度。首次直接入口没有历史不是失败，但必须在产生效果或暂停前建立 continuation。
                     2. continuation 保留待处理模块/子步骤、授权范围、带来源和 epoch 的已完成证据、尝试/完成/未知效果，以及外层返回位置；不能只记“从头再试”。
-                    3. 父级实时 mode/count/allocation/Slice 属会话调度状态，不写共享计划/memo/其他 Memory。扩展快照只是 Pi Session 记录，不是数据库事务、身份或权限证明。
+                    3. 父级实时 mode/count/allocation/Slice 属会话调度状态，不写共享计划/memo/其他 Memory。扩展账本只保存恢复所需事实。Slice、回执与验证版本按当前运行重新建立。账本只提供恢复证据，身份与权限需要单独核验。
                     4. 会话树、fork、压缩和重载不能回退磁盘或已占用名额。合并当前分支位置与 Session 已绑定 allocation，不能把旧快照空预算当作新授权；状态损坏/归属不明时暂停而非重建空状态。
         - execution-02:
             kind: section

@@ -1,7 +1,7 @@
 import { existsSync, realpathSync, statSync } from "node:fs";
 import { dirname, relative, resolve, sep } from "node:path";
 import { exactPath } from "./engine/workflow-execution.ts";
-import type { Dimension, Effect } from "./host/session-state.ts";
+import type { ContentVerification, Dimension, Effect } from "./host/session-state.ts";
 
 export const WORKFLOW_TOOL_NAMES = new Set([
   "coding_checkpoint",
@@ -12,6 +12,7 @@ export const WORKFLOW_TOOL_NAMES = new Set([
 
 export interface ToolIntent {
   effect: Effect;
+  verification?: ContentVerification;
   delegate?: boolean;
 }
 

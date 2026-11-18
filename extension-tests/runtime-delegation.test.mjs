@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { compatibleSubagent } from '../extensions/coding-workflow/runtime.ts';
-import { releaseSlice, body, callsSchema, harness, subSchema } from './pi-runtime-fixture.mjs';
+import { releaseSlice, body, callsSchema, harness } from './pi-runtime-fixture.mjs';
 
 test('real delegate adapter performs one synchronous call and records no fabricated child Session ID', async () => {
   const h = harness();
@@ -18,7 +18,7 @@ test('real delegate adapter performs one synchronous call and records no fabrica
   assert.equal(h.calls.filter((c) => c.name === 'subagent').length, 1);
   assert.equal(h.w().state.allocations[0].status, 'completed');
   assert.equal('sessionId' in h.w().state.allocations[0], false);
-  assert.match(h.calls.find((c) => c.name === 'subagent').input.task, /禁止创建\/派发其他代理/);
+  assert.match(h.calls.find((c) => c.name === 'subagent').input.calls[0].prompt, /禁止创建\/派发其他代理/);
 });
 test('delegate rejects a write path when the current Slice does not allow its effect', async () => {
   const h = harness();
@@ -41,7 +41,6 @@ test('calls[] adapter maps prompt and explicit thinking without creating a named
   await h.start('multi 合成3.1接口');
 
   await releaseSlice(h);
-  h.raw.get('subagent').parameters = callsSchema;
   const result = await h.invoke('coding_delegate', {
     revision: h.w().state.revision,
     tool: 'subagent',
@@ -82,7 +81,6 @@ test('calls[] adapter preserves default model inheritance when no selection was 
   await h.start('multi 合成继承');
 
   await releaseSlice(h);
-  h.raw.get('subagent').parameters = callsSchema;
   const result = await h.invoke('coding_delegate', {
     revision: h.w().state.revision,
     tool: 'subagent',
@@ -132,7 +130,6 @@ test('calls[] jobs remain separate host calls; child failure retains occupied bu
   await h.start('multi 2 合成新版失败');
 
   await releaseSlice(h);
-  h.raw.get('subagent').parameters = callsSchema;
   h.raw.get('subagent').execute = async (_id, input) => ({
     ...body('实际失败与部分结果'),
     isError: input.calls[0].agent === 'scout',
@@ -159,7 +156,6 @@ test('calls[] Schema cannot bypass direct-call and coding_run delegation guards'
   await h.start('multi 合成旁路');
 
   await releaseSlice(h);
-  h.raw.get('subagent').parameters = callsSchema;
   const input = { calls: [{ agent: 'worker', prompt: 'must not run' }] };
   assert.equal((await h.invoke('subagent', input)).isError, true);
   assert.equal((await h.run('subagent', 'read', input)).isError, true);
@@ -245,7 +241,6 @@ test('calls[] still rejects single mode, Git roles, duplicate roles and conflict
     await h.start(start);
 
     await releaseSlice(h);
-    h.raw.get('subagent').parameters = callsSchema;
 
     const result = await h.invoke('coding_delegate', {
       revision: h.w().state.revision,
@@ -263,7 +258,6 @@ test('calls[] preserves the independent read-only verification boundary and curr
   const h = harness();
   await h.start('multi 合成新版验证');
 
-  h.raw.get('subagent').parameters = callsSchema;
   const job = { role: 'Change Verification', agent: 'reviewer', task: 'verify actual evidence', paths: [] };
   const blocked = await h.invoke('coding_delegate', {
     revision: h.w().state.revision,
@@ -285,11 +279,21 @@ test('calls[] preserves the independent read-only verification boundary and curr
   assert.ok(evidence?.ok);
   assert.deepEqual(evidence.epoch, h.w().state.epoch);
 });
-test('direct subagent, single mode and incompatible Schema fail without allocating', async () => {
+test('a same-named tool with a legacy schema is rejected before execution or reservation', async () => {
   const h = harness();
-  await h.start();
-
+  await h.start('multi 合成仅含旧参数的工具');
   await releaseSlice(h);
+  const legacySchema = {
+    type: 'object',
+    properties: {
+      agent: { type: 'string' },
+      task: { type: 'string' },
+      cwd: { type: 'string' },
+    },
+    required: ['agent', 'task'],
+  };
+  h.raw.get('subagent').parameters = legacySchema;
+  assert.equal(compatibleSubagent(legacySchema), false);
   assert.equal(
     (await h.invoke('subagent', { agent: 'worker', task: 'forbidden', cwd: process.cwd() })).isError,
     true,
@@ -302,8 +306,8 @@ test('direct subagent, single mode and incompatible Schema fail without allocati
   };
   assert.equal((await h.invoke('coding_delegate', args)).isError, true);
   assert.equal(h.w().state.allocations.length, 0);
-  assert.equal(compatibleSubagent({ properties: { task: { type: 'string' } } }), false);
-  assert.equal(compatibleSubagent({ ...subSchema, required: ['agent', 'task', 'unsupported'] }), false);
+  assert.equal((await h.run('subagent', 'read')).isError, true);
+  assert.equal(h.calls.filter((call) => call.name === 'subagent').length, 0);
 });
 test('parallel delegate preflight rejects budget overflow and conflicting writes before any task', async () => {
   const h = harness();
