@@ -9,7 +9,7 @@ export type Phase = typeof PHASES[number];
 export type Mode = "single" | "multi";
 export const HOOK_IDS = ["foundation", "entry", "session", "planning", "execution", "delegation", "context", "audit", "verification", "repair", "documentation", "delivery", "recovery", "navigation", "advisory", "materialization"] as const;
 export type HookId = typeof HOOK_IDS[number];
-export const SIGNALS = ["requirements_changed", "decision_required", "repair_required", "documentation_impact", "git_changed", "context_exchange", "advice_requested", "materialization_requested", "capability_changed"] as const;
+export const SIGNALS = ["requirements_changed", "decision_required", "executor_changed", "repair_required", "documentation_impact", "git_changed", "context_exchange", "advice_requested", "materialization_requested", "capability_changed"] as const;
 export type SemanticSignal = typeof SIGNALS[number];
 export interface Checkpoint { id: string; title: string; instruction: string; conditional: boolean }
 export interface Module { name: string; path: string; checkpoints: Checkpoint[] }
@@ -98,12 +98,12 @@ export function phaseHooks(phase: Phase, mode: Mode): HookId[] {
   const table: Record<Phase, HookId[]> = {
     entry: ["entry", "navigation"], session: ["session", "audit"], definition: ["planning", "context"],
     execution: mode === "multi" ? ["execution", "delegation"] : ["execution"],
-    verification: ["verification", "repair"], documentation: ["documentation", "context"], delivery: ["delivery"],
+    verification: ["verification"], documentation: ["documentation", "context"], delivery: ["delivery"],
   };
   return [...new Set<HookId>(["foundation", ...table[phase], ...(["execution", "verification", "documentation", "delivery"].includes(phase) ? ["planning" as const] : []), ...(phase === "execution" && mode === "multi" ? ["context" as const, "audit" as const] : [])])];
 }
 export function signalHooks(signal: SemanticSignal): HookId[] {
-  return ({ requirements_changed: ["entry", "planning"], decision_required: ["planning"], repair_required: ["repair", "verification"], documentation_impact: ["documentation", "verification"], git_changed: ["delivery", "verification"], context_exchange: ["context"], advice_requested: ["advisory"], materialization_requested: ["materialization"], capability_changed: ["session", "entry"] } satisfies Record<SemanticSignal, HookId[]>)[signal];
+  return ({ requirements_changed: ["entry", "planning"], decision_required: ["planning"], executor_changed: ["execution", "delegation"], repair_required: ["repair", "verification"], documentation_impact: ["documentation", "verification"], git_changed: ["delivery", "verification"], context_exchange: ["context"], advice_requested: ["advisory"], materialization_requested: ["materialization"], capability_changed: ["session", "entry"] } satisfies Record<SemanticSignal, HookId[]>)[signal];
 }
 function markdownFiles(root: string): string[] {
   return readdirSync(root, { withFileTypes: true }).flatMap(entry => {

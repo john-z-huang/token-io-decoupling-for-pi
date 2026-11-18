@@ -100,6 +100,22 @@ test('both routes retain all relevant contracts for single and combined signals,
   assert.ok(peak > 32000, 'expanded contracts really exercise the increased bounded budget');
 });
 
+test('context shows the current instruction and selects delegation and repair at their boundaries', () => {
+  const state = makeState(catalog, 'hook-test', tmpdir(), 'multi', 1, 'synthetic task');
+  state.phase = 'execution'; state.step = 4; state.execution = { executor: 'root' };
+  const workflow = new Workflow(catalog, state);
+  const context = renderContext(workflow);
+  const module = catalog.modules['delegated-execution'];
+  assert.ok(context.includes(rewriteDocumentLinks(catalog.root, module.path, module.checkpoints[4].instruction)));
+  assert.ok(context.includes('DE07'));
+  assert.ok(!context.includes(rewriteDocumentLinks(catalog.root, module.path, module.checkpoints[7].instruction)));
+  assert.ok(!context.includes('[Hook:delegation]'));
+  workflow.state.phase = 'verification'; workflow.state.step = 3;
+  assert.ok(!renderContext(workflow).includes('[Hook:repair]'));
+  workflow.state.step = 5;
+  assert.ok(renderContext(workflow).includes('[Hook:repair]'));
+});
+
 test('oversized state still blocks instead of truncating any execution guard', () => {
   const state = makeState(catalog, 'oversize', tmpdir(), 'single', 0, 'synthetic');
   state.task = 'x'.repeat(MAX_CONTEXT);

@@ -11,13 +11,14 @@ export function fresh(mode = 'single', count = mode === 'single' ? 0 : 1) {
 }
 export function report(w, overrides = {}) {
   const id = w.checkpoint.id;
-  const facts = { ER01: { independence: 'not_required' }, WD03: { plan: 'prohibited' }, VR03: { verification: 'passed' }, DA03: { acceptance: 'satisfied' } }[id];
+  const facts = { ER01: { independence: 'not_required' }, WD03: { plan: 'prohibited' }, DE02: { executor: 'sub_agent' }, VR03: { verification: 'passed' }, DA03: { acceptance: 'satisfied' } }[id];
   return { checkpoint: id, outcome: 'complete', summary: '合成证据摘要，非真实项目验收', evidence: id === 'VR03' ? [w.state.observations.filter(o => o.effect === 'check').at(-1)?.id ?? 'user-1'] : ['user-1'], facts, ...overrides };
 }
 export function step(w, overrides) { w.report(w.state.revision, [report(w, overrides)]); }
 export function until(w, checkpoint) {
   let budget = 100;
   while (w.checkpoint?.id !== checkpoint && budget--) {
+    if (w.checkpoint?.id === 'DE04' && !w.state.slice) w.release(w.state.revision, slice);
     if (w.checkpoint?.id === 'VR03') w.observe(w.state.observations.some(o => o.id === 'check-1') ? `check-${w.state.revision}` : 'check-1', 'synthetic-test', 'check', true);
     step(w);
   }
@@ -44,8 +45,33 @@ test('single route can traverse all seven modules with actual synthetic observat
   assert.equal(w.state.status, 'complete'); assert.ok(sameEpoch(w.state.verified, w.state.epoch));
 });
 test('multi route can traverse all modules without creating an unnecessary child', () => {
-  const w = fresh('multi'); until(w, 'DA05'); step(w);
+  const w = fresh('multi'); until(w, 'DE02'); step(w, { facts: { executor: 'root' } });
+  assert.equal(w.checkpoint.id, 'DE04');
+  assert.throws(() => step(w), /放行当前 Slice/);
+  w.release(w.state.revision, slice); step(w);
+  assert.equal(w.checkpoint.id, 'DE07');
+  assert.deepEqual(w.state.reports.find(r => r.report.checkpoint === 'DE02').notApplicable, ['DE03', 'DE05', 'DE06']);
+  assert.ok(!w.state.reports.some(r => ['DE03', 'DE05', 'DE06'].includes(r.report.checkpoint)));
+  until(w, 'DA05'); step(w);
   assert.equal(w.state.status, 'complete'); assert.equal(w.state.allocations.length, 0);
+});
+test('switching from Root to a child rechecks role, Slice and current dispatch evidence', () => {
+  const w = fresh('multi'); until(w, 'DE02'); step(w, { facts: { executor: 'root' } });
+  w.release(w.state.revision, slice); step(w);
+  const jobs = [{ role: ROLES[0], callId: 'new-child' }];
+  assert.throws(() => w.reserve(jobs), /DE06/);
+  w.signal(w.state.revision, 'executor_changed', ['user-1'], '新切片确需子代理');
+  assert.equal(w.checkpoint.id, 'DE02');
+  assert.equal(w.state.slice, undefined);
+  step(w);
+  assert.throws(() => w.release(w.state.revision, slice), /放行条件/);
+  step(w); w.release(w.state.revision, slice); step(w); step(w);
+  assert.equal(w.checkpoint.id, 'DE06');
+  const changed = new Workflow(catalog, w.snapshot());
+  changed.release(changed.state.revision, slice);
+  assert.throws(() => changed.reserve(jobs), /DE06/);
+  assert.equal(changed.state.allocations.length, 0);
+  assert.equal(w.reserve(jobs).length, 1);
 });
 test('wrong revision, skipped checkpoints, forged evidence and nonconditional N/A fail atomically', () => {
   const w = fresh(); const before = w.snapshot();
@@ -159,6 +185,46 @@ test('semantic changes retain mode/count and bound allocations; invalid signals 
   assert.equal(w.checkpoint.id, 'ER00'); assert.equal(w.state.mode, 'multi'); assert.equal(w.state.childCount, 1);
   assert.equal(w.state.allocations[0].id, allocation.id); assert.equal(w.state.slice, undefined);
 });
+test('decision recheck returns to the original checkpoint without resetting a resolved plan', () => {
+  const w = fresh(); until(w, 'DA02');
+  w.signal(w.state.revision, 'decision_required', ['user-1'], '补齐交付前置决策');
+  assert.equal(w.checkpoint.id, 'WD01');
+  assert.equal(w.state.plan, 'prohibited');
+  w.signal(w.state.revision, 'decision_required', ['user-1'], '补齐同一决策的另一事实');
+  assert.deepEqual(w.state.decisionReturn, { phase: 'delivery', checkpoint: 'DA02' });
+  until(w, 'WD03'); step(w);
+  assert.equal(w.checkpoint.id, 'DA02'); assert.equal(w.state.decisionReturn, undefined);
+  assert.equal(w.state.reports.filter(r => r.report.checkpoint === 'DA01').length, 1);
+});
+test('decision recheck inside work definition stops at the requesting checkpoint', () => {
+  for (const target of ['WD02', 'WD03']) {
+    const w = fresh(); until(w, target);
+    w.signal(w.state.revision, 'decision_required', ['user-1'], '补齐工作定义证据');
+    assert.deepEqual(w.state.decisionReturn, { phase: 'definition', checkpoint: target });
+    assert.equal(w.checkpoint.id, 'WD01');
+    const before = w.snapshot();
+    const checkpoints = target === 'WD02' ? ['WD01', 'WD02'] : ['WD01', 'WD02', 'WD03'];
+    assert.throws(() => w.report(w.state.revision, checkpoints.map(checkpoint => report(w, { checkpoint, facts: { plan: 'prohibited' } }))), /不能跨越决策补证/);
+    assert.deepEqual(w.snapshot(), before);
+    until(w, target);
+    assert.equal(w.state.decisionReturn, undefined);
+    assert.equal(w.state.plan, 'pending');
+  }
+});
+test('decision recheck at final delivery preserves the plan already archived by DA04', () => {
+  const w = fresh(); until(w, 'WD03');
+  w.observe('plan-write', 'synthetic-memory', 'memory', true);
+  step(w, { facts: { plan: 'persisted' }, evidence: ['plan-write'] });
+  until(w, 'DA04');
+  w.observe('plan-archive', 'synthetic-memory', 'memory', true);
+  step(w, { facts: { plan: 'archived' }, evidence: ['plan-archive'] });
+  w.signal(w.state.revision, 'decision_required', ['user-1'], '补齐交付结论的决策证据');
+  until(w, 'WD02'); step(w);
+  assert.equal(w.checkpoint.id, 'DA05'); assert.equal(w.state.plan, 'archived');
+  assert.equal(w.state.reports.filter(r => r.report.checkpoint === 'WD03').length, 1);
+  assert.equal(w.state.reports.filter(r => r.report.checkpoint === 'DA04').length, 1);
+  step(w); assert.equal(w.state.status, 'complete');
+});
 test('restoration rejects wrong version, session, scope, digest and malformed states', () => {
   const s = fresh().snapshot();
   assert.equal(restoreState(catalog, s, 'session-test', process.cwd()).runId, s.runId);
@@ -171,6 +237,12 @@ test('bounded continuation stops with no checkpoint progress and has a hard run 
 test('a check from an older epoch cannot verify changed content', () => {
   const w = fresh(); until(w, 'VR03'); w.observe('old-check', 'test', 'check', true); w.mutate('content');
   assert.throws(() => step(w, { evidence: ['old-check'] }), /当前 epoch/);
+});
+test('a change after VR03 forces recheck before VR06 can finalize verification', () => {
+  const w = fresh(); until(w, 'VR06'); w.mutate('content'); step(w);
+  assert.equal(w.checkpoint.id, 'VR01'); assert.equal(w.state.verified, undefined);
+  until(w, 'VR06'); step(w);
+  assert.equal(w.checkpoint.id, 'DOC00'); assert.ok(sameEpoch(w.state.verified, w.state.epoch));
 });
 test('completed history remains structurally restorable after pause or external change', () => {
   const w = fresh(); until(w, 'DA05'); step(w); w.mutate('git'); w.pause('用户实际状态变化，旧验收不是当前证明');

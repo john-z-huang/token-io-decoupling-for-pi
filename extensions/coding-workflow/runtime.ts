@@ -4,7 +4,7 @@ import { dirname, relative, resolve, sep } from "node:path";
 import type { ExtensionAPI, ExtensionContext, ExtensionToolContext, ToolCallEvent } from "@earendil-works/pi-coding-agent";
 import type { TSchema } from "typebox";
 import { currentModule, loadCatalog, phaseHooks, signalHooks, resolveDocumentLink, rewriteDocumentLinks, type Catalog, type HookId, type Mode } from "./catalog.ts";
-import { exactPath, makeState, restoreState, ROLES, Workflow, type Effect, type Role, type State } from "./engine.ts";
+import { exactPath, makeState, restoreState, ROOT_EXECUTION_NOT_APPLICABLE, ROLES, Workflow, type Effect, type Role, type State } from "./engine.ts";
 
 import { collectStartup, parseStartupCommand, registerStartupFlags, startupFlags, validateAnswers, type StartupAnswers, type StartupInput } from "./startup.ts";
 import { compatibleSubagent, resolveSubagentAdapter, subagentInput, subagentModelInput } from "./subagent-adapter.ts";
@@ -47,21 +47,34 @@ export function renderHook(catalog: Catalog, id: HookId): string {
   return `[Hook:${id}]\n[完整合同及逐篇来源](${source.url})\n\n${rewriteDocumentLinks(catalog.root, path, markdown.slice(0, boundary).trimEnd())}`;
 }
 
-export function renderContext(workflow: Workflow): string {
+function activeHooks(workflow: Workflow): HookId[] {
   const s = workflow.state;
+  const checkpoint = workflow.checkpoint?.id;
   const hooks = new Set<HookId>(phaseHooks(s.phase, s.mode));
+  if (s.phase === "execution" && s.execution?.executor === "root") hooks.delete("delegation");
   for (const signal of s.signals) for (const hook of signalHooks(signal)) hooks.add(hook);
   if (s.status !== "active" || s.inFlight.length) hooks.add("recovery");
-  if (s.allocations.length) hooks.add("audit");
+  if (checkpoint === "VR05") hooks.add("repair");
+  if (checkpoint === "VR02" && s.mode === "multi" && s.independence === "required") { hooks.add("delegation"); hooks.add("audit"); }
+  if (s.allocations.some(a => a.status === "running" || a.status === "uncertain" || (checkpoint === "VR02" && a.role === "Change Verification"))) hooks.add("audit");
+  return [...hooks];
+}
+
+export function renderContext(workflow: Workflow): string {
+  const s = workflow.state;
   const module = currentModule(workflow.catalog, s.phase, s.mode);
+  const current = workflow.checkpoint;
+  const upcoming = current ? module.checkpoints.slice(s.step + 1).filter(item => s.execution?.executor !== "root" || !ROOT_EXECUTION_NOT_APPLICABLE.includes(item.id)) : [];
+  const moduleLink = resolveDocumentLink(workflow.catalog.root, module.path, "#有序模块清单")!.url;
   const content = [
     "[Coding Extension：结构化流程，不是权限或事实证明]",
-    "用 coding_checkpoint 上报当前模块已完成项及真实证据，同模块连续项可批量提交。语义变化用 signal，缺前置用 pause/blocked。恢复后从原位推进。facts 由 Agent 提供，须有来源。",
-    "facts 要求：ER01 independence=required/not_required；WD03 plan=persisted/prohibited；VR03 verification=passed（必须引用 effect=check 实际结果）；DA03 acceptance=satisfied（摘要逐项映射标准）；DA04 plan=archived（用户禁止持久化时除外）。",
+    "用 coding_checkpoint 上报已完成项及真实证据；同模块连续项可在读过各项指令后批量提交。语义变化用 signal，缺前置用 pause/blocked。恢复后从原位推进。facts 由 Agent 提供，须有来源。",
+    "facts 要求：ER01 independence=required/not_required；WD03 plan=persisted/prohibited；DE02 executor=root/sub_agent（据实说明并引用选择证据；重核执行者或派发条件用 executor_changed）；VR03 verification=passed（引用 effect=check 实际结果）；DA03 acceptance=satisfied（逐项映射标准）；DA04 plan=archived（用户禁止持久化时除外）。",
     "写前用 coding_slice 放行四字段和精确文件。Bash、codemode 和不透明 MCP 经 coding_run 声明 effect/rationale/evidence，先核验实际效果和授权。子任务只经 coding_delegate，禁止递归和其他入口绕过。",
-    ...[...hooks].map(id => renderHook(workflow.catalog, id)),
-    JSON.stringify({ revision: s.revision, status: s.status, reason: s.reason, mode: s.mode, child_count: s.childCount, audit: s.audit, phase: s.phase, checkpoint: workflow.checkpoint?.id ?? "done", epoch: s.epoch, verified: s.verified, returnTo: s.returnTo, plan: s.plan, allocations: s.allocations, inFlight: s.inFlight, slice: s.slice, task: s.task }),
-    `当前模块待处理（来自 [${module.path}](${resolveDocumentLink(workflow.catalog.root, module.path, "")!.url})，仅此模块，不预加载全部路线）：\n${module.checkpoints.slice(s.step).map(c => `${c.id} ${c.title}\n${rewriteDocumentLinks(workflow.catalog.root, module.path, c.instruction)}`).join("\n\n")}`,
+    ...activeHooks(workflow).map(id => renderHook(workflow.catalog, id)),
+    JSON.stringify({ revision: s.revision, status: s.status, reason: s.reason, mode: s.mode, child_count: s.childCount, audit: s.audit, phase: s.phase, checkpoint: current?.id ?? "done", epoch: s.epoch, verified: s.verified, returnTo: s.returnTo, decisionReturn: s.decisionReturn, executor: s.execution?.executor, plan: s.plan, allocations: s.allocations, inFlight: s.inFlight, slice: s.slice, task: s.task }),
+    ...(current ? [`当前检查点 [${current.id} ${current.title}](${moduleLink})\n${rewriteDocumentLinks(workflow.catalog.root, module.path, current.instruction)}`] : []),
+    ...(upcoming.length ? [`[本模块后续检查点](${moduleLink})\n${upcoming.map(item => `${item.id} ${item.title}`).join("\n")}`] : []),
     `可引用的最近24项实际观察（更早引用可通过 status 查找；被128项窗口淘汰的证据须重读）：\n${JSON.stringify(s.observations.slice(-24))}`,
     ...(!workflow.checkpoint ? ["已完成结构化检查点，向用户报告实际验收结果和限制。"] : []),
   ].join("\n\n");
@@ -100,10 +113,10 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
     offset ??= Math.max(0, s.observations.length - 24);
     return { runId: s.runId, revision: s.revision, status: s.status, reason: s.reason, mode: s.mode, childCount: s.childCount, audit: s.audit,
       phase: s.phase, step: s.step, next: workflow!.checkpoint?.id ?? "done", epoch: s.epoch, verified: s.verified, returnTo: s.returnTo,
-      plan: s.plan, allocations: s.allocations, inFlight: s.inFlight, slice: s.slice,
+      plan: s.plan, allocations: s.allocations, inFlight: s.inFlight, slice: s.slice, executor: s.execution?.executor, decisionReturn: s.decisionReturn,
       observationCount: s.observations.length, observationsOffset: offset, nextObservationsOffset: offset + 24 < s.observations.length ? offset + 24 : null,
-      observations: s.observations.slice(offset, offset + 24), recentReports: s.reports.slice(-2).map(r => ({ checkpoint: r.report.checkpoint, epoch: r.epoch })),
-      hooks: phaseHooks(s.phase, s.mode) };
+      observations: s.observations.slice(offset, offset + 24), recentReports: s.reports.slice(-2).map(r => ({ checkpoint: r.report.checkpoint, epoch: r.epoch, notApplicable: r.notApplicable })),
+      hooks: activeHooks(workflow!) };
   }
   function scanLedger(ctx: ExtensionContext) {
     const envelopes = ctx.sessionManager.getEntries().filter(e => e.type === "custom" && e.customType === STATE_TYPE)
@@ -273,8 +286,9 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
         const outcome = await ctx.executeTool(p.tool, p.input, { signal, onUpdate });
         if (!signal?.aborted) w.state.inFlight = w.state.inFlight.filter(ref => ref !== id);
         else w.pause("调用被中止：须先读回实际效果，不自动重试");
-        w.observe(id, p.tool, p.effect, !outcome.isError && !signal?.aborted, epochAtCall);
-        if (["content", "documentation", "git"].includes(p.effect) && !observedEffects.has(id)) w.mutate(p.effect);
+        const actuallyRan = outcome.durationMs !== undefined;
+        w.observe(id, p.tool, p.effect, actuallyRan && !outcome.isError && !signal?.aborted, epochAtCall);
+        if (actuallyRan && ["content", "documentation", "git"].includes(p.effect) && !observedEffects.has(id)) w.mutate(p.effect);
         // Keep all actual body content available; never call an external task again for pagination.
         const body = JSON.stringify(outcome.result); pendingResults.set(id, body);
         persist(ctx);
@@ -305,6 +319,8 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
           if (job.paths.length && !["Primary Output", "Documentation/Comments & Git Operations"].includes(job.role)) throw new Error("只读职责不能取得写入路径");
           for (const path of job.paths) {
             if (scopedPath(ctx.cwd, path) !== path || !w.state.slice?.paths.includes(path) || paths.has(path)) throw new Error("子任务写入必须在 Slice 内且并行任务路径不冲突");
+            const block = w.canRun(fileEffect(path), path);
+            if (block) throw new Error(block);
             if (fileEffect(path) === "documentation" && !path.startsWith("docs/skill/") && !path.endsWith("/SKILL.md")) throw new Error("普通文档由 Root 处理；Primary 仅可承接 Skill 文档");
             paths.add(path);
           }
@@ -342,7 +358,7 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
   const restore = (ctx: ExtensionContext, navigation = false) => {
     if (volatile() && workflow?.state.sessionId === ctx.sessionManager.getSessionId()) {
       generation++; starting = false; startupError = "";
-      workflow.state.verified = undefined; workflow.pause("volatile 仅保留当前进程状态，须读回实际效果"); persist(ctx); return;
+      workflow.state.checked = undefined; workflow.state.verified = undefined; workflow.pause("volatile 仅保留当前进程状态，须读回实际效果"); persist(ctx); return;
     }
     generation++; starting = false; startupError = "";
     if (answerSession !== ctx.sessionManager.getSessionId()) { answers = undefined; ledger = undefined; }
@@ -374,7 +390,7 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
               workflow.state.inFlight = [...new Set([...workflow.state.inFlight, ...ledger.inFlight])];
             }
             // File system effects do not rewind with the session tree; restored receipts are not fresh.
-            workflow.state.verified = undefined; workflow.state.slice = undefined;
+            workflow.state.checked = undefined; workflow.state.verified = undefined; workflow.state.slice = undefined;
             for (const slot of workflow.state.allocations) if (slot.status === "running") slot.status = "uncertain";
             if (workflow.state.status !== "complete") workflow.pause(navigation ? "分支/会话导航后须读回实际文件及效果；只恢复原位置" : "重载/恢复后须读回当前状态，不自动重放操作");
           } catch (error) { enabled = true; restoreError = String(error); }
@@ -393,10 +409,10 @@ export function installWorkflow(pi: ExtensionAPI, schemas: Schemas, suppliedCata
   pi.on("session_tree", (_event, ctx) => {
     if (volatile() && workflow?.state.sessionId === ctx.sessionManager.getSessionId()) {
       generation++; starting = false; startupError = "";
-      workflow.state.verified = undefined; workflow.pause("volatile 不回放历史流程；保留当前预算/效果，须读回后原位处理"); persist(ctx);
+      workflow.state.checked = undefined; workflow.state.verified = undefined; workflow.pause("volatile 不回放历史流程；保留当前预算/效果，须读回后原位处理"); persist(ctx);
     } else restore(ctx, true);
   });
-  pi.on("session_compact", (_event, ctx) => { if (active()) { workflow!.state.verified = undefined; workflow!.pause("压缩后从扩展检查点读回状态；不要依摘要重复效果"); persist(ctx); } });
+  pi.on("session_compact", (_event, ctx) => { if (active()) { workflow!.state.checked = undefined; workflow!.state.verified = undefined; workflow!.pause("压缩后从扩展检查点读回状态；不要依摘要重复效果"); persist(ctx); } });
   pi.on("input", (event, ctx) => {
     if (active() && event.source !== "extension") {
       workflow!.observe(`input:${randomUUID()}`, `user:${event.source}`, "user", true);

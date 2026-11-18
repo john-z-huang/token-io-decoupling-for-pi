@@ -53,9 +53,11 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi \
 
 非 UI 必须显式提交模式及审计答案，缺失时清晰阻断；不能让模型代选。`--coding-count 2` 用于 multi。审计显式 flags 为 `--coding-audit-mode economy|balanced|full`、`--coding-root-cadence full|milestone_only|off`、`--coding-worker-cadence full|milestone_only|off`；`--coding-audit-defaults` 明确接受未提供字段的默认值。命令入口在任务前使用去掉 `coding-` 前缀的参数，例如 `/coding multi 2 --audit-mode full --audit-defaults 任务` 或 `/coding start --mode single --audit-defaults 任务`。任务以 `--` 开头时用独立 `--` 分隔。`--coding-volatile` 不额外追加扩展状态，但 Pi 自身会话日志需另用其 `--no-session` 等设置管理；volatile 仅保留当前进程内答案/预算，扩展重载或跨进程 resume 无恢复证据时须新 Session，不依赖日志伪称可恢复，不得将丢失状态当作空预算继续。默认状态只追加到实际 Pi Session，不另建数据库、不写 Serena Memory。
 
-## 固定流程与工具
+## 工作流路线与工具
 
-两条路线共享七模块：入口就绪 → Session 就绪 → 工作定义 → 执行 → 验证/修复 → 文档 → 交付/验收。执行模块分别为 single-execution 与 delegated-execution；检查点 ID 和实际动作直接取自既有 Layer-04 模块，不复制另一套路线正文。模块形状变化时加载失败，要求同步审阅引擎。
+两条路线共享七模块：入口就绪 → Session 就绪 → 工作定义 → 执行 → 验证/修复 → 文档 → 交付/验收。执行模块分别为 single-execution 与 delegated-execution。检查点 ID 和指令取自 Layer-04，模块形状变化时要求同步审阅引擎。
+
+多代理路线在 `DE02` 引用实际证据并明确 `facts.executor`。选择 `root` 时，一条记录覆盖职责预留、创建和派发（`DE03 / DE05 / DE06`）的 `not_applicable`，仍须经过 `DE04` 放行 Slice 和 `DE07` 审阅结果。选择 `sub_agent` 时，依次确认职责、当前 Slice 和创建前置条件，`DE06` 才可派发。Slice 替换、审批前置复核或相关 epoch 变化后，旧派发核验不能复用。需要重新核对执行者或派发条件时，上报 `executor_changed` 返回 `DE02`，保留已占名额和实际效果，先读回待处理结果。
 
 | 工具 | 可执行内容 |
 | --- | --- |
@@ -64,9 +66,9 @@ pi -e /absolute/path/to/token-io-decoupling-for-pi \
 | `coding_run` | 经 `ctx.executeTool` 的真实宿主校验/权限/Hooks 调用不透明工具，声明 read/check/content/documentation/git/memory；不自行实现 Shell/MCP 旁路。 |
 | `coding_delegate` | 在预算、职责、任务与 Slice 门禁后，调用实际暴露且 Schema 匹配的一次性单任务扩展。 |
 
-Agent 应提交实际证据而非逐步请求用户审批；同模块内连续完成项可以批量上报，不跨模块跳过下一组 Hooks。返回仅含当前状态、少量最近证据/报告，历史状态不重复灌入上下文。每次模型请求替换此前的本扩展 Hook 包，保留其他扩展消息；默认仅注入当前模块、相关规则与最近24项观察，不加载全部 references。扩写后的完整合同硬上限为96,000字符，不等于token数，也不保证任意模型的实际上下文容量；超限停止，不截断安全合同。只有非执行性的逐篇来源表留在磁盘，注入包提供原文/来源表链接，全部触发、动作、退出和重核正文均保留。本地Markdown链接注入时按资源文档位置转为真实file URL，当前模块链接同样处理，不以用户工作目录误解析。
+每次模型请求注入适用 Hook 合同、当前检查点的完整指令、后续适用项的标题和模块链接，以及最近 24 项观察。批量上报前应从模块链接查阅各项指令，并引用实际证据。批次限于同一模块。Hook 合同的触发、动作、退出和重核正文完整注入，来源对照表按链接查看。注入使用以包内原文为基准的 `file:` URL。整个上下文包的硬上限为 96,000 字符，超限时停止并保留完整合同。
 
-检查点 `facts` 的必需声明：ER01 的 independence；WD03 的 persisted/prohibited；VR03 的 passed；DA03 的 acceptance=satisfied；DA04 的 archived（禁止持久化例外除外）。这些是 Agent 的语义声明，不是可信身份或事实证明。WD03 必须引用真实 Memory 操作或明确禁止持久化的来源；缺少后端不是豁免。
+必需的 `facts` 包括 ER01 的 independence、WD03 的 plan=persisted/prohibited、DE02 的 executor=root/sub_agent、VR03 的 verification=passed、DA03 的 acceptance=satisfied 以及适用时 DA04 的 plan=archived。Agent 须为这些语义声明提供证据。WD03 引用真实 Memory 操作或明确禁止持久化的来源。
 
 ## 事件与语义信号
 
@@ -74,11 +76,11 @@ Agent 应提交实际证据而非逐步请求用户审批；同模块内连续�
 
 1. **真实事件**：`context`、`tool_call`、`tool_execution_end`、`session_start`、`session_tree`、`session_compact`、`input`、`user_bash`、`agent_before_settle`、`agent_settled`。
 2. **流程条件**：进入当前模块/检查点、存在未知效果或预算已占用。
-3. **语义信号**：`requirements_changed`、`decision_required`、`repair_required`、`documentation_impact`、`git_changed`、`context_exchange`、`advice_requested`、`materialization_requested`、`capability_changed`。Agent 须识别并结构化上报；不靠命令/文件名关键词伪造判断。
+3. **语义信号**包括 `requirements_changed`、`decision_required`、`executor_changed`、`repair_required`、`documentation_impact`、`git_changed`、`context_exchange`、`advice_requested`、`materialization_requested` 和 `capability_changed`。Agent 依据直接证据识别并上报。
 
 内置 edit/write 按真实调用路径守卫并更新 epoch；失败也可能部分写入，保守失效。Bash/codemode/MCP 影响由调用者显式声明；readOnlyHint 不是无副作用证明，不据它跳过不透明工具分类。外部进程、其他插件内未经过宿主事件链的操作不能自动观测。
 
-文档变化经 Verification 后恢复 DOC04；Git 变化在 Acceptance 之前重验并恢复 DA03；不会重放 DOC02/DA02 效果。修复保留外层 continuation。新用户输入、压缩、恢复、树导航或 abort 先撤销 Slice 并读回；当前分支的进度与整个 Session 的已占用预算分开恢复，文件系统不会随对话树倒退。
+文档变化经 Verification 后恢复 DOC04，Git 变化在 Acceptance 之前重验并恢复 DA03。决策补证根据调用方位置执行 WD01–WD03 中适用的检查，完成后回到原检查点。报告批次止于返回位置。DA04 已归档后，DA05 的决策补证至 WD02 即返回，保留已归档状态。能力变化在原位置重核适用条件。VR06 对照 VR03 的实际检查 epoch，状态变化时回 VR01 捕获并检查当前状态。修复保留外层 continuation。新用户输入、压缩、恢复、树导航或 abort 先撤销 Slice 并读回。当前分支的进度与整个 Session 的预算分开恢复，宿主文件效果须按当前状态核对。
 
 只在最终可行动边界 `agent_before_settle` 请求续跑；不在 `agent_end` 自建循环。无检查点进展只提示一次，每次用户启动/继续预算最多8次；缺授权、证据或能力则 pause/blocked，不自动补授权。
 

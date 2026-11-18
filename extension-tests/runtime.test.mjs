@@ -100,6 +100,9 @@ test('model selection does not enable an unsupported Git role', async () => {
 function position(h, phase, step, slice = false) {
   const s = h.w().state; s.phase = phase; s.step = step; s.plan = 'prohibited';
   if (slice) s.slice = { objective: 'synthetic scoped task', paths: ['synthetic.ts'], mutations: ['content', 'documentation'], returnConditions: 'return evidence', unreleased: 'Git/network', evidence: [h.userRef()] };
+  if (phase === 'execution' && s.mode === 'multi' && step === 6) {
+    s.execution = { executor: 'sub_agent', roleConfirmed: true, dispatchEpoch: structuredClone(s.epoch) };
+  }
 }
 
 test('package declares one extension and excludes local Serena metadata by a narrow files allowlist', () => {
@@ -167,6 +170,8 @@ test('failed writes may partially mutate and invalidate; blocked calls do not', 
   h.raw.get('write').execute = async () => { throw new Error('partial write failure'); };
   assert.equal((await h.invoke('write', { path: 'synthetic.ts' })).isError, true); assert.equal(h.w().state.epoch.content, 1);
   assert.equal((await h.invoke('write', { path: 'other.ts' })).isError, true); assert.equal(h.w().state.epoch.content, 1);
+  h.pi.on('tool_call', event => event.toolName === 'bash' ? { block: true, reason: 'synthetic host denial before execute' } : undefined);
+  assert.equal((await h.run('bash', 'content')).isError, true); assert.equal(h.w().state.epoch.content, 1);
 });
 test('nested writes cannot bypass exact-path gates inside a read-classified orchestrator', async () => {
   const h = harness(); await h.start(); position(h, 'execution', 3, true);
@@ -179,6 +184,14 @@ test('real delegate adapter performs one synchronous call and records no fabrica
   assert.equal(result.isError, false); assert.equal(h.calls.filter(c => c.name === 'subagent').length, 1);
   assert.equal(h.w().state.allocations[0].status, 'completed'); assert.equal('sessionId' in h.w().state.allocations[0], false);
   assert.match(h.calls.find(c => c.name === 'subagent').input.task, /禁止创建\/派发其他代理/);
+});
+test('delegate rejects a write path when the current Slice does not allow its effect', async () => {
+  const h = harness(); await h.start('multi 合成只读切片'); position(h, 'execution', 6, true);
+  h.w().state.slice.mutations = ['read'];
+  const result = await h.invoke('coding_delegate', { revision: h.w().state.revision, tool: 'subagent', evidence: [h.userRef()], jobs: [{ role: 'Primary Output', agent: 'worker', task: 'synthetic', paths: ['synthetic.ts'] }] });
+  assert.match(result.result.content[0].text, /影响未被当前 Slice 放行/);
+  assert.equal(h.calls.filter(c => c.name === 'subagent').length, 0);
+  assert.equal(h.w().state.allocations.length, 0);
 });
 test('calls[] adapter maps prompt and explicit thinking without creating a named session', async () => {
   const h = harness(); await h.start('multi 合成3.1接口'); position(h, 'execution', 6, true);
