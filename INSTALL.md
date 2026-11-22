@@ -1,6 +1,6 @@
 # 安装与使用
 
-仓库提供面向 Pi Coding Agent 的 Skill 和 MCP 工具服务。旧工作流插件已[归档](archive/pi-coding-workflow/README.md)，仅供只读参考，不随当前安装加载。
+仓库提供面向 Pi Coding Agent 的 Skill 和 MCP 工具服务。旧工作流插件已归档，仅供只读参考，不随当前安装加载。
 
 ## 首次安装与后续更新
 

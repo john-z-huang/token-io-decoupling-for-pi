@@ -48,6 +48,7 @@ class MarkdownDiscoveryTests(unittest.TestCase):
     def test_generated_and_operational_noise_is_pruned(self):
         for folder in (".git", ".serena", ".venv", "node_modules", "build", "dist", "vendor", "__pycache__"):
             self.write(f"{folder}/noise.md", "English noise")
+        self.write("archive/CHANGELOG/old.md", "English archived Markdown")
         self.write("AGENTS_NOT_USE_.md", "English inactive backup")
         self.write("AGENTS_zh_cn_NOT_USE_.md", "中文停用备份")
         names = {p.relative_to(self.root).as_posix() for p in discover_markdown(self.root)}

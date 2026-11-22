@@ -29,6 +29,7 @@ _PRUNED_DIRECTORY_NAMES = frozenset(
 )
 _PRUNED_RELATIVE_DIRECTORIES = frozenset(
     {
+        "archive",
         "mcp/rule_sources",
         "mcp/src/token_io_mcp/_resources",
     }

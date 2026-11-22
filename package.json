@@ -26,13 +26,10 @@
     "lint:fix": "npm run lint -- --fix --fix-type layout"
   },
   "files": [
-    "CHANGELOG/CHANGELOG.md",
-    "CHANGELOG/CODE_QUALITY.md",
     "docs/rules",
     "docs/project",
     "docs/skill",
     "agents/*.md",
-    "integrations/pi-subagent/*",
     "README.md"
   ],
   "dependencies": {

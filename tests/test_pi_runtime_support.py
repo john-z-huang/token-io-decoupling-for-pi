@@ -90,7 +90,6 @@ class PiRuntimeSupportTests(unittest.TestCase):
         for relative in (
             "docs/skill/references/coding/layer-01-fundamental-concepts/delegation/delegation-child-creation.md",
             "docs/skill/hooks/delegation.md",
-            "integrations/pi-subagent/README.md",
         ):
             with self.subTest(path=relative):
                 text = (ROOT / relative).read_text(encoding="utf-8")

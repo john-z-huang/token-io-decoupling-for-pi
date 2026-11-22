@@ -4,7 +4,7 @@
 
 ## 检查命令
 
-- 在仓库根目录执行 `npm run lint`，检查当前维护的 JS、TS 和 MJS；旧扩展归档（仓库检出中：`archive/pi-coding-workflow/README.md`）不运行 ESLint。错误或警告会使检查失败。
+- 在仓库根目录执行 `npm run lint`，检查当前维护的 JS、TS 和 MJS；旧扩展归档不运行 ESLint。错误或警告会使检查失败。
 - 需要调整排版时执行 `npm run lint:fix`。ESLint 调用 Prettier 应用布局修复，其他规则仍会报告。修复后执行 `npm run lint` 复核。
 
 ## 已自动化的条款
@@ -23,7 +23,7 @@
 
 ### 存量问题与固定签名
 
-旧扩展的 `eslint-suppressions.json` 与固定回调签名例外仅留作历史记录，不用于当前维护范围。
+旧扩展的 ESLint 抑制记录与固定回调签名例外仅留作历史记录，不用于当前维护范围。
 
 ## Code Agent 审查指令
 

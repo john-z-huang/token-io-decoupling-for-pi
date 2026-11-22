@@ -9,13 +9,13 @@
 
 ## 旧 Pi 工作流插件归档
 
-旧扩展已停止开发，归档（仓库检出中：`archive/pi-coding-workflow/README.md`）仅供只读参考，不自动加载、不随当前包分发，也不参与默认构建和验证。当前从 [Skill 入口](docs/skill/SKILL.md)读取路线及适用的 [Hook 合同](docs/skill/hooks/README.md)，不依赖旧扩展。本次归档未逐条迁移旧 Hook 入口，也不代表完成运行时验收。
+旧扩展已停止开发，归档仅供只读参考，不自动加载、不随当前包分发，也不参与默认构建和验证。当前从 [Skill 入口](docs/skill/SKILL.md)读取路线及适用的 [Hook 合同](docs/skill/hooks/README.md)，不依赖旧扩展。本次归档未逐条迁移旧 Hook 入口，也不代表完成运行时验收。
 
 ## 现有Pi子代理描述与Root选型
 
 中文代理描述源在 [agents/](agents/)：worker、reviewer、scout分别适配Primary、独立验证、Context职责；planner保留只读兼容边界，git-operator仅提供受阻断的专用职责描述。模型不固定到角色：Root依据三份官方模型卡和当前任务，在Sol、Terra、Luna之间选择模型及推理水平。
 
-当前 `@mjakl/pi-subagent` 3.1.0 的接口与逐任务模型选型见 [Pi 子代理适配](integrations/pi-subagent/README.md#310-接口适配)。旧适配器已归档；第三方子代理工具仍须按实际配置、能力和授权核验。描述文件不证明 Git 专用适配、权限隔离或模型身份能力。
+旧适配器已归档；第三方子代理工具仍须按实际配置、能力和授权核验。描述文件不证明 Git 专用适配、权限隔离或模型身份能力。
 
 ## 安装 MCP 工具与 Skill
 
@@ -39,8 +39,6 @@ MCP 已收敛为 `token-io-decoupling-tools`，需单独配置。可选导航/�
 
 ## 文档入口
 
-- [Pi Coding 工作流变更日志](CHANGELOG/CHANGELOG.md) 记录工作流路线、Extension 推进和模块演进。
-- [代码质量工具与规范自动化变更日志](CHANGELOG/CODE_QUALITY.md) 记录 Lint、格式化和代码规范自动化。
 - [旧 Pi Extension 说明](docs/project/PI_EXTENSION.md)记录历史运行时、适配及验证边界。
 - [静态代码检查](docs/project/STATIC_CODE_CHECKS.md) 说明 JS、TS 和 MJS 的自动化检查与 Code Agent 审查要求。
 - [Hooks 目录](docs/skill/hooks/README.md)：明确触发条件与执行合同。

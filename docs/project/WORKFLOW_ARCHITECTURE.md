@@ -7,7 +7,7 @@
 
 当前从 Skill 读取所选 YAML 路线及适用的 [Hook 合同](../skill/hooks/README.md)，由 Agent 根据当前动作、实际证据和授权推进，不加载归档扩展。
 
-旧扩展入口现位于 `archive/pi-coding-workflow/extensions/coding-workflow/index.ts`，仅供只读参考。它曾用 Pi 的 `context` 注入路线及合同，并用宿主事件和 Session 记录维护工具调用及恢复证据；[历史实现与限制](PI_EXTENSION.md)不代表当前运行时能力或 Hook 逐条迁移。
+旧扩展已归档，仅供只读参考。它曾用 Pi 的 `context` 注入路线及合同，并用宿主事件和 Session 记录维护工具调用及恢复证据；[历史实现与限制](PI_EXTENSION.md)不代表当前运行时能力或 Hook 逐条迁移。
 
 当前单一 `token-io-decoupling-tools` 服务提供 stdio 和 Skill 安装/更新入口。宿主的工具发现、只读服务可用性、可信绑定和具体操作授权分别核验。结构检查覆盖其声明的规则和输入范围。
 

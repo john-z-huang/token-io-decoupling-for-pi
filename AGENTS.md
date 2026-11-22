@@ -8,7 +8,7 @@
 
 ## Coding 工作流方向
 
-- [已归档的旧扩展](archive/pi-coding-workflow/README.md)是将 `docs/rules/coding-workflows/` 的流程固化为代码的旧实验。过细的程序化约束降低了 Code Agent 的执行效率，也限制了模型已有的判断和执行能力。该实现已停止开发；归档仅供只读参考，不加载、不构建、不验证。Skill 与 MCP 入口保持独立；归档不表示旧 Hook 适配已迁移或完成运行时验收。
+- 已归档的旧扩展是将 `docs/rules/coding-workflows/` 的流程固化为代码的旧实验。过细的程序化约束降低了 Code Agent 的执行效率，也限制了模型已有的判断和执行能力。该实现已停止开发；归档仅供只读参考，不加载、不构建、不验证。Skill 与 MCP 入口保持独立；归档不表示旧 Hook 适配已迁移或完成运行时验收。
 - 后续开发以 [Hook 合同](docs/rules/hooks/README.yaml) 为主要规则源。[单代理路线](docs/rules/coding-workflows/coding-single-agent.yaml)和[多代理路线](docs/rules/coding-workflows/coding-multi-agent.yaml)只作为指令供 Agent 阅读和理解，不编码为状态机。Hook 合同不是逐条自动触发的 Pi 宿主事件。
 - Code Agent 根据规则和已核实的事实，判断适用的 Hook、工具和分支，以及何时推进、复核或停下；必须遵守适用的 Hook 门禁和用户授权。
 

@@ -1,6 +1,6 @@
 # Pi Coding Workflow Extension
 
-本文保留旧扩展的历史行为，不是当前安装、运行或验证指南。归档快照（仓库检出中：`archive/pi-coding-workflow/README.md`）不可安装或运行；需要复现时仅使用独立历史检出。当前 Skill 按路线与 Hook 合同执行，不加载归档，MCP 与第三方子代理工具按各自入口独立核验。
+本文保留旧扩展的历史行为，不是当前安装、运行或验证指南。归档快照不可安装或运行；需要复现时仅使用独立历史检出。当前 Skill 按路线与 Hook 合同执行，不加载归档，MCP 与第三方子代理工具按各自入口独立核验。
 
 旧扩展曾向 Pi Coding Agent 提供所选 YAML 路线及适用的 Hooks。Agent 自行处理阶段条件、验证回环与交付。扩展维护工具调用约束、真实回执和会话预算。
 
@@ -23,7 +23,7 @@
 /coding off
 ```
 
-启动入口共用 `startup.ts` 单一固定顺序问题注册表：**模式/预算 → 审计可见性**。有效显式字段不重问。审计菜单可选择使用默认或定制三个字段；默认值为 `audit_mode=balanced`、`root_reasoning_cadence=milestone_only`、`worker_reasoning_cadence=full`，逐字段记录 `explicit/default` 来源。默认预设只填缺失字段。取消、未回复或无效值不隐式默认；答案未齐时不创建 Workflow。CLI 启动未完成时允许已知只读工具，暂停可能产生副作用的调用。手动启动失败或取消后，未启用的扩展恢复被动。`/coding cancel` 取消正在收集的启动，Session/树导航使迟到答案失效，并发启动拒绝而不重复创建。
+启动入口共用单一固定顺序问题注册表：**模式/预算 → 审计可见性**。有效显式字段不重问。审计菜单可选择使用默认或定制三个字段；默认值为 `audit_mode=balanced`、`root_reasoning_cadence=milestone_only`、`worker_reasoning_cadence=full`，逐字段记录 `explicit/default` 来源。默认预设只填缺失字段。取消、未回复或无效值不隐式默认；答案未齐时不创建 Workflow。CLI 启动未完成时允许已知只读工具，暂停可能产生副作用的调用。手动启动失败或取消后，未启用的扩展恢复被动。`/coding cancel` 取消正在收集的启动，Session/树导航使迟到答案失效，并发启动拒绝而不重复创建。
 
 没有暂停或未决效果时，用户可以在同一 Session 显式开始新任务。任务目标留在 Pi 对话中。已确认答案跨新任务、树导航、reload/resume 保留，不重复提问或回收预算；fork/new Session 重新收集。审计偏好进入状态、context、status 和子任务 bundle，只控制安全摘要策略，不证明完整日志访问、不披露私有思维链、不改变权限或独立验证。
 
@@ -79,7 +79,7 @@ Root 核验当前端点和实际工具能力后选型，可参考[三模型卡](
 
 通过本协调器派发时，`coding_delegate.jobs[]` 可提供 `model` 与简短 `modelReason`。有显式选择而目标Schema不支持对应model/thinking字段或档位时，在预留前拒绝，不降级为仅在任务正文里写模型名；省略时不补model/thinking字段，保留目标工具的真实默认/继承行为，Root须如实记录能力限制。modelReason只是Root依据，不证明选型充分。精确模型/档位由宿主调用记录核验，不要求Worker自报。
 
-源描述和模型卡核对记录位于仓库 `agents/`、`integrations/pi-subagent/`。加载本package不自动覆盖用户代理配置；部署属于单独明确授权的用户级文件修改，更新后需用户 `/reload` 或新会话，重新发现Schema。不能把磁盘变化当作当前会话已生效。
+代理描述源位于仓库 `agents/`。加载本package不自动覆盖用户代理配置；部署属于单独明确授权的用户级文件修改，更新后需用户 `/reload` 或新会话，重新发现Schema。不能把磁盘变化当作当前会话已生效。
 
 ## 规则迁移边界
 

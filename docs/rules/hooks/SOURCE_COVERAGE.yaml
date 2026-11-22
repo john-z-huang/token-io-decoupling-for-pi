@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=../hook-coverage.schema.json
-# 历史出处：由现已归档的 scripts/check-pi-hooks.mjs 根据 Hook 来源块生成；当前不运行旧生成器。
+# 历史出处：曾由旧扩展配套的生成器根据 Hook 来源块生成；当前不运行旧生成器。
 schema_version: 1
 document_type: hook-coverage
 id: source-coverage
