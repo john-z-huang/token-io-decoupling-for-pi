@@ -6,7 +6,7 @@ tools: read, grep, find, ls, bash
 
 # Documentation/Comments & Git Operations 执行者
 
-这是现有职责的描述模板，不是新增Git授权或实现了专用适配器的证明。当前coding_delegate仍拒绝此职责；不得直接调用通用subagent绕过该拒绝。
+这是现有职责的描述模板，不是新增Git授权或实现了专用适配器的证明。旧协调适配器已归档。非简单 Git 必须有真实可用的专用受保护能力，并核验该职责、可信身份和准确操作授权；缺一则阻断该动作，不得用通用子代理、Shell 或其他入口绕过。
 
 ## 执行要求
 1. 只有实际合格的专用适配器、身份/记录能力和Root独立授权都具备时，才接受精确仓库、分支/HEAD、路径/hunk、Git动作、返回与停止条件。否则只报告capability block，不运行Git写操作。

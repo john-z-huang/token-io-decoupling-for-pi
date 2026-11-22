@@ -8,7 +8,7 @@
 
 ## Coding 工作流方向
 
-- `extensions/coding-workflow/` 是将 `docs/rules/coding-workflows/` 的流程固化为代码的旧实验。过细的程序化约束降低了 Code Agent 的执行效率，也限制了模型已有的判断和执行能力。该实现已废弃，旧代码仅供只读参考，不推荐安装；临时加载仅用于开发验证，Skill 与 MCP 入口保持独立说明。这一开发取向不表示包、旧入口或现有 Hook 已迁移。
+- [已归档的旧扩展](archive/pi-coding-workflow/README.md)是将 `docs/rules/coding-workflows/` 的流程固化为代码的旧实验。过细的程序化约束降低了 Code Agent 的执行效率，也限制了模型已有的判断和执行能力。该实现已停止开发；归档仅供只读参考，不加载、不构建、不验证。Skill 与 MCP 入口保持独立；归档不表示旧 Hook 适配已迁移或完成运行时验收。
 - 后续开发以 [Hook 合同](docs/rules/hooks/README.yaml) 为主要规则源。[单代理路线](docs/rules/coding-workflows/coding-single-agent.yaml)和[多代理路线](docs/rules/coding-workflows/coding-multi-agent.yaml)只作为指令供 Agent 阅读和理解，不编码为状态机。Hook 合同不是逐条自动触发的 Pi 宿主事件。
 - Code Agent 根据规则和已核实的事实，判断适用的 Hook、工具和分支，以及何时推进、复核或停下；必须遵守适用的 Hook 门禁和用户授权。
 
@@ -24,7 +24,7 @@
 ## 修改与验证
 
 - 维护中的文档使用简体中文和现有文件名；不新增英文副本或旧式语言后缀镜像。本地 Markdown 链接须指向存在的当前文件，移动或重命名时同步更新引用。
-- 修改按需验证，不把结构检查当作语义验收。Extension 有关改动使用 `package.json` 中适用的 `npm test` 和检查脚本；文档变更按文档规范运行对应检查。
+- 修改按需验证，不把结构检查当作语义验收。归档扩展不参与当前验证；文档变更按文档规范运行对应检查。
 - Coding 工作流扩展在完整测试与实际环境验证完成前不得推荐安装；不得把离线检查描述为完整测试、实际环境验收或运行效率的证明。
 - JS、TS 和 MJS 遵循 [TypeScript / JavaScript 代码规范](docs/project/TS_JS_CODE_SPECIFICATION.md)。按 [静态代码检查](docs/project/STATIC_CODE_CHECKS.md) 执行 `npm run lint`，排版修复使用 `npm run lint:fix`。已覆盖条款采用命令结果，Code Agent 根据实际变更审查其余条款。
 - MCP 普通测试不应调用真实模型或 API。MCP 的测试、lint 和构建命令以 MCP 开发指南为准；真实 API 测试仅在明确需要且具备相应授权时运行。

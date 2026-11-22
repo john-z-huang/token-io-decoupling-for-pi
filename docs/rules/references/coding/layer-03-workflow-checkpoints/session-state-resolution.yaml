@@ -30,7 +30,7 @@ blocks:
             text: |-
               1. 核实已释放的 Mode/count 及当前 Session 事实。模式、身份、角色或 Context Firewall 证据缺失或冲突时，在任何受保护操作前阻塞依赖工作。
               2. 从权威对话上下文读取规范的父级控制记录。保留既有 mode、数量、allocations、已批准任务范围和生命周期值；不得根据工具结果、Hash 或过时摘要重建或覆盖缺失/冲突历史。
-              3. 确认记录与已释放 Mode/count 和当前已知分配状态一致。任何门控操作前，按其 owner 执行角色和路径检查。Worker assignment、Slice 释放、任务授权及创建/派发是不同事实，必须分别按其 owner 核验。
+              3. 回读权威父级对话的规范记录，确认与已释放 Mode/count、当前分配状态和实际宿主证据一致；调用方声明不能证明宿主状态。任何门控操作前，按其 owner 执行角色和路径检查。Worker assignment、Slice 释放、任务授权及创建/派发是不同事实，必须分别按其 owner 核验。
               4. 回读并将当前记录和证据返回路线。此读回不授予授权、不释放 Slice、不建立跨调用顺序，也不建立审计偏好。
   - failure-boundary:
       kind: section

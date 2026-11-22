@@ -39,7 +39,7 @@ blocks:
                     | `root_reasoning_cadence` | `full`、`milestone_only`、`off` | `milestone_only` | 选择 Root 可选摘要频率。 |
                     | `worker_reasoning_cadence` | `full`、`milestone_only`、`off` | `full` | 独立选择 Worker 可选摘要频率。 |
                     | `source.<field>` | 每个偏好字段分别为 `explicit`、`default` | `default` | `explicit` 表示用户选择了该字段；`default` 表示由策略提供。 |
-                    首次 Coding 启动必须先确认模式/预算，再收集审计可见性。已给出的有效字段不重复问；缺失字段通过“使用默认”预设或定制菜单确认。默认预设只给未提供字段填入表中默认值并标记 `default`；显式逐字段值标记 `explicit`。取消、未回复、无效答案不代表接受默认，答案未齐不创建 Workflow、不执行工具。非 UI 必须显式提交答案或清晰阻断。确认结果在同一 Session 跨任务完成、树导航、reload/resume 保留；fork/new Session 重新收集，不继承预算。volatile 不 appendEntry，只在当前进程内保留，状态丢失须新 Session，不能声称从日志恢复。这是启动流程前置，不改变授权或独立验证，也不证明完整日志可访问。
+                    首次 Coding 启动必须先确认模式/预算，再收集审计可见性。已给出的有效字段不重复问；缺失字段通过“使用默认”预设或定制菜单确认。默认预设只给未提供字段填入表中默认值并标记 `default`；显式逐字段值标记 `explicit`。取消、未回复、无效答案不代表接受默认，答案未齐不启动工作流，也不执行该工作流的工具调用。非 UI 必须显式提交答案或清晰阻断。确认结果在同一 Session 跨任务完成、树导航、reload/resume 保留；fork/new Session 重新收集，不继承预算。父级规范记录或实际宿主证据不足时阻断依赖工作，不能假称已恢复。这是启动流程前置，不改变授权或独立验证，也不证明完整日志可访问。
 
                     任务记录结构由[委派状态记录](../delegation/delegation-state-record.yaml)定义。适用工作流检查点记录生效值及其显式/缺省来源。
         - section-02:
@@ -108,7 +108,7 @@ blocks:
         - pi-guidance-body:
             kind: markdown
             text: |-
-              协调扩展收集审计偏好后将三项值及其来源保存在 Session 状态的 `audit` 中。同一 Session 的新任务和恢复沿用这些值，当前扩展没有会话内修改入口。审计偏好由 Root 和 Worker 按规则应用。Worker 日志能力另外用实际扩展与访问证据核验。
+              Root 按指令收集审计偏好后，将三项值与来源保存于权威父级对话的规范记录。同一 Session 的新任务和恢复沿用已核实的值。审计偏好由 Root 和 Worker 按规则应用。Worker 日志能力另外用实际扩展与访问证据核验。
   - related:
       kind: section
       title: "相关概念"

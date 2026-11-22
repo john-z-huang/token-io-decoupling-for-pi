@@ -5,12 +5,9 @@
 
 ## Pi 宿主侧 Extension 与 Hooks
 
-入口为 `extensions/coding-workflow/index.ts`。扩展通过 `context` 提供选定的 YAML 路线和适用的 [Hook 合同](../skill/hooks/README.md)。Agent 依据对话和实际证据安排执行、回验及交付。宿主 Hooks 在会话与工具事件上记录观察、校验路径和影响，调用仍经 `ctx.executeTool` 进入 Pi 的工具校验和权限链。
+当前从 Skill 读取所选 YAML 路线及适用的 [Hook 合同](../skill/hooks/README.md)，由 Agent 根据当前动作、实际证据和授权推进，不加载归档扩展。
 
-扩展使用 Pi Session 的 custom entry 保存恢复所需的会话身份、已确认的模式与审计、预算、已占名额和未决调用。回执、Slice 和证据版本只在当前运行中有效，任务目标及进展沿用 Pi 对话。恢复以活动分支绑定会话，并读回整个会话的名额和未决效果。树导航不回退真实副作用。
-
-[使用与限制](PI_EXTENSION.md)说明安装、一次性子代理适配、离线验证和旧快照恢复。
-
+旧扩展入口现位于 `archive/pi-coding-workflow/extensions/coding-workflow/index.ts`，仅供只读参考。它曾用 Pi 的 `context` 注入路线及合同，并用宿主事件和 Session 记录维护工具调用及恢复证据；[历史实现与限制](PI_EXTENSION.md)不代表当前运行时能力或 Hook 逐条迁移。
 
 当前单一 `token-io-decoupling-tools` 服务提供 stdio 和 Skill 安装/更新入口。宿主的工具发现、只读服务可用性、可信绑定和具体操作授权分别核验。结构检查覆盖其声明的规则和输入范围。
 

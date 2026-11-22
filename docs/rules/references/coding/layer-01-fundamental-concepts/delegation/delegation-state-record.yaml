@@ -83,7 +83,7 @@ blocks:
         - pi-guidance-body:
             kind: markdown
             text: |-
-              启用协调扩展时，通过 `coding_checkpoint status` 回读 `mode`、`childCount`、`allocations`、`slice`、`audit` 和未决效果。空闲名额由预算表示，只有实际进入委派操作才生成逻辑 allocation。扩展使用当前 Pi Session 的快照，volatile 模式使用进程状态。Root 在父级对话保留宿主字段未承载的语义证据和来源。未启用扩展时，使用本页的手动记录。调度状态只用于父级协调，逻辑 allocation 通过真实调用定位一次性任务。
+              从权威父级对话回读本页规范记录，核对模式、数量、allocation、Slice、审计及未决效果。身份、能力及实际结果须另用真实宿主元数据和调用证据核验，不把父级记录当作宿主证明。调度记录只用于父级协调；一次性任务的逻辑 allocation 通过真实调用定位，不证明持久身份。
   - related:
       kind: section
       title: "相关概念"

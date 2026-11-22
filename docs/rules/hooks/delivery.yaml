@@ -34,7 +34,7 @@ blocks:
               - execution-01-body:
                   kind: markdown
                   text: |-
-                    Git 效果前由 Root 检查 status、相关历史和当前内容/文档验证证据。扩展的交付阶段、Slice 和 epoch 记录只提供结构约束。Root 须审查暂存/提交内容与最新验证指纹一致，并排除无关或未验证改动。任何差异都须在继续 Git 前返回受影响的 implementation/content 或 documentation Verification。准确记录实际目标、动作、结果和 Git metadata epoch。Commit/index/branch/history 的 metadata 变化本身不使内容/文档 epoch 失效；实际内容变化则必须重新分类和验证。Git 调用结果不明时不得盲目重放，先确认实际状态。
+                    Git 效果前由 Root 检查 status、相关历史和当前内容/文档验证证据。交付阶段、Slice 和 epoch 记录不代替实际证据或授权守卫。Root 须审查暂存/提交内容与最新验证指纹一致，并排除无关或未验证改动。任何差异都须在继续 Git 前返回受影响的 implementation/content 或 documentation Verification。准确记录实际目标、动作、结果和 Git metadata epoch。Commit/index/branch/history 的 metadata 变化本身不使内容/文档 epoch 失效；实际内容变化则必须重新分类和验证。Git 调用结果不明时不得盲目重放，先确认实际状态。
         - execution-02:
             kind: section
             title: 二、区分直接能力和缺失的职责适配
@@ -42,7 +42,7 @@ blocks:
               - execution-02-body:
                   kind: markdown
                   text: |-
-                    Git 能力按动作分类。简单且当前宿主实际可用、能精确满足已授权操作的 Git 工具可使用。非简单 Git 职责（例如复杂历史/冲突处理、需跨多步协调或工具无法可靠表达的影响）须由适配器/专用能力承接；当前无适配器时阻断该动作并说明缺口，不能降级为普通文件、capsule、脚本或另一入口绕行，也不能声称已完成。工具可用不代表授权，授权不代表工具存在。
+                    Git 能力按动作分类。简单且当前宿主实际可用、能精确满足已授权操作的 Git 工具可使用。非简单 Git 职责（例如复杂历史/冲突处理、需跨多步协调或工具无法可靠表达的影响）须由实际可用且获准的专用受保护能力承接；无该能力、可信身份或对应授权时阻断该动作并说明缺口，不能降级为普通文件、capsule、脚本或另一入口绕行，也不能声称已完成。工具可用不代表授权，授权不代表工具存在。
         - execution-03:
             kind: section
             title: 三、逐项Acceptance，不把缺证据写成通过

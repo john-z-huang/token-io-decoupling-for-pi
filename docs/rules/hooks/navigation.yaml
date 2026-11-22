@@ -40,7 +40,7 @@ blocks:
                   kind: markdown
                   text: |-
                     1. Pi 环境中仅依据实际暴露能力及 schema 行动；需要探测 MCP 时使用 codemode 的 `searchTools`、`describeTool`、`describeNamespace`，核对适用性和调用参数，检查调用返回的 `isError`。`hidden` 不得绕过，不得猜工具名/Schema，也不得把宿主内建能力当成项目 Server 能力。
-                    2. 本项目 MCP 提供只读 `rules_get_context` 和候选文档预检 `validate_decoupling_compliance`。专用工作流路由及检查点评估工具已经移除；扩展的 `coding_checkpoint rules` 提供可定向读取的 YAML 规则和适用合同，Agent 按实际证据推进。受保护操作按自身可信绑定和授权要求核验。没有必要或能力不适用时，记录有理由的 `Not applicable` 并直接读取 owner。
+                    2. 本项目 MCP 提供只读 `rules_get_context` 和候选文档预检 `validate_decoupling_compliance`。专用工作流路由及检查点评估工具已经移除；Agent 可直接读取必需 YAML owner 或其当前阅读版，按适用合同和实际证据推进。受保护操作按自身可信绑定和授权要求核验。没有必要或能力不适用时，记录有理由的 `Not applicable` 并直接读取 owner。
                     3. 已完成 Contract、Environment、能力清单、Mode 后才使用 Route Entry；它只返回 Mode 授权的唯一路线，前置缺失/矛盾时回对应 owner 并停止依赖路线工作，不重释 Mode、不选后备路线。Single-Agent 使用当前 Session 内七模块顺序：SM01 入口就绪 → SM02 Session 就绪 → SM03 工作定义 → SM04 Single-Agent 执行 → SM05 验证与修复 → SM06 文档 → SM07 交付与验收。Multi-Agent 使用锁定正数 child count 的七模块顺序：MM01 入口就绪 → MM02 Session 就绪 → MM03 工作定义 → MM04 委派执行 → MM05 验证与修复 → MM06 文档 → MM07 交付与验收。不得跨序、跳过、重启整条路线或凭数量创建/派发 Agent；只调用对应模块 owner。
                     4. 每个模块的入口预检只解析其声明前置、证据、新鲜度、epoch、能力和暂停位置。`ready` 不是模块完成或路线完成；模块自身仍需返回其规定结果。已释放 Mode 是消费证据，不是再次提问或改路线的理由。保留原调用方模块/子步骤及已完成效果；前置缺失时返回语义 owner，完成后读回并重核相关证据/epoch/effect，再恢复原暂停位置，不重放效果。首次直接进入可以没有历史；但依赖历史的位置、效果不能确认时阻断。
                     5. 路由建议仅在事实已审阅、路线已锁定且匹配模式/数量后，按当前路线映射阶段。建议不拥有阶段顺序，不改变路线/执行者/子代理数，不通过门禁、不授权、不创建/派发 Agent、不调用其他工具。缺事实、规则过期、冲突或能力不足时直接读路线 owner；不可选建议时记录结果。必需的已选路线能力缺失则在其 owner 定义边界停下，不能静默回退。

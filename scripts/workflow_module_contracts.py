@@ -175,7 +175,7 @@ MODULE_REQUIRED_EDGE_LABELS = {
         },
         "zh": {
             ("DE01", "DE02"): "实际任务已明确授权",
-            ("DE06", "DE07"): "派发已确认；子代理执行期间进入",
+            ("DE06", "DE07"): "一次性调用已返回，或异步派发已确认；审阅实际结果",
             ("DE_OUTPUT_APPLY", "DE_OUTPUT_REVIEW"): "候选 ID/hash、收据和实际当前状态已保留",
             ("D_RESULT", "DE_NEEDS_PENDING"): "子代理结果待处理",
             ("D_RESULT", "DE_RESULT_REVIEW"): "实际结果可供审阅",
@@ -258,7 +258,7 @@ MODULE_GRAPH_SHA256 = {
         "work-definition": "df5ac02fb9814c1d7c4239255ae11632b86188d0e945ad20336f2c93a21eeea7",
     },
     "zh": {
-        "delegated-execution": "9ea8f48b70ec5ed8af34127fcd89c4b56a91f816498769ec871409f4a9ffd441",
+        "delegated-execution": "2005a50b209863d456f095e4a6e7df73f44201aa56aad113df02617a73cc9399",
         "delivery-acceptance": "38cd9058f163cdce14984ef7076db774f5ac0d35cbe6186f4d9c41af74dfe16c",
         "documentation": "4efd99ed15b4f66fbe1e0d784222d8e7a50a3a55308821fcc4ee6e4f0c2de2fe",
         "entry-readiness": "d0c50bca22148532a33c80a2087362c90f4a7d63e4903ff596ab0d1ed928eb4f",

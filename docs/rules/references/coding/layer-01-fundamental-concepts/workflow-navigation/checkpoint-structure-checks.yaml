@@ -39,7 +39,7 @@ blocks:
         - pi-guidance-body:
             kind: markdown
             text: |-
-              本项目 MCP 已移除检查点评估入口。扩展提供 YAML 规则查询以及实际工具回执，Agent 依据合同判断条件是否满足。候选合规预检只检查候选文件结构。要判断检查点事实与证据，直接按其 owner 审阅。
+              本项目 MCP 已移除检查点评估入口。Agent 直接读取检查点的 owner 以确定规则，并核对相关工具的实际调用及结果以判断事实。候选合规预检只检查候选文件结构，不认证调用方身份或授权。
   - related:
       kind: section
       title: "相关概念"

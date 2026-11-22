@@ -24,7 +24,7 @@ blocks:
         - inputs-body:
             kind: markdown
             text: |-
-              当前 Contract、模式/预算、实际 Session 和工作目录、对话中的待处理动作及扩展 revision、先前完成证据及 epoch、已尝试/已完成/未知效果、待处理 owner、外层 continuation、计划具名指针和当前性。真实文件效果不会随着对话分支回退。
+              当前 Contract、模式/预算、实际 Session 和工作目录、父级对话留存的原暂停位置及待处理动作、先前完成证据及 epoch、已尝试/已完成/未知效果、待处理 owner、外层 continuation、计划具名指针和当前性。真实文件效果不会随着对话分支回退。
   - execution:
       kind: section
       title: 执行要求
@@ -38,7 +38,7 @@ blocks:
                   text: |-
                     1. 模块调用前核对声明中的范围、允许效果、授权、前置证据和新鲜度。首次直接入口没有历史不是失败，但必须在产生效果或暂停前建立 continuation。
                     2. continuation 保留待处理模块/子步骤、授权范围、带来源和 epoch 的已完成证据、尝试/完成/未知效果，以及外层返回位置；不能只记“从头再试”。
-                    3. 父级实时 mode/count/allocation/Slice 属会话调度状态，不写共享计划/memo/其他 Memory。扩展账本只保存恢复所需事实。Slice、回执与验证版本按当前运行重新建立。账本只提供恢复证据，身份与权限需要单独核验。
+                    3. 父级实时 mode/count/allocation/Slice 属会话调度状态，不写共享计划/memo/其他 Memory。从父级规范记录取回恢复所需事实，并用实际宿主与资源证据重新核对 Slice、效果和验证新鲜度。对话记录不代替身份与权限核验。
                     4. 会话树、fork、压缩和重载不能回退磁盘或已占用名额。合并当前分支位置与 Session 已绑定 allocation，不能把旧快照空预算当作新授权；状态损坏/归属不明时暂停而非重建空状态。
         - execution-02:
             kind: section
@@ -61,7 +61,7 @@ blocks:
                   text: |-
                     1. `complete` 只表示本模块所有必需 owner 已满足当前通过条件并附证据/效果/epoch，不等于整条路线验收。待提问、待审计、pending 或未解前置均不能 complete。
                     2. `not_applicable` 仅在条件触发器实际不存在时成立，附观察和原因；不能用来跳过必需项。
-                    3. `needs_prerequisite` 逐项指出缺失的语义 owner 与证据，调用者补齐后回同一位置。在对话中记录需补前置或阻断的原因。主动暂停用 `coding_checkpoint pause`。先用 `resolve_effect` 结合实际读回处置未决调用，再以暂停后成功的 read/check 证据执行 `resume`。
+                    3. `needs_prerequisite` 逐项指出缺失的语义 owner 与证据，调用者补齐后回同一位置。在对话中记录需补前置或阻断的原因。在父级对话记录暂停位置和待办。以暂停后实际成功的读回或检查解决未决效果，补齐必要证据后回原位置；不重放已发生或效果未知的动作。
                     4. `blocked` 明确冲突、必需证据/能力缺失或不安全状态及解除条件。仅当位置丢失、状态矛盾或授权读回仍不能确定效果、无法安全继续时阻断恢复，不把可补齐的前置误写成全任务永久失败。
                     5. 补证所需的写入仍要独立授权。不要为前置重新启动无关已完成门禁、重复 Mode 选择或在模块内部调度兄弟模块。
         - execution-04:

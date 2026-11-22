@@ -58,13 +58,13 @@ blocks:
               - execution-03-body:
                   kind: markdown
                   text: |-
-                    在当前上下文记录由 Root 执行还是委派，并保留决定依据。执行者或派发前提变化时，按本合同重核影响，保留已占名额和已发生的效果。实际调用 `coding_delegate` 时核对工具 Schema、职责、预算、当前 Slice 及写入范围。
+                    在当前上下文记录由 Root 执行还是委派，并保留决定依据。执行者或派发前提变化时，按本合同重核影响，保留已占名额和已发生的效果。实际派发时核对工具 Schema、职责、预算、当前 Slice 及写入范围。
 
-                    Pi 不内置代理。当前实现校验 `@mjakl/pi-subagent@3.1.0` 的实际 `calls[]` Schema。每次传一个 `agent`/`prompt`/`cwd` 任务，显式 `initialContext: "empty"`，不传 `session`，仍为一次性调用而非持久复用。先核验真实工具/扩展 Schema、可用能力和允许字段，只传真实接受的字段；未知接口或额外必需字段在预留前拒绝。扩展配置名称不是职责或权限证明。不存在兼容能力时只阻断依赖委派的分支；不得假设隐藏工具、Pi 原生代理、持久 Session、稳定 ID、续接、消息、wait、resume、取消或异步句柄，也不得模拟 Session 或将 Root 改名为子代理。没有可选模型/effort 控制时沿用扩展默认值并记录限制；明确必需设置无法满足才阻断。已移除的 MCP 调度/effort 接口不调用、不伪造回执。
+                    Pi 不内置代理。先核验真实工具/扩展 Schema、可用能力和允许字段，只传真实接受的字段；未知接口或额外必需字段在预留前拒绝。扩展配置名称不是职责或权限证明。不存在兼容能力时只阻断依赖委派的分支；不得假设隐藏工具、Pi 原生代理、持久 Session、稳定 ID、续接、消息、wait、resume、取消或异步句柄，也不得模拟 Session 或将 Root 改名为子代理。没有可选模型/effort 控制时沿用扩展默认值并记录限制；明确必需设置无法满足才阻断。已移除的 MCP 调度/effort 接口不调用、不伪造回执。
 
-                    创建前再次核实 Multi-Agent 已释放、正数预算、唯一未绑定 allocation 与职责、合格输出类型、已释放 Slice、权限、上下文、来源/路径及返回条件。Worker bundle 必须清晰限定单一职责，禁止递归创建/派发、fork、自行选择handoff目标、peer协调或联系其他Session；按父级具名授权编写handoff记录不等于自行管理会话；禁止未授权网络、Git、Memory 或扩容。按实际需要提供任务计划/Memory 的准确名称和最小访问方式；Root 协调唯一计划写者，贡献不授权修改源码或扩大 Contract。按 memo owner 在实际派发中明确 `write_content_memo: true|false`。当前 `coding_delegate.jobs[]` 没有此结构化参数，在获准的 `task` 正文中写明取值，并核验其实际传给 Worker。只有 true 且 Memory 能力、目标及授权均已核实时才处理 memo。共享计划的要求继续适用。
+                    创建前再次核实 Multi-Agent 已释放、正数预算、唯一未绑定 allocation 与职责、合格输出类型、已释放 Slice、权限、上下文、来源/路径及返回条件。Worker bundle 必须清晰限定单一职责，禁止递归创建/派发、fork、自行选择handoff目标、peer协调或联系其他Session；按父级具名授权编写handoff记录不等于自行管理会话；禁止未授权网络、Git、Memory 或扩容。按实际需要提供任务计划/Memory 的准确名称和最小访问方式；Root 协调唯一计划写者，贡献不授权修改源码或扩大 Contract。按 memo owner 在实际派发中明确 `write_content_memo: true|false`。按实际 Schema 传递该值；没有对应字段时，在获准的任务正文中写明，并核验其实际传给 Worker。只有 true 且 Memory 能力、目标及授权均已核实时才处理 memo。共享计划的要求继续适用。
 
-                    DE05只作真实能力与创建前置核验；DE06通过同一次实际工具调用创建/派发/执行/返回，DE07审阅完整实际结果后才接续。一次性工具调用可同步完成创建、派发、执行和返回；父级以同次真实调用证据将 allocation 绑定逻辑身份/任务证据。无返回持久身份时不伪造 Session ID。当前协调器缺少 Git 专用子代理和持久任务复用适配器，依赖这些能力的分支应阻断。受保护 MCP 绑定和子代理模型选型分别按实际能力核验。合同不是隔离沙箱，不能保证外部进程或其他扩展行为受 Hooks 覆盖；若隔离为必要条件而实际能力缺失，阻断。
+                    DE05 核验真实能力及创建前置。同步一次性分支在 DE06 通过同一次实际工具调用创建、派发、执行并返回；父级用该调用证据将 allocation 绑定到逻辑身份和任务证据，不伪造持久 Session ID。只有宿主明确支持取得稳定身份及续接时，持久身份分支才按实际 Schema 绑定已有或已创建的身份，并在 DE06 向该身份派发。两种分支均在 DE07 审阅完整实际结果后才接续。仅在实际有专用受保护 Git 能力及授权时办理非简单 Git；仅在实际宿主能证明稳定身份及续接能力时复用；否则阻断相应分支。受保护 MCP 绑定和子代理模型选型分别按实际能力核验。合同不是隔离沙箱，不能保证外部进程或其他扩展行为受 Hooks 覆盖；若隔离为必要条件而实际能力缺失，阻断。
 
                     只在已分别放行、互不冲突的任务间并行；Chain 中每一步仍须各自满足授权、职责和范围，不能作为同一 Session 复用证据。已创建代理不能因不满意而替换；对获准修复优先复用同一稳定身份，仅当真实扩展支持续接才可 follow-up。一次性返回后身份不可继续派发。无法安全续接时报告阻塞并由 Root 判断合法路线，不静默创建同职责 successor；增加名额也不允许替换或重复职责。
         - execution-04:
@@ -82,7 +82,7 @@ blocks:
                     - Luna：模型卡面向聚焦高吞吐，有界事实提取、机械改动、规则明确的实现/检查可考虑low/medium。
                     这些仅是参考起点，任何职责均不强制某一模型；普通文档仍由Root。一般多步任务medium，简单确定任务low，复杂/高风险任务可high；xhigh/max须有具体必要性，不是固定升级阶梯。卡片支持Sol的low/medium/high/xhigh/max，Terra/Luna另有none；Pi使用off而非none，三者不选minimal，且须核对真实provider映射。更大推理量不弥补缺失授权/证据，独立性也不由不同模型证明。
 
-                    先核对真实Schema。coding_delegate每项job传精确 `model: "provider/id:thinking"` 与 `modelReason`。适配器将其拆成 `model: "provider/id"` 和独立 `thinking`，确保调用档位不被代理默认值覆盖。按对应层级核验实际model/thinking字段及档位，全部job均须在预留/执行前通过，不能默默忽略。未显式选型时沿用插件默认值或实际继承行为。任务要求的选型无法落实时阻断。不要改父级模型、全局默认或MCP内部API模型来代替子任务设置。创建前核验即可，不要求Worker自查/自报；已创建身份不因换模型而重建、替换或回收。详见[模型卡事实、档位与路由参考](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml#subagent-models)。
+                    按实际 Schema 传递已核验的精确模型和推理档位，在父级记录选型依据，并核对实际设置的覆盖优先级。按对应层级核验实际model/thinking字段及档位，全部job均须在预留/执行前通过，不能默默忽略。未显式选型时沿用插件默认值或实际继承行为。任务要求的选型无法落实时阻断。不要改父级模型、全局默认或MCP内部API模型来代替子任务设置。创建前核验即可，不要求Worker自查/自报；已创建身份不因换模型而重建、替换或回收。详见[模型卡事实、档位与路由参考](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml#subagent-models)。
         - execution-05:
             kind: section
             title: 5. 结果、生命周期与未知效果
@@ -92,7 +92,7 @@ blocks:
                   text: |-
                     派发后取得真实返回内容。工具状态、调用卡片、送达回执、摘要、Hash 或“完成”字样不替代正文。依赖结果前完整读取所有实际结果；过长则逐页/分段读取至末尾，不以摘要验收。确认并审阅完整结果中的改动路径、执行/检查证据、失败、遗漏、未决项及与授权范围的偏差；对实际仓库状态做必要核对。结果与已确认前提冲突、超出范围或不完整时停止依赖工作，返回 Root 重决策，不自行扩大授权。子代理结果不是应用改动或继续操作的授权。最终验证仍属后续独立工作流，不把初步检查冒充验证。
 
-                    父级记录真实调用、身份/逻辑 allocation、状态、完整结果证据及阻塞原因。扩展的 `completed` 表示实际子任务调用成功返回；Root 在依赖结果前仍须完整审阅正文及其证据。失败/中断保留原身份与状态，终态绝不释放已绑定预算或职责，也不得仅为清理关闭/删除代理。当前协调器等待一次性调用返回，向宿主传递取消信号。没有独立的 wait、resume 或取消协议；结果不明时先读回。对调用错误、超时、断连等无法确认是否执行的情况，视为效果未知：先读取可用的真实结果/当前状态证据，保留 allocation 并报告；无从核验则阻断，绝不重发以免重复副作用。只有宿主明确证明执行未发生且 allocation 仍未绑定时，才可依据 owner 撤销预留；不能从错误文本推断“未创建”。
+                    父级记录真实调用、身份/逻辑 allocation、状态、完整结果证据及阻塞原因。实际调用终态须以宿主结果核实；Root 在依赖结果前仍须完整审阅正文及其证据。失败/中断保留原身份与状态，终态绝不释放已绑定预算或职责，也不得仅为清理关闭/删除代理。同步一次性调用直接审阅真实返回；等待、续接或取消仅使用实际支持且获准的宿主能力。结果不明时先读回。对调用错误、超时、断连等无法确认是否执行的情况，视为效果未知：先读取可用的真实结果/当前状态证据，保留 allocation 并报告；无从核验则阻断，绝不重发以免重复副作用。只有宿主明确证明执行未发生且 allocation 仍未绑定时，才可依据 owner 撤销预留；不能从错误文本推断“未创建”。
   - flowchart:
       kind: section
       title: 工作流路线图
@@ -111,7 +111,7 @@ blocks:
                   D_ROLE{"角色预留结果？"}
                   DE04["DE04 共用恢复门禁和当前 Slice"]
                   D_GATE{"恢复门禁与 Slice 有效？"}
-                  DE05["DE05 新建合格子代理并绑定身份（如适用）"]
+                  DE05["DE05 核验创建前置；独立创建型核验并绑定实际身份"]
                   D_CHILD{"执行者分支？"}
                   DE06["DE06 子代理派发、Worker 边界和显式 memo 字段"]
                   DE07["DE07 子代理执行期间的实际实施、所选受控输出、结果收集/审阅和初步检查"]
@@ -158,12 +158,12 @@ blocks:
                   D_GATE -- post-floor Continue 缺失/过期 --> DE08
                   D_GATE -- Stop 或 Slice 未授权 --> DE_BLOCK
                   DE05 --> D_CHILD
-                  D_CHILD -- 新建合格子代理；身份已确认 --> DE06
+                  D_CHILD -- 一次性创建前置通过，或独立创建型身份已核验并绑定 --> DE06
                   D_CHILD -- 现有子代理；新建 N/A --> DE06
                   D_CHILD -- Root 执行；子代理 N/A --> DE07
                   D_CHILD -- 创建/身份前置缺失 --> DE_NEEDS_SLICE
                   D_CHILD -- 创建未授权或无效 --> DE_BLOCK
-                  DE06 -- 派发已确认；子代理执行期间进入 --> DE07
+                  DE06 -- 一次性调用已返回，或异步派发已确认；审阅实际结果 --> DE07
                   DE07 --> D_OUTPUT
                   D_OUTPUT -- 已选择；执行者、class、capability、授权、root 和 baseline 当前有效 --> DE_OUTPUT_PREP
                   D_OUTPUT -- 未选择可选候选路径；记录原因 --> DE_OUTPUT_NA
@@ -244,7 +244,7 @@ blocks:
             applicability: sub_agent
             title: 创建新合格子代理并绑定身份。
             text: |-
-              仅对新子代理应用[子代理创建](../references/coding/layer-01-fundamental-concepts/delegation/delegation-child-creation.yaml)和[运行环境与模型厂商支持](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml)。确认符合条件的已释放任务/Slice、唯一角色预留、当前容量、能力、权限、上下文、返回条件及必需运行环境/effort 证据；只创建已授权子代理。独立创建型扩展在派发前按 owner 绑定实际身份/allocation；同步一次性扩展在此完成创建前核验并标记已批准、尚未调用的 allocation，不虚构提前返回的身份。后者在 DE06 以同一次工具调用创建、派发、执行并返回，再将真实调用/结果证据绑定该 allocation。两种路径均在依赖前更新并回读父级记录，不能重复调用来补造身份。复用现有子代理时，根据复用证据将创建和新 model-binding 检查记录为 `not_applicable`；保留相同身份，不重查模型选择，也绝不替换。已确认 Root 执行时，将子代理创建/身份记录为有原因的 `not_applicable`。所有分支进入 DE07；子代理分支先经过 DE06。已由当前证据确认 Root 执行时，可共用一次执行者选择记录，说明职责预留、创建、派发三个检查点不适用。仍须通过 DE04 放行和 DE07 结果审阅。
+              仅对新子代理应用[子代理创建](../references/coding/layer-01-fundamental-concepts/delegation/delegation-child-creation.yaml)和[运行环境与模型厂商支持](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml)。确认符合条件的已释放任务/Slice、唯一角色预留、当前容量、能力、权限、上下文、返回条件及必需运行环境/effort 证据；只创建已授权子代理。独立创建型扩展按实际 Schema 和 owner 核验真实身份，并在派发前绑定 allocation；同步一次性分支在 DE05 只核验创建前置并标记已批准、尚未调用的 allocation，不提前创建或绑定身份。后者在 DE06 以同一次工具调用创建、派发、执行并返回，再将真实调用/结果证据绑定该 allocation。两种路径均在依赖前更新并回读父级记录，不能重复调用来补造身份。复用现有子代理时，根据复用证据将创建和新 model-binding 检查记录为 `not_applicable`；保留相同身份，不重查模型选择，也绝不替换。已确认 Root 执行时，将子代理创建/身份记录为有原因的 `not_applicable`。所有分支进入 DE07；子代理分支先经过 DE06。已由当前证据确认 Root 执行时，可共用一次执行者选择记录，说明职责预留、创建、派发三个检查点不适用。仍须通过 DE04 放行和 DE07 结果审阅。
         - DE06:
             kind: checkpoint
             applicability: sub_agent

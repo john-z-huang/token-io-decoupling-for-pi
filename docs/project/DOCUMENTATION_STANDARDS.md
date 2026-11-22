@@ -29,9 +29,9 @@
 
 `blocks` 是有序列表，每项以稳定 ID 为键。`section` 生成标题和下级块，`checkpoint` 生成编号条目，`route_step` 绑定当前阶段及 Hook。`markdown` 保留列表、表格和 Mermaid 等正文。需独立读取的参考规则章节用 `expose: true` 发布片段，独立正文块还需填写 `title`。路线图只描述主阶段间的必要顺序。条件分支、补证与恢复由对应 Hook 合同定义，路线链接到适用合同。Serena 在项目的 `language_servers` 启用 `yaml` 后，可按块 ID 定位检查点。
 
-DSL 源文件之间使用相对 `.yaml` 链接。引用具体章节时使用块 ID，例如 `runtime-provider-support.yaml#subagent-models`。编译器验证目标文件及章节，再为阅读版生成相应的 `.md` 和 Markdown 标题锚点。Pi 将同一引用解析为 `coding-rule:`，按片段 ID 查询正文。`markdown_path` 字段指定阅读版的位置。
+DSL 源文件之间使用相对 `.yaml` 链接。引用具体章节时使用块 ID，例如 `runtime-provider-support.yaml#subagent-models`。编译器验证目标文件及章节，再为阅读版生成相应的 `.md` 和 Markdown 标题锚点。将同一引用解析为 `coding-rule:` 并按片段 ID 查询正文，是已归档旧扩展的行为。`markdown_path` 字段指定阅读版的位置。
 
-`npm ci` 和 `npm pack` 通过 `prepare` 生成 Skill；`npm test` 也会在测试前生成。只修改规则、Hook 或 Skill 入口时，可执行 `npm run build:skill` 单独重新生成。编译器从 `docs/rules/` 生成完整的 `docs/skill/`，包括 Markdown 阅读版和 Skill 注册元数据。该目录由 Git 忽略，`--check` 只读核对本地生成结果。Pi Extension 启动时解析原始 YAML 并建立指纹索引，按 ID 读取当前片段。[Pi Extension 使用说明](PI_EXTENSION.md)和[工作流架构](WORKFLOW_ARCHITECTURE.md)作为项目 Markdown 维护。
+`npm ci` 和 `npm pack` 通过 `prepare` 生成 Skill。只修改规则、Hook 或 Skill 入口时，可执行 `npm run build:skill` 单独重新生成。编译器从 `docs/rules/` 生成完整的 `docs/skill/`，包括 Markdown 阅读版和 Skill 注册元数据。该目录由 Git 忽略，`--check` 只读核对本地生成结果。当前 Skill 直接使用编译后的路线与 Hook 指令，不加载旧扩展。[旧 Pi Extension 说明](PI_EXTENSION.md)和[工作流架构](WORKFLOW_ARCHITECTURE.md)作为项目 Markdown 维护。
 
 ### Coding DSL 类型与模板
 
@@ -75,9 +75,9 @@ uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint 'r
 
 - [合同模板](../rules/templates/hooks/hook-contract.yaml) 按触发条件、输入与证据、执行要求、阶段路线图与有序检查点、输出与落点、退出与阻断、重新核验、规则来源排序。阶段路线图和检查点用于八份由路线绑定的合同。顶层块、执行子章节和检查点可以按稳定 ID 查询。
 - [目录模板](../rules/templates/hooks/hook-directory.yaml) 定义导语、合同与明确触发、宿主回调、链接基准和维护检查的顺序。
-- `activate_on` 声明阶段、语义信号或宿主状态对应的合同。Agent 根据路线、实际动作及证据读取阶段合同，扩展根据实际会话状态及可观察事件补充合同。语义变化由 Agent 在上下文中判断，再定向读取适用规则。`applicability: optional` 标记可凭证据判断不适用的事项，`applicability: sub_agent` 限定子代理分支。用 `npm run check:hooks` 检查运行时索引。
-- 导航引用使用相对 `.yaml#块ID`，导出时转成 Markdown 路径和标题锚点。执行要求中的 `rule_include` 用来读取所引用的底层参考规则片段。Pi 注入主路线和已触发的合同，路线图与来源表随阅读版发布。使用 `coding-rule:hook-entry#ER03` 等 ID 可定向查询检查点。 [入口合同示例](../rules/hooks/entry.yaml)
-- 修改规则来源后先编译，再由 `node scripts/check-pi-hooks.mjs --write-coverage` 从合同的来源表刷新 [YAML 来源对照](../rules/hooks/SOURCE_COVERAGE.yaml)。再次执行 `npm run build:skill` 生成 [Markdown 来源对照](../skill/hooks/SOURCE_COVERAGE.md)。阶段绑定可在[路线目录](../rules/coding-workflows/README.yaml)的“分阶段 Hooks”章节查阅。日常检查用 `npm run check:hooks` 校验来源对照、链接与注入场景。
+- `activate_on` 声明阶段、语义信号或宿主状态对应的合同。Agent 根据路线、实际动作及证据读取阶段合同。语义变化由 Agent 在上下文中判断，再定向读取适用规则。`applicability: optional` 标记可凭证据判断不适用的事项，`applicability: sub_agent` 限定子代理分支。
+- 导航引用使用相对 `.yaml#块ID`，导出时转成 Markdown 路径和标题锚点。执行要求中的 `rule_include` 用来读取所引用的底层参考规则片段。路线图与来源表随阅读版发布。注入主路线和已触发的合同，以及通过 `coding-rule:hook-entry#ER03` 等 ID 查询检查点，均是已归档旧扩展的行为。 [入口合同示例](../rules/hooks/entry.yaml)
+- 修改合同的来源表时，先手动同步 [YAML 来源对照](../rules/hooks/SOURCE_COVERAGE.yaml) 中的逐篇来源及归属，再用 `npm run build:skill` 生成 [Markdown 来源对照](../skill/hooks/SOURCE_COVERAGE.md)。不运行已归档的对照表生成器。阶段绑定见[路线目录](../rules/coding-workflows/README.yaml)的「分阶段 Hooks」。
 
 ```sh
 uv run --locked --script scripts/compile-reference-dsl.py --template hook-contract

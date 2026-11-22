@@ -19,7 +19,7 @@ token-io-decoupling-tools skills update
 
 34 个工具的权威清单为 `mcp/packages/token_io_decoupling_core/src/token_io_decoupling_core/server_tools.py`。包括 Git/GitHub 操作、通用内容生成与输入检查，以及规则上下文查询、合规预检、Serena Memory 检查和输出材料化；不暴露 Codex 专用会话事实与会话决策工具。
 
-原 MCP workflow 调度、checkpoint 评估、模型/执行者/子代理选择及 task-plan 生命周期已删除。Pi Extension 的宿主流程独立保留；规则查询只读、不执行流程。上游带 workflow 名称的通用内容建议工具不管理本项目的流程状态。
+原 MCP workflow 调度、checkpoint 评估、模型/执行者/子代理选择及 task-plan 生命周期已删除。旧 Pi Extension 已归档；当前由 Agent 按 Skill 路线指令与适用 Hook 推进，只使用当前宿主实际暴露且获准的能力。规则查询只读、不执行流程。上游带 workflow 名称的通用内容建议工具不管理本项目的流程状态。
 
 ### 调用方上下文
 

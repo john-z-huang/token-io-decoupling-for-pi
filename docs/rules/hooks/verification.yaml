@@ -35,13 +35,13 @@ blocks:
               - execution-01-body:
                   kind: markdown
                   text: |-
-                    扩展追踪观察到的 epoch，Root 另外核验真实状态指纹和覆盖标准。验证需要当前 epoch 的实际成功检查。办理 Git 之前在助手上下文核对覆盖范围，再把成功检查回执 ID 传给 `coding_run.verificationEvidence`，由扩展在 Git 调用前核对。若实际状态变化，重新核验受影响维度。可按 owner 复用未受影响维度的证据，仍需为当前扩展验证提供有效观察并解释覆盖面。
+                    Root 依据实际状态分别捕获内容、文档和 Git metadata 指纹，按实际影响核对各维度 epoch 及证据新鲜度。验证须有覆盖适用标准的当前实际检查及结果。Git 前对照准确目标和暂存/拟提交内容与最新验证状态；不一致先回验受影响维度。未变维度按 owner 复用，并说明当前指纹及结果为何仍适用。
 
                     1. 以实际工作区/目标资源为准，先解决部分、冲突或不确定的应用状态，再捕获准确的最终状态指纹（fingerprint）和 epoch；预检、实施收据、候选文件、早期检查及代理声称均不是最终状态证据。若输出物料化流程提供收据，须按实际当前文件核验收据，不能以收据替代状态读取。
                     2. 把每项验收标准映射到当前证据、检查及覆盖维度。每一维只复用指纹未变化且覆盖该标准的当前有效证据。对文档变更核对标题锚点及当前项目语言约定；本仓库使用中文单源。具体内容变化运行其适用产品检查。
                     3. 使用 `verification-impact` 建议前核对适用性和授权。建议不可用、不符条件或与直接证据冲突时，记录有根据的 `not_applicable` 及原因。
 
-                    按[验证 Epoch 规则的动作章节](../references/coding/layer-02-workflow-concepts/verification-and-repair/verification-epoch.yaml#actions)决定哪些证据失效及需要重验。扩展在此加载该片段。
+                    按[验证 Epoch 规则的动作章节](../references/coding/layer-02-workflow-concepts/verification-and-repair/verification-epoch.yaml#actions)决定哪些证据失效及需要重验。
               - include-verification-epoch-actions:
                   kind: rule_include
                   document: verification-epoch
@@ -152,7 +152,7 @@ blocks:
             kind: checkpoint
             title: 运行当前检查。
             text: |-
-              通过时在对话中引用当前 epoch 成功的 `check` 调用。确认有需修复的实际失败时，读取修复合同并引用失败证据。
+              通过时在对话中引用当前 epoch 的实际成功检查及结果。确认有需修复的实际失败时，读取修复合同并引用失败证据。
 
               针对 VR01 捕获的准确实际状态指纹运行适用的最强整体和定向检查。涵盖所有必需标准及变化维度所需检查。候选预检、应用收据和实施阶段检查仍是初步证据，不能替代这些当前检查。不得对受影响维度复用较早 epoch 的证据。必需检查不可运行时，保留不可用原因及阻塞影响。
         - VR04:

@@ -10,7 +10,7 @@ blocks:
       title: "概览"
       expose: true
       text: |-
-        Layer-04 维护 Single-Agent 和 Multi-Agent 两条路线。Pi Extension 直接消费七个阶段的 Hook 绑定及顺序。路线保留调用方位置和 epoch 变化后的回返约定，各阶段的执行合同、适用条件、检查点顺序和图由对应 Hook 维护。
+        Layer-04 维护 Single-Agent 和 Multi-Agent 两条路线。Agent 读取七个阶段的 Hook 绑定及顺序，按适用合同与实际证据推进。路线保留调用方位置和 epoch 变化后的回返约定，各阶段的执行合同、适用条件、检查点顺序和图由对应 Hook 维护。
   - entry:
       kind: section
       title: "入口"

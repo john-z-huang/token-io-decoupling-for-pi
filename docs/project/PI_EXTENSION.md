@@ -1,34 +1,16 @@
 # Pi Coding Workflow Extension
 
-此包向 Pi Coding Agent 提供所选 YAML 路线及适用的 Hooks。Agent 自行处理阶段条件、验证回环与交付。扩展维护工具调用约束、真实回执和会话预算。
+本文保留旧扩展的历史行为，不是当前安装、运行或验证指南。归档快照（仓库检出中：`archive/pi-coding-workflow/README.md`）不可安装或运行；需要复现时仅使用独立历史检出。当前 Skill 按路线与 Hook 合同执行，不加载归档，MCP 与第三方子代理工具按各自入口独立核验。
+
+旧扩展曾向 Pi Coding Agent 提供所选 YAML 路线及适用的 Hooks。Agent 自行处理阶段条件、验证回环与交付。扩展维护工具调用约束、真实回执和会话预算。
 
 ## 试用与安装
 
-基线：Pi Coding Agent **1.5.2**、Node.js **24+**。使用 Pi 提供的 `typebox` 等宿主模块，不复制宿主依赖。仓库离线检查涵盖路线注入、模拟事件、宿主声明类型及入口加载。真实会话、子代理及 Memory 端到端验收需要当前环境证据。
-
-先确保 `uv` 可用，然后在本仓库安装 YAML 解析依赖。`npm ci` 会在安装后自动生成 `docs/skill/`。
-
-```bash
-npm ci --legacy-peer-deps
-```
-
-在目标项目中一次性加载本地包，无须修改用户配置。
-
-```bash
-pi -e /absolute/path/to/token-io-decoupling-for-pi
-```
-
-确认可信后，用户可自行登记为目标项目的本地 package：
-
-```bash
-pi install /absolute/path/to/token-io-decoupling-for-pi --local
-```
-
-安装命令会改变目标项目 `.pi/settings.json`。本地包引用当前检出中的扩展代码与 `docs/rules/`。更新规则后，由用户 `/reload` 或启动新会话。CLI 的 `skills install/update` 用于安装生成的 Skill。MCP 配置和身份接入仍须分别核验。
+历史基线为 Pi Coding Agent **1.5.2** 和 Node.js **24+**，使用 Pi 提供的 `typebox` 等宿主模块，不复制宿主依赖。旧安装和加载流程仅见归档前提交中的本文，不适用于当前仓库。
 
 ## 启动与控制
 
-默认不接管会话，不按自然语言关键词猜测模式。显式开始：
+旧扩展默认不接管会话，不按自然语言关键词猜测模式。以下是历史命令示例，当前仓库不提供这些命令：
 
 ```text
 /coding start 实现某项已明确的改动
@@ -105,22 +87,10 @@ Root 核验当前端点和实际工具能力后选型，可参考[三模型卡](
 
 宿主校验字段、实际回执引用、预算、路径和 epoch。它不证明用户授权、检查输出正确、独立性、N/A 理由、内容保全或验收真的满足；不透明工具的 effect 也是声明。它不是恶意代码沙箱或 OS ACL。真实出站、Git、Memory 权限仍按原规则独立核验。
 
-安装扩展后，分别核验 MCP 的实际工具注册、可信调用方绑定和操作授权。
+MCP 独立于旧扩展；使用前分别核验实际工具注册、可信调用方绑定和操作授权。
 
 ## 离线验证
 
-在仓库根目录运行下列命令。代码规范的自动化覆盖和 Code Agent 审查指令见 [静态代码检查](STATIC_CODE_CHECKS.md)。
+本节只记录归档前的检查范围；旧测试和宿主检查命令不再由当前仓库提供。仅在独立历史检出中参考当时的验证命令。当前维护范围见 [静态代码检查](STATIC_CODE_CHECKS.md)。
 
-```bash
-npm run lint
-npm test
-npm run check:hooks
-# 仅在修改逐篇来源表后，显式更新对照并审阅：
-node scripts/check-pi-hooks.mjs --write-coverage
-npm run check:types -- /absolute/path/to/installed/pi-coding-agent
-npm run check:load -- /absolute/path/to/installed/pi-coding-agent
-# 显式加载已有3.1.0的真实Schema/纯参数函数，不执行插件工具或启动子进程：
-npm run check:subagent-contract -- /absolute/path/to/installed/pi-coding-agent /absolute/path/to/@mjakl/pi-subagent/index.ts
-```
-
-宿主类型/加载检查复用已有 Pi/TypeBox/Jiti 和已有 `tsc`；3.1.0契约检查使用真实注册Schema验证适配参数，并核对参数规范化、模型/thinking CLI和失败Hook。不下载依赖、不开 Pi 会话、不连接 MCP、不请求模型、不修改全局配置。也可用 `PI_EXTENSION_HOST_ROOT` 指定包根，`TSC_BIN` 指定已有编译器。真实客户端、实际子代理、Memory 后端及 API 端到端验收仍需独立环境与授权。
+宿主类型与加载检查复用已有 Pi/TypeBox/Jiti 和 `tsc`。3.1.0 契约检查使用真实注册 Schema 验证适配参数、参数规范化、模型和推理档位 CLI 及失败 Hook。也可用 `PI_EXTENSION_HOST_ROOT` 指定包根，`TSC_BIN` 指定已有编译器。真实客户端、实际子代理、Memory 后端及 API 的端到端验收仍需独立环境与授权。

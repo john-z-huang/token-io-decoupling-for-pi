@@ -11,19 +11,13 @@ blocks:
 
         ## 适用范围
 
-        适用于 Pi Coding Agent 的 Coding 任务；宿主 Extension 负责流程与调度，MCP 仅提供通用工具，不保存流程状态。
+        适用于 Pi Coding Agent 的 Coding 任务；Agent 按路线指令、适用 Hook 和实际证据推进，MCP 仅提供通用工具，不保存流程状态。
 
         ## 从这里开始
 
-        ### 已启用 Coding Extension
+        旧工作流扩展已归档，仅供只读参考，不加载或依赖其协调工具。
 
-        消费最新的 **Coding Hooks、revision 和当前检查点**，使用注入包给出的协调工具推进。以扩展状态为准；出现规则歧义、冲突或未覆盖的边界时，定向查详细 owner。
-
-        工具出现不表示已启用。未见当前 Coding Hooks 时，不由 Agent 猜模式或自行调用命令；用户可用 `/coding single <任务>` 或 `/coding multi [数量] <任务>` 显式启用。安装与能力边界见 [Pi Extension 使用说明](../project/PI_EXTENSION.md)。
-
-        ### 未启用 Extension 的回退入口
-
-        读取 [Coding selector](workflows/coding.yaml)，依次建立 Contract、Environment/能力清单、Mode 与 Route Entry，按其选择的单代理或多代理路线执行。沿用 [模式 owner](references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-confirmation.yaml) 的用户选择、四项菜单、默认 Multi/count=1 和会话锁定规则；缺少扩展不授权创建代理，也不免除必需门禁。
+        读取 [Coding selector](workflows/coding.yaml)，依次建立 Contract、Environment/能力清单、Mode 与 Route Entry，按其选择的单代理或多代理路线执行。沿用 [模式 owner](references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-confirmation.yaml) 的用户选择、四项菜单、默认 Multi/count=1 和会话锁定规则；按实际能力和用户授权使用子代理工具；不得免除必需门禁。
 
         ## 始终有效
 
@@ -35,11 +29,11 @@ blocks:
 
         ## MCP 支持边界
 
-        按实际 Schema 和授权使用 MCP。可选导航或咨询缺失时直接查 owner；必需能力缺失只阻断依赖分支。工具发现、安装及授权边界见 [工作流架构](../project/WORKFLOW_ARCHITECTURE.md) 和 [Pi Extension 使用说明](../project/PI_EXTENSION.md)。
+        按实际 Schema 和授权使用 MCP。可选导航或咨询缺失时直接查 owner；必需能力缺失只阻断依赖分支。工具发现、安装及授权边界见 [工作流架构](../project/WORKFLOW_ARCHITECTURE.md)。
 
         [Hooks 触发目录](hooks/README.yaml) · [详细工作流架构](../project/WORKFLOW_ARCHITECTURE.md) · [运行时能力边界](references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml)
 front_matter:
   name: token-io-decoupling-skill
   description: >-
-    用于代码理解、实现、重构、调试、验证、文档和 Git 工作的 Coding 调度入口。优先消费已启用的 Pi Coding Workflow Extension 与条件 Hooks；未启用时按中文 owner 执行单代理或多代理路线。通过
+    用于代码理解、实现、重构、调试、验证、文档和 Git 工作的 Coding 调度入口。按中文 owner 读取单代理或多代理路线及适用 Hook，不加载已归档扩展。通过
     token-io-decoupling-tools 调用通用工具并更新 Pi Skill。

@@ -4,9 +4,8 @@
 
 ## 检查命令
 
-- 在仓库根目录执行 `npm run lint`，检查 `extensions/`、`extension-tests/`、`scripts/` 下的 JS、TS 和 MJS，以及 `eslint.config.js`。错误或警告会使检查失败。
+- 在仓库根目录执行 `npm run lint`，检查当前维护的 JS、TS 和 MJS；旧扩展归档（仓库检出中：`archive/pi-coding-workflow/README.md`）不运行 ESLint。错误或警告会使检查失败。
 - 需要调整排版时执行 `npm run lint:fix`。ESLint 调用 Prettier 应用布局修复，其他规则仍会报告。修复后执行 `npm run lint` 复核。
-- 变更涉及宿主接口或运行行为时，按 [离线验证](PI_EXTENSION.md#离线验证) 选择适用的宿主类型检查、测试和契约检查。分别记录实际结果。
 
 ## 已自动化的条款
 
@@ -19,15 +18,12 @@
 | §2.1 复杂度和嵌套 | 非测试代码的圈复杂度上限为 10，SonarJS 认知复杂度上限为 15。控制流嵌套和回调嵌套分别最多 3 层，函数参数最多 3 个，语句最多 15 条。 |
 | §2.2、§6 控制流与错误处理 | `no-nested-ternary`、`no-lonely-if` 和 `no-else-return` 检查嵌套三元表达式及特定的多余分支。推荐配置中的 `no-empty` 报告没有注释的空块，包括空 `catch`。 |
 | §3 类型与 §4.1 标识符 | TS 规则检查类型导入、适用的导出函数和公开方法的边界类型，以及显式 `any`、`@ts-ignore`、非空断言和经 `unknown` 的双重断言。标识符规则检查适用的声明、类成员和 TS 类型名称的字符范围。 |
-| §5.1–§5.2 测试规模与命名 | `extension-tests/` 的文件上限为 400 行，用例和辅助函数适用同一 50 行限制。检查 `test`、`it` 的字面量或无插值模板名称是否为空白或命中预设模糊名称。检查 `describe`、`suite` 超过两层的嵌套。 |
-| §6.3、§9 规则例外 | ESLint 禁用源码内联规则配置。存量问题按文件和规则计数，新文件中的违规及超过登记数量的违规会使检查失败。 |
+| §6.3、§9 规则例外 | ESLint 禁用源码内联规则配置。 |
 | §11.5–§11.6 模块依赖与导出 | `import-x/no-cycle` 检查项目内可解析的运行时导入循环，`import-x/no-self-import` 检查模块自引用。语法规则拒绝未显式命名的 `export *` 再导出。 |
 
 ### 存量问题与固定签名
 
-`eslint-suppressions.json` 登记启用规则时的存量问题，包括 Pi 所要求的固定回调签名。修复存量问题后，执行 `npm run lint -- --prune-suppressions` 清理失效登记，再运行 `npm run lint`。
-
-数量相同的诊断可能对应更复杂的实现或不同位置。修改登记涉及的代码时，用 ESLint 的原始诊断和本次差异核对问题的位置及程度。优先改善受影响的实现，按规范说明确有必要的例外及范围。
+旧扩展的 `eslint-suppressions.json` 与固定回调签名例外仅留作历史记录，不用于当前维护范围。
 
 ## Code Agent 审查指令
 

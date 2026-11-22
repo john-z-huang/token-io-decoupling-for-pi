@@ -80,7 +80,7 @@ blocks:
                     1. 在文档和请求的Memory写入及必要核验后，对比写前/写后指纹，区分implementation/content、documentation和Git metadata维度。
                     2. 实际文档/注释/项目Memory变化按适用owner推进documentation epoch；确无输出变化且指纹相同则不推进，附证据记N/A。父级实时控制记录不是项目知识输出。
                     3. 可执行内容、Contract或Acceptance受影响时，也使implementation/content证据失效，回当前Verification；影响未知则阻断，不能为了保留通过状态强行标“纯文档”。
-                    4. 仅文档维度改变时，对未变维度给出当前指纹及证据复用理由；不重跑无关行为测试。epoch/effect字段是影响报告，不认证语义分类；适配器无法表达必需状态时报告缺口，不伪称自动识别。
+                    4. 仅文档维度改变时，对未变维度给出当前指纹及证据复用理由；不重跑无关行为测试。epoch/effect字段是影响报告，不认证语义分类；无法从实际证据核实必需状态时报告缺口，不伪称自动识别。
         - execution-05:
             kind: section
             title: 五、写后检查与返回（DOC05–DOC06）
@@ -194,7 +194,7 @@ blocks:
             kind: checkpoint
             title: 运行文档检查并评估证据复用。
             text: |-
-              仅文档阶段的 documentation epoch 变化时，如内容与 Git metadata 证据仍当前且 Contract 无独立验证要求，在对话中引用当前实际成功的 `check`，并说明检查覆盖及复用依据。后续有 Git 操作时，用当前检查回执重新登记验证。
+              仅文档阶段的 documentation epoch 变化时，如内容与 Git metadata 证据仍当前且 Contract 无独立验证要求，在对话中引用当前实际成功的检查及结果，并说明检查覆盖及复用依据。后续有 Git 操作时，按精确 Git 目标核验当前检查、内容及文档指纹。
 
               所有文档和 Memory 写入后，运行适用的 Markdown、链接、空白、多语言和范围检查。仅文档影响时，凭指纹理由保留未受影响的当前证据，并重跑变更的文档检查。没有变更输出时，以匹配指纹将检查标为 `not_applicable`。行为/Contract/验收影响返回 implementation/content Verification；必需重验未解决时不得完成。
         - DOC06:

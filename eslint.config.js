@@ -22,15 +22,6 @@ const moduleSyntax = [
   },
 ];
 
-function testCallSelector(namePattern) {
-  return `CallExpression:matches([callee.name=/^${namePattern}$/], [callee.object.name=/^${namePattern}$/][callee.property.name=/^(?:only|skip|todo)$/])`;
-}
-
-const namedTest = testCallSelector('(?:test|it)');
-const testGroup = testCallSelector('(?:describe|suite)');
-const genericTestTitle = /^\s*(?:(?:works|should work|test\d+|handles case)\s*)?$/i;
-const genericTitleSelector = `:matches([arguments.0.value=${genericTestTitle}], [arguments.0.expressions.length=0][arguments.0.quasis.0.value.cooked=${genericTestTitle}])`;
-
 export default defineConfig(
   {
     files: [codeFiles],
@@ -72,7 +63,6 @@ export default defineConfig(
   },
   {
     files: [codeFiles],
-    ignores: ['extension-tests/**'],
     plugins: { sonarjs },
     rules: {
       'max-lines': ['error', { max: 300, ...codeLines }],
@@ -83,25 +73,6 @@ export default defineConfig(
       'max-params': ['error', 3],
       'max-statements': ['error', 15],
       'max-nested-callbacks': ['error', 3],
-    },
-  },
-  {
-    files: ['extension-tests/**/*.{js,ts,mjs}'],
-    rules: {
-      'max-lines': ['error', { max: 400, ...codeLines }],
-      'max-lines-per-function': functionLength,
-      'no-restricted-syntax': [
-        'error',
-        ...moduleSyntax,
-        {
-          selector: `${namedTest}${genericTitleSelector}`,
-          message: '测试名称应描述场景和预期行为。',
-        },
-        {
-          selector: `${testGroup} ${testGroup} ${testGroup}`,
-          message: '测试分组最多嵌套两层。',
-        },
-      ],
     },
   },
   prettier,

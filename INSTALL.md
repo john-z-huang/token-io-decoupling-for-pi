@@ -1,6 +1,6 @@
 # 安装与使用
 
-仓库提供面向 Pi Coding Agent 的 Skill 和 MCP 工具服务。工作流插件 `extensions/coding-workflow/` 仍在开发，完整测试和实际环境验证尚未完成，运行效率有待确认，现阶段不建议安装。
+仓库提供面向 Pi Coding Agent 的 Skill 和 MCP 工具服务。旧工作流插件已[归档](archive/pi-coding-workflow/README.md)，仅供只读参考，不随当前安装加载。
 
 ## 首次安装与后续更新
 
@@ -37,4 +37,4 @@ bash scripts/update-pi-tools-and-skill.sh --name my-coding-skill
 "$(uv tool dir --bin)/token-io-decoupling-tools" --version
 ```
 
-安装流程不调用模型 API。需要配置可选 API 能力或单独开发 MCP 时，参阅开发指南。工作流插件的已有开发验证和限制另见扩展说明。 [MCP 开发指南](docs/project/mcp/DEVELOPMENT.md) · [Pi 扩展开发说明](docs/project/PI_EXTENSION.md)
+安装流程不调用模型 API。需要配置可选 API 能力或单独开发 MCP 时，参阅开发指南。工作流插件的历史验证和限制另见归档说明。 [MCP 开发指南](docs/project/mcp/DEVELOPMENT.md) · [旧 Pi 扩展说明](docs/project/PI_EXTENSION.md)

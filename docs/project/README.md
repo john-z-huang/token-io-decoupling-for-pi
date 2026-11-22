@@ -1,13 +1,13 @@
 # 项目文档
 
-本目录集中维护项目级规范、MCP 开发参考和迁移记录。[规则源](../rules/SKILL.yaml)经编译生成 Skill，Pi Extension 直接读取规则源。
+本目录集中维护项目级规范、MCP 开发参考和迁移记录。[规则源](../rules/SKILL.yaml)经编译生成 Skill，当前包只声明 `pi.skills`；Agent 通过 Skill 按路线与适用 Hook 工作。
 
 ## 项目级参考
 
 - [文档标准与维护规范](DOCUMENTATION_STANDARDS.md)
 - [TypeScript / JavaScript 代码规范](TS_JS_CODE_SPECIFICATION.md)
 - [静态代码检查](STATIC_CODE_CHECKS.md)
-- [Pi Extension 使用说明](PI_EXTENSION.md)
+- [旧 Pi Extension 历史说明](PI_EXTENSION.md)
 - [工作流架构](WORKFLOW_ARCHITECTURE.md)
 - [外部资料引用登记](EXTERNAL_REFERENCES.md)
 

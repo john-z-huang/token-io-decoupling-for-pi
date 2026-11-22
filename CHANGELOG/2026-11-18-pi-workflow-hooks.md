@@ -11,7 +11,7 @@
 - **验证新鲜度。** `VR06` 仅采用 `VR03` 实际通过的 epoch，中途状态变化时回到 `VR01`。宿主在执行前阻止的 `coding_run` 不推进 epoch。
 - **上下文。** 完整注入当前检查点和适用 Hook。后续检查点提供标题及模块原文链接。Root 分支移除委派 Hook，修复与额外审计按相应边界注入。
 
-实现与使用说明见 [状态机](../extensions/coding-workflow/engine.ts)、[运行时](../extensions/coding-workflow/runtime.ts) 和 [Pi Extension](../docs/project/PI_EXTENSION.md)。源码与规则摘要更新后，旧会话快照由现有 Hash 校验拦截，需按当前规则重新核验。
+实现与使用说明见 [状态机](../archive/pi-coding-workflow/extensions/coding-workflow/engine.ts)、[运行时](../archive/pi-coding-workflow/extensions/coding-workflow/runtime.ts) 和 [Pi Extension](../docs/project/PI_EXTENSION.md)。源码与规则摘要更新后，旧会话快照由现有 Hash 校验拦截，需按当前规则重新核验。
 
 ## 验证
 

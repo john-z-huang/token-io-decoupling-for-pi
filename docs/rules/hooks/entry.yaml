@@ -25,7 +25,7 @@ blocks:
         - inputs-body:
             kind: markdown
             text: |-
-              直接用户要求/Issue及讨论、当前 Contract、系统/开发者元数据、仓库/worktree 根、能力清单、已锁定 mode/count 和路线入口证据、已知效果及当前 revision/epoch。未知字段明确记为未知，不填推测值。
+              直接用户要求/Issue及讨论、当前 Contract、系统/开发者元数据、仓库/worktree 根、能力清单、已锁定 mode/count 和路线入口证据、已知效果、当前证据及适用 epoch。未知字段明确记为未知，不填推测值。
   - execution:
       kind: section
       title: 执行要求
@@ -73,12 +73,12 @@ blocks:
               - execution-04-body:
                   kind: markdown
                   text: |-
-                    1. 通过 `coding_checkpoint status` 回读已锁定的模式、预算和 allocation，并对照实际用户启动指令或答复。此处沿用已释放的 Mode。缺少/过期的已释放证据返回前置 owner；与路线冲突时阻断。
+                    1. 从父级对话回读规范记录中的已锁定模式、预算和 allocation，并对照实际用户指令或答复及相关宿主证据。此处沿用已释放的 Mode。缺少/过期的已释放证据返回前置 owner；与路线冲突时阻断。
                     2. Single 要求 `childCount=0` 且无子 allocation。Multi 需要有效的正整数预算，已占用 allocation 数不得超过该预算。
-                    3. 核对 [Session 启动条件](session.yaml#mode-selection) 的用户显式入口、模式/预算及审计答案均已满足。
+                    3. 核对 [Session 启动条件](session.yaml#mode-selection) 的用户模式/预算及审计答案均已满足。
                     4. 通过 ER03 只证明当前路线资格，不释放 Slice、不创建代理，也不豁免计划、职责或操作守卫。
 
-                    按当前锁定路线的 Mode 边界核对拓扑。扩展按实际模式在此加载对应片段。
+                    按当前锁定路线的 Mode 边界核对拓扑。按实际模式读取对应片段。
   - flowchart:
       kind: section
       title: 工作流路线图
@@ -147,7 +147,7 @@ blocks:
         - outputs-body:
             kind: markdown
             text: |-
-              返回当前 Contract、环境/能力缺口、已释放 mode/count、路线和导航或 N/A 证据。按当前 revision 顺序完成 ER00–ER03；跨模块依赖交给下一模块，不一批跳过其 Hooks。
+              返回当前 Contract、环境/能力缺口、已释放 mode/count、路线和导航或 N/A 证据。按本合同的检查点顺序完成 ER00–ER03；跨模块依赖交给下一模块，不一批跳过其 Hooks。
   - exit:
       kind: section
       title: 退出与阻断
@@ -182,4 +182,4 @@ blocks:
               | [模块入口解析](../references/coding/layer-03-workflow-checkpoints/module-entry-resolution.yaml) | 模块声明、缺前置与恢复 |
               | [路线入口](../references/coding/layer-03-workflow-checkpoints/route-entry.yaml) | 只消费已选路线 |
               | [Mode](../references/coding/layer-02-workflow-concepts/entry-and-context/mode.yaml) | 已释放拓扑证据 |
-              | [Coding selector](../workflows/coding.yaml) | 未启用扩展的入口回退 |
+              | [Coding selector](../workflows/coding.yaml) | 当前指令入口 |

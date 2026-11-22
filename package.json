@@ -11,9 +11,6 @@
     "node": ">=24"
   },
   "pi": {
-    "extensions": [
-      "./extensions/coding-workflow/index.ts"
-    ],
     "skills": [
       "./docs/skill"
     ]
@@ -25,19 +22,12 @@
   "scripts": {
     "build:skill": "uv run --locked --script scripts/compile-reference-dsl.py",
     "prepare": "npm run build:skill",
-    "pretest": "npm run build:skill",
-    "test": "node --test extension-tests/*.test.mjs",
-    "lint": "eslint --max-warnings 0 eslint.config.js \"{extensions,extension-tests,scripts}/**/*.{js,ts,mjs}\"",
-    "lint:fix": "npm run lint -- --fix --fix-type layout",
-    "check:hooks": "node scripts/check-pi-hooks.mjs",
-    "check:types": "node scripts/check-pi-extension-types.mjs",
-    "check:load": "node scripts/check-pi-extension-load.mjs",
-    "check:subagent-contract": "node scripts/check-pi-subagent-contract.mjs"
+    "lint": "eslint --max-warnings 0 eslint.config.js",
+    "lint:fix": "npm run lint -- --fix --fix-type layout"
   },
   "files": [
     "CHANGELOG/CHANGELOG.md",
     "CHANGELOG/CODE_QUALITY.md",
-    "extensions/coding-workflow/**/*.ts",
     "docs/rules",
     "docs/project",
     "docs/skill",
