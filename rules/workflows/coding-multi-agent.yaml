@@ -2,7 +2,7 @@
 schema_version: 1
 document_type: workflow-route
 id: coding-multi-agent
-markdown_path: coding-workflows/coding-multi-agent.md
+markdown_path: workflows/coding-multi-agent.md
 title: Coding 工作流 — Multi-Agent 模式
 blocks:
   - overview:

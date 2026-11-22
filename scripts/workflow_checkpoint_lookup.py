@@ -116,7 +116,7 @@ def locate_checkpoint(root: Path, references: Path, hooks: Path, selector: str, 
         path = by_id.get(wanted)
         if path is None:
             raise ValueError(f"找不到 Coding DSL 文档 {wanted}")
-        if not separator and documents[path]["document_type"] == "workflow-checkpoint":
+        if not separator and documents[path].get("document_type") == "workflow-checkpoint":
             block_id = "decision-and-result"
         if not block_id:
             raise ValueError(f"请用 {wanted}#块ID 指定 YAML 块")
@@ -136,7 +136,7 @@ def locate_checkpoint(root: Path, references: Path, hooks: Path, selector: str, 
 
     candidates = []
     for path, document in documents.items():
-        if document["document_type"] not in {"workflow-route", "hook-contract"}:
+        if document.get("document_type") not in {"workflow-route", "hook-contract"}:
             continue
         for match in walk_blocks(document["blocks"]):
             _, block, entry = match

@@ -2,7 +2,7 @@
 schema_version: 1
 document_type: workflow-route
 id: coding-single-agent
-markdown_path: coding-workflows/coding-single-agent.md
+markdown_path: workflows/coding-single-agent.md
 title: Coding 工作流 — Single-Agent 模式
 blocks:
   - overview:

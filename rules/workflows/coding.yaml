@@ -22,8 +22,8 @@ blocks:
 
         ## 路线
 
-        - [单代理 Coding](../coding-workflows/coding-single-agent.yaml)：用户明确选择 `mode: Single-Agent Coding` 时使用；与指令相关的任务事项留在当前 Session 中完成。
-        - [多代理 Coding](../coding-workflows/coding-multi-agent.yaml)：已释放的 Mode 选择 Multi-Agent Coding 且已锁定正整数 `child_count` 时使用。Mode 检查点负责四项菜单、默认值和无效输入处理；锁定预算不初始化子代理。
+        - [单代理 Coding](coding-single-agent.yaml)：用户明确选择 `mode: Single-Agent Coding` 时使用；与指令相关的任务事项留在当前 Session 中完成。
+        - [多代理 Coding](coding-multi-agent.yaml)：已释放的 Mode 选择 Multi-Agent Coding 且已锁定正整数 `child_count` 时使用。Mode 检查点负责四项菜单、默认值和无效输入处理；锁定预算不初始化子代理。
 
         不要同时加载两条路线。如果后续实质事实使路线失效，停止当前切片，按需修改 Contract，并返回路线入口。
 
@@ -37,7 +37,7 @@ blocks:
         | [`layer-02-workflow-concepts`](../references/coding/layer-02-workflow-concepts/README.yaml) | 通用工作流检查点动作与证据 | `layer-01-fundamental-concepts`；不得链接 layer-03/04 |
         | [`layer-03-workflow-checkpoints`](../references/coding/layer-03-workflow-checkpoints/README.yaml) | 当前任务的适用性、分支与组合决策 | layer-01、layer-02；不得链接更后的层 |
         | [`hooks`](../hooks/README.yaml) | 阶段检查点及触发合同 | 共享协议和 Layers 01–03 的规则 |
-        | [`coding-workflows`](../coding-workflows/README.yaml) | 两条完整路线和跨阶段返回规则 | 绑定各阶段 Hook，按需引用前置规则 |
+        | [完整 Coding 路线](README.yaml) | 两条完整路线和跨阶段返回规则 | 绑定各阶段 Hook，按需引用前置规则 |
         | `workflows/coding.md` | 路线选择器和四层索引 | 四个层级；只负责导航，不拥有策略 |
 
         如果低层文档需要由高层拥有的概念，应将其视为原子化失败：拆分低层文档，并把组合关系上移到高层。`SKILL.md`、`README.md` 和 `docs/` 等根入口文档可以向下链接到入口。使用 `python3 scripts/check-doc-layer-links.py` 检查边界；不再维护语言切换链接或平行语言版本。

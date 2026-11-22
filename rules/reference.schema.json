@@ -13,7 +13,7 @@
         "workflow-checkpoint", "workflow-route", "hook-contract", "hook-directory"
       ]
     },
-    "markdown_path": { "type": "string", "pattern": "^(?:SKILL|workflows/coding|(?:references/(?:[A-Za-z0-9_-]+/)+|hooks/|coding-workflows/)[A-Za-z0-9_-]+)\\.md$" },
+    "markdown_path": { "type": "string", "pattern": "^(?:SKILL|(?:references/(?:[A-Za-z0-9_-]+/)+|hooks/|workflows/)[A-Za-z0-9_-]+)\\.md$" },
     "front_matter": {
       "type": "object",
       "additionalProperties": false,
@@ -43,7 +43,7 @@
     },
     "blocks": { "$ref": "#/$defs/blocks" }
   },
-  "if": { "properties": { "markdown_path": { "pattern": "^(?:references/coding|coding-workflows)/" } } },
+  "if": { "properties": { "markdown_path": { "pattern": "^(?:references/coding|workflows)/", "not": { "const": "workflows/coding.md" } } } },
   "then": { "required": ["document_type"] },
   "allOf": [{
     "if": { "properties": { "markdown_path": { "pattern": "^hooks/" } } },
@@ -59,7 +59,7 @@
     "then": { "required": ["front_matter"] },
     "else": { "not": { "required": ["front_matter"] } }
   }, {
-    "properties": { "markdown_path": { "not": { "pattern": "^(?:references/.*/|coding-workflows/)INDEX\\.md$" } } }
+    "properties": { "markdown_path": { "not": { "pattern": "^(?:references/.*/|workflows/)INDEX\\.md$" } } }
   }],
   "dependentSchemas": {
     "activate_on": {

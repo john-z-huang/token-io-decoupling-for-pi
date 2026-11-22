@@ -37,25 +37,36 @@ class DocumentLayerNavigationTests(unittest.TestCase):
         self.assertTrue(MODULE.allowed("layer-04", "layer-03", False))
 
     def test_top_routes_have_exact_hook_allowlists(self):
-        route = PurePosixPath("skill/coding-workflows/coding-single-agent.md")
+        route = PurePosixPath("skill/workflows/coding-single-agent.md")
         single = PurePosixPath("skill/hooks/execution.md")
         delegated = PurePosixPath("skill/hooks/delegation.md")
-        self.assertTrue(MODULE.allowed("coding-workflows", "hook", False, route, single))
-        self.assertFalse(MODULE.allowed("coding-workflows", "hook", False, route, delegated))
+        self.assertTrue(MODULE.allowed("workflows", "hook", False, route, single))
+        self.assertFalse(MODULE.allowed("workflows", "hook", False, route, delegated))
 
     def test_nested_files_cannot_impersonate_route_or_hook(self):
-        route = PurePosixPath("skill/coding-workflows/coding-single-agent.md")
+        route = PurePosixPath("skill/workflows/coding-single-agent.md")
         hook = PurePosixPath("skill/hooks/execution.md")
-        nested_route = PurePosixPath("skill/coding-workflows/nested/coding-single-agent.md")
+        nested_route = PurePosixPath("skill/workflows/nested/coding-single-agent.md")
         nested_hook = PurePosixPath("skill/hooks/nested/execution.md")
-        self.assertFalse(MODULE.allowed("coding-workflows", "hook", False, nested_route, hook))
-        self.assertFalse(MODULE.allowed("coding-workflows", "hook", False, route, nested_hook))
+        self.assertFalse(MODULE.allowed("workflows", "hook", False, nested_route, hook))
+        self.assertFalse(MODULE.allowed("workflows", "hook", False, route, nested_hook))
 
     def test_hooks_can_link_to_owners_and_cannot_depend_on_routes(self):
         hook = PurePosixPath("skill/hooks/planning.md")
-        route = PurePosixPath("skill/coding-workflows/coding-single-agent.md")
+        route = PurePosixPath("skill/workflows/coding-single-agent.md")
         self.assertTrue(MODULE.allowed("hook", "layer-03", False, hook))
-        self.assertFalse(MODULE.allowed("hook", "coding-workflows", False, hook, route))
+        self.assertFalse(MODULE.allowed("hook", "workflows", False, hook, route))
+
+    def test_selector_can_link_to_routes_and_hooks_from_shared_directory(self):
+        result, diagnostics = self._run_checker({
+            "skill/workflows/coding.md": (
+                "[Route](coding-single-agent.md)\n"
+                "[Entry](../hooks/entry.md)\n"
+            ),
+            "skill/workflows/coding-single-agent.md": "# Single agent\n",
+            "skill/hooks/entry.md": "# Entry\n",
+        })
+        self.assertEqual(result, 0, diagnostics)
 
     def test_layer_two_cannot_link_to_layer_three_or_four(self):
         self.assertFalse(MODULE.allowed("layer-02", "layer-03", False))
@@ -70,7 +81,7 @@ class DocumentLayerNavigationTests(unittest.TestCase):
             "references/coding/layer-02-workflow-concepts",
             "references/coding/layer-03-workflow-checkpoints",
             "hooks",
-            "coding-workflows",
+            "workflows",
         )
         for rank, source in enumerate(directories):
             for target in directories[rank + 1:]:
@@ -143,7 +154,7 @@ class DocumentLayerNavigationTests(unittest.TestCase):
     def test_route_coordinates_are_allowed_in_layer_four(self):
         result, diagnostics = self._run_checker(
             {
-                "skill/coding-workflows/coding-single-agent.md": (
+                "skill/workflows/coding-single-agent.md": (
                     "## Workflow map\n```mermaid\nS01 --> S02\n```\n"
                     "[Checkpoint](../references/coding/layer-03-workflow-checkpoints/checkpoint.md)\n"
                 ),

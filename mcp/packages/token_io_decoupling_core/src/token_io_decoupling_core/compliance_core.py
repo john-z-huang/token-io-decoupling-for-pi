@@ -89,7 +89,7 @@ _SKILL_LAYERS = {
     ("references", "coding", "layer-02-workflow-concepts"): "layer-02",
     ("references", "coding", "layer-03-workflow-checkpoints"): "layer-03",
     ("hooks",): "hook",
-    ("coding-workflows",): "coding-workflows",
+    ("workflows",): "workflows",
 }
 _LAYER_RANK = {layer: index for index, layer in enumerate(_SKILL_LAYERS.values())}
 
@@ -186,6 +186,14 @@ def path_layer(path: PurePosixPath) -> str:
     parts = path.parts
     if parts and parts[0] in {"skill", "rules"}:
         parts = parts[1:]
+    if len(parts) == 2 and parts[0] == "workflows" and parts[1] in {
+        "coding.yaml", "coding.md", "coding_zh_cn.md",
+    }:
+        return "coding-selector"
+    if parts[:2] == ("workflows", "checkpoint"):
+        return "checkpoint"
+    if parts[:2] == ("workflows", "exist-workflow"):
+        return "exist-workflow"
     for prefix, layer in _SKILL_LAYERS.items():
         if parts[:len(prefix)] == prefix:
             return layer
@@ -193,12 +201,6 @@ def path_layer(path: PurePosixPath) -> str:
         return "shared-protocols"
     if parts and parts[0] == "references":
         return "references"
-    if parts[:2] == ("workflows", "checkpoint"):
-        return "checkpoint"
-    if parts[:2] == ("workflows", "exist-workflow"):
-        return "exist-workflow"
-    if str(path) in {"skill/workflows/coding.md", "skill/workflows/coding_zh_cn.md"}:
-        return "coding-selector"
     return "entry"
 
 
@@ -261,7 +263,7 @@ def allowed_link(
         return same_layer_navigation or target in {"references", "layer-01"}
     if source in {"exist-workflow", "layer-03"}:
         return same_layer_navigation or target in {"shared-protocols", "layer-01", "layer-02"}
-    if source == "coding-workflows":
+    if source == "workflows":
         if same_layer_navigation or target in {
             "shared-protocols",
             "layer-01",
@@ -274,7 +276,7 @@ def allowed_link(
         hook_root = PurePosixPath("skill/hooks")
         if target_path.parent != hook_root or target_path.suffix != ".md":
             return False
-        route_root = PurePosixPath("skill/coding-workflows")
+        route_root = PurePosixPath("skill/workflows")
         if source_path.parent != route_root:
             return False
         if is_navigation:
@@ -302,7 +304,7 @@ def allowed_link(
             "layer-02",
             "layer-03",
             "layer-04",
-            "coding-workflows",
+            "workflows",
             "hook",
         }
     return True

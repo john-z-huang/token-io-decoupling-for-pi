@@ -2,7 +2,7 @@
 schema_version: 1
 document_type: directory-guide
 id: layer-04-readme
-markdown_path: coding-workflows/README.md
+markdown_path: workflows/README.md
 title: "完整 Coding 路线"
 blocks:
   - overview:

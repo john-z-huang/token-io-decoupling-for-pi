@@ -4,7 +4,8 @@ from __future__ import annotations
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-WORKFLOW_PATH = Path("coding-workflows")
+WORKFLOW_PATH = Path("workflows")
+WORKFLOW_SELECTOR = WORKFLOW_PATH / "coding.yaml"
 ROUTES_DIR = Path("skill") / WORKFLOW_PATH
 HOOKS_DIR = Path("skill/hooks")
 MODULE_HOOKS = {

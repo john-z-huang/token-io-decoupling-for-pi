@@ -19,11 +19,11 @@
 
 ## 参考规则 DSL
 
-`skill/references/` 下的参考文档统一通过 `rules/references/` 中的 YAML 维护，覆盖 Coding 概念、检查点、共享协议、Multimodal 和导航页。Coding 路线在 `rules/coding-workflows/` 下与 Hook 同级，例如 [单代理路线 YAML](../rules/coding-workflows/coding-single-agent.yaml) 对应 [单代理路线 Markdown](../skill/coding-workflows/coding-single-agent.md)。编译器检查相对路径，YAML 文件统一关联 [DSL Schema](../rules/reference.schema.json)。
+`skill/references/` 下的参考文档统一通过 `rules/references/` 中的 YAML 维护，覆盖 Coding 概念、检查点、共享协议、Multimodal 和导航页。Coding 选择器、路线目录和两条完整路线统一维护在 `rules/workflows/`，编译至 `skill/workflows/`，例如 [单代理路线 YAML](../rules/workflows/coding-single-agent.yaml) 对应 [单代理路线 Markdown](../skill/workflows/coding-single-agent.md)。编译器检查相对路径，YAML 文件统一关联 [DSL Schema](../rules/reference.schema.json)。
 
 ### Skill 文档依赖顺序
 
-`layer-01-fundamental-concepts` → `layer-02-workflow-concepts` → `layer-03-workflow-checkpoints` → `hooks` → `coding-workflows`
+`layer-01-fundamental-concepts` → `layer-02-workflow-concepts` → `layer-03-workflow-checkpoints` → `hooks` → `workflows`（完整路线）
 
 箭头从被依赖层指向使用方。跨层引用只指向当前位置左侧的目录。同层导航继续遵守各自的链接规则。编译器和 Markdown 链接检查共用这一顺序，按解析后的目标路径检查文档及目录链接。流程图别名和 Hook 执行片段引用也遵守该顺序。
 
@@ -43,7 +43,7 @@ Coding DSL 用 `document_type` 声明用途。类型由 `rules/` 下的路径和
 | `fundamental-concept` | Layer-01，定义可跨工作流复用的通用规范 | 概览 → 通用规范 → Pi 优化指令 → 相关概念 | [基础概念](../rules/templates/coding/fundamental-concept.yaml) |
 | `workflow-concept` | Layer-02，描述工作流动作、通过条件和边界 | 概览 → 动作 → 通过条件 → 边界 → 相关概念 | [工作流概念](../rules/templates/coding/workflow-concept.yaml) |
 | `workflow-checkpoint` | Layer-03，定义具名检查点的输入、决策和返回 | 概览 → 触发与输入 → 决策与结果 → 失败边界 → 相关概念 | [检查点](../rules/templates/coding/workflow-checkpoint.yaml) |
-| `workflow-route` | `coding-workflows/`，绑定七个阶段的 Hook | 概览 → 路线图 → 顺序检查清单 → 前置补证与恢复 → Mode 边界 → 按条件触发的 Hooks | [工作流路线](../rules/templates/coding/workflow-route.yaml) |
+| `workflow-route` | `workflows/`，绑定七个阶段的 Hook | 概览 → 路线图 → 顺序检查清单 → 前置补证与恢复 → Mode 边界 → 按条件触发的 Hooks | [工作流路线](../rules/templates/coding/workflow-route.yaml) |
 
 新建文档时，用相应类型替换下面的 `fundamental-concept`，将输出保存到相应目录。填写文档 ID、标题、`markdown_path` 和正文，并按文件所在目录调整首行 Schema 路径和相对链接。保留模板中标识章节用途的顶层块 ID，为新增子块填写稳定 ID。模板的首种布局适合作为新文档的起点，其他布局保留已有文档的结构。
 
@@ -54,7 +54,7 @@ uv run --locked --script scripts/compile-reference-dsl.py --check-structure
 
 结构检查会验证类型声明、章节顺序、块类型、必须发布的片段、路线阶段顺序和现有路线、模块的检查点 ID。正常导出和 `--check` 也执行这组检查，并继续核对引用和生成结果。
 
-参考目录和路线目录以 `README.yaml` 为导航入口。参考目录的分类或所有者章节应各引用一次直属规则和子目录的 `README.yaml`。构建会清理这两处仍带原生成标记的旧 `INDEX.md`。
+参考目录和路线目录以 `README.yaml` 为导航入口。参考目录的分类或所有者章节应各引用一次直属规则和子目录的 `README.yaml`。构建会清理这两处仍带原生成标记的旧 `INDEX.md`，以及迁移前带生成标记的路线和路线目录阅读版。
 
 ### 从流程图定位检查点
 
@@ -77,7 +77,7 @@ uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint 'r
 - [目录模板](../rules/templates/hooks/hook-directory.yaml) 定义导语、合同与明确触发、宿主回调、链接基准和维护检查的顺序。
 - `activate_on` 声明阶段、语义信号或宿主状态对应的合同。Agent 根据路线、实际动作及证据读取阶段合同。语义变化由 Agent 在上下文中判断，再定向读取适用规则。`applicability: optional` 标记可凭证据判断不适用的事项，`applicability: sub_agent` 限定子代理分支。
 - 导航引用使用相对 `.yaml#块ID`，导出时转成 Markdown 路径和标题锚点。执行要求中的 `rule_include` 用来读取所引用的底层参考规则片段。路线图与来源表随阅读版发布。注入主路线和已触发的合同，以及通过 `coding-rule:hook-entry#ER03` 等 ID 查询检查点，均是已归档旧扩展的行为。 [入口合同示例](../rules/hooks/entry.yaml)
-- 修改合同的来源表时，先手动同步 [YAML 来源对照](../rules/hooks/SOURCE_COVERAGE.yaml) 中的逐篇来源及归属，再用 `npm run build:skill` 生成 [Markdown 来源对照](../skill/hooks/SOURCE_COVERAGE.md)。不运行已归档的对照表生成器。阶段绑定见[路线目录](../rules/coding-workflows/README.yaml)的「分阶段 Hooks」。
+- 修改合同的来源表时，先手动同步 [YAML 来源对照](../rules/hooks/SOURCE_COVERAGE.yaml) 中的逐篇来源及归属，再用 `npm run build:skill` 生成 [Markdown 来源对照](../skill/hooks/SOURCE_COVERAGE.md)。不运行已归档的对照表生成器。阶段绑定见[路线目录](../rules/workflows/README.yaml)的「分阶段 Hooks」。
 
 ```sh
 uv run --locked --script scripts/compile-reference-dsl.py --template hook-contract

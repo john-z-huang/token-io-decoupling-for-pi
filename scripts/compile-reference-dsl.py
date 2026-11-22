@@ -26,7 +26,7 @@ from coding_dsl_templates import DOCUMENT_TYPES, document_type, load_templates, 
 from compliance_core_loader import load_compliance_core
 from hook_dsl_templates import HOOK_TYPES, hook_type, load_hook_templates, validate_hook_document
 from workflow_checkpoint_lookup import NUMBERED_BLOCKS, check_flowchart_references, locate_checkpoint
-from workflow_module_contracts import WORKFLOW_PATH
+from workflow_module_contracts import ROUTE_MODULES, WORKFLOW_PATH, WORKFLOW_SELECTOR
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "rules"
@@ -169,7 +169,7 @@ def render_dsl_links(path: str, markdown: str, targets: dict[str, dict[str, str]
         if path.startswith("references/") and resolved.startswith("hooks/"):
             raise ValueError(f"参考规则不能引用 Hook：{path} -> {href}")
         rule_path = resolved.startswith(("references/", "hooks/", f"{WORKFLOW_PATH.as_posix()}/"))
-        if (rule_path and resolved.endswith(".md")) or resolved in {"SKILL.md", "workflows/coding.md"}:
+        if (rule_path and resolved.endswith(".md")) or resolved == "SKILL.md":
             raise ValueError(f"DSL 内部引用须指向 YAML：{path} -> {href}")
         if not target.endswith(".yaml"):
             return href
@@ -249,6 +249,18 @@ def is_retired_index(path: Path, outputs: dict[Path, str]) -> bool:
         return True
 
 
+def is_moved_route(path: Path) -> bool:
+    old_directory = SKILL / "coding-workflows"
+    if (
+        path.parent != old_directory
+        or path.stem not in {"README", *ROUTE_MODULES}
+        or path.resolve() != path
+    ):
+        return False
+    old_source = SOURCE / path.relative_to(SKILL).with_suffix(".yaml")
+    return source_notice(old_source) in path.read_text(encoding="utf-8").splitlines()[:4]
+
+
 def read_coverage() -> dict:
     schema = json.loads((SOURCE / "hook-coverage.schema.json").read_text(encoding="utf-8"))
     path = (SOURCE / HOOK_COVERAGE).with_suffix(".yaml")
@@ -305,8 +317,10 @@ def read_rules(paths: Iterable[Path]) -> Iterator[tuple[Path, dict]]:
         if document["id"] in ids:
             raise ValueError(f"重复或保留的文档 ID：{path.relative_to(ROOT)}#{document['id']}")
         ids.add(document["id"])
-        if path.is_relative_to(CODING) or path.is_relative_to(ROUTES):
-            relative = path.relative_to(SOURCE)
+        relative = path.relative_to(SOURCE)
+        if path.is_relative_to(CODING) or (
+            path.is_relative_to(ROUTES) and relative != WORKFLOW_SELECTOR
+        ):
             validate_coding_document(relative, document, templates[document_type(relative)])
         yield path, document
 
@@ -317,7 +331,7 @@ def compile_rules() -> dict[Path, str]:
     reference_layers: dict[str, str | None] = {}
     source_documents = {}
     fragment_ids: dict[str, set[str]] = {}
-    sources = (*REFERENCES.rglob("*.yaml"), *ROUTES.rglob("*.yaml"), SOURCE / "SKILL.yaml", SOURCE / "workflows/coding.yaml")
+    sources = (*REFERENCES.rglob("*.yaml"), *ROUTES.rglob("*.yaml"), SOURCE / "SKILL.yaml")
     for source_path, document in read_rules(sources):
         source_documents[source_path] = document
         document_id = document["id"]
@@ -404,7 +418,7 @@ def main() -> int:
         outdated = [path for path, body in outputs.items() if not path.is_file() or path.read_bytes() != body.encode("utf-8")]
         unexpected = set(SKILL.rglob("*.md")) - outputs.keys()
         retired = set() if args.check else {
-            path for path in unexpected if is_retired_index(path, outputs)
+            path for path in unexpected if is_retired_index(path, outputs) or is_moved_route(path)
         }
         unexpected -= retired
         if unexpected or (args.check and outdated):
