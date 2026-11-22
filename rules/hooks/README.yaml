@@ -37,7 +37,7 @@ blocks:
               | [advisory](advisory.yaml) | advice_requested | 外部建议的最少事实、独立出站授权、API 配置/模型边界。 |
               | [materialization](materialization.yaml) | materialization_requested | 候选预检与真实应用分离、可信身份/grant、守卫失败不绕过。 |
 
-              路线绑定各阶段的主 Hook，由 Agent 按当前动作读取。归档扩展曾用 `activate_on` 匹配可观察状态，例如工具失败、未决效果或活动委派。语义变化由 Agent 在上下文判断后读取对应合同。Agent 根据证据判断任务变化、授权、验证充分性及适用性。
+              路线绑定各阶段的主 Hook，并负责跨阶段交接及返回位置；Hook 保留本阶段的检查点、证据与阻断规则。Agent 按当前动作读取，而不是执行流程图。归档扩展曾用 `activate_on` 匹配可观察状态，例如工具失败、未决效果或活动委派。语义变化由 Agent 在上下文判断后读取对应合同。Agent 根据证据判断任务变化、授权、验证充分性及适用性。
   - host-events:
       kind: section
       title: 真正的宿主回调

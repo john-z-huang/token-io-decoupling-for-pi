@@ -117,57 +117,6 @@ blocks:
                     只有用户明确禁止持久化或更高优先级写入限制，才可记录例外来源，并在获准上下文保留有界规划；能力缺失、权限不明和写失败不是例外。WD03 上报 `plan=persisted` 时，引用已成功持久化的真实结果及 owner 要求的回读。上报 `plan=prohibited` 时，引用用户明确限制或更高优先级限制的实际来源，并说明其适用范围。本项目 MCP 仅提供 Memory 尾部读取及存在性检查。计划创建、更新与归档须使用宿主实际暴露且获授权的 Memory 后端，按 owner 核验存储范围和实际结果。
 
                     如任务明确包含保全验收，只使用新建合成计划，不用用户已有计划：覆盖多阶段目标/约束、带来源需求变化、决策理由、他人贡献、失败及后续通过检查，保留“两份未跟踪文件清单已核验”“未发现PR模板”等小事实；替代结论须与旧结论及理由/来源并存。分别验证每条历史可追溯、最终结果仅追加、归档字节等于最终活动基线且活动项消失；摘要替代候选和已占归档目标均不得写入/覆盖。分别报告实际演练与仅场景审查，不声称工具强制不可变或恢复了过去丢失内容。
-  - flowchart:
-      kind: section
-      title: 工作流路线图
-      blocks:
-        - flowchart-body:
-            kind: markdown
-            text: |-
-              ```mermaid
-              flowchart TD
-                  WD00["WD00 解析模块入口"]
-                  D_ENTRY{"入口结果？"}
-                  WD01["WD01 建立有界当前 Context"]
-                  WD02["WD02 在 Contract 范围内决策"]
-                  D_ROUTING_ADVICE{"是否选择且符合条件使用任务阶段建议？"}
-                  WD03["WD03 解决默认共享任务计划"]
-                  D_PLAN{"明确禁止持久化？"}
-                  WD_PLAN["持久化共享任务计划；确认操作及 owner 要求的核验；核验仓库存储范围"]
-                  WD_DONE["complete"]
-                  WD_CONTEXT_NA["not_applicable：可选 Context 来源不存在"]
-                  WD_ADVICE_NA["not_applicable：建议不存在或不符合条件"]
-                  WD_ROUTING_NA["not_applicable：未选择可选任务阶段建议；已记录原因"]
-                  WD_PLAN_NA["not_applicable：已记录的持久化限制"]
-                  WD_NEEDS["needs_prerequisite：返回 owner 恢复"]
-                  WD_BLOCK["blocked"]
-                  WD00 --> D_ENTRY
-                  D_ENTRY -- ready --> WD01
-                  D_ENTRY -- needs_prerequisite --> WD_NEEDS
-                  D_ENTRY -- blocked --> WD_BLOCK
-                  WD01 -- 必需事实当前有效 --> WD02
-                  WD01 -- 条件来源不存在 / N/A --> WD_CONTEXT_NA
-                  WD_CONTEXT_NA --> WD02
-                  WD01 -- 必需上下文缺失 --> WD_NEEDS
-                  WD01 -- 冲突未解决 --> WD_BLOCK
-                  WD02 -- 决策与可选 Decision 建议已审阅 --> D_ROUTING_ADVICE
-                  WD02 -- 建议不存在或不符合条件 / N/A --> WD_ADVICE_NA
-                  WD_ADVICE_NA --> D_ROUTING_ADVICE
-                  D_ROUTING_ADVICE -- 可用建议已根据当前路线和哈希审阅 --> WD03
-                  D_ROUTING_ADVICE -- 未选择可选建议或不符合条件；记录原因 --> WD_ROUTING_NA
-                  WD_ROUTING_NA --> WD03
-                  D_ROUTING_ADVICE -- 已选择建议过期或证据不足；刷新当前事实 --> WD_NEEDS
-                  D_ROUTING_ADVICE -- 所选必需能力不可用或路线冲突 --> WD_BLOCK
-                  WD02 -- 实质选择需要证据 --> WD_NEEDS
-                  WD02 -- Contract 或授权冲突 --> WD_BLOCK
-                  WD03 --> D_PLAN
-                  D_PLAN -- 否；默认 --> WD_PLAN
-                  WD_PLAN -- 已核验 --> WD_DONE
-                  WD_PLAN -- 持久化或必需核验失败/结果不明 --> WD_BLOCK
-                  D_PLAN -- 是；限制例外 --> WD_PLAN_NA
-                  D_PLAN -- 与明确持久化要求冲突 --> WD_BLOCK
-                  WD_PLAN_NA --> WD_DONE
-              ```
   - checkpoints:
       kind: section
       title: 有序模块清单

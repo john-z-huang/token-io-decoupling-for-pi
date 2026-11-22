@@ -54,8 +54,8 @@ def validate_hook_document(path: Path, document: dict, template: dict) -> None:
         raise ValueError(f"{path.name} 的 Hook 章节顺序应为 {order}")
     contract = expected_type == "hook-contract"
     module = next((module for module, hook in MODULE_HOOKS.items() if hook == document["id"]), None)
-    if module and not {"flowchart", "checkpoints"} <= names:
-        raise ValueError(f"{path.name} 缺少工作流路线图或检查点")
+    if module and "checkpoints" not in names:
+        raise ValueError(f"{path.name} 缺少阶段检查点")
     if not module and names & {"flowchart", "checkpoints"}:
         raise ValueError(f"{path.name} 没有绑定工作流阶段")
     for (name, block), (_, rule) in zip(blocks, expected):

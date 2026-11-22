@@ -53,45 +53,6 @@ blocks:
                     以当前会话明确宿主元数据和实际暴露能力为准，不从模型名、工具名或 Shell 推断。工具可用不等于授权；模式获批不等于扩展存在。若当前有 codemode，先 `searchTools`/`describeTool` 核对实际工具 Schema，再按需读取 namespace 服务指令；hidden 不绕过。只有真实暴露且授权的子代理能力才可使用，按 Schema 核验范围、目录、权限、返回/取消、持久身份续接支持；仅传真实接受字段。不伪造 ID、调用结果、effort、消息或能力。Pi 不默认提供内置子代理或 Plan mode，不从 Shell 启动另一个 Pi 来补造。一次性任务以真实调用证据绑定逻辑 allocation，不声称可恢复；缺持久身份仅限制依赖复用的分支。Session 隔离不等于 worktree 隔离。禁止 Computer Use 及经 Shell/MCP/子代理包装的同类操作。
 
                     输入输出：输入是当前身份、用户选择、规范记录和扩展能力证据；输出是已读回的规范记录、锁定路线/容量、逐项证据与未满足前置。Session readiness 可返回 complete、needs_prerequisite、blocked；审计及容量核验不授权子代理工作。
-  - flowchart:
-      kind: section
-      title: 工作流路线图
-      blocks:
-        - flowchart-body:
-            kind: markdown
-            text: |-
-              ```mermaid
-              flowchart TD
-                  SR00["SR00 解析模块入口"]
-                  D_ENTRY{"入口结果？"}
-                  SR01["SR01 实质变化时重核 Contract、Context、Decision"]
-                  SR02["SR02 解析规范状态并完成读回"]
-                  SR03["SR03 解决审计状态"]
-                  SR04["SR04 仅核验 Multi-Agent 容量"]
-                  D_MODE{"Multi-Agent 模式？"}
-                  SR_DONE["complete"]
-                  SR_NEEDS["needs_prerequisite：返回 owner 恢复"]
-                  SR_BLOCK["blocked"]
-                  SR00 --> D_ENTRY
-                  D_ENTRY -- ready --> SR01
-                  D_ENTRY -- needs_prerequisite --> SR_NEEDS
-                  D_ENTRY -- blocked --> SR_BLOCK
-                  SR01 -- 实质恢复事实已重核 --> SR02
-                  SR01 -- 暂无已知实质恢复 / N/A --> SR02
-                  SR01 -- 必需当前事实缺失 --> SR_NEEDS
-                  SR01 -- Contract 冲突或状态不安全 --> SR_BLOCK
-                  SR02 -- 发现实质恢复；审计前暂停 --> SR01
-                  SR02 -- 当前规范状态及读回已核验 --> SR03
-                  SR02 -- 前置证据缺失 --> SR_NEEDS
-                  SR02 -- authority / 守卫 / 读回失败 --> SR_BLOCK
-                  SR03 -- 已确认完成的审计记录 --> D_MODE
-                  SR03 -- owner 结果待处理 --> SR_NEEDS
-                  SR03 -- 不可用或未解决 --> SR_BLOCK
-                  D_MODE -- 是 --> SR04
-                  D_MODE -- Single-Agent / 容量 N/A --> SR_DONE
-                  SR04 -- 有界容量状态已读回 --> SR_DONE
-                  SR04 -- 状态缺失或不一致 --> SR_BLOCK
-              ```
   - checkpoints:
       kind: section
       title: 有序模块清单
@@ -112,7 +73,7 @@ blocks:
             kind: checkpoint
             title: 核验规范 parent-context 记录。
             text: |-
-              回读已释放的 mode/count、当前真实身份和角色、逐操作权限、规范 Session 记录及适用的 allocation。结构结果和应用范围不代替身份或授权证据。证据缺失返回 `needs_prerequisite`；冲突或必需 owner 不可用返回 `blocked`。
+              回读已释放的 mode/count、当前真实身份和角色、逐操作权限、规范 Session 记录及适用的 allocation。结构结果和应用范围不代替身份或授权证据。若读回发现实质恢复变化，先返回 SR01 复核受影响的 Contract、Context 或 Decision，再完成 SR02；当前规范状态未经核验，不进入审计。证据缺失返回 `needs_prerequisite`；冲突或必需 owner 不可用返回 `blocked`。
 
               依据 [Session 状态解决](../references/coding/layer-03-workflow-checkpoints/session-state-resolution.yaml)。
         - SR03:

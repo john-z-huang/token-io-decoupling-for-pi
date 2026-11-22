@@ -79,39 +79,6 @@ blocks:
                     4. 通过 ER03 只证明当前路线资格，不释放 Slice、不创建代理，也不豁免计划、职责或操作守卫。
 
                     按当前锁定路线的 Mode 边界核对拓扑。按实际模式读取对应片段。
-  - flowchart:
-      kind: section
-      title: 工作流路线图
-      blocks:
-        - flowchart-body:
-            kind: markdown
-            text: |-
-              ```mermaid
-              flowchart TD
-                  ER00["ER00 解析模块入口"]
-                  D_ENTRY{"入口结果？"}
-                  ER01["ER01 核验 Contract"]
-                  ER02["ER02 核验 Environment 和路径"]
-                  ER03["ER03 核验已释放 Mode"]
-                  ER_DONE["complete"]
-                  ER_NA["not_applicable：不需要可选导航"]
-                  ER_NEEDS["needs_prerequisite：调用方返回 owner"]
-                  ER_BLOCK["blocked"]
-                  ER00 --> D_ENTRY
-                  D_ENTRY -- ready --> ER01
-                  D_ENTRY -- needs_prerequisite --> ER_NEEDS
-                  D_ENTRY -- blocked --> ER_BLOCK
-                  ER01 -- 当前 Contract 已核验 --> ER02
-                  ER01 -- 证据缺失 --> ER_NEEDS
-                  ER01 -- 范围冲突或未经授权 --> ER_BLOCK
-                  ER02 -- 已选择导航或可直接读取 owner --> ER03
-                  ER02 -- 不需要可选导航 / N/A --> ER_NA
-                  ER_NA --> ER03
-                  ER02 -- 必需能力缺失 --> ER_BLOCK
-                  ER03 -- 模式与数量证据已释放 --> ER_DONE
-                  ER03 -- 已释放证据缺失或过期 --> ER_NEEDS
-                  ER03 -- 模式或数量与已选路线冲突 --> ER_BLOCK
-              ```
   - checkpoints:
       kind: section
       title: 有序模块清单

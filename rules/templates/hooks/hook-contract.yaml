@@ -14,7 +14,6 @@ layout:
       title: 执行要求
   - flowchart:
       kind: section
-      title: 工作流路线图
       optional: true
   - checkpoints:
       kind: section

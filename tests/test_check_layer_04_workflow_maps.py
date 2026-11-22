@@ -26,7 +26,7 @@ class WorkflowMapMigrationTests(unittest.TestCase):
         shutil.copytree(REPO / "docs", self.root / "docs")
         shutil.copytree(REPO / "skill", self.root / "skill")
 
-    def test_real_repository_routes_and_all_eight_module_maps_pass(self):
+    def test_real_repository_routes_and_hook_checklists_pass(self):
         self.assertEqual(validator.check_repository(REPO), [])
 
     def test_single_chinese_layout_needs_no_mirrors_or_root_policy_or_ci(self):
@@ -44,18 +44,30 @@ class WorkflowMapMigrationTests(unittest.TestCase):
                     self.assertTrue(validator.check_repository(self.root))
             path.write_text(original)
 
-    def test_every_module_edge_is_protected(self):
-        for module in validator.MODULES:
-            path = self.root / validator.HOOKS_DIR / f"{validator.MODULE_HOOKS[module]}.md"
-            original = path.read_text()
-            diagram = validator.FENCE.search(original)
-            self.assertIsNotNone(diagram)
-            for edge in validator.EDGE.finditer(diagram.group(1)):
-                literal = edge.group(0)
-                with self.subTest(module=module, edge=literal):
-                    path.write_text(original.replace(literal, "", 1))
-                    self.assertTrue(validator.check_repository(self.root))
-            path.write_text(original)
+    def test_verification_map_cannot_bypass_recheck_after_repair(self):
+        path = self.root / validator.HOOKS_DIR / "verification.md"
+        original = path.read_text()
+        self.assertIn("VR_HANDOFF -- 新指纹与 epoch 已确认 --> VR01", original)
+        path.write_text(original.replace(
+            "VR_HANDOFF -- 新指纹与 epoch 已确认 --> VR01",
+            "VR_HANDOFF -- 新指纹与 epoch 已确认 --> VR06",
+        ))
+        self.assertTrue(any(
+            "required verification edge VR_HANDOFF -> VR01" in error
+            for error in validator.check_repository(self.root)
+        ))
+
+    def test_route_recovery_points_back_to_verification_hook(self):
+        path = self.root / validator.ROUTES_DIR / "coding-single-agent.md"
+        original = path.read_text()
+        before, recovery = original.split("## 前置补证与恢复", 1)
+        path.write_text(before + "## 前置补证与恢复" + recovery.replace(
+            "../hooks/verification.md", "../hooks/recovery.md",
+        ))
+        self.assertTrue(any(
+            "route recovery must link to ../hooks/verification.md" in error
+            for error in validator.check_repository(self.root)
+        ))
 
     def test_module_checkpoints_cannot_be_removed_or_reordered(self):
         for module in validator.MODULES:
@@ -108,9 +120,12 @@ class WorkflowMapMigrationTests(unittest.TestCase):
         path.write_text(original)
 
     def test_map_cannot_have_unreachable_orphan(self):
-        path = self.root / validator.HOOKS_DIR / "entry.md"
-        path.write_text(path.read_text().replace("```mermaid\n", '```mermaid\n    ORPHAN["不可达"]\n', 1))
-        self.assertTrue(validator.check_repository(self.root))
+        path = self.root / validator.HOOKS_DIR / "verification.md"
+        path.write_text(path.read_text().replace("flowchart TD\n", 'flowchart TD\n    ORPHAN["不可达"]\n', 1))
+        self.assertTrue(any(
+            "orphan/unreachable map node ORPHAN" in error
+            for error in validator.check_repository(self.root)
+        ))
 
 
 if __name__ == "__main__":

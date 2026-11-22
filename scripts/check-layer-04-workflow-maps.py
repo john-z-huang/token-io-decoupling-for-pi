@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate bilingual Layer-04 route/module maps and their checklists."""
+"""校验 Coding 路线图、阶段清单和迁移覆盖。"""
 from __future__ import annotations
 
 import argparse
@@ -10,7 +10,12 @@ import sys
 from pathlib import Path
 from urllib.parse import unquote
 
-from workflow_module_contracts import L3_REQUIRED_LAYER12_LINK, MANIFEST_ROUTE_SHA256, MIXED_STEP_CONTRACTS, MODULES, MODULE_CHECKPOINTS, MODULE_CHECKPOINT_L3_OWNERS, MODULE_CHECKPOINT_LAYER12_TARGETS, MODULE_GRAPH_SHA256, MODULE_PREFIXES, HOOKS_DIR, MODULE_HOOKS, MODULE_REQUIRED_EDGES, MODULE_REQUIRED_EDGE_LABELS, MODULE_REQUIRED_LABEL_FRAGMENTS, MIGRATION_MANIFEST, MODULE_SEMANTIC_FRAGMENTS, ROUTE_MODULES, ROUTES_DIR, TOP_PREFIXES, VERIFICATION_STEP_CONTRACTS
+from workflow_module_contracts import (
+    HOOKS_DIR, L3_REQUIRED_LAYER12_LINK, MANIFEST_ROUTE_SHA256, MIGRATION_MANIFEST,
+    MIXED_STEP_CONTRACTS, MODULES, MODULE_CHECKPOINTS, MODULE_CHECKPOINT_L3_OWNERS,
+    MODULE_CHECKPOINT_LAYER12_TARGETS, MODULE_HOOKS, ROUTE_MODULES, ROUTES_DIR,
+    TOP_PREFIXES, VERIFICATION_STEP_CONTRACTS,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKFLOW = Path(".github/workflows/multilingual-docs.yml")
@@ -46,64 +51,49 @@ def get_section(text: str, header: str) -> str | None:
     return "\n".join(lines[start:end])
 
 
-def parse_diagram(text: str, path: Path, lang: str, errors: list[str]):
-    section = get_section(text, MAP_HEADERS[lang])
+def parse_diagram(text: str, path: Path, header: str, errors: list[str]):
+    section = get_section(text, header)
     if section is None:
-        fail(errors, path, f"expected exactly one {MAP_HEADERS[lang]}")
-        return {}, set(), {}, ""
+        fail(errors, path, f"expected exactly one {header}")
+        return set(), set()
     diagrams = FENCE.findall(section)
     if len(diagrams) != 1:
         fail(errors, path, "expected exactly one mermaid flowchart")
-        return {}, set(), {}, ""
+        return set(), set()
     raw = diagrams[0]
     declarations = NODE.findall(raw)
-    if len(declarations) != len(set(declarations)):
+    nodes = set(declarations)
+    if len(declarations) != len(nodes):
         fail(errors, path, "duplicate map node ID")
-    labels: dict[str, str] = {}
-    for line in raw.splitlines():
-        match = re.match(r"^\s*([A-Z][A-Z0-9_]*)\s*[\[({](.*?)[\])}]\s*$", line)
-        if match:
-            labels[match.group(1)] = match.group(2)
-    edges = {(m.group(1), m.group(3)) for m in EDGE.finditer(raw)}
+    edges = {(match.group(1), match.group(3)) for match in EDGE.finditer(raw)}
     for source, target in edges:
-        if source not in declarations or target not in declarations:
+        if source not in nodes or target not in nodes:
             fail(errors, path, f"edge references undeclared node {source} -> {target}")
-    return labels, edges, {node: set() for node in declarations}, raw
+    return nodes, edges
 
 
-def graph_checks(path: Path, lang: str, labels: dict[str, str], edges: set[tuple[str, str]], raw: str, start: str, errors: list[str], final_checkpoint: str | None = None, require_skip: bool = True) -> None:
-    nodes = set(labels)
-    if start not in nodes:
-        fail(errors, path, f"missing map entry checkpoint {start}")
-        return
-    adjacency = {node: set() for node in nodes}
-    for source, target in edges:
-        adjacency.setdefault(source, set()).add(target)
-    reached = set()
-    pending = [start]
-    while pending:
-        node = pending.pop()
-        if node in reached:
-            continue
-        reached.add(node)
-        pending.extend(adjacency.get(node, set()) - reached)
+def check_verification_navigation(text: str, path: Path, errors: list[str]) -> None:
+    nodes, edges = parse_diagram(text, path, "## 验证与重验导航", errors)
+    required = {
+        ("D_RESULT", "VR06"), ("D_RESULT", "VR05"),
+        ("D_RESULT", "VR_NEEDS"), ("D_RESULT", "VR_BLOCK"),
+        ("VR_SCOPE", "VR_EXEC"), ("VR_EXEC", "VR_HANDOFF"), ("VR_HANDOFF", "VR01"),
+    }
+    for source, target in sorted(required - edges):
+        fail(errors, path, f"required verification edge {source} -> {target} is missing")
+    for source, target in sorted(edges - required - {("VR_HANDOFF", "VR_BLOCK")}):
+        if target in {"VR06", "VR_EXEC", "VR_HANDOFF"} or source in {
+            "VR_HANDOFF", "VR06", "VR_NEEDS", "VR_BLOCK",
+        }:
+            fail(errors, path, f"unexpected verification edge {source} -> {target}; possible gate bypass")
+    reached = {"VR00"}
+    while True:
+        next_nodes = {target for source, target in edges if source in reached} - reached
+        if not next_nodes:
+            break
+        reached.update(next_nodes)
     for node in sorted(nodes - reached):
         fail(errors, path, f"orphan/unreachable map node {node}")
-    for node, label in labels.items():
-        terminal_label = re.fullmatch(r"\s*(?:complete|blocked)\s*", label, re.I)
-        terminal_id = node in {"BLOCK", "DONE"} or node.endswith(("_BLOCK", "_DONE"))
-        if (terminal_label or terminal_id) and adjacency.get(node):
-            fail(errors, path, f"terminal node {node} has outgoing edges")
-    if not any(node == "BLOCK" or node.endswith("_BLOCK") or re.fullmatch(r"\s*blocked\s*", label, re.I) for node, label in labels.items()):
-        fail(errors, path, "map lacks explicit blocked result")
-    complete_node = (any(node == "DONE" or node.endswith("_DONE") or re.fullmatch(r"\s*complete\s*", label, re.I) for node, label in labels.items())
-                    or (final_checkpoint is not None and not adjacency.get(final_checkpoint)))
-    if not complete_node and final_checkpoint is None:
-        fail(errors, path, "map lacks explicit complete result")
-    if not any("needs_prerequisite" in label for label in labels.values()):
-        fail(errors, path, "map lacks explicit needs_prerequisite return")
-    if require_skip and not re.search(r"not_applicable|\bN/?A\b|不适用", raw, re.I):
-        fail(errors, path, "map lacks explicit conditional skip/not_applicable result")
 
 
 def module_checkpoint_ids(text: str, path: Path, lang: str, errors: list[str]) -> list[str]:
@@ -122,16 +112,6 @@ def module_checkpoint_ids(text: str, path: Path, lang: str, errors: list[str]) -
     return ids
 
 
-def graph_fingerprint(labels: dict[str, str], raw: str) -> str:
-    declared = [(match.group(1), labels.get(match.group(1), "")) for match in NODE.finditer(raw)]
-    edges = [(match.group(1), match.group(2) or "", match.group(3)) for match in EDGE.finditer(raw)]
-    payload = "\n".join(
-        [f"N {node} {label}" for node, label in sorted(declared)]
-        + [f"E {source} {label} {target}" for source, label, target in sorted(edges)]
-    )
-    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
-
-
 def required_layer12_targets(module: str, checkpoint: str, suffix: str) -> tuple[str, ...]:
     targets = MODULE_CHECKPOINT_LAYER12_TARGETS.get(module, {}).get(checkpoint)
     if targets is None:
@@ -143,55 +123,23 @@ def required_layer12_targets(module: str, checkpoint: str, suffix: str) -> tuple
     return tuple(targets)
 
 
-def check_module(root: Path, module: str, lang: str, errors: list[str]):
-    suffix = ""
+def check_module(root: Path, module: str, lang: str, errors: list[str]) -> None:
     path = root / HOOKS_DIR / f"{MODULE_HOOKS[module]}.md"
     if not path.is_file():
-        errors.append(f"missing module map/checklist: {path}")
-        return None
+        fail(errors, path, "missing module checklist")
+        return
     text = path.read_text(encoding="utf-8")
     ids = module_checkpoint_ids(text, path, lang, errors)
-    labels, edges, _, raw = parse_diagram(text, path, lang, errors)
-    prefix = MODULE_PREFIXES[module]
     expected_ids = list(MODULE_CHECKPOINTS[module])
     if ids != expected_ids:
         fail(errors, path, f"module checklist must use the fixed ordered checkpoints {expected_ids}")
-    if len(ids) != len(set(ids)):
-        fail(errors, path, "checkpoint IDs are not unique")
-    for checkpoint in ids:
-        if checkpoint not in labels:
-            fail(errors, path, f"checklist checkpoint missing from map: {checkpoint}")
-    for source, target in MODULE_REQUIRED_EDGES[module]:
-        if (source, target) not in edges:
-            fail(errors, path, f"required module safety edge is missing: {source} -> {target}")
-    for node, fragment in MODULE_REQUIRED_LABEL_FRAGMENTS.get(module, {}).get(lang, {}).items():
-        if fragment not in labels.get(node, ""):
-            fail(errors, path, f"{node} is missing required safety label: {fragment}")
-    for (source, target), fragment in MODULE_REQUIRED_EDGE_LABELS.get(module, {}).get(lang, {}).items():
-        edge_label = next((match.group(2) or "" for match in EDGE.finditer(raw)
-                           if (match.group(1), match.group(3)) == (source, target)), None)
-        if edge_label is None or (fragment and fragment not in edge_label):
-            fail(errors, path, f"required safety edge label is missing or weakened: {source} -> {target} ({fragment})")
-    for checkpoint in labels:
-        if checkpoint.startswith(prefix) and re.fullmatch(prefix + r"\d{2}", checkpoint) and checkpoint not in ids:
-            fail(errors, path, f"map checkpoint is absent from checklist: {checkpoint}")
-    graph_checks(path, lang, labels, edges, raw, ids[0] if ids else "", errors,
-                 final_checkpoint=ids[-1] if ids else None)
-    if graph_fingerprint(labels, raw) != MODULE_GRAPH_SHA256[lang][module]:
-        fail(errors, path, "map nodes, critical labels, and directed branch edges differ from the fixed module contract")
-    if lang == "en":
-        for fragment in MODULE_SEMANTIC_FRAGMENTS.get(module, ()):
-            if fragment not in text:
-                fail(errors, path, f"module lost required semantic contract: {fragment}")
-    if ids and not re.search(r"complete|完成", get_section(text, LIST_HEADERS[lang]) or "", re.I):
-        fail(errors, path, "final module checkpoint must define its completion result")
-    # All modules resolve their own entry prerequisites first; all results must return, skip, complete, or block.
     step_section = get_section(text, LIST_HEADERS[lang]) or ""
+    if ids and not re.search(r"complete|完成", step_section, re.I):
+        fail(errors, path, "module checklist must define its completion result")
     if "../references/coding/layer-03-workflow-checkpoints/module-entry-resolution.md" not in linked_paths(step_section):
         fail(errors, path, "numbered entry step does not consume module-entry-resolution")
-    if "needs_prerequisite" not in raw:
-        fail(errors, path, "map has no needs_prerequisite node")
-    return ids, labels, edges, raw, text
+    if module == "verification-repair":
+        check_verification_navigation(text, path, errors)
 
 
 def check_route(root: Path, route: str, lang: str, errors: list[str]):
@@ -218,18 +166,19 @@ def check_route(root: Path, route: str, lang: str, errors: list[str]):
         target = f"../hooks/{MODULE_HOOKS[expected_modules[i]]}.md"
         if target not in linked_paths(step_text):
             fail(errors, path, f"{expected_ids[i]} must bind its exact phase Hook {target}")
-    labels, edges, _, _ = parse_diagram(text, path, lang, errors)
-    if set(labels) != {*expected_ids, "DONE"}:
+    nodes, edges = parse_diagram(text, path, MAP_HEADERS[lang], errors)
+    if nodes != {*expected_ids, "DONE"}:
         fail(errors, path, "route map must contain only the ordered stages and completion")
     required_edges = set(zip(expected_ids, [*expected_ids[1:], "DONE"]))
     for edge in sorted(edges - required_edges):
         fail(errors, path, f"unexpected route edge {edge[0]} -> {edge[1]}; possible gate bypass")
     for edge in sorted(required_edges - edges):
         fail(errors, path, f"required route edge {edge[0]} -> {edge[1]} is missing")
-    recovery = get_section(text, "## 前置补证与恢复")
-    if "../hooks/recovery.md" not in linked_paths(recovery or ""):
-        fail(errors, path, "route recovery must link to the recovery Hook")
-    return labels, edges
+    recovery = linked_paths(get_section(text, "## 前置补证与恢复") or "")
+    for hook in ("recovery", "entry", "planning", "repair", "verification"):
+        target = f"../hooks/{hook}.md"
+        if target not in recovery:
+            fail(errors, path, f"route recovery must link to {target}")
 
 
 def check_repository(root: Path) -> list[str]:
@@ -365,7 +314,7 @@ def main() -> int:
         for error in errors:
             print(f"- {error}", file=sys.stderr)
         return 1
-    print("Layer-04 workflow map validation passed (seven-checkpoint routes and eight Hook phase maps).")
+    print("Coding 路线图、跨阶段返回与 Hook 检查清单校验通过。")
     return 0
 
 
