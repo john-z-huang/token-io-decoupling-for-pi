@@ -42,10 +42,10 @@ repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 skill_path="${HOME:?}/.pi/agent/skills/$skill_name"
 cd "$repo"
 
-printf '%s\n' '从 docs/rules 构建 docs/skill'
+printf '%s\n' '从 rules 构建 skill'
 uv run --locked --script scripts/compile-reference-dsl.py
 
-bash scripts/install-pi-mcp.sh
+/bin/bash scripts/install-pi-mcp.sh
 
 tool_bin="$(uv tool dir --bin)"
 action=install

@@ -24,20 +24,20 @@ STATUS_VALUES = frozenset({"pass", "fail", "unknown", "not_applicable"})
 
 PAIR_ROOTS = (
     "README.md",
-    "docs/skill/SKILL.md",
+    "skill/SKILL.md",
     "AGENTS.md",
-    "docs/project/DOCUMENTATION_STANDARDS.md",
-    "docs/skill/workflows/coding.md",
-    "docs/project/WORKFLOW_ARCHITECTURE.md",
-    "docs/project/EXTERNAL_REFERENCES.md",
+    "docs/DOCUMENTATION_STANDARDS.md",
+    "skill/workflows/coding.md",
+    "docs/WORKFLOW_ARCHITECTURE.md",
+    "docs/EXTERNAL_REFERENCES.md",
     "mcp/AGENTS.md",
-    "docs/project/mcp/CALLER_CONTEXT.md",
-    "docs/project/mcp/CANDIDATE_COMPLIANCE.md",
-    "docs/project/mcp/OUTPUT_MATERIALIZATION.md",
-    "docs/project/mcp/DEVELOPMENT.md",
-    "docs/project/mcp/OPTIMIZATION_BENCHMARK.md",
-    "docs/project/mcp/TASK_PLAN_TOOLS.md",
-    "docs/project/mcp/WORKFLOW_ROUTING.md",
+    "docs/mcp/CALLER_CONTEXT.md",
+    "docs/mcp/CANDIDATE_COMPLIANCE.md",
+    "docs/mcp/OUTPUT_MATERIALIZATION.md",
+    "docs/mcp/DEVELOPMENT.md",
+    "docs/mcp/OPTIMIZATION_BENCHMARK.md",
+    "docs/mcp/TASK_PLAN_TOOLS.md",
+    "docs/mcp/WORKFLOW_ROUTING.md",
 )
 _PAIR_ROOT_SET = frozenset(PAIR_ROOTS)
 ZH_SUFFIX = "_zh_cn.md"
@@ -184,8 +184,8 @@ def validate_candidate_list(candidates: Any) -> list[dict[str, Any]]:
 
 def path_layer(path: PurePosixPath) -> str:
     parts = path.parts
-    if parts[:2] in {("docs", "skill"), ("docs", "rules")}:
-        parts = parts[2:]
+    if parts and parts[0] in {"skill", "rules"}:
+        parts = parts[1:]
     for prefix, layer in _SKILL_LAYERS.items():
         if parts[:len(prefix)] == prefix:
             return layer
@@ -197,7 +197,7 @@ def path_layer(path: PurePosixPath) -> str:
         return "checkpoint"
     if parts[:2] == ("workflows", "exist-workflow"):
         return "exist-workflow"
-    if str(path) in {"docs/skill/workflows/coding.md", "docs/skill/workflows/coding_zh_cn.md"}:
+    if str(path) in {"skill/workflows/coding.md", "skill/workflows/coding_zh_cn.md"}:
         return "coding-selector"
     return "entry"
 
@@ -271,10 +271,10 @@ def allowed_link(
             return True
         if target != "hook" or source_path is None or target_path is None:
             return False
-        hook_root = PurePosixPath("docs/skill/hooks")
+        hook_root = PurePosixPath("skill/hooks")
         if target_path.parent != hook_root or target_path.suffix != ".md":
             return False
-        route_root = PurePosixPath("docs/skill/coding-workflows")
+        route_root = PurePosixPath("skill/coding-workflows")
         if source_path.parent != route_root:
             return False
         if is_navigation:
@@ -647,8 +647,8 @@ def layer01_section_issues(path: str, content: str) -> list[str]:
 
 def is_layer01_path(path: str) -> bool:
     parts = PurePosixPath(path).parts
-    if parts[:2] == ("docs", "skill"):
-        parts = parts[2:]
+    if parts[:1] == ("skill",):
+        parts = parts[1:]
     return parts[:3] == ("references", "coding", "layer-01-fundamental-concepts")
 
 

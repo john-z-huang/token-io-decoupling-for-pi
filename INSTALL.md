@@ -12,7 +12,7 @@ bash scripts/update-pi-tools-and-skill.sh
 
 脚本按顺序执行四步。任一步失败即停止。
 
-1. 将 `docs/rules/` 中的 YAML 编译为 `docs/skill/`。
+1. 将 `rules/` 中的 YAML 编译为 `skill/`。
 2. 为 MCP workspace 构建本地 wheel。
 3. 通过 `uv tool` 安装或更新 `token-io-decoupling-tools`。重复运行会使用本次构建的 wheel，即使软件包版本号未变。
 4. 调用刚安装的工具同步本地 Skill。首次创建默认 Skill，后续更新现有受管理的安装。
@@ -27,8 +27,8 @@ bash scripts/update-pi-tools-and-skill.sh --name my-coding-skill
 
 ## 在 Pi 中使用
 
-1. 用 `uv tool dir --bin` 查询可执行程序所在目录。将该目录下 `token-io-decoupling-tools` 的绝对路径登记到 Pi 实际使用的 MCP 配置，采用 stdio，参数留空。脚本不会修改 Pi 配置。 [MCP 注册说明](docs/project/mcp/TOOLS_REGISTRATION.md)
-2. 在 Pi 中执行 `/reload` 或新开会话，然后从已安装的 Skill 入口开始任务。按当前会话暴露的工具确认 MCP 已连接。 [Skill 源入口](docs/rules/SKILL.yaml)
+1. 用 `uv tool dir --bin` 查询可执行程序所在目录。将该目录下 `token-io-decoupling-tools` 的绝对路径登记到 Pi 实际使用的 MCP 配置，采用 stdio，参数留空。脚本不会修改 Pi 配置。 [MCP 注册说明](docs/mcp/TOOLS_REGISTRATION.md)
+2. 在 Pi 中执行 `/reload` 或新开会话，然后从已安装的 Skill 入口开始任务。按当前会话暴露的工具确认 MCP 已连接。 [Skill 源入口](rules/SKILL.yaml)
 3. 需要更新时，重新运行安装脚本并重新加载 Pi。若 MCP 正在运行，按当前宿主的配置重启该服务，使其加载新版工具。
 
 用以下命令核对 `uv` 工具入口。
@@ -37,4 +37,4 @@ bash scripts/update-pi-tools-and-skill.sh --name my-coding-skill
 "$(uv tool dir --bin)/token-io-decoupling-tools" --version
 ```
 
-安装流程不调用模型 API。需要配置可选 API 能力或单独开发 MCP 时，参阅开发指南。工作流插件的历史验证和限制另见归档说明。 [MCP 开发指南](docs/project/mcp/DEVELOPMENT.md) · [旧 Pi 扩展说明](docs/project/PI_EXTENSION.md)
+安装流程不调用模型 API。需要配置可选 API 能力或单独开发 MCP 时，参阅开发指南。工作流插件的历史验证和限制另见归档说明。 [MCP 开发指南](docs/mcp/DEVELOPMENT.md) · [旧 Pi 扩展说明](docs/PI_EXTENSION.md)

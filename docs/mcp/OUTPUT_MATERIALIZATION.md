@@ -60,4 +60,4 @@ apply 完成时，持久回执包含版本、prepared ID、manifest hash、批�
 
 - [MCP workspace 开发指南](DEVELOPMENT.md)
 - [候选内容合规预检](CANDIDATE_COMPLIANCE.md)
-- [MCP 目录指令](../../../mcp/AGENTS.md)
+- [MCP 目录指令](../../mcp/AGENTS.md)

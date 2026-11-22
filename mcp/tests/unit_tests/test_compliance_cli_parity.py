@@ -29,8 +29,8 @@ def _write(root: Path, relative: str, content: str) -> Path:
 
 
 def test_link_and_layer01_cli_helpers_match_the_shared_core(tmp_path: Path):
-    source = "docs/skill/references/coding/layer-01-fundamental-concepts/a.md"
-    target = "docs/skill/references/coding/layer-02-workflow-concepts/b.md"
+    source = "skill/references/coding/layer-01-fundamental-concepts/a.md"
+    target = "skill/references/coding/layer-02-workflow-concepts/b.md"
     _write(tmp_path, source, "[非法向上链接](../layer-02-workflow-concepts/b.md)\n")
     _write(tmp_path, target, "中文目标。\n")
     script = runpy.run_path(str(SCRIPTS / "check-doc-layer-links.py"))
@@ -50,8 +50,8 @@ def test_link_and_layer01_cli_helpers_match_the_shared_core(tmp_path: Path):
 def test_runtime_never_requires_an_english_or_chinese_peer():
     for path in (
         "mcp/AGENTS.md",
-        "docs/project/mcp/CANDIDATE_COMPLIANCE.md",
-        "docs/skill/SKILL.md",
+        "docs/mcp/CANDIDATE_COMPLIANCE.md",
+        "skill/SKILL.md",
     ):
         assert not is_bilingual_document(path)
         assert multilingual_mirror_issues([path], lambda _: False) == []

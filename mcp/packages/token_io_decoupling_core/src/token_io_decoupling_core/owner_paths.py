@@ -2,28 +2,28 @@
 
 OWNER_PATHS: dict[str, str] = {
     "child-role-selection": (
-        "docs/skill/references/coding/layer-01-fundamental-concepts/delegation/child-role-selection.md"
+        "skill/references/coding/layer-01-fundamental-concepts/delegation/child-role-selection.md"
     ),
     "task-assignment": (
-        "docs/skill/references/coding/layer-01-fundamental-concepts/execution-planning/task-assignment.md"
+        "skill/references/coding/layer-01-fundamental-concepts/execution-planning/task-assignment.md"
     ),
     "output-token-routing": (
-        "docs/skill/references/coding/layer-01-fundamental-concepts/execution-planning/output-token-routing.md"
+        "skill/references/coding/layer-01-fundamental-concepts/execution-planning/output-token-routing.md"
     ),
     "session-role-ownership": (
-        "docs/skill/references/coding/layer-01-fundamental-concepts/session-runtime/session-role-ownership.md"
+        "skill/references/coding/layer-01-fundamental-concepts/session-runtime/session-role-ownership.md"
     ),
     "decision-context-generation": (
-        "docs/skill/references/coding/layer-01-fundamental-concepts/execution-planning/decision-context-generation.md"
+        "skill/references/coding/layer-01-fundamental-concepts/execution-planning/decision-context-generation.md"
     ),
     "workflow-routing-advice": (
-        "docs/skill/references/coding/layer-01-fundamental-concepts/execution-planning/workflow-routing-advice.md"
+        "skill/references/coding/layer-01-fundamental-concepts/execution-planning/workflow-routing-advice.md"
     ),
     "candidate-compliance": (
-        "docs/skill/references/coding/layer-01-fundamental-concepts/execution-planning/candidate-compliance.md"
+        "skill/references/coding/layer-01-fundamental-concepts/execution-planning/candidate-compliance.md"
     ),
     "output-materialization": (
-        "docs/skill/references/coding/layer-01-fundamental-concepts/execution-planning/output-materialization.md"
+        "skill/references/coding/layer-01-fundamental-concepts/execution-planning/output-materialization.md"
     ),
 }
 

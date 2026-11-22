@@ -12,7 +12,7 @@
   },
   "pi": {
     "skills": [
-      "./docs/skill"
+      "./skill"
     ]
   },
   "peerDependencies": {
@@ -26,9 +26,9 @@
     "lint:fix": "npm run lint -- --fix --fix-type layout"
   },
   "files": [
-    "docs/rules",
-    "docs/project",
-    "docs/skill",
+    "rules",
+    "docs",
+    "skill",
     "agents/*.md",
     "README.md"
   ],

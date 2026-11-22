@@ -17,6 +17,6 @@ __pycache__
 node_modules
 
 # 编译生成的 Skill 文档
-/docs/skill/
+/skill/
 
 .DS_Store

@@ -9,7 +9,7 @@
 
 ## 旧 Pi 工作流插件归档
 
-旧扩展已停止开发，归档仅供只读参考，不自动加载、不随当前包分发，也不参与默认构建和验证。当前从 [Skill 入口](docs/skill/SKILL.md)读取路线及适用的 [Hook 合同](docs/skill/hooks/README.md)，不依赖旧扩展。本次归档未逐条迁移旧 Hook 入口，也不代表完成运行时验收。
+旧扩展已停止开发，归档仅供只读参考，不自动加载、不随当前包分发，也不参与默认构建和验证。当前从 [Skill 入口](skill/SKILL.md)读取路线及适用的 [Hook 合同](skill/hooks/README.md)，不依赖旧扩展。本次归档未逐条迁移旧 Hook 入口，也不代表完成运行时验收。
 
 ## 现有Pi子代理描述与Root选型
 
@@ -27,7 +27,7 @@ bash scripts/update-pi-tools-and-skill.sh
 
 默认安装到 `~/.pi/agent/skills/token-io-decoupling-skill`；可用 `--name NEW-NAME` 指定另一个小写、连字符分隔的名称。旧名称 `token-io-decoupling` 始终被拒绝。安装器不会修改或删除旧项目，会拒绝符号链接路径及已有未知目录，只更新内容未经修改且由本工具管理的安装。更新前请将本地修改另行保存。发布失败时会恢复旧安装；进程中断可能遗留锁或暂存目录，应先检查再人工恢复。
 
-Skill 从 [入口 YAML](docs/rules/SKILL.yaml) 和 `docs/rules/` 中的规则生成。编译后的入口位于 [docs/skill/SKILL.md](docs/skill/SKILL.md)，生成目录由 Git 忽略。MCP 构建会生成独立快照，包含中文工作流、参考文档、支持文档和脚本。开发改动需重新构建、安装 CLI 并显式更新 Skill 后才生效。安装后的 `_project/` 是生成的支持资料快照。MCP 使用唯一 tools 程序，需按实际 Pi MCP 配置显式注册。受保护写入仍要求独立可信绑定。 [维护说明](docs/project/DOCUMENTATION_STANDARDS.md#参考规则-dsl)
+Skill 从 [入口 YAML](rules/SKILL.yaml) 和 `rules/` 中的规则生成。编译后的入口位于 [skill/SKILL.md](skill/SKILL.md)，生成目录由 Git 忽略。MCP 构建会生成独立快照，包含中文工作流、参考文档、支持文档和脚本。开发改动需重新构建、安装 CLI 并显式更新 Skill 后才生效。安装后的 `_project/` 是生成的支持资料快照。MCP 使用唯一 tools 程序，需按实际 Pi MCP 配置显式注册。受保护写入仍要求独立可信绑定。 [维护说明](docs/DOCUMENTATION_STANDARDS.md#参考规则-dsl)
 
 兼容旧安装时，请在请求中使用新 Skill 名称。已有会话可能保留旧指令：保留并迁移旧开发仓库后，使用现有配置人工停用其旧 Skill 发现入口，再启动使用新名称的新会话。安装器不删除旧项目，也不自动处理重复发现。不要再次将开发仓库本身放进 Skill 目录。
 
@@ -39,14 +39,14 @@ MCP 已收敛为 `token-io-decoupling-tools`，需单独配置。可选导航/�
 
 ## 文档入口
 
-- [旧 Pi Extension 说明](docs/project/PI_EXTENSION.md)记录历史运行时、适配及验证边界。
-- [静态代码检查](docs/project/STATIC_CODE_CHECKS.md) 说明 JS、TS 和 MJS 的自动化检查与 Code Agent 审查要求。
-- [Hooks 目录](docs/skill/hooks/README.md)：明确触发条件与执行合同。
-- [Skill 入口](docs/skill/SKILL.md)：读取 Coding 路线指令和适用 Hook 的入口。
-- [Coding reference](docs/skill/references)：由工作流组合使用的独立 Coding 模块和共享协议模块。
-- [工作流架构](docs/project/WORKFLOW_ARCHITECTURE.md)：无状态规则导航与结构检查，以及单独守卫的可选输出物化能力。
-- [项目文档索引](docs/project/README.md)：项目规范、MCP 参考和迁移记录。
-- [MCP 开发指南](docs/project/mcp/DEVELOPMENT.md)：本地 Python 检查与包构建。
+- [旧 Pi Extension 说明](docs/PI_EXTENSION.md)记录历史运行时、适配及验证边界。
+- [静态代码检查](docs/STATIC_CODE_CHECKS.md) 说明 JS、TS 和 MJS 的自动化检查与 Code Agent 审查要求。
+- [Hooks 目录](skill/hooks/README.md)：明确触发条件与执行合同。
+- [Skill 入口](skill/SKILL.md)：读取 Coding 路线指令和适用 Hook 的入口。
+- [Coding reference](skill/references)：由工作流组合使用的独立 Coding 模块和共享协议模块。
+- [工作流架构](docs/WORKFLOW_ARCHITECTURE.md)：无状态规则导航与结构检查，以及单独守卫的可选输出物化能力。
+- [项目文档索引](docs/README.md)：项目规范、MCP 参考和迁移记录。
+- [MCP 开发指南](docs/mcp/DEVELOPMENT.md)：本地 Python 检查与包构建。
 
 无状态规则与工作流路径无需数据库、API 凭据或网络请求。可选语义建议默认关闭；每次真实 API 请求都必须读取本地 `OPENAI_API_KEY` 与 `OPENAI_BASE_URL`，缺失时不得请求。显式启用与测试方法见开发指南。公共接口包括本地 Memory 读取、合规预检、规则上下文和通用开发工具；流程调度及任务计划生命周期不再由 MCP 提供。发现工具不证明能力或授权。未配置可信启动注入式授权 provider 和独立 grant 时，可选输出物化仍不可用。
 

@@ -29,9 +29,9 @@ blocks:
 
         ## MCP 支持边界
 
-        按实际 Schema 和授权使用 MCP。可选导航或咨询缺失时直接查 owner；必需能力缺失只阻断依赖分支。工具发现、安装及授权边界见 [工作流架构](../project/WORKFLOW_ARCHITECTURE.md)。
+        按实际 Schema 和授权使用 MCP。可选导航或咨询缺失时直接查 owner；必需能力缺失只阻断依赖分支。工具发现、安装及授权边界见 [工作流架构](../docs/WORKFLOW_ARCHITECTURE.md)。
 
-        [Hooks 触发目录](hooks/README.yaml) · [详细工作流架构](../project/WORKFLOW_ARCHITECTURE.md) · [运行时能力边界](references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml)
+        [Hooks 触发目录](hooks/README.yaml) · [详细工作流架构](../docs/WORKFLOW_ARCHITECTURE.md) · [运行时能力边界](references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml)
 front_matter:
   name: token-io-decoupling-skill
   description: >-

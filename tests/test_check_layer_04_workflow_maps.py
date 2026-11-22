@@ -24,6 +24,7 @@ class WorkflowMapMigrationTests(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
         shutil.copytree(REPO / "docs", self.root / "docs")
+        shutil.copytree(REPO / "skill", self.root / "skill")
 
     def test_real_repository_routes_and_all_eight_module_maps_pass(self):
         self.assertEqual(validator.check_repository(REPO), [])

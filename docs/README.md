@@ -1,6 +1,6 @@
 # 项目文档
 
-本目录集中维护项目级规范、MCP 开发参考和迁移记录。[规则源](../rules/SKILL.yaml)经编译生成 Skill，当前包只声明 `pi.skills`；Agent 通过 Skill 按路线与适用 Hook 工作。
+`docs/` 仅存放项目文档，包括维护规范、MCP 开发参考和迁移记录。[规则源](../rules/SKILL.yaml)位于仓库根目录的 `rules/`，经编译生成同级的 `skill/`，当前包只声明 `pi.skills`；Agent 通过 Skill 按路线与适用 Hook 工作。
 
 ## 项目级参考
 
@@ -22,7 +22,7 @@
 - [任务计划工具与历史边界](mcp/TASK_PLAN_TOOLS.md)
 - [工作流路由历史说明](mcp/WORKFLOW_ROUTING.md)
 - [优化基准归档说明](mcp/OPTIMIZATION_BENCHMARK.md)
-- [MCP 目录指令（保留在源码目录）](../../mcp/AGENTS.md)
+- [MCP 目录指令（保留在源码目录）](../mcp/AGENTS.md)
 
 ## 迁移记录
 

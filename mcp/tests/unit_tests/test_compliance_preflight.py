@@ -106,7 +106,7 @@ def test_no_reader_reports_unknown_without_probing_and_keeps_static_evidence_unk
     result = validate_decoupling_compliance(
         None,
         _request(
-            _candidate("docs/skill/example.md", "# candidate\n"),
+            _candidate("skill/example.md", "# candidate\n"),
         ),
     )
     assert result["status"] == "unknown"
@@ -122,7 +122,7 @@ def test_no_reader_reports_unknown_without_probing_and_keeps_static_evidence_unk
 
 
 def test_skill_overlay_checks_bilingual_links_and_layer01_structure() -> None:
-    en_path = "docs/skill/references/coding/layer-01-fundamental-concepts/example.md"
+    en_path = "skill/references/coding/layer-01-fundamental-concepts/example.md"
     zh_path = en_path.removesuffix(".md") + "_zh_cn.md"
     result = validate_decoupling_compliance(
         None,
@@ -336,16 +336,16 @@ def test_result_exposes_policy_version_and_rule_id() -> None:
     ("candidate_path", "mirror_path"),
     [
         (
-            "docs/project/mcp/CANDIDATE_COMPLIANCE.md",
-            "docs/project/mcp/CANDIDATE_COMPLIANCE_zh_cn.md",
+            "docs/mcp/CANDIDATE_COMPLIANCE.md",
+            "docs/mcp/CANDIDATE_COMPLIANCE_zh_cn.md",
         ),
         (
-            "docs/project/mcp/OUTPUT_MATERIALIZATION.md",
-            "docs/project/mcp/OUTPUT_MATERIALIZATION_zh_cn.md",
+            "docs/mcp/OUTPUT_MATERIALIZATION.md",
+            "docs/mcp/OUTPUT_MATERIALIZATION_zh_cn.md",
         ),
         (
-            "docs/project/mcp/OPTIMIZATION_BENCHMARK.md",
-            "docs/project/mcp/OPTIMIZATION_BENCHMARK_zh_cn.md",
+            "docs/mcp/OPTIMIZATION_BENCHMARK.md",
+            "docs/mcp/OPTIMIZATION_BENCHMARK_zh_cn.md",
         ),
     ],
 )
@@ -379,12 +379,12 @@ def _delete_candidate(path: str, current: bytes) -> dict[str, object]:
 @pytest.mark.parametrize(
     ("deleted_paths", "expected_status"),
     [
-        (["docs/project/mcp/CANDIDATE_COMPLIANCE.md"], "fail"),
-        (["docs/project/mcp/CANDIDATE_COMPLIANCE_zh_cn.md"], "fail"),
+        (["docs/mcp/CANDIDATE_COMPLIANCE.md"], "fail"),
+        (["docs/mcp/CANDIDATE_COMPLIANCE_zh_cn.md"], "fail"),
         (
             [
-                "docs/project/mcp/CANDIDATE_COMPLIANCE.md",
-                "docs/project/mcp/CANDIDATE_COMPLIANCE_zh_cn.md",
+                "docs/mcp/CANDIDATE_COMPLIANCE.md",
+                "docs/mcp/CANDIDATE_COMPLIANCE_zh_cn.md",
             ],
             "pass",
         ),
@@ -393,8 +393,8 @@ def _delete_candidate(path: str, current: bytes) -> dict[str, object]:
 def test_delete_has_no_bilingual_pair_requirement(
     tmp_path: Path, deleted_paths: list[str], expected_status: str
 ) -> None:
-    en_path = "docs/project/mcp/CANDIDATE_COMPLIANCE.md"
-    zh_path = "docs/project/mcp/CANDIDATE_COMPLIANCE_zh_cn.md"
+    en_path = "docs/mcp/CANDIDATE_COMPLIANCE.md"
+    zh_path = "docs/mcp/CANDIDATE_COMPLIANCE_zh_cn.md"
     contents = {en_path: b"English\n", zh_path: "中文\n".encode()}
     for path, data in contents.items():
         target = tmp_path / path
@@ -412,7 +412,7 @@ def test_delete_has_no_bilingual_pair_requirement(
 
 
 def test_delete_does_not_probe_absent_or_unsafe_legacy_peer(tmp_path: Path) -> None:
-    en_path = "docs/project/mcp/CANDIDATE_COMPLIANCE.md"
+    en_path = "docs/mcp/CANDIDATE_COMPLIANCE.md"
     content = b"English\n"
     target = tmp_path / en_path
     target.parent.mkdir(parents=True)
@@ -428,7 +428,7 @@ def test_delete_does_not_probe_absent_or_unsafe_legacy_peer(tmp_path: Path) -> N
 
     unknown_root = tmp_path / "unknown-root"
     unknown_root.mkdir()
-    unknown_project_mcp = unknown_root / "docs/project/mcp"
+    unknown_project_mcp = unknown_root / "docs/mcp"
     unknown_project_mcp.mkdir(parents=True)
     unknown_en = unknown_root / en_path
     unknown_en.write_bytes(content)
@@ -454,7 +454,7 @@ def test_closed_service_does_not_apply_disallowed_skill_scope(tmp_path: Path) ->
         service,
         _request(
             _candidate(
-                "docs/project/mcp/CANDIDATE_COMPLIANCE.md",
+                "docs/mcp/CANDIDATE_COMPLIANCE.md",
                 "Candidate\n",
             ),
             scope="skill_maintenance",

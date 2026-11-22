@@ -7,7 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OWNER = (
-    "docs/skill/references/coding/layer-01-fundamental-concepts/"
+    "skill/references/coding/layer-01-fundamental-concepts/"
     "session-runtime/runtime-provider-support.md"
 )
 CORE = runpy.run_path(str(ROOT / "scripts/compliance_core_loader.py"))["load_compliance_core"]()
@@ -29,7 +29,7 @@ class PiRuntimeSupportTests(unittest.TestCase):
 
     def test_installed_skill_relative_path_uses_same_contract(self):
         self.assertEqual(
-            CORE.layer01_section_issues(OWNER.removeprefix("docs/skill/"), self.text), []
+            CORE.layer01_section_issues(OWNER.removeprefix("skill/"), self.text), []
         )
 
     def test_required_modules_cannot_be_missing_duplicate_empty_or_reordered(self):
@@ -70,7 +70,7 @@ class PiRuntimeSupportTests(unittest.TestCase):
         import re
 
         forbidden = re.compile(r"codex|claude|chatgpt|\b(?:haiku|sonnet|spawn_agent|send_input|read_thread|update_plan)\b", re.I)
-        for path in (ROOT / "docs/skill").rglob("*.md"):
+        for path in (ROOT / "skill").rglob("*.md"):
             with self.subTest(path=path):
                 # openai-codex 是 Pi provider 标识，不是旧宿主指令；仅豁免完整标识。
                 text = re.sub(r"\bopenai-codex\b", "pi-provider", path.read_text(encoding="utf-8"))
@@ -88,8 +88,8 @@ class PiRuntimeSupportTests(unittest.TestCase):
             with self.subTest(fact=fact):
                 self.assertIn(fact, self.text)
         for relative in (
-            "docs/skill/references/coding/layer-01-fundamental-concepts/delegation/delegation-child-creation.md",
-            "docs/skill/hooks/delegation.md",
+            "skill/references/coding/layer-01-fundamental-concepts/delegation/delegation-child-creation.md",
+            "skill/hooks/delegation.md",
         ):
             with self.subTest(path=relative):
                 text = (ROOT / relative).read_text(encoding="utf-8")
@@ -108,7 +108,7 @@ class PiRuntimeSupportTests(unittest.TestCase):
             self.assertIn(fact, advisory)
 
     def test_delegated_module_handles_synchronous_results_without_replay(self):
-        module = ROOT / "docs/skill/hooks/delegation.md"
+        module = ROOT / "skill/hooks/delegation.md"
         text = module.read_text(encoding="utf-8")
         self.assertIn("同一次工具调用创建、派发、执行并返回", text)
         self.assertIn("同步一次性调用返回后直接在 DE07 审阅", text)

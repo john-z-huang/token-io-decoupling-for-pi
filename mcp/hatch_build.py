@@ -28,17 +28,17 @@ class SkillBuildHook(BuildHookInterface):
             if compliance_core.is_file() and not compliance_core.is_symlink()
             else None
         )
-        if (repo / "docs/rules/SKILL.yaml").is_file():
+        if (repo / "rules/SKILL.yaml").is_file():
             subprocess.run(
                 [sys.executable, str(repo / "scripts/compile-reference-dsl.py")],
                 cwd=repo,
                 check=True,
             )
-        source = repo / "docs/skill"
+        source = repo / "skill"
         source_markers = (
             source / "SKILL.md",
             source / "agents/openai.yaml",
-            repo / "docs/project/DOCUMENTATION_STANDARDS.md",
+            repo / "docs/DOCUMENTATION_STANDARDS.md",
             repo / "scripts/compliance_core_loader.py",
         )
         source_available = (
@@ -54,7 +54,7 @@ class SkillBuildHook(BuildHookInterface):
                     required_entries = {
                         "SKILL.md",
                         "agents/openai.yaml",
-                        "_project/docs/project/DOCUMENTATION_STANDARDS.md",
+                        "_project/docs/DOCUMENTATION_STANDARDS.md",
                         "_project/scripts/_compliance_core.py",
                         "_project/scripts/compliance_core_loader.py",
                     }

@@ -1,10 +1,3 @@
----
-layout: default
-title: Token I/O Decoupling
-lang: zh-CN
----
-
-
 # Token I/O Decoupling
 
 用于分离语义决策、状态消费和输出执行的 Agent 调度 Skill。
@@ -29,7 +22,7 @@ Coding Flow 覆盖仓库和开发任务：
 - 独立验证最终变更状态；
 - 执行已批准的文档和 Git 操作。
 
-从 [`SKILL.md`](skill/SKILL.md) 开始，然后按照当前阶段选择对应的 Coding reference。
+从 [`SKILL.md`](../skill/SKILL.md) 开始，然后按照当前阶段选择对应的 Coding reference。
 
 ## Multimodal reference
 
@@ -41,7 +34,7 @@ Coding Flow 覆盖仓库和开发任务：
 - 视觉状态验证；
 - 当需要修改仓库时，向 Coding 进行窄范围移交。
 
-这些 reference 不定义独立的可执行路线。请从 [Coding 入口](skill/SKILL.md) 开始。
+这些 reference 不定义独立的可执行路线。请从 [Coding 入口](../skill/SKILL.md) 开始。
 
 ## 职责
 
@@ -62,7 +55,7 @@ Coding Flow 覆盖仓库和开发任务：
 
 ## 仓库 reference
 
-- [项目文档索引](project/README.md) 收纳文档规范、MCP 开发参考和迁移记录。
+- [项目文档索引](README.md) 收纳文档规范、MCP 开发参考和迁移记录。
 - [Reference library](https://github.com/john-z-huang/token-io-decoupling/tree/main/references) 包含 Coding、runtime、session 和 execution 的详细 reference。
 - [多语言规则](https://github.com/john-z-huang/token-io-decoupling/blob/main/MULTI_LINGUAL.md) 定义仓库的中文单一文档规则。
 - [GitHub 仓库](https://github.com/john-z-huang/token-io-decoupling)

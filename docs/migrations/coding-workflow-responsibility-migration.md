@@ -5,7 +5,7 @@
 
 | 原职责来源 | 新 owner | 路线消费位置 | 保留边界 |
 | --- | --- | --- | --- |
-| `docs/skill/workflows/coding.md` Entry/Routes：预检组合和唯一路线选择 | [路线入口](../../skill/references/coding/layer-03-workflow-checkpoints/route-entry.md) | 入口调用，在 S03/M03 核对 | Mode 菜单/默认/无效输入政策仍由 Mode owners 负责；入口链接所选路线。 |
+| `skill/workflows/coding.md` Entry/Routes：预检组合和唯一路线选择 | [路线入口](../../skill/references/coding/layer-03-workflow-checkpoints/route-entry.md) | 入口调用，在 S03/M03 核对 | Mode 菜单/默认/无效输入政策仍由 Mode owners 负责；入口链接所选路线。 |
 | Layer-02 Environment/Capability Inventory：可选工作流导航选择 | [工作流导航选择](../../skill/references/coding/layer-03-workflow-checkpoints/workflow-navigation-selection.md) | S02/M02 | 调用方提供的事实和当前 owner 文档仍为权威依据；直接读取 owner 是回退路径。 |
 | Layer-04 Session 步骤：当前 Session 事实与父级控制任务记录读回 | [Session 状态解决](../../skill/references/coding/layer-03-workflow-checkpoints/session-state-resolution.md) | S04/M04，在审计解决前 | 身份、角色和 firewall 核验仍由其 L1 owner 负责；读回不授权工作，也不建立跨调用顺序。 |
 | Layer-04 Session 步骤：显式/默认审计偏好与可见性证据 | [Session 审计解决](../../skill/references/coding/layer-03-workflow-checkpoints/session-audit-resolution.md) | S04/M04，在状态解决后 | 审计字段/默认/显示语义仍归 Session Audit Visibility；无需提示或计时器门槛即可应用默认值。 |
@@ -20,4 +20,4 @@
 | Layer-02 Repair 及路线修复/决策返回逻辑 | [修复处置](../../skill/references/coding/layer-03-workflow-checkpoints/repair-disposition.md) | S11/M13；重大决策返回 S01/S06 或 M01/M07 | 诊断、授权、修复范围、handoff 和变更 epoch 验证仍归 Layer-02 repair owners。 |
 | Layer-02 Documentation 及路线影响返回逻辑 | [文档影响](../../skill/references/coding/layer-03-workflow-checkpoints/documentation-impact.md) | S12/M14 | 文档 epoch、必需检查、受影响内容重新验证和证据复用仍归 Documentation 与 Verification Epoch。 |
 
-完整路线模板现位于 `docs/skill/coding-workflows/`；Layer-04 保留有序调度、owner 调用、结果门禁、阻塞和返回。Layer-03 负责可执行的任务特定决策流程，但不重新定义 Layer-01/02 政策。以上职责行列明了从路线正文迁出的流程；路线摘要消费这些证据，不重复完整流程。
+完整路线模板现位于 `skill/coding-workflows/`；Layer-04 保留有序调度、owner 调用、结果门禁、阻塞和返回。Layer-03 负责可执行的任务特定决策流程，但不重新定义 Layer-01/02 政策。以上职责行列明了从路线正文迁出的流程；路线摘要消费这些证据，不重复完整流程。

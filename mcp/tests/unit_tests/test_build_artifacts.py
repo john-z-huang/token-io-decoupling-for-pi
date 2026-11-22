@@ -18,7 +18,7 @@ from token_io_decoupling_core.rules import RuleLoader
 DETACHED_SKILL_REQUIRED_TEXT_ENTRIES = (
     "SKILL.md",
     "agents/openai.yaml",
-    "_project/docs/project/DOCUMENTATION_STANDARDS.md",
+    "_project/docs/DOCUMENTATION_STANDARDS.md",
     "_project/scripts/_compliance_core.py",
     "_project/scripts/compliance_core_loader.py",
 )
@@ -300,7 +300,7 @@ def test_workspace_builds_four_wheels_with_disjoint_files(tmp_path: Path) -> Non
         assert "_project/scripts/compliance_core_loader.py" in bundle.namelist()
         bundle_names = set(bundle.namelist())
         projected_guides = {
-            f"_project/docs/project/mcp/{guide}{suffix}"
+            f"_project/docs/mcp/{guide}{suffix}"
             for guide in ("WORKFLOW_ROUTING", "CANDIDATE_COMPLIANCE", "OUTPUT_MATERIALIZATION")
             for suffix in (".md",)
         }
@@ -394,7 +394,7 @@ def test_detached_launcher_sdist_builds_offline_skill_bundle(tmp_path: Path) -> 
         assert loader_path in names
         assert "SKILL.md" in names
         assert "agents/openai.yaml" in names
-        assert "_project/docs/project/DOCUMENTATION_STANDARDS.md" in names
+        assert "_project/docs/DOCUMENTATION_STANDARDS.md" in names
         assert not any(Path(name).name == "check-multilingual-docs.py" for name in names)
         snapshot_root = tmp_path / "standalone-skill-snapshot"
         bundle.extractall(snapshot_root)
@@ -457,11 +457,11 @@ path = "hatch_build.py"
         + "\n",
         encoding="utf-8",
     )
-    skill = repo / "docs/skill"
+    skill = repo / "skill"
     (skill / "agents").mkdir(parents=True)
     (skill / "SKILL.md").write_text("Old Skill instructions.\n", encoding="utf-8")
     (skill / "SKILL_zh_cn.md").write_text("旧 Skill 指令。\n", encoding="utf-8")
-    documentation_standards = repo / "docs/project/DOCUMENTATION_STANDARDS.md"
+    documentation_standards = repo / "docs/DOCUMENTATION_STANDARDS.md"
     documentation_standards.parent.mkdir(parents=True)
     documentation_standards.write_text("Old documentation standards.\n", encoding="utf-8")
     (skill / "agents/openai.yaml").write_text("short_description: fixture\n", encoding="utf-8")
@@ -481,7 +481,7 @@ path = "hatch_build.py"
         archive.writestr("SKILL_zh_cn.md", "旧 Skill 指令。\n")
         archive.writestr("agents/openai.yaml", "short_description: fixture\n")
         archive.writestr(
-            "_project/docs/project/DOCUMENTATION_STANDARDS.md",
+            "_project/docs/DOCUMENTATION_STANDARDS.md",
             "Old documentation standards.\n",
         )
         archive.writestr("_project/scripts/_compliance_core.py", canonical_core.read_bytes())
@@ -512,7 +512,7 @@ path = "hatch_build.py"
     with zipfile.ZipFile(io.BytesIO(skill_bundle)) as archive:
         assert archive.read("SKILL.md") == b"Updated Skill instructions.\n"
         assert (
-            archive.read("_project/docs/project/DOCUMENTATION_STANDARDS.md")
+            archive.read("_project/docs/DOCUMENTATION_STANDARDS.md")
             == b"Updated documentation standards.\n"
         )
         assert archive.read("_project/scripts/_compliance_core.py") == canonical_core.read_bytes()

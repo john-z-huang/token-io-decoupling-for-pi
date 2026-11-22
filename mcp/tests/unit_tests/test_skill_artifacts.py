@@ -48,7 +48,7 @@ def _assert_local_links(documents: Path, boundary: Path) -> None:
 
 def test_migrated_skill_source_links_and_anchors():
     repository = Path(__file__).resolve().parents[3]
-    _assert_local_links(repository / "docs/skill", repository)
+    _assert_local_links(repository / "skill", repository)
 
 
 def test_detached_sdist_cli_installs_without_checkout(tmp_path):
@@ -158,6 +158,8 @@ print(json.dumps({
     assert b"name: token-io-decoupling-skill" in baseline
     assert not (skill / "SKILL_zh_cn.md").exists()
     assert (skill / "workflows/coding.md").is_file()
+    assert (skill / "_project/docs/WORKFLOW_ARCHITECTURE.md").is_file()
+    assert not (skill / "_project/docs/project").exists()
     _assert_local_links(skill, skill)
     assert not (skill / "_project/mcp/rule-registry.json").exists()
     assert not (skill / "_project/.github/workflows/mcp.yml").exists()

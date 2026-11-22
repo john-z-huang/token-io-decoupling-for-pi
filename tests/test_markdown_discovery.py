@@ -28,8 +28,8 @@ class MarkdownDiscoveryTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
-        self.write("docs/skill/SKILL.md", "---\nname: example\ndescription: 中文说明\n---\n# 中文指令\n")
-        self.write("README.md", "# 中文说明\n[技能](docs/skill/SKILL.md)\n")
+        self.write("skill/SKILL.md", "---\nname: example\ndescription: 中文说明\n---\n# 中文指令\n")
+        self.write("README.md", "# 中文说明\n[技能](skill/SKILL.md)\n")
         self.write("mcp/TOOLS.md", "# 中文工具\n")
 
     def write(self, name, text):
@@ -52,7 +52,7 @@ class MarkdownDiscoveryTests(unittest.TestCase):
         self.write("AGENTS_NOT_USE_.md", "English inactive backup")
         self.write("AGENTS_zh_cn_NOT_USE_.md", "中文停用备份")
         names = {p.relative_to(self.root).as_posix() for p in discover_markdown(self.root)}
-        self.assertEqual(names, {"README.md", "docs/skill/SKILL.md", "mcp/TOOLS.md"})
+        self.assertEqual(names, {"README.md", "skill/SKILL.md", "mcp/TOOLS.md"})
 
     def test_directory_and_markdown_symlinks_are_not_scanned(self):
         with tempfile.TemporaryDirectory() as external:

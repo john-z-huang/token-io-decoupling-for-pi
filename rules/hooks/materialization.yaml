@@ -113,4 +113,4 @@ blocks:
               | [Session角色归属](../references/coding/layer-01-fundamental-concepts/session-runtime/session-role-ownership.yaml) | 真实身份、角色与逐操作守卫 |
               | [执行控制](../references/coding/layer-01-fundamental-concepts/execution-control/execution-control.yaml) | 先放行Slice、不越界产生效果 |
               | [输出路线选择](../references/coding/layer-03-workflow-checkpoints/output-route-selection.yaml) | 输出路由不等于执行者或创建授权 |
-              | [工作流架构](../../project/WORKFLOW_ARCHITECTURE.md) | 宿主协调与受保护服务边界 |
+              | [工作流架构](../../docs/WORKFLOW_ARCHITECTURE.md) | 宿主协调与受保护服务边界 |

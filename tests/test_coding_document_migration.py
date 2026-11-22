@@ -22,14 +22,16 @@ class CodingDocumentMigrationTests(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
         shutil.copytree(REPO / "docs", self.root / "docs")
+        shutil.copytree(REPO / "skill", self.root / "skill")
 
     def test_repository_passes_with_no_mirrors(self):
         self.assertEqual(checker.validate(self.root), [])
-        self.assertFalse(list((self.root / "docs").rglob("*_zh_cn.md")))
+        for directory in ("docs", "skill"):
+            self.assertFalse(list((self.root / directory).rglob("*_zh_cn.md")))
 
     def test_missing_navigation_is_reported(self):
         for layer in checker.NAVIGATION_LAYERS:
-            path = self.root / "docs/skill/references/coding" / layer / "README.md"
+            path = self.root / "skill/references/coding" / layer / "README.md"
             original = path.read_text()
             with self.subTest(layer=layer):
                 path.unlink()
@@ -37,7 +39,7 @@ class CodingDocumentMigrationTests(unittest.TestCase):
             path.write_text(original)
 
     def test_readme_requires_every_direct_owner_and_child(self):
-        base = self.root / "docs/skill/references/coding"
+        base = self.root / "skill/references/coding"
         for layer in checker.NAVIGATION_LAYERS:
             for path in (base / layer).rglob("README.md"):
                 original = path.read_text()

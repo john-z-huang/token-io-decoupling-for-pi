@@ -131,7 +131,7 @@ def test_controlled_optional_owner_fragments_preserve_default_and_load_bilingual
             item for item in chinese.fragments if item.fragment_id == fragment_id
         )
         owner_base = (
-            "docs/skill/references/coding/layer-01-fundamental-concepts/execution-planning/"
+            "skill/references/coding/layer-01-fundamental-concepts/execution-planning/"
         )
         assert english_fragment.owner_path == owner_base + owner_filename
         assert chinese_fragment.owner_path == owner_base + owner_filename

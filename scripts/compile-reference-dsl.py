@@ -3,7 +3,7 @@
 # requires-python = ">=3.11"
 # dependencies = ["jsonschema==4.26.0", "ruamel.yaml==0.19.1"]
 # ///
-"""从 docs/rules 编译可浏览的 Skill 文档。"""
+"""从 rules 编译可浏览的 Skill 文档。"""
 
 from __future__ import annotations
 
@@ -29,7 +29,7 @@ from workflow_checkpoint_lookup import NUMBERED_BLOCKS, check_flowchart_referenc
 from workflow_module_contracts import WORKFLOW_PATH
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "docs/rules"
+SOURCE = ROOT / "rules"
 REFERENCES = SOURCE / "references"
 CODING = REFERENCES / "coding"
 ROUTES = SOURCE / WORKFLOW_PATH
@@ -37,7 +37,7 @@ TEMPLATES = SOURCE / "templates/coding"
 HOOK_SOURCE = SOURCE / "hooks"
 HOOK_TEMPLATES = SOURCE / "templates/hooks"
 HOOK_COVERAGE = "hooks/SOURCE_COVERAGE.md"
-SKILL = ROOT / "docs/skill"
+SKILL = ROOT / "skill"
 RULE_INCLUDE = re.compile(r"^<!-- rule:([a-z][a-z0-9-]*)#([A-Za-z][A-Za-z0-9-]*) -->$")
 COMPLIANCE = load_compliance_core()
 FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})")

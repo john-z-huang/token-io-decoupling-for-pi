@@ -4,7 +4,7 @@
 
 ## 安装与更新
 
-在仓库根目录执行 `bash scripts/update-pi-tools-and-skill.sh`，按顺序构建 Skill、构建 MCP wheel、安装或更新 MCP 工具并同步本地 Skill。只安装或更新 MCP 工具时，执行 `bash scripts/install-pi-mcp.sh`。脚本不改宿主配置，也不调用模型 API。 [安装与使用](../../../INSTALL.md)
+在仓库根目录执行 `bash scripts/update-pi-tools-and-skill.sh`，按顺序构建 Skill、构建 MCP wheel、安装或更新 MCP 工具并同步本地 Skill。只安装或更新 MCP 工具时，执行 `bash scripts/install-pi-mcp.sh`。脚本不改宿主配置，也不调用模型 API。 [安装与使用](../../INSTALL.md)
 
 也可以分别执行首次安装或后续更新命令。
 
@@ -57,7 +57,7 @@ ToolDefinition(
 - 清单必须与 `core/server_tools.py` 完全一致；未知名称、重复定义和清单漂移会报错，不允许静默过滤。调整公开清单属于接口变更，不能只改注册文件绕过契约。
 - `tests/unit_tests/test_tool_registry.py` 将 34 项完整发现元数据与改前 fixture 比对，并检查注册失败、参数说明和多服务器配置隔离。不要为让测试通过而盲目重生成 fixture；有意接口变更应单独审阅。
 
-在仓库根目录开始。先生成源码规则查询和测试所需的 `docs/skill/`，避免在依赖已缓存、`uv sync` 未重新构建包时缺少产物。
+在仓库根目录开始。先生成源码规则查询和测试所需的 `skill/`，避免在依赖已缓存、`uv sync` 未重新构建包时缺少产物。
 
 ```sh
 uv run --locked --script scripts/compile-reference-dsl.py
@@ -68,6 +68,6 @@ uv run ruff check src packages tests
 uv build --all-packages --wheel
 ```
 
-从仓库构建 MCP 包时，构建钩子先从 `docs/rules/` 生成 Skill 文档和规则摘录。独立源码分发包携带构建所需的快照。
+从仓库构建 MCP 包时，构建钩子先从 `rules/` 生成 Skill 文档和规则摘录。独立源码分发包携带构建所需的快照。
 
 不默认运行真实 API。材料化保留可信身份、授权、路径和预检限制；Pi stdio 的连接或环境变量不会自动授予这些能力。内部 API 调用需要实际进程中的凭据，不能输出凭据或擅自外发内容。

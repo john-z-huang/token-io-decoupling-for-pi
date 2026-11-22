@@ -79,7 +79,7 @@ TOOL_DESCRIPTIONS: dict[str, str] = {
         "Budget omissions and missing owner files/headings appear in missing_fragments with",
         "complete=false and an incomplete status. Invalid paths/symlinks, unknown IDs, duplicate",
         "index IDs, dependency cycles, and duplicate real headings fail closed.",
-        "owner_path is repository-relative source provenance under docs/skill, not",
+        "owner_path is repository-relative source provenance under skill/, not",
         "an installed Skill",
         "file path. Installed servers use their packaged versioned index and normalized fragments;",
         "fragment hashes cover the same trimmed text returned by either source.",

@@ -24,11 +24,11 @@ class WorkflowCheckpointConsumptionTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
-        shutil.copytree(REPO / "docs", self.root / "docs")
+        shutil.copytree(REPO / "skill", self.root / "skill")
         self.original = checker.ROOT, checker.L3, checker.HOOKS
         checker.ROOT = self.root
-        checker.L3 = self.root / "docs/skill/references/coding/layer-03-workflow-checkpoints"
-        checker.HOOKS = self.root / "docs/skill/hooks"
+        checker.L3 = self.root / "skill/references/coding/layer-03-workflow-checkpoints"
+        checker.HOOKS = self.root / "skill/hooks"
         self.addCleanup(self.restore)
 
     def restore(self):
@@ -81,7 +81,7 @@ class WorkflowCheckpointConsumptionTests(unittest.TestCase):
         self.assertEqual(self.run_check(), 1)
 
     def test_selector_requires_operational_route_entry_link(self):
-        path = self.root / "docs/skill/workflows/coding.md"
+        path = self.root / "skill/workflows/coding.md"
         path.write_text(path.read_text().replace("route-entry.md", "removed.md"))
         self.assertEqual(self.run_check(), 1)
 

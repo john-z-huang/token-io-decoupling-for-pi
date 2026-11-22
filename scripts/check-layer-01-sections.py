@@ -11,7 +11,7 @@ _COMPLIANCE_CORE = run_path(
     str(Path(__file__).resolve().with_name("compliance_core_loader.py"))
 )["load_compliance_core"]()
 
-LAYER_01 = Path("docs/skill/references/coding/layer-01-fundamental-concepts")
+LAYER_01 = Path("skill/references/coding/layer-01-fundamental-concepts")
 HEADINGS = ("通用规范", "Pi Coding Agent 优化指令")
 NAVIGATION = "相关概念"
 top_level_sections = _COMPLIANCE_CORE.top_level_sections

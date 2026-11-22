@@ -19,7 +19,7 @@
 
 ## 参考规则 DSL
 
-`docs/skill/references/` 下的参考文档统一通过 `docs/rules/references/` 中的 YAML 维护，覆盖 Coding 概念、检查点、共享协议、Multimodal 和导航页。Coding 路线在 `docs/rules/coding-workflows/` 下与 Hook 同级，例如 [单代理路线 YAML](../rules/coding-workflows/coding-single-agent.yaml) 对应 [单代理路线 Markdown](../skill/coding-workflows/coding-single-agent.md)。编译器检查相对路径，YAML 文件统一关联 [DSL Schema](../rules/reference.schema.json)。
+`skill/references/` 下的参考文档统一通过 `rules/references/` 中的 YAML 维护，覆盖 Coding 概念、检查点、共享协议、Multimodal 和导航页。Coding 路线在 `rules/coding-workflows/` 下与 Hook 同级，例如 [单代理路线 YAML](../rules/coding-workflows/coding-single-agent.yaml) 对应 [单代理路线 Markdown](../skill/coding-workflows/coding-single-agent.md)。编译器检查相对路径，YAML 文件统一关联 [DSL Schema](../rules/reference.schema.json)。
 
 ### Skill 文档依赖顺序
 
@@ -31,11 +31,11 @@
 
 DSL 源文件之间使用相对 `.yaml` 链接。引用具体章节时使用块 ID，例如 `runtime-provider-support.yaml#subagent-models`。编译器验证目标文件及章节，再为阅读版生成相应的 `.md` 和 Markdown 标题锚点。将同一引用解析为 `coding-rule:` 并按片段 ID 查询正文，是已归档旧扩展的行为。`markdown_path` 字段指定阅读版的位置。
 
-`npm ci` 和 `npm pack` 通过 `prepare` 生成 Skill。只修改规则、Hook 或 Skill 入口时，可执行 `npm run build:skill` 单独重新生成。编译器从 `docs/rules/` 生成完整的 `docs/skill/`，包括 Markdown 阅读版和 Skill 注册元数据。该目录由 Git 忽略，`--check` 只读核对本地生成结果。当前 Skill 直接使用编译后的路线与 Hook 指令，不加载旧扩展。[旧 Pi Extension 说明](PI_EXTENSION.md)和[工作流架构](WORKFLOW_ARCHITECTURE.md)作为项目 Markdown 维护。
+`npm ci` 和 `npm pack` 通过 `prepare` 生成 Skill。只修改规则、Hook 或 Skill 入口时，可执行 `npm run build:skill` 单独重新生成。编译器从 `rules/` 生成完整的 `skill/`，包括 Markdown 阅读版和 Skill 注册元数据。该目录由 Git 忽略，`--check` 只读核对本地生成结果。当前 Skill 直接使用编译后的路线与 Hook 指令，不加载旧扩展。[旧 Pi Extension 说明](PI_EXTENSION.md)和[工作流架构](WORKFLOW_ARCHITECTURE.md)作为项目 Markdown 维护。
 
 ### Coding DSL 类型与模板
 
-Coding DSL 用 `document_type` 声明用途。类型由 `docs/rules/` 下的路径和文件名确定。每个模板的 `document` 提供可复制的例子，`layouts` 定义允许的顶层块顺序，`block_rules` 定义块类型、必要的片段发布状态和子块类型。
+Coding DSL 用 `document_type` 声明用途。类型由 `rules/` 下的路径和文件名确定。每个模板的 `document` 提供可复制的例子，`layouts` 定义允许的顶层块顺序，`block_rules` 定义块类型、必要的片段发布状态和子块类型。
 
 | 类型 | 用途 | 标准块顺序 | 模板 |
 | --- | --- | --- | --- |
@@ -71,7 +71,7 @@ uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint 'r
 
 ## Hook DSL
 
-16 份执行合同和 Hooks 目录页维护在 `docs/rules/hooks/`，Markdown 阅读版保留在 `docs/skill/hooks/` 的原路径。
+16 份执行合同和 Hooks 目录页维护在 `rules/hooks/`，Markdown 阅读版保留在 `skill/hooks/`。
 
 - [合同模板](../rules/templates/hooks/hook-contract.yaml) 按触发条件、输入与证据、执行要求、阶段路线图与有序检查点、输出与落点、退出与阻断、重新核验、规则来源排序。阶段路线图和检查点用于八份由路线绑定的合同。顶层块、执行子章节和检查点可以按稳定 ID 查询。
 - [目录模板](../rules/templates/hooks/hook-directory.yaml) 定义导语、合同与明确触发、宿主回调、链接基准和维护检查的顺序。
