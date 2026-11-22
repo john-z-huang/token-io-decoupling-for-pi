@@ -46,7 +46,7 @@ blocks:
         - pi-guidance-body:
             kind: markdown
             text: |-
-              本项目已移除专项工作流阶段路由工具。通用 `decide_skill_workflow` 的建议只按其独立 Schema 和任务范围审阅。当前模块仍以已锁定路线及宿主状态为准；缺少匹配的阶段建议时直接读取 owner。
+              按已锁定路线、当前 Hook 及实际宿主状态判断当前模块。外部建议仅在确有可用且适用的能力时采用，随后按当前规则复核。
   - related:
       kind: section
       title: "相关概念"

@@ -1,6 +1,8 @@
 # MCP Server 开发指令
 
-本目录面向 Pi Coding Agent。修改前阅读 [文档规范](../docs/DOCUMENTATION_STANDARDS.md)。
+本页保留旧服务的开发约定。 [归档说明](../README.md)
+
+原目录面向 Pi Coding Agent，文档规范见[仓库维护说明](../../../docs/DOCUMENTATION_STANDARDS.md)。
 
 仅发布 `token-io-decoupling-tools` 一个可执行入口，通过 uv tool 安装；默认 stdio，附带 Skill 安装和更新命令。不要恢复 workflow MCP 服务或双入口安装器。宿主 Extension 独立保留。
 

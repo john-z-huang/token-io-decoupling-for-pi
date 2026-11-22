@@ -1,6 +1,7 @@
 import importlib.util
 import io
 import posixpath
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -17,6 +18,22 @@ SPEC.loader.exec_module(MODULE)
 
 
 class DocumentLayerNavigationTests(unittest.TestCase):
+    def test_layer_01_checker_imports_without_scripts_path(self):
+        script = SCRIPT.with_name("check-layer-01-sections.py")
+        code = (
+            "import importlib.util, sys\n"
+            "spec = importlib.util.spec_from_file_location('isolated', sys.argv[1])\n"
+            "module = importlib.util.module_from_spec(spec)\n"
+            "spec.loader.exec_module(module)\n"
+            "assert callable(module.check_document)\n"
+        )
+        result = subprocess.run(
+            [sys.executable, "-I", "-c", code, str(script)],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_navigation_can_link_within_its_own_layer(self):
         self.assertTrue(MODULE.is_navigation_document(PurePosixPath("skill/references/coding/layer-02-workflow-concepts/INDEX.md")))
         self.assertTrue(MODULE.allowed("layer-02", "layer-02", True))

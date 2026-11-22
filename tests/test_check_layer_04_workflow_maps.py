@@ -1,8 +1,7 @@
-"""中文工作流图、清单、所有者与迁移契约的变异回归。"""
+"""中文工作流图、清单和规则引用的回归测试。"""
 from __future__ import annotations
 
 import importlib.util
-import json
 import re
 import shutil
 import sys
@@ -18,12 +17,11 @@ validator = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(validator)
 
 
-class WorkflowMapMigrationTests(unittest.TestCase):
+class WorkflowMapTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
-        shutil.copytree(REPO / "docs", self.root / "docs")
         shutil.copytree(REPO / "skill", self.root / "skill")
 
     def test_real_repository_routes_and_hook_checklists_pass(self):
@@ -105,19 +103,6 @@ class WorkflowMapMigrationTests(unittest.TestCase):
         self.assertEqual(count, 1)
         path.write_text(text)
         self.assertTrue(validator.check_repository(self.root))
-
-    def test_manifest_rejects_each_missing_legacy_mapping(self):
-        path = self.root / validator.MIGRATION_MANIFEST
-        original = path.read_text()
-        data = json.loads(original)
-        for route, value in data["routes"].items():
-            for index in range(len(value["steps"])):
-                changed = json.loads(original)
-                changed["routes"][route]["steps"].pop(index)
-                with self.subTest(route=route, index=index):
-                    path.write_text(json.dumps(changed, ensure_ascii=False))
-                    self.assertTrue(validator.check_repository(self.root))
-        path.write_text(original)
 
     def test_map_cannot_have_unreachable_orphan(self):
         path = self.root / validator.HOOKS_DIR / "verification.md"

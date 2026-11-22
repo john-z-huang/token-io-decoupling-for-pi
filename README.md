@@ -1,54 +1,12 @@
 # Token I/O Decoupling
 
+面向 Pi Coding Agent 的 Coding Hooks Skill。两条路线由 YAML 定义，16 份条件 Hook 约定执行时机、所需证据和验收条件。Agent 按当前任务读取适用指令。Multimodal 仅作为参考。
 
-`token-io-decoupling` 是面向 **Pi Coding Agent** 的 Skill 与通用 MCP 工具，用于把高价值语义决策与高体量状态消费、输出物化分离。
+按[安装与更新](INSTALL.md)中的命令生成并更新本地 Skill。使用时从 `SKILL.md` 进入，按当前路线和适用 Hook 读取规则。磁盘更新后，在 Pi 中执行 `/reload` 或新开会话。
 
-首次安装、更新本地 Skill 与配置 MCP 见 [安装与使用](INSTALL.md)。
+- [Skill 源入口](rules/SKILL.yaml)和 [Hooks 源目录](rules/hooks/README.yaml)
+- [工作流架构](docs/WORKFLOW_ARCHITECTURE.md)和[维护规范](docs/DOCUMENTATION_STANDARDS.md)
+- [子代理职责描述](agents/)
+- [旧 MCP Server 归档](archive/mcp-server/)
 
-两条 Coding 路线由 YAML 绑定七个阶段。16 份条件 Hooks 提供执行合同，阶段 Hook 决定检查点顺序及适用性。Agent 依据路线指令、适用 Hook 与实际证据推进。授权和语义验收依据实际来源与结果核对。Multimodal 仅作为 reference 保留。
-
-## 旧 Pi 工作流插件归档
-
-旧扩展已停止开发，归档仅供只读参考，不自动加载、不随当前包分发，也不参与默认构建和验证。当前从 [Skill 入口](skill/SKILL.md)读取路线及适用的 [Hook 合同](skill/hooks/README.md)，不依赖旧扩展。本次归档未逐条迁移旧 Hook 入口，也不代表完成运行时验收。
-
-## 现有Pi子代理描述与Root选型
-
-中文代理描述源在 [agents/](agents/)：worker、reviewer、scout分别适配Primary、独立验证、Context职责；planner保留只读兼容边界，git-operator仅提供受阻断的专用职责描述。模型不固定到角色：Root依据三份官方模型卡和当前任务，在Sol、Terra、Luna之间选择模型及推理水平。
-
-旧适配器已归档；第三方子代理工具仍须按实际配置、能力和授权核验。描述文件不证明 Git 专用适配、权限隔离或模型身份能力。
-
-## 安装 MCP 工具与 Skill
-
-将开发仓库放在用户 Skill 目录之外。在仓库根目录运行以下命令，构建并安装或更新 MCP 工具和本地 Skill。
-
-```bash
-bash scripts/update-pi-tools-and-skill.sh
-```
-
-默认安装到 `~/.pi/agent/skills/token-io-decoupling-skill`；可用 `--name NEW-NAME` 指定另一个小写、连字符分隔的名称。旧名称 `token-io-decoupling` 始终被拒绝。安装器不会修改或删除旧项目，会拒绝符号链接路径及已有未知目录，只更新内容未经修改且由本工具管理的安装。更新前请将本地修改另行保存。发布失败时会恢复旧安装；进程中断可能遗留锁或暂存目录，应先检查再人工恢复。
-
-Skill 从 [入口 YAML](rules/SKILL.yaml) 和 `rules/` 中的规则生成。编译后的入口位于 [skill/SKILL.md](skill/SKILL.md)，生成目录由 Git 忽略。MCP 构建会生成独立快照，包含中文工作流、参考文档、支持文档和脚本。开发改动需重新构建、安装 CLI 并显式更新 Skill 后才生效。安装后的 `_project/` 是生成的支持资料快照。MCP 使用唯一 tools 程序，需按实际 Pi MCP 配置显式注册。受保护写入仍要求独立可信绑定。 [维护说明](docs/DOCUMENTATION_STANDARDS.md#参考规则-dsl)
-
-兼容旧安装时，请在请求中使用新 Skill 名称。已有会话可能保留旧指令：保留并迁移旧开发仓库后，使用现有配置人工停用其旧 Skill 发现入口，再启动使用新名称的新会话。安装器不删除旧项目，也不自动处理重复发现。不要再次将开发仓库本身放进 Skill 目录。
-
-## Pi 使用与 MCP 迁移边界
-
-从 Skill 入口渐进加载当前步骤的 owner。Pi 原生提供基础文件与命令工具；子代理、专用规划及 Memory 依实际暴露的扩展或服务核验，不假定内置。修改 Skill 后由用户 `/reload` 或新建会话；磁盘更新不自动替换当前已加载指令。
-
-MCP 已收敛为 `token-io-decoupling-tools`，需单独配置。可选导航/建议不适用时直接依据 owner 判断；必需的 Memory、身份或受保护写入能力缺失时暂停依赖工作。服务内部仍通过 OpenAI API 执行，原有授权、角色、路径与安全守卫继续有效。
-
-## 文档入口
-
-- [TypeScript / JavaScript 代码规范](docs/TS_JS_CODE_SPECIFICATION.md#静态代码检查)：代码规则、自动化检查和审查要求。
-- [Hooks 目录](skill/hooks/README.md)：明确触发条件与执行合同。
-- [Skill 入口](skill/SKILL.md)：读取 Coding 路线指令和适用 Hook 的入口。
-- [Coding reference](skill/references)：由工作流组合使用的独立 Coding 模块和共享协议模块。
-- [工作流架构](docs/WORKFLOW_ARCHITECTURE.md)：无状态规则导航与结构检查，以及单独守卫的可选输出物化能力。
-- [项目文档索引](docs/README.md)：项目规范、MCP 参考和迁移记录。
-- [MCP 开发指南](docs/mcp/DEVELOPMENT.md)：本地 Python 检查与包构建。
-
-无状态规则与工作流路径无需数据库、API 凭据或网络请求。可选语义建议默认关闭；每次真实 API 请求都必须读取本地 `OPENAI_API_KEY` 与 `OPENAI_BASE_URL`，缺失时不得请求。显式启用与测试方法见开发指南。公共接口包括本地 Memory 读取、合规预检、规则上下文和通用开发工具；流程调度及任务计划生命周期不再由 MCP 提供。发现工具不证明能力或授权。未配置可信启动注入式授权 provider 和独立 grant 时，可选输出物化仍不可用。
-
-OpenAI API 工具共用显式设置 `trust_env=True` 的 HTTPX2 客户端，从 MCP 进程环境读取 `HTTP_PROXY`、`HTTPS_PROXY`、`ALL_PROXY` 和 `NO_PROXY`，包括对应的小写形式。`NO_PROXY` 可使指定目标绕过代理；未配置代理时使用客户端正常的直连路径。代理无效或不可达时返回现有的安全 API 错误结果，不会改为直连重试。
-
-Pi 的 MCP 进程环境按实际宿主配置传递；不要套用其他宿主字段，也不要记录凭据值。连接、工具发现、API 配置和可信身份绑定分别核验；转发环境不授予操作权限。
+Pi 中的通用 MCP 工具由单独配置的服务提供。项目 Memory 尾部读取和文本核验由 `dev-workflow-standards` 提供，使用前核对 MCP 进程实际启动的项目根。

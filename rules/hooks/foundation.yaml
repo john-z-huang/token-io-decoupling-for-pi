@@ -112,6 +112,5 @@ blocks:
               | [Skill入口](../SKILL.yaml) | Coding范围、硬约束、完成和MCP边界 |
               | [共享调度协议](../references/share/shared-protocols.yaml) | Contract、父级通道、Dispatch、反馈、按需证据与稳定性 |
               | [Pi运行时与能力](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml) | 工具发现、三类模型、真实能力与加载更新 |
-              | [工作流架构](../../docs/WORKFLOW_ARCHITECTURE.md) | 宿主状态与无状态MCP边界 |
               | [Multimodal参考](../references/multimodal/multimodal-flow.yaml) | 仅参考，不建立可执行路线 |
               | [Multimodal API参考](../references/multimodal/multimodal-openai-profile.yaml) | 仅参考，不改变Coding/API授权 |

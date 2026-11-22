@@ -1,5 +1,7 @@
 # MCP 开发指南
 
+本页记录旧服务的开发和测试流程。 [归档说明](../../README.md)
+
 服务面向 Pi Coding Agent，仅提供 `token-io-decoupling-tools` 一个可执行程序。无参数启动 stdio；`--help`、`--version` 为诊断入口，`skills install` / `skills update` 管理 Skill。
 
 ## 安装与更新

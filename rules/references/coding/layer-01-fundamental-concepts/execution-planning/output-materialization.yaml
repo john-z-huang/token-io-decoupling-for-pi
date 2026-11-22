@@ -41,7 +41,7 @@ blocks:
         - pi-guidance-body:
             kind: markdown
             text: |-
-              使用 `materialize_decoupled_output` 须有当前可信 Worker 绑定、匹配的任务分配与独立操作员 grant。普通 stdio 不建立此绑定，配置工厂也不等于调用方身份。尚未选用物化路径时，可按独立授权使用直接 edit/write；已选路径被拒绝时按实际结果处置。
+              使用独立物化能力前，须核实当前可信 Worker 绑定、匹配的任务分配与独立操作许可。尚未选用物化路径时，可按独立授权使用直接 edit/write；已选路径被拒绝时按实际结果处置。
   - related:
       kind: section
       title: "相关概念"

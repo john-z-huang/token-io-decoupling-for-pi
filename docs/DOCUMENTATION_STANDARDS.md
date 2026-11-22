@@ -12,10 +12,9 @@
 ## 内容与引用
 
 - 每份文档只维护一份中文正文，不再提供语言切换链接。
-- 本地 Markdown 链接必须指向实际存在的当前文件；移动文件时同步更新链接、代码中的资源路径、规则注册表和构建资源。
+- 本地 Markdown 链接必须指向实际存在的当前文件；移动文件时同步更新链接、规则引用和构建资源路径。
 - Skill 入口使用标准 `SKILL.md` 和有效的 YAML front matter，按需引用其目录内的中文说明。
 - 面向用户的元数据说明使用中文；程序字段与协议标识符保持其接口约定。
-- 本规范不改变 MCP Tools 内部使用 OpenAI API 的执行方式，也不改变操作授权与安全边界。
 
 ## 参考规则 DSL
 
@@ -31,7 +30,7 @@
 
 DSL 源文件之间使用相对 `.yaml` 链接。引用具体章节时使用块 ID，例如 `runtime-provider-support.yaml#subagent-models`。编译器验证目标文件及章节，再为阅读版生成相应的 `.md` 和 Markdown 标题锚点。将同一引用解析为 `coding-rule:` 并按片段 ID 查询正文，是已归档旧扩展的行为。`markdown_path` 字段指定阅读版的位置。
 
-`npm ci` 和 `npm pack` 通过 `prepare` 生成 Skill。只修改规则、Hook 或 Skill 入口时，可执行 `npm run build:skill` 单独重新生成。编译器从 `rules/` 生成完整的 `skill/`，包括 Markdown 阅读版和 Skill 注册元数据。该目录由 Git 忽略，`--check` 只读核对本地生成结果。当前 Skill 直接使用编译后的路线与 Hook 指令，不加载旧扩展。宿主与 MCP 的职责边界见[工作流架构](WORKFLOW_ARCHITECTURE.md)。
+编译器从 `rules/` 生成维护用 `skill/`，包括 Markdown 阅读版和 Skill 元数据。该目录由 Git 忽略，`--check` 只读核对生成结果。安装发布使用[本地更新命令](../INSTALL.md)，直接从本次编译结果更新受管理目录。发布内容的本地链接须留在 Skill 目录内。宿主与独立工具的职责见[工作流架构](WORKFLOW_ARCHITECTURE.md)。
 
 ### Coding DSL 类型与模板
 
@@ -48,8 +47,8 @@ Coding DSL 用 `document_type` 声明用途。类型由 `rules/` 下的路径和
 新建文档时，用相应类型替换下面的 `fundamental-concept`，将输出保存到相应目录。填写文档 ID、标题、`markdown_path` 和正文，并按文件所在目录调整首行 Schema 路径和相对链接。保留模板中标识章节用途的顶层块 ID，为新增子块填写稳定 ID。模板的首种布局适合作为新文档的起点，其他布局保留已有文档的结构。
 
 ```sh
-uv run --locked --script scripts/compile-reference-dsl.py --template fundamental-concept
-uv run --locked --script scripts/compile-reference-dsl.py --check-structure
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --template fundamental-concept'
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --check-structure'
 ```
 
 结构检查会验证类型声明、章节顺序、块类型、必须发布的片段、路线阶段顺序和现有路线、模块的检查点 ID。正常导出和 `--check` 也执行这组检查，并继续核对引用和生成结果。
@@ -61,10 +60,10 @@ uv run --locked --script scripts/compile-reference-dsl.py --check-structure
 从仓库根目录运行以下命令。查询读取当前 YAML 源文件。将输出的 `relative_path` 和 `name_path` 分别传给 Serena `find_symbol` 的 `relative_path` 和 `name_path_pattern`，并将 `include_body` 设为 `true`，即可通过 YAML 后端读取对应节点。输出的 `line` 是编辑器中从 1 开始的行号，`--show` 可直接输出该块内容。
 
 ```sh
-uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint VR04
-uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint SM04
-uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint VR_HANDOFF --from hook-verification
-uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint 'route-entry#failure-boundary' --show
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint VR04'
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint SM04'
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint VR_HANDOFF --from hook-verification'
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint route-entry#failure-boundary --show'
 ```
 
 查询编号步骤时，脚本定位到定义它的 Hook 检查清单。路线步骤还返回 `hook_entry`，供继续查看当前阶段的触发条件。流程图中的跨文件别名由该文档的 `flowchart_references` 声明，值为相对 `.yaml#块ID`。例如 [验证 Hook](../rules/hooks/verification.yaml) 将 `VR_HANDOFF` 指向交接规则的 `actions`，查询时用 `--from hook-verification` 指定图。编译器校验图节点、目标文件和块。仅表示分支或结果的图节点会提示没有独立定义。
@@ -77,12 +76,12 @@ uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint 'r
 - [目录模板](../rules/templates/hooks/hook-directory.yaml) 定义导语、合同与明确触发、宿主回调、链接基准和维护检查的顺序。
 - `activate_on` 声明阶段、语义信号或宿主状态对应的合同。Agent 根据路线、实际动作及证据读取阶段合同。语义变化由 Agent 在上下文中判断，再定向读取适用规则。`applicability: optional` 标记可凭证据判断不适用的事项，`applicability: sub_agent` 限定子代理分支。
 - 导航引用使用相对 `.yaml#块ID`，导出时转成 Markdown 路径和标题锚点。执行要求中的 `rule_include` 用来读取所引用的底层参考规则片段。可选的阶段内导航图与来源表随阅读版发布。注入主路线和已触发的合同，以及通过 `coding-rule:hook-entry#ER03` 等 ID 查询检查点，均是已归档旧扩展的行为。 [入口合同示例](../rules/hooks/entry.yaml)
-- 修改合同的来源表时，先手动同步 [YAML 来源对照](../rules/hooks/SOURCE_COVERAGE.yaml) 中的逐篇来源及归属，再用 `npm run build:skill` 生成 [Markdown 来源对照](../skill/hooks/SOURCE_COVERAGE.md)。不运行已归档的对照表生成器。阶段绑定见[路线目录](../rules/workflows/README.yaml)的「分阶段 Hooks」。
+- 修改合同的来源表时，先手动同步 [YAML 来源对照](../rules/hooks/SOURCE_COVERAGE.yaml) 中的逐篇来源及归属，再用编译器生成 [Markdown 来源对照](../skill/hooks/SOURCE_COVERAGE.md)。阶段绑定见[路线目录](../rules/workflows/README.yaml)的「分阶段 Hooks」。
 
 ```sh
-uv run --locked --script scripts/compile-reference-dsl.py --template hook-contract
-uv run --locked --script scripts/compile-reference-dsl.py --template hook-directory
-uv run --locked --script scripts/compile-reference-dsl.py --check-structure
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --template hook-contract'
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --template hook-directory'
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --check-structure'
 ```
 
 ## 验证
@@ -90,14 +89,17 @@ uv run --locked --script scripts/compile-reference-dsl.py --check-structure
 运行以下文档检查，并按修改范围运行对应测试：
 
 ```sh
-npm run build:skill
-uv run --locked --script scripts/compile-reference-dsl.py --check
-python3 scripts/check-doc-layer-links.py
-python3 scripts/check-layer-01-sections.py
-python3 scripts/check-layer-02-04-provider-neutrality.py
-python3 scripts/check-layer-04-workflow-maps.py
-python3 -m unittest discover -s tests
-git diff --check
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py'
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --check'
+/bin/bash -c 'uv run --no-project -- python scripts/check-doc-layer-links.py'
+/bin/bash -c 'uv run --no-project -- python scripts/check-layer-01-sections.py'
+/bin/bash -c 'uv run --no-project -- python scripts/check-layer-02-04-provider-neutrality.py'
+/bin/bash -c 'uv run --no-project -- python scripts/check-layer-04-workflow-maps.py'
+/bin/bash -c 'uv run --no-project -- python scripts/check-workflow-checkpoints.py'
+/bin/bash -c 'uv run --no-project --with jsonschema==4.26.0 --with ruamel.yaml==0.19.1 -- python -m unittest discover -s tests'
+/bin/bash -c 'git diff --check'
 ```
 
 文档层级、所有权、模块顺序、必要证据和工作流返回边界仍须保留。
+
+路线图、检查点和规则引用以当前编译产物校验。旧路径与旧步骤的映射及其测试见[迁移归档](../archive/mcp-server/docs/migrations/)。

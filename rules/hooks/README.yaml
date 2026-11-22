@@ -10,7 +10,7 @@ blocks:
       text: |-
         这些文件是供 Agent 按路线与当前事实读取的执行合同，**不是仅因文件名叫 Hook 就自动执行的 Markdown**。每份按主题整合相关owner的前置条件、动作、条件分支、禁止项、证据、退出/阻断与重新核验，并逐篇列出“来源—本合同落点”；不是摘要或必须重新通读所有owner才能执行的目录。原owner仍保留权威，冲突/新规则需要定向核验，不能由省略推导豁免。
 
-        当前 Skill 通过 [Coding selector](../workflows/coding.yaml) 定向读取原 owner，不加载归档扩展。[归档边界](../../docs/WORKFLOW_ARCHITECTURE.md#旧扩展归档)不代表旧 Hook 适配逐条迁移或完成运行时验收。
+        当前 Skill 通过 [Coding selector](../workflows/coding.yaml) 定向读取原 owner。归档扩展仅供查阅，实际宿主能力按当前会话核验。
   - contracts:
       kind: section
       title: 合同与明确触发
@@ -79,7 +79,7 @@ blocks:
         - maintenance-body:
             kind: markdown
             text: |-
-              - 合同和目录在 `rules/hooks/` 下维护，用 `npm run build:skill` 生成阅读版。来源表记录归属及落点，执行规则写入正文。
+              - 合同和目录在 `rules/hooks/` 下维护，用编译器生成阅读版。来源表记录归属及落点，执行规则写入正文。
               - 旧扩展曾建立路线和 Hook 索引，并根据合同来源表生成对照，校验链接、路径边界、模式、失败提示和暂停状态。旧扩展测试曾覆盖跨工作区注入链接、锚点、缺失引用、超限与正文完整性；这些归档工具和检查不在当前维护流程运行。
               - 覆盖率和 Hash 只说明文本/归属/形状，不证明压缩合同逐条语义等价。详细 owner 保留权威；扩展不是新的授权来源、OS 沙箱或完整静态副作用分析器。
               - 原生/其他扩展工具是否经过当前事件链必须实际核验；不可观测的外部操作通过真实读回与相关 Hook 处理，不伪造自动检测。

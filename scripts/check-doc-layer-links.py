@@ -7,10 +7,8 @@ import re
 import sys
 from pathlib import Path, PurePosixPath
 
+import document_rules as _COMPLIANCE_CORE
 from markdown_discovery import discover_markdown
-from compliance_core_loader import load_compliance_core
-
-_COMPLIANCE_CORE = load_compliance_core()
 
 ROOT = Path(__file__).resolve().parents[1]
 LINK_RE = _COMPLIANCE_CORE._LINK_RE

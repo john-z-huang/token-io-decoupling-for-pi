@@ -9,10 +9,8 @@ from pathlib import Path, PurePosixPath
 
 from ruamel.yaml import YAML
 
-from compliance_core_loader import load_compliance_core
+import document_rules as COMPLIANCE
 from workflow_module_contracts import WORKFLOW_PATH
-
-COMPLIANCE = load_compliance_core()
 
 NUMBERED_BLOCKS = {"checkpoint", "route_step"}
 

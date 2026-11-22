@@ -1,7 +1,8 @@
-"""Pi 指令的模块结构、旧宿主清理与 Server 迁移边界回归。"""
+"""检查 Pi 指令的模块结构和宿主能力边界。"""
 from __future__ import annotations
 
 import runpy
+import sys
 import unittest
 from pathlib import Path
 
@@ -10,7 +11,9 @@ OWNER = (
     "skill/references/coding/layer-01-fundamental-concepts/"
     "session-runtime/runtime-provider-support.md"
 )
-CORE = runpy.run_path(str(ROOT / "scripts/compliance_core_loader.py"))["load_compliance_core"]()
+sys.path.insert(0, str(ROOT / "scripts"))
+import document_rules as CORE
+
 CHECKER = runpy.run_path(str(ROOT / "scripts/check-layer-01-sections.py"))
 
 
@@ -45,14 +48,13 @@ class PiRuntimeSupportTests(unittest.TestCase):
         self.assertTrue(CORE.layer01_section_issues(OWNER, empty))
         self.assertTrue(CORE.layer01_section_issues(OWNER, reversed_sections))
 
-    def test_all_owners_share_pi_structure_with_server_contract(self):
+    def test_all_owners_share_pi_structure(self):
         directory = (ROOT / OWNER).parent.parent
         owners = CHECKER["discover_owner_documents"](directory)
         self.assertEqual(len(owners), 41)
         for owner in owners:
             with self.subTest(owner=owner):
                 self.assertEqual(CHECKER["check_document"](owner, ROOT), [])
-        # CLI 与 Server 统一使用 Pi 合同，不再对单个 owner 特判。
         other = OWNER.replace("runtime-provider-support.md", "session-model.md")
         self.assertEqual(CORE.layer01_section_issues(other, self.text), [])
 

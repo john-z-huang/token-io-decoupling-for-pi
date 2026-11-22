@@ -6,7 +6,10 @@ import re
 import sys
 from pathlib import Path
 from urllib.parse import unquote
-from workflow_module_contracts import MODULE_CHECKPOINT_L3_OWNERS, MODULE_L3_OWNERS, MODULE_PREFIXES, MODULE_HOOKS
+from workflow_module_contracts import (
+    L3_REQUIRED_LAYER12_LINK, MODULE_CHECKPOINT_L3_OWNERS, MODULE_HOOKS,
+    MODULE_L3_OWNERS, MODULE_PREFIXES,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 L3 = ROOT / "skill/references/coding/layer-03-workflow-checkpoints"
@@ -44,7 +47,7 @@ OWNER_TERMS = {
     },
     "context-source-selection": {
         "en": ("source pointers", "freshness", "hash", "Memory", "active plan", "read every match", "read every match for this task", "current instructions take precedence", "plan never grants authorization", "do not substitute filesystem files", "read that authoritative owner directly", "If listing or reading a relevant active plan fails, block work depending on it", "Verify owner, language, source, and hash", "separately read each necessary direct owner omitted from the excerpt"),
-        "zh": ("来源指针", "新鲜度", "hash", "Memory", "活动计划", "读取每个匹配项", "读取每个匹配项", "当前指令优先", "计划不授予授权", "不得用文件替代该计划", "直接读取权威 owner", "若无法列出或读取相关活动计划，阻塞依赖工作", "核验 owner、语言、来源和 Hash", "单独读取摘要未包含的每个必需直接 owner"),
+        "zh": ("来源指针", "新鲜度", "Memory", "活动计划", "读取每个匹配项", "当前指令优先", "计划不授予授权", "不得用文件替代该计划", "直接读取权威 owner", "若无法列出或读取相关活动计划，阻塞依赖工作", "核对来源和版本", "逐项读取判断所需的直接依赖", "必需权威内容无法核实时，阻塞依赖工作"),
     },
     "decision-context-selection": {
         "en": ("explicit user direction", "source provenance", "input hash", "policy binding", "do not send it to downstream advice", "verified facts are sufficient"),
@@ -144,6 +147,13 @@ def main() -> int:
                     errors.append(f"{path.relative_to(ROOT)}: empty section {section}")
             text = "\n".join(lines)
             operational_text = FENCED_CODE_RE.sub("", text).split("\n## Related concepts", 1)[0].split("\n## 相关概念", 1)[0]
+            required_link = L3_REQUIRED_LAYER12_LINK[slug]
+            links = {
+                unquote(raw.split("#", 1)[0].split("?", 1)[0])
+                for raw in markdown_link_targets(operational_text)
+            }
+            if required_link not in links:
+                errors.append(f"{path.relative_to(ROOT)}: owner must link to {required_link}")
             for term in OWNER_TERMS.get(slug, {}).get(lang, ()):
                 if term.casefold() not in operational_text.casefold():
                     errors.append(f"{path.relative_to(ROOT)}: missing semantic requirement: {term}")

@@ -40,4 +40,4 @@ Windows 运行尚未经过独立验证。
 ## 相关文档
 
 - [MCP 安装与注册](DEVELOPMENT.md#安装与更新)。
-- [任务计划 Memory 生命周期](../../skill/references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.md) — 内容保全和归档要求。
+- [现行任务计划 Memory 生命周期](../../../../rules/references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.yaml) — 内容保全和归档要求。

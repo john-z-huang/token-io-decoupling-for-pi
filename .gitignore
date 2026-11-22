@@ -4,7 +4,7 @@
 # VS Code IDE Config files
 .vscode
 
-# MCP Tools temp files
+# 旧 MCP 的本机缓存
 mcp/.venv/
 mcp/.cache/
 mcp/dist/
