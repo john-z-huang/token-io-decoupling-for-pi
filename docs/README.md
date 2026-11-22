@@ -1,32 +1,23 @@
 # 项目文档
 
-`docs/` 仅存放项目文档，包括维护规范、MCP 开发参考和迁移记录。[规则源](../rules/SKILL.yaml)位于仓库根目录的 `rules/`，经编译生成同级的 `skill/`，当前包只声明 `pi.skills`；Agent 通过 Skill 按路线与适用 Hook 工作。
+本项目为 Pi Coding Agent 提供 Coding Skill 和独立的 MCP 通用工具。规则源在 `rules/`，生成的阅读版在 `skill/`；`docs/` 只维护项目文档。Multimodal 仅作参考，不提供独立路线。
 
-## 项目级参考
+## 使用与架构
 
-- [文档标准与维护规范](DOCUMENTATION_STANDARDS.md)
-- [TypeScript / JavaScript 代码规范](TS_JS_CODE_SPECIFICATION.md)
-- [静态代码检查](STATIC_CODE_CHECKS.md)
-- [旧 Pi Extension 历史说明](PI_EXTENSION.md)
-- [工作流架构](WORKFLOW_ARCHITECTURE.md)
-- [外部资料引用登记](EXTERNAL_REFERENCES.md)
+- [安装与更新](../INSTALL.md)：安装 Skill 和 MCP 工具，并配置 Pi。
+- [Skill 入口](../skill/SKILL.md)与 [Coding 选择器](../skill/workflows/coding.md)：按所选路线读取适用 Hook。
+- [工作流架构](WORKFLOW_ARCHITECTURE.md)：Skill、Pi 宿主和 MCP 的职责与归档边界。
 
-## MCP 开发参考
+## 维护与验证
 
-- [MCP 开发指南](mcp/DEVELOPMENT.md)
-- [调用方上下文与受保护能力](mcp/CALLER_CONTEXT.md)
-- [候选内容合规预检](mcp/CANDIDATE_COMPLIANCE.md)
-- [输出材料化](mcp/OUTPUT_MATERIALIZATION.md)
-- [工具注册](mcp/TOOLS_REGISTRATION.md)
-- [Serena Memory 工具](mcp/SERENA_MEMORY_TOOLS.md)
-- [任务计划工具与历史边界](mcp/TASK_PLAN_TOOLS.md)
-- [工作流路由历史说明](mcp/WORKFLOW_ROUTING.md)
-- [优化基准归档说明](mcp/OPTIMIZATION_BENCHMARK.md)
-- [MCP 目录指令（保留在源码目录）](../mcp/AGENTS.md)
+- [文档标准与维护规范](DOCUMENTATION_STANDARDS.md)：目录职责、DSL、模板与检查。
+- [TypeScript / JavaScript 代码规范](TS_JS_CODE_SPECIFICATION.md#静态代码检查)：代码规则、静态检查与审查要求。
+- [外部参考资料](EXTERNAL_REFERENCES.md)：维护现行能力时所用的上游资料。
+- [工作流迁移记录与校验清单](migrations/WORKFLOW_MODULE_MIGRATION.md)：开发验证资料，不是运行时指令。
 
-## 迁移记录
+## MCP
 
-- [工作流模块迁移覆盖](migrations/WORKFLOW_MODULE_MIGRATION.md)
-- [Coding 工作流职责迁移记录](migrations/coding-workflow-responsibility-migration.md)
-- [Coding 文档迁移清单](migrations/coding-document-migration.json)
-- [工作流模块迁移清单](migrations/workflow-module-migration.json)
+- [开发指南](mcp/DEVELOPMENT.md)：注册、可信调用方、包结构和测试。
+- [候选内容合规预检](mcp/CANDIDATE_COMPLIANCE.md)：只读候选覆盖层检查。
+- [输出材料化](mcp/OUTPUT_MATERIALIZATION.md)：受保护的 Worker 输出准备、检查和写入。
+- [Serena Memory 工具](mcp/SERENA_MEMORY_TOOLS.md)：只读尾部读取和字面匹配。

@@ -344,8 +344,8 @@ def test_result_exposes_policy_version_and_rule_id() -> None:
             "docs/mcp/OUTPUT_MATERIALIZATION_zh_cn.md",
         ),
         (
-            "docs/mcp/OPTIMIZATION_BENCHMARK.md",
-            "docs/mcp/OPTIMIZATION_BENCHMARK_zh_cn.md",
+            "docs/mcp/DEVELOPMENT.md",
+            "docs/mcp/DEVELOPMENT_zh_cn.md",
         ),
     ],
 )

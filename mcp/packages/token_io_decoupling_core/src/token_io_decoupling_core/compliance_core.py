@@ -31,13 +31,9 @@ PAIR_ROOTS = (
     "docs/WORKFLOW_ARCHITECTURE.md",
     "docs/EXTERNAL_REFERENCES.md",
     "mcp/AGENTS.md",
-    "docs/mcp/CALLER_CONTEXT.md",
     "docs/mcp/CANDIDATE_COMPLIANCE.md",
     "docs/mcp/OUTPUT_MATERIALIZATION.md",
     "docs/mcp/DEVELOPMENT.md",
-    "docs/mcp/OPTIMIZATION_BENCHMARK.md",
-    "docs/mcp/TASK_PLAN_TOOLS.md",
-    "docs/mcp/WORKFLOW_ROUTING.md",
 )
 _PAIR_ROOT_SET = frozenset(PAIR_ROOTS)
 ZH_SUFFIX = "_zh_cn.md"

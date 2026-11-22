@@ -26,7 +26,7 @@
 - 维护中的文档使用简体中文和现有文件名；不新增英文副本或旧式语言后缀镜像。本地 Markdown 链接须指向存在的当前文件，移动或重命名时同步更新引用。
 - 修改按需验证，不把结构检查当作语义验收。归档扩展不参与当前验证；文档变更按文档规范运行对应检查。
 - Coding 工作流扩展在完整测试与实际环境验证完成前不得推荐安装；不得把离线检查描述为完整测试、实际环境验收或运行效率的证明。
-- JS、TS 和 MJS 遵循 [TypeScript / JavaScript 代码规范](docs/TS_JS_CODE_SPECIFICATION.md)。按 [静态代码检查](docs/STATIC_CODE_CHECKS.md) 执行 `npm run lint`，排版修复使用 `npm run lint:fix`。已覆盖条款采用命令结果，Code Agent 根据实际变更审查其余条款。
+- JS、TS 和 MJS 遵循 [TypeScript / JavaScript 代码规范](docs/TS_JS_CODE_SPECIFICATION.md)。按 [静态代码检查](docs/TS_JS_CODE_SPECIFICATION.md#静态代码检查) 执行 `npm run lint`，排版修复使用 `npm run lint:fix`。已覆盖条款采用命令结果，Code Agent 根据实际变更审查其余条款。
 - MCP 普通测试不应调用真实模型或 API。MCP 的测试、lint 和构建命令以 MCP 开发指南为准；真实 API 测试仅在明确需要且具备相应授权时运行。
 
 ## 安全与 Git

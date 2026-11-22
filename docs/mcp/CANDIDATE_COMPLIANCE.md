@@ -37,7 +37,5 @@
 ## 相关文档
 
 - [MCP 目录指令](../../mcp/AGENTS.md)
-- [调用方上下文与受保护能力](CALLER_CONTEXT.md)
-- [MCP 开发指南](DEVELOPMENT.md)
-- [任务计划生命周期工具](TASK_PLAN_TOOLS.md)
-- [Decoupling 工作流路由](WORKFLOW_ROUTING.md)
+- [调用方上下文](DEVELOPMENT.md#调用方上下文)
+- [输出材料化](OUTPUT_MATERIALIZATION.md)

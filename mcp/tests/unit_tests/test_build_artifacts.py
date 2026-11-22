@@ -300,9 +300,8 @@ def test_workspace_builds_four_wheels_with_disjoint_files(tmp_path: Path) -> Non
         assert "_project/scripts/compliance_core_loader.py" in bundle.namelist()
         bundle_names = set(bundle.namelist())
         projected_guides = {
-            f"_project/docs/mcp/{guide}{suffix}"
-            for guide in ("WORKFLOW_ROUTING", "CANDIDATE_COMPLIANCE", "OUTPUT_MATERIALIZATION")
-            for suffix in (".md",)
+            f"_project/docs/mcp/{guide}.md"
+            for guide in ("DEVELOPMENT", "CANDIDATE_COMPLIANCE", "OUTPUT_MATERIALIZATION")
         }
         assert projected_guides <= bundle_names
         for document in projected_guides:

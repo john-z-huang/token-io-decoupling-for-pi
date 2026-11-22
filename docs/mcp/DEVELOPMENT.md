@@ -4,26 +4,21 @@
 
 ## 安装与更新
 
-在仓库根目录执行 `bash scripts/update-pi-tools-and-skill.sh`，按顺序构建 Skill、构建 MCP wheel、安装或更新 MCP 工具并同步本地 Skill。只安装或更新 MCP 工具时，执行 `bash scripts/install-pi-mcp.sh`。脚本不改宿主配置，也不调用模型 API。 [安装与使用](../../INSTALL.md)
+构建安装、更新 Skill 快照和重载 Pi 的步骤统一维护在 [安装与使用](../../INSTALL.md)。
 
-也可以分别执行首次安装或后续更新命令。
+### 在 Pi 中注册
 
-```sh
-token-io-decoupling-tools skills install
-token-io-decoupling-tools skills update
-```
-
-默认目录 `~/.pi/agent/skills/token-io-decoupling-skill/`，安装后在 Pi 执行 `/reload`。更新包后再显式更新 Skill 快照；不会覆盖本地修改或迁移旧目录。
+仅注册 `token-io-decoupling-tools`，使用 stdio，默认不传启动参数。通过 `uv tool dir --bin` 找到该程序的绝对路径，并登记到 Pi 实际使用的 MCP 配置。安装脚本不会替用户修改配置；需要读取项目 Memory 时，请核对 MCP 进程的[实际启动目录](SERENA_MEMORY_TOOLS.md#工具)。
 
 ## 工具边界
 
-34 个工具的权威清单为 `mcp/packages/token_io_decoupling_core/src/token_io_decoupling_core/server_tools.py`。包括 Git/GitHub 操作、通用内容生成与输入检查，以及规则上下文查询、合规预检、Serena Memory 检查和输出材料化；不暴露 Codex 专用会话事实与会话决策工具。
-
-原 MCP workflow 调度、checkpoint 评估、模型/执行者/子代理选择及 task-plan 生命周期已删除。旧 Pi Extension 已归档；当前由 Agent 按 Skill 路线指令与适用 Hook 推进，只使用当前宿主实际暴露且获准的能力。规则查询只读、不执行流程。上游带 workflow 名称的通用内容建议工具不管理本项目的流程状态。
+34 个工具的权威清单为 `mcp/packages/token_io_decoupling_core/src/token_io_decoupling_core/server_tools.py`。其中 29 项来自固定版本的上游开发工具；其余是规则上下文、合规预检、两项 Serena Memory 只读工具和输出材料化。本服务不注册 Codex 专用会话事实与会话决策工具，也不提供工作流调度、检查点执行或任务计划管理；见 [工作流架构](../WORKFLOW_ARCHITECTURE.md)。
 
 ### 调用方上下文
 
-可选的请求上下文匹配仅在显式启用并注入可信 `BindingProvider` 时运行；请求元数据中的 `threadId` 必须与当前已验证会话 ID 一致。其他元数据不选择身份、角色或授权。标准 stdio 启动及工具发现本身不建立可信绑定。详见[调用方上下文与受保护能力](CALLER_CONTEXT.md)。
+标准 stdio 启动、工具发现、规则查询和 Memory 尾读都不能认证调用方或授予写入权限。可选的候选预检和输出材料化由可信操作员分别通过 `--compliance-factory` 与 `--output-materializer-factory` 配置，详见[预检契约](CANDIDATE_COMPLIANCE.md)和[写入契约](OUTPUT_MATERIALIZATION.md)。配置 factory 不等于完成身份绑定；受保护写入仍要求可信 `BindingProvider`、当前任务分配和独立操作授权。
+
+只有可信集成显式启用调用方匹配并注入 `BindingProvider` 时，才检查请求元数据的 `threadId` 是否等于已验证会话 ID。`sessionId`、自报角色和其他请求字段不能选择身份或权限；不能用 Pi 会话 ID 伪装可信绑定。
 
 ## 包结构与验证
 
@@ -70,4 +65,4 @@ uv build --all-packages --wheel
 
 从仓库构建 MCP 包时，构建钩子先从 `rules/` 生成 Skill 文档和规则摘录。独立源码分发包携带构建所需的快照。
 
-不默认运行真实 API。材料化保留可信身份、授权、路径和预检限制；Pi stdio 的连接或环境变量不会自动授予这些能力。内部 API 调用需要实际进程中的凭据，不能输出凭据或擅自外发内容。
+普通测试不运行真实 API。可选模型请求须另行获得授权，并由 MCP 进程读取 `OPENAI_API_KEY` 和 `OPENAI_BASE_URL`；不得记录凭据或擅自外发内容。

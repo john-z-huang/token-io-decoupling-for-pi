@@ -39,8 +39,7 @@ MCP 已收敛为 `token-io-decoupling-tools`，需单独配置。可选导航/�
 
 ## 文档入口
 
-- [旧 Pi Extension 说明](docs/PI_EXTENSION.md)记录历史运行时、适配及验证边界。
-- [静态代码检查](docs/STATIC_CODE_CHECKS.md) 说明 JS、TS 和 MJS 的自动化检查与 Code Agent 审查要求。
+- [TypeScript / JavaScript 代码规范](docs/TS_JS_CODE_SPECIFICATION.md#静态代码检查)：代码规则、自动化检查和审查要求。
 - [Hooks 目录](skill/hooks/README.md)：明确触发条件与执行合同。
 - [Skill 入口](skill/SKILL.md)：读取 Coding 路线指令和适用 Hook 的入口。
 - [Coding reference](skill/references)：由工作流组合使用的独立 Coding 模块和共享协议模块。

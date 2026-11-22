@@ -10,7 +10,7 @@ blocks:
       text: |-
         这些文件是供 Agent 按路线与当前事实读取的执行合同，**不是仅因文件名叫 Hook 就自动执行的 Markdown**。每份按主题整合相关owner的前置条件、动作、条件分支、禁止项、证据、退出/阻断与重新核验，并逐篇列出“来源—本合同落点”；不是摘要或必须重新通读所有owner才能执行的目录。原owner仍保留权威，冲突/新规则需要定向核验，不能由省略推导豁免。
 
-        当前 Skill 通过 [Coding selector](../workflows/coding.yaml) 定向读取原 owner，不加载归档扩展。[旧扩展说明](../../docs/PI_EXTENSION.md)仅供历史查阅；归档不代表旧 Hook 适配逐条迁移或完成运行时验收。
+        当前 Skill 通过 [Coding selector](../workflows/coding.yaml) 定向读取原 owner，不加载归档扩展。[归档边界](../../docs/WORKFLOW_ARCHITECTURE.md#旧扩展归档)不代表旧 Hook 适配逐条迁移或完成运行时验收。
   - contracts:
       kind: section
       title: 合同与明确触发
