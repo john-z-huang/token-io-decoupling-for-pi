@@ -6,4 +6,3 @@
 - [工作流架构](WORKFLOW_ARCHITECTURE.md)
 - [文档标准与维护规范](DOCUMENTATION_STANDARDS.md)
 - [外部参考资料](EXTERNAL_REFERENCES.md)
-- [旧 MCP Server 源码、文档与测试归档](../archive/mcp-server/)，含[文档与工作流迁移归档](../archive/mcp-server/docs/migrations/)。

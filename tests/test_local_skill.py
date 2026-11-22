@@ -18,7 +18,7 @@ from local_skill import DEFAULT_NAME, MARKER, update_local_skill
 
 
 class LocalSkillTests(unittest.TestCase):
-    def test_update_command_publishes_self_contained_skill(self):
+    def test_update_command_installs_self_contained_pi_skill(self):
         compiler = SCRIPTS / "compile-reference-dsl.py"
         with TemporaryDirectory() as directory:
             home = Path(directory).resolve()
@@ -27,7 +27,8 @@ class LocalSkillTests(unittest.TestCase):
                 sys, "argv", [str(compiler), "--update-skill"]
             ):
                 self.assertEqual(main(), 0)
-            target = home / ".agents" / "skills" / DEFAULT_NAME
+            target = home / ".pi" / "agent" / "skills" / DEFAULT_NAME
+            self.assertFalse((home / ".agents").exists())
             self.assertTrue((target / "SKILL.md").is_file())
             self.assertTrue((target / "hooks" / "README.md").is_file())
             self.assertFalse((target / "_project").exists())
@@ -43,10 +44,13 @@ class LocalSkillTests(unittest.TestCase):
                         self.assertTrue(destination.is_relative_to(target))
                         self.assertTrue(destination.exists())
 
-    def test_updates_legacy_installation_and_preserves_local_edits(self):
+    def test_updates_pi_installation_and_preserves_local_edits(self):
         with TemporaryDirectory() as directory:
             home = Path(directory).resolve()
             target = home / ".pi" / "agent" / "skills" / DEFAULT_NAME
+            shared_entry = home / ".agents" / "skills" / DEFAULT_NAME / "SKILL.md"
+            shared_entry.parent.mkdir(parents=True)
+            shared_entry.write_bytes(b"shared")
             target.mkdir(parents=True)
             entry = target / "SKILL.md"
             entry.write_bytes(b"old")
@@ -69,4 +73,4 @@ class LocalSkillTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "本地修改"):
                     update_local_skill(outputs)
             self.assertEqual(entry.read_text(encoding="utf-8"), "本地修改")
-            self.assertFalse((home / ".agents" / "skills").exists())
+            self.assertEqual(shared_entry.read_bytes(), b"shared")

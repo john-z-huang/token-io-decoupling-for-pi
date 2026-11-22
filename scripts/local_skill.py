@@ -21,11 +21,7 @@ def _present(path: Path) -> bool:
 def _target(home: Path, name: str) -> Path:
     if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name) or name == "token-io-decoupling":
         raise ValueError("请选择合法的 Skill 名称，旧项目名称受保护")
-    current = home / ".agents" / "skills" / name
-    legacy = home / ".pi" / "agent" / "skills" / name
-    if _present(current) and _present(legacy):
-        raise ValueError("两个 Skill 目录均有同名内容，请先核实重复安装")
-    return legacy if _present(legacy) else current
+    return home / ".pi" / "agent" / "skills" / name
 
 
 def _check_destination(home: Path, target: Path) -> None:
@@ -68,7 +64,7 @@ def _snapshot(target: Path, name: str) -> dict | None:
 
 
 def update_local_skill(outputs: dict[Path, str], name: str = DEFAULT_NAME) -> Path:
-    """安装或更新相同名称的 Skill，兼容原有受管理安装。"""
+    """在 Pi 专用目录安装或更新受管理的 Skill。"""
     home = Path.home().resolve()
     target = _target(home, name)
     _check_destination(home, target)
@@ -103,7 +99,7 @@ def update_local_skill(outputs: dict[Path, str], name: str = DEFAULT_NAME) -> Pa
                 encoding="utf-8",
             )
             _check_destination(home, target)
-            if _target(home, name) != target or _snapshot(target, name) != before:
+            if _snapshot(target, name) != before:
                 raise ValueError(f"Skill 目标在更新期间发生变化：{target}")
             if before is not None:
                 target.rename(backup)

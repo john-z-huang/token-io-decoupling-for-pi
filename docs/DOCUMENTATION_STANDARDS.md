@@ -5,7 +5,6 @@
 ## 文件命名
 
 - 维护的说明、指令和设计文档统一使用简体中文，保留既有不带语言后缀的文件名，例如 `README.md`、`SKILL.md`。
-- 不创建带旧语言后缀的中文镜像，也不另建英文版本或语言目录。
 - 技术术语、模型与 API 标识符、命令、配置键、代码示例和外部资料的原始名称无需强行翻译。
 - 用户保存的非启用备份、历史测量数据和第三方原始材料不属于维护中的权威指令，不因本规范被自动改写。
 
@@ -28,9 +27,9 @@
 
 `blocks` 是有序列表，每项以稳定 ID 为键。`section` 生成标题和下级块，`checkpoint` 生成编号条目，`route_step` 绑定当前阶段及 Hook。`markdown` 保留列表、表格和 Mermaid 等正文。需独立读取的参考规则章节用 `expose: true` 发布片段，独立正文块还需填写 `title`。完整路线的图只描述主阶段间的必要顺序，跨阶段返回位置写在路线的「前置补证与恢复」。具体条件、取证、补证与阻断留在对应 Hook；只在有必要解释阶段内回环时附简图。Serena 在项目的 `language_servers` 启用 `yaml` 后，可按块 ID 定位检查点。
 
-DSL 源文件之间使用相对 `.yaml` 链接。引用具体章节时使用块 ID，例如 `runtime-provider-support.yaml#subagent-models`。编译器验证目标文件及章节，再为阅读版生成相应的 `.md` 和 Markdown 标题锚点。将同一引用解析为 `coding-rule:` 并按片段 ID 查询正文，是已归档旧扩展的行为。`markdown_path` 字段指定阅读版的位置。
+DSL 源文件之间使用相对 `.yaml` 链接。引用具体章节时使用块 ID，例如 `runtime-provider-support.yaml#subagent-models`。编译器验证目标文件及章节，再为阅读版生成相应的 `.md` 和 Markdown 标题锚点。`markdown_path` 字段指定阅读版的位置。
 
-编译器从 `rules/` 生成维护用 `skill/`，包括 Markdown 阅读版和 Skill 元数据。该目录由 Git 忽略，`--check` 只读核对生成结果。安装发布使用[本地更新命令](../INSTALL.md)，直接从本次编译结果更新受管理目录。发布内容的本地链接须留在 Skill 目录内。宿主与独立工具的职责见[工作流架构](WORKFLOW_ARCHITECTURE.md)。
+编译器从 `rules/` 生成维护用 `skill/`，包括 Markdown 阅读版和 Skill 元数据。该目录由 Git 忽略，`--check` 只读核对生成结果。使用[本地更新命令](../INSTALL.md)将本次编译结果安装到受管理目录。安装后的本地链接须留在 Skill 目录内。
 
 ### Coding DSL 类型与模板
 
@@ -53,7 +52,7 @@ Coding DSL 用 `document_type` 声明用途。类型由 `rules/` 下的路径和
 
 结构检查会验证类型声明、章节顺序、块类型、必须发布的片段、路线阶段顺序和现有路线、模块的检查点 ID。正常导出和 `--check` 也执行这组检查，并继续核对引用和生成结果。
 
-参考目录和路线目录以 `README.yaml` 为导航入口。参考目录的分类或所有者章节应各引用一次直属规则和子目录的 `README.yaml`。构建会清理这两处仍带原生成标记的旧 `INDEX.md`，以及迁移前带生成标记的路线和路线目录阅读版。
+参考目录和路线目录以 `README.yaml` 为导航入口。参考目录的分类或所有者章节应各引用一次直属规则和子目录的 `README.yaml`。
 
 ### 从流程图定位检查点
 
@@ -75,7 +74,7 @@ Coding DSL 用 `document_type` 声明用途。类型由 `rules/` 下的路径和
 - [合同模板](../rules/templates/hooks/hook-contract.yaml) 按触发条件、输入与证据、执行要求、可选的阶段内导航图、有序检查点、输出与落点、退出与阻断、重新核验、规则来源排序。八份由路线绑定的合同保留有序检查点；验证 Hook 保留局部重验简图，不要求其他合同用图复述正文。顶层块、执行子章节和检查点可以按稳定 ID 查询。
 - [目录模板](../rules/templates/hooks/hook-directory.yaml) 定义导语、合同与明确触发、宿主回调、链接基准和维护检查的顺序。
 - `activate_on` 声明阶段、语义信号或宿主状态对应的合同。Agent 根据路线、实际动作及证据读取阶段合同。语义变化由 Agent 在上下文中判断，再定向读取适用规则。`applicability: optional` 标记可凭证据判断不适用的事项，`applicability: sub_agent` 限定子代理分支。
-- 导航引用使用相对 `.yaml#块ID`，导出时转成 Markdown 路径和标题锚点。执行要求中的 `rule_include` 用来读取所引用的底层参考规则片段。可选的阶段内导航图与来源表随阅读版发布。注入主路线和已触发的合同，以及通过 `coding-rule:hook-entry#ER03` 等 ID 查询检查点，均是已归档旧扩展的行为。 [入口合同示例](../rules/hooks/entry.yaml)
+- 导航引用使用相对 `.yaml#块ID`，导出时转成 Markdown 路径和标题锚点。执行要求中的 `rule_include` 引用底层参考规则片段。可选的阶段内导航图与来源表随阅读版生成。 [入口合同示例](../rules/hooks/entry.yaml)
 - 修改合同的来源表时，先手动同步 [YAML 来源对照](../rules/hooks/SOURCE_COVERAGE.yaml) 中的逐篇来源及归属，再用编译器生成 [Markdown 来源对照](../skill/hooks/SOURCE_COVERAGE.md)。阶段绑定见[路线目录](../rules/workflows/README.yaml)的「分阶段 Hooks」。
 
 ```sh
@@ -102,4 +101,4 @@ Coding DSL 用 `document_type` 声明用途。类型由 `rules/` 下的路径和
 
 文档层级、所有权、模块顺序、必要证据和工作流返回边界仍须保留。
 
-路线图、检查点和规则引用以当前编译产物校验。旧路径与旧步骤的映射及其测试见[迁移归档](../archive/mcp-server/docs/migrations/)。
+路线图、检查点和规则引用以当前编译产物校验。

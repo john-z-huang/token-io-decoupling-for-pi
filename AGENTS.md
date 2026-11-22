@@ -2,31 +2,25 @@
 
 ## 项目范围与权威资料
 
-- 本仓库维护面向 Pi Coding Agent 的 Hooks Skill 和本地更新入口。以根目录 `README.md` 为项目入口。
-- Skill 指令维护在 `rules/`。编译器生成的维护用 `skill/` 目录由 Git 忽略。`docs/` 只存放项目文档。修改入口、Hook、工作流或策略时，先定位各自的 owner。
+- 本仓库维护面向 Pi Coding Agent 的 Hooks Skill，以及编译、验证和本地更新所需的配套脚本。项目入口为 [README.md](README.md)。
+- Skill 指令维护在 `rules/`，配套脚本在 `scripts/`。编译生成的 `skill/` 目录由 Git 忽略。修改入口、Hook、工作流或策略时，先定位对应的源文件。
 - 文档维护规范见 [`docs/DOCUMENTATION_STANDARDS.md`](docs/DOCUMENTATION_STANDARDS.md)，本地更新见 [`INSTALL.md`](INSTALL.md)。
-- [旧 MCP Server](archive/mcp-server/) 与相关文档、脚本和测试为只读归档，构建、安装和默认验证排除该目录。
+- `archive/` 中的资料仅供查阅，默认构建、安装和验证均跳过该目录。
+
+## Skill 安装
+
+- 本项目的 Skill 专供 Pi Coding Agent 使用。安装或更新前核对命令的实际目标，只允许写入 `~/.pi/agent/skills/` 下的对应目录。
+- 禁止将本项目的 Skill 安装、复制或链接到 `~/.agents/skills/` 或其他 Code Agent 的全局 Skill 目录，避免被其他 Code Agent 自动加载。
 
 ## Coding 工作流方向
 
-- 已归档的旧扩展是将 Coding 工作流固化为代码的旧实验。该实现已停止开发，归档仅供查阅。当前行为以 Skill 和实际宿主能力为准。
-- 后续开发以 [Hook 合同](rules/hooks/README.yaml) 为主要规则源。[单代理路线](rules/workflows/coding-single-agent.yaml)和[多代理路线](rules/workflows/coding-multi-agent.yaml)只作为指令供 Agent 阅读和理解，不编码为状态机。Hook 合同不是逐条自动触发的 Pi 宿主事件。
-- Code Agent 根据规则和已核实的事实，判断适用的 Hook、工具和分支，以及何时推进、复核或停下；必须遵守适用的 Hook 门禁和用户授权。
-
-### 固定方法准入与调用
-
-以下限制适用于本仓库未来 Coding 工作流扩展的固定方法。
-
-- 只实现 Hook 必需的最小固定方法。新增前须指明对应的 Hook 条款、为何现有获准入口不足、最小输入和输出，以及回执能证明什么、不能证明什么。原生工具或现有受保护能力能满足要求时不再包装。
-- 不按阶段或检查点逐个造接口，不复制政策，不维护路线游标或强制队列，不自动派发或推进。
-- 仅供 Pi Agent 通过 Pi 原生 `model-only` 工具直调；不增加面向人的 CLI 或斜杠命令，不增加 MCP、codemode 或嵌套调用入口。`model-only` 不是 OS 安全隔离。
-- 工具返回的事实、指纹和回执只在各自的证据边界内使用，不代替授权判定、独立验证或最终验收。
+- [单代理路线](rules/workflows/coding-single-agent.yaml)和[多代理路线](rules/workflows/coding-multi-agent.yaml)定义阶段顺序，[Hook 合同](rules/hooks/README.yaml)说明触发条件、所需证据和通过条件。
+- Agent 根据指令和已核实的事实选择适用的 Hook、工具和分支，并按当前证据判断何时推进、复核或停下。操作须符合适用的 Hook 条件和用户授权。
 
 ## 修改与验证
 
 - 维护中的文档使用简体中文和现有文件名；不新增英文副本或旧式语言后缀镜像。本地 Markdown 链接须指向存在的当前文件，移动或重命名时同步更新引用。
-- 修改按需验证，不把结构检查当作语义验收。归档扩展不参与当前验证；文档变更按文档规范运行对应检查。
-- Coding 工作流扩展在完整测试与实际环境验证完成前不得推荐安装；不得把离线检查描述为完整测试、实际环境验收或运行效率的证明。
+- 按文档规范选择验证，分别报告结构检查和语义验收的实际结果。
 - 用隔离的临时安装验证 Skill 更新。实际用户目录或宿主配置仅按对应授权修改。
 
 ## 安全与 Git
