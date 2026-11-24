@@ -46,13 +46,13 @@ class LocalSkillTests(unittest.TestCase):
                 sys, "argv", [str(compiler), "--install-skill"]
             ):
                 self.assertEqual(main(), 0)
-            target = home / ".agents" / "skills" / DEFAULT_NAME
+            target = home / ".agents" / "skills" / "token-io-decoupling"
             self.assertFalse((home / ".pi").exists())
-            self.assertTrue((target / "SKILL.md").is_file())
+            self.assertIn("\nname: token-io-decoupling\n", (target / "SKILL.md").read_text(encoding="utf-8"))
             self.assertTrue((target / "hooks" / "README.md").is_file())
             self.assertFalse((target / "_project").exists())
             manifest = json.loads((target / MARKER).read_text(encoding="utf-8"))
-            self.assertEqual(manifest["name"], DEFAULT_NAME)
+            self.assertEqual(manifest["name"], "token-io-decoupling")
             with patch.object(Path, "home", return_value=home), patch.object(
                 sys, "argv", [str(compiler), "--install-skill", "--host", "pi"]
             ):

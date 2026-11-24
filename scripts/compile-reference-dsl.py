@@ -387,7 +387,7 @@ def main() -> int:
     mode.add_argument("--locate-checkpoint", metavar="ID", help="定位检查点 ID 或文档ID#块ID")
     parser.add_argument("--from", dest="origin", metavar="文档ID", help="在指定流程图中定位节点")
     parser.add_argument("--show", action="store_true", help="定位时同时输出对应的 YAML 块内容")
-    parser.add_argument("--name", help="指定受管理的 Skill 名称，默认 token-io-decoupling-skill")
+    parser.add_argument("--name", help=f"指定受管理的 Skill 名称，默认 {DEFAULT_NAME}")
     parser.add_argument("--host", choices=HOSTS, help=f"选择默认 Skill 根目录，默认 {DEFAULT_HOST}")
     destination = parser.add_mutually_exclusive_group()
     destination.add_argument("--skills-dir", type=Path, help="自定义 Skill 根目录，在其下使用 --name 作为子目录")

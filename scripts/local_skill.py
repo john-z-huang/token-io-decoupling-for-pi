@@ -10,7 +10,7 @@ import shutil
 from pathlib import Path
 from tempfile import mkdtemp
 
-DEFAULT_NAME = "token-io-decoupling-skill"
+DEFAULT_NAME = "token-io-decoupling"
 DEFAULT_HOST = "codex"
 MARKER = ".token-io-skill.json"
 HOST_SKILLS_DIRS = {"pi": Path(".pi/agent/skills"), "codex": Path(".agents/skills")}
@@ -24,8 +24,8 @@ def _present(path: Path) -> bool:
 def _destination(
     name: str, host: str, project_root: Path | None, skills_dir: Path | None,
 ) -> tuple[Path, Path]:
-    if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name) or name == "token-io-decoupling":
-        raise ValueError("请选择合法的 Skill 名称，旧项目名称受保护")
+    if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name):
+        raise ValueError("Skill 名称须由小写字母、数字和单个分隔连字符组成")
     if host not in HOST_SKILLS_DIRS:
         raise ValueError(f"未知宿主：{host}")
     if skills_dir is not None:
@@ -117,7 +117,7 @@ def update_local_skill(
             staged.mkdir()
             for relative, body in outputs.items():
                 if relative == Path("SKILL.md"):
-                    body = re.sub(r"(?m)^name: token-io-decoupling-skill$", f"name: {name}", body)
+                    body = re.sub(rf"(?m)^name: {re.escape(DEFAULT_NAME)}$", f"name: {name}", body)
                 destination = staged / relative
                 destination.parent.mkdir(parents=True, exist_ok=True)
                 destination.write_text(body, encoding="utf-8")

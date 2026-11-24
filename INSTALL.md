@@ -20,7 +20,7 @@
 | `--skills-dir <目录>` | 指定的目录，优先于 `--host` 的默认值。支持绝对路径、相对路径和 `~`。 |
 | `--host codex --project-root <绝对目录>` | 现有项目下的 `.agents/skills`。与 `--skills-dir` 只能选一个。 |
 
-最终路径为 `<安装根目录>/<名称>`。默认名称是 `token-io-decoupling-skill`，可用 `--name` 指定小写字母、数字和连字符组成的名称。相对路径以运行命令时的工作目录为准。
+默认安装路径为 `~/.agents/skills/token-io-decoupling/`。可用 `--name` 指定小写字母、数字和连字符组成的名称，作为安装根目录下的子目录。相对路径以运行命令时的工作目录为准。
 
 ```bash
 /bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --install-skill --host pi' _
@@ -28,7 +28,7 @@
 /bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --update-skill --skills-dir "$1"' _ '/absolute/path/to/my skills'
 ```
 
-Codex 从目标项目新开会话后，可用 `$token-io-decoupling-skill` 显式调用。Pi 可执行 `/reload` 或新开会话。选用自定义目录时，宿主需要能够发现或显式加载该路径。
+Codex 从目标项目新开会话后，可用 `$token-io-decoupling` 显式调用。Pi 可执行 `/reload` 或新开会话。选用自定义目录时，宿主需要能够发现或显式加载该路径。
 
 ## 安装保护
 

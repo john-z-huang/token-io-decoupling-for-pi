@@ -33,6 +33,6 @@ blocks:
 
         [Hooks 触发目录](hooks/README.yaml) · [运行时能力边界](references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml)
 front_matter:
-  name: token-io-decoupling-skill
+  name: token-io-decoupling
   description: >-
     用于代码理解、实现、重构、调试、验证、文档和 Git 工作的 Coding 指令。按中文规则读取单代理或多代理路线及适用 Hook。
