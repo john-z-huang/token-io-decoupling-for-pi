@@ -1,9 +1,9 @@
 # Token I/O Decoupling
 
-本项目维护供 Codex 和 Pi Coding Agent 使用的 Coding Hooks Skill，以及编译、验证和本地更新脚本。两条路线由 YAML 定义，16 份 Hook 合同提供触发条件、所需证据和验收条件。Multimodal 内容作为参考资料提供。
+Token I/O Decoupling 是一个通用的 Skills，与目标 Code Agent无关，通过指令描述的方式，它让不同宿主共用一套开发规则，让 Agent 按任务读取所需指令，减少无关内容占用上下文。
 
-按[安装与更新](INSTALL.md)生成本地 Skill。从 `SKILL.md` 进入，按当前路线和适用的 Hook 阅读指令。
+## 主要作用
 
-- [Skill 源入口](rules/SKILL.yaml)和 [Hooks 源目录](rules/hooks/README.yaml)
-- [项目文档](docs/README.md)
-- [子代理职责描述](agents/)
+- 为代码理解、修改和验证提供单代理与多代理工作流。
+- 通过 Hook 合同明确各阶段的触发条件、所需证据、授权边界和验收标准。
+- 让 Agent 根据宿主实际提供的能力选择工具。缺少必需能力时，只暂停依赖该能力的步骤。
