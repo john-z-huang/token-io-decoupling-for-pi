@@ -34,12 +34,12 @@ blocks:
                   kind: markdown
                   text: |-
                     仅当复用可能比设置成本更有利时分配 Context Bootstrap/Refresh：至少两个独立下游 Worker、广泛侦察加三个或更多路由策略模块，或来源集合大致超过 20k 字符 / 5k token-equivalents。单个小 Worker 或仅文档快速路径应跳过。这里的数值是路由启发式，不是运行时或质量测量结论。
-  - pi-guidance:
+  - runtime-guidance:
       kind: section
-      title: "Pi Coding Agent 优化指令"
+      title: "运行时指引"
       expose: true
       blocks:
-        - pi-guidance-body:
+        - runtime-guidance-body:
             kind: markdown
             text: |-
               父级以当前对话记录预留职责与名额，实际子任务完成后回写证据，不把扩展配置名当作职责。一次性执行不会自动释放已绑定名额。只有获准独立会话的验证才可标记独立，普通同上下文检查如实分类。

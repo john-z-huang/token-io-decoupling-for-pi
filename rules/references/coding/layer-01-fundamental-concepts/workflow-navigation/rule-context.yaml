@@ -27,13 +27,13 @@ blocks:
                     使用当前工作流 owner 作为权威来源，按适用标题阅读正文。逐项直接读取判断所需的链接 owner；相关条文缺失时，以当前文件补证。
 
                     将导航范围限制在当前判断所需内容。不得扫描整个仓库，也不得将链接引用视为已递归加载。必需内容缺失或结果不完整时，调用方必须直接获取权威 owner；若无法获取，则仅阻塞依赖该内容的判断。导航不需要时，记录附有理由的 `Not applicable`。
-  - pi-guidance:
+  - runtime-guidance:
       kind: section
-      title: "Pi Coding Agent 优化指令"
+      title: "运行时指引"
       expose: true
       blank_lines_before: 2
       blocks:
-        - pi-guidance-body:
+        - runtime-guidance-body:
             kind: markdown
             text: |-
               从当前检查点指向的 Markdown 文件或其 YAML 源读取适用规则与直接依赖。按标题或块 ID 定位所需段落，核对文件版本及适用性；必需内容缺失时暂停依赖判断。

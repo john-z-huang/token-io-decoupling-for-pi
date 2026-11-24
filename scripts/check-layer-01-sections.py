@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""使用共享校验核心检查 Pi 指令的 Layer-01 模块。"""
+"""使用共享校验核心检查 Layer-01 基础规则。"""
 
 from __future__ import annotations
 
@@ -10,13 +10,13 @@ from runpy import run_path
 _DOCUMENT_RULES = run_path(str(Path(__file__).resolve().with_name("document_rules.py")))
 
 LAYER_01 = Path("skill/references/coding/layer-01-fundamental-concepts")
-HEADINGS = ("通用规范", "Pi Coding Agent 优化指令")
+HEADINGS = ("通用规范", "运行时指引")
 NAVIGATION = "相关概念"
 top_level_sections = _DOCUMENT_RULES["top_level_sections"]
 
 
 def layer01_section_issues(path: str, content: str) -> list[str]:
-    """按 Pi 文档结构合同检查一份 owner 正文。"""
+    """按基础规则的结构合同检查一份 owner 正文。"""
     return _DOCUMENT_RULES["layer01_section_issues"](path, content)
 
 

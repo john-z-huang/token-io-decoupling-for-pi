@@ -100,12 +100,12 @@ blocks:
                     | 阶段验收 | Root 最终接受已声明的阶段证据并放行下一阶段；普通进度不算验收。 |
 
                     按“事件类别 + 相关决策/证据 epoch”去重。每个事实只输出一次，同一回合多个触发合并；只有相关事实或 epoch 实质变化才再次输出。不得按经过时间或重复活动推断实质性。`off` 仅抑制可选摘要；必需报告、证据、Control 更新、Progress Signal 和更高层周期更新仍然必需。任何频率都不允许披露私有推理。
-  - pi-guidance:
+  - runtime-guidance:
       kind: section
-      title: "Pi Coding Agent 优化指令"
+      title: "运行时指引"
       expose: true
       blocks:
-        - pi-guidance-body:
+        - runtime-guidance-body:
             kind: markdown
             text: |-
               Root 按指令收集审计偏好后，将三项值与来源保存于权威父级对话的规范记录。同一 Session 的新任务和恢复沿用已核实的值。审计偏好由 Root 和 Worker 按规则应用。Worker 日志能力另外用实际扩展与访问证据核验。

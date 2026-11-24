@@ -16,7 +16,7 @@ blocks:
         - trigger-body:
             kind: markdown
             text: |-
-              当首次收到 Coding 指令、进入任何依赖当前 Session 身份/模式/数量/分配的工作、恢复或 compact 后继续、出现真正新根/Fork、需更新父级控制记录，或准备使用 Worker/子代理时触发。它覆盖完整宿主 Session 生命周期，不是逐轮重选。普通后续轮次沿用已锁定状态；真正新身份的 Fork 必须重新经过模式与数量门禁。Pi 的主会话、扩展子任务、持久子代理身份不是天然一一对应；不得从工作目录、名称或一次调用推断身份或 worktree 隔离。
+              当首次收到 Coding 指令、进入任何依赖当前 Session 身份/模式/数量/分配的工作、恢复或 compact 后继续、出现真正新根/Fork、需更新父级控制记录，或准备使用 Worker/子代理时触发。它覆盖完整宿主 Session 生命周期，不是逐轮重选。普通后续轮次沿用已锁定状态；真正新身份的 Fork 必须重新经过模式与数量门禁。主会话、一次性子任务和持久子代理身份须分别核实；不得从工作目录、名称或一次调用推断身份或 worktree 隔离。
 
               输入至少包括用户当前指令及明确模式/数量偏好、当前 Session 身份证据、现存规范父级对话记录、已释放路线和任务 Contract。记录尚不存在不构成入口失败，应按首次选择建档；但依赖状态的受保护操作不能在模式/身份/记录证据缺失或冲突时继续。
   - execution:
@@ -45,12 +45,12 @@ blocks:
                     按 [Session 职责 owner](../references/coding/layer-01-fundamental-concepts/session-runtime/session-role-ownership.yaml) 检查唯一职责和能力。Root 负责前置决策、放行、用户交互与最终验收。已启动的任务即使失败、中断或终止也占用名额和职责；只有宿主确认实际未执行才可撤销未绑定的预留。一次性任务的逻辑 allocation 用真实调用定位。Scope、影响、返回条件和显式 `write_content_memo` 随实际派发内容传递，缺少可靠承载方式时暂停依赖派发。
         - execution-03:
             kind: section
-            title: 3. Pi 能力边界
+            title: 3. 宿主能力边界
             blocks:
               - execution-03-body:
                   kind: markdown
                   text: |-
-                    以当前会话明确宿主元数据和实际暴露能力为准，不从模型名、工具名或 Shell 推断。工具可用不等于授权；模式获批不等于扩展存在。按当前环境的发现方式核对实际能力、工具说明、参数 Schema 及服务指令；不得绕过隐藏或拒绝访问的能力。只有真实暴露且授权的子代理能力才可使用，按 Schema 核验范围、目录、权限、返回/取消、持久身份续接支持；仅传真实接受字段。不伪造 ID、调用结果、effort、消息或能力。Pi 不默认提供内置子代理或 Plan mode，不从 Shell 启动另一个 Pi 来补造。一次性任务以真实调用证据绑定逻辑 allocation，不声称可恢复；缺持久身份仅限制依赖复用的分支。Session 隔离不等于 worktree 隔离。禁止 Computer Use 及经 Shell/MCP/子代理包装的同类操作。
+                    以当前会话明确宿主元数据和实际暴露能力为准，不从模型名、工具名或 Shell 推断。工具可用不等于授权；模式获批不等于扩展存在。按当前环境的发现方式核对实际能力、工具说明、参数 Schema 及服务指令；不得绕过隐藏或拒绝访问的能力。只有真实暴露且授权的子代理能力才可使用，按 Schema 核验范围、目录、权限、返回/取消、持久身份续接支持；仅传真实接受字段。不伪造 ID、调用结果、effort、消息或能力。按入口选中的宿主适配核对原生或扩展能力，不从 Shell 启动另一个 Agent 来补造。一次性任务以真实调用证据绑定逻辑 allocation，不声称可恢复；缺持久身份仅限制依赖复用的分支。Session 隔离不等于 worktree 隔离。禁止 Computer Use 及经 Shell/MCP/子代理包装的同类操作。
 
                     输入输出：输入是当前身份、用户选择、规范记录和扩展能力证据；输出是已读回的规范记录、锁定路线/容量、逐项证据与未满足前置。Session readiness 可返回 complete、needs_prerequisite、blocked；审计及容量核验不授权子代理工作。
   - checkpoints:
@@ -120,5 +120,5 @@ blocks:
               | [模式确认](../references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-confirmation.yaml) | 扩展与回退入口、默认值和选择来源 |
               | [数量门禁](../references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-count-gate.yaml) | 正整数、无效数量、不同职责的明确加一批准 |
               | [模式重入](../references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-reentry.yaml) | Session锁定、Fork新身份与重入 |
-              | [Pi运行时](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml) | Schema、能力/授权分离及适配缺口 |
+              | [运行时与能力](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml) | Schema、能力/授权分离及适配缺口 |
               | [状态解析](../references/coding/layer-03-workflow-checkpoints/session-state-resolution.yaml) | 当前父级记录、身份与读回 |

@@ -48,12 +48,12 @@ blocks:
                   kind: markdown
                   text: |-
                     确认后所有工作保留在当前 Session。不得创建、fork、handoff、消息联系、替换或管理子 Agent 或额外 Session。结构收益、验证、文档/Git、bootstrap、恢复或运行便利都不是例外。独立验证仍是语义要求，但该路线不可用。
-  - pi-guidance:
+  - runtime-guidance:
       kind: section
-      title: "Pi Coding Agent 优化指令"
+      title: "运行时指引"
       expose: true
       blocks:
-        - pi-guidance-body:
+        - runtime-guidance-body:
             kind: markdown
             text: |-
               Root 按指令先确认模式/预算，再收集审计偏好。尚无有效选择时用上面的四项文字菜单；有效显式答案不重问。答案未齐、取消或无效时保持未放行；无 UI 时须显式提供缺项，否则阻断依赖工作。已锁定模式只在新 Session 中重新选择。模式选择与实际创建分别核验。

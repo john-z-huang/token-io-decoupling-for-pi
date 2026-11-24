@@ -36,15 +36,15 @@ blocks:
                   kind: markdown
                   text: |-
                     用户、权限、安全、产品、运行环境、能力、仓库和安全限制始终有效。能力不可用时阻塞路线，不能据此默默改变模式或数量。
-  - pi-guidance:
+  - runtime-guidance:
       kind: section
-      title: "Pi Coding Agent 优化指令"
+      title: "运行时指引"
       expose: true
       blocks:
-        - pi-guidance-body:
+        - runtime-guidance-body:
             kind: markdown
             text: |-
-              区分 Pi 当前会话的 compact/恢复和真正新根会话。只依据真实宿主事件和当前记录，不从文件名猜测身份。分支、树导航和扩展任务均不自动继承可操作子代理；缺少当前状态时先恢复证据再继续。
+              区分当前会话的 compact/恢复和真正新根会话。只依据真实宿主事件和当前记录，不从文件名猜测身份。分支、树导航和扩展任务均不自动继承可操作子代理；缺少当前状态时先恢复证据再继续。
   - related:
       kind: section
       title: "相关概念"

@@ -38,12 +38,12 @@ blocks:
                   kind: markdown
                   text: |-
                     阶段与模块的对应关系由当前 Single-Agent 或 Multi-Agent 路线拥有。只有模式和数量已锁定后，建议才可指出匹配模块。Multi-Agent 执行提醒不能替代角色、任务授权、memo、Slice 和子代理生命周期 owner。验证、修复、文档、Git 与验收仍由各自直接 owner 管理。
-  - pi-guidance:
+  - runtime-guidance:
       kind: section
-      title: "Pi Coding Agent 优化指令"
+      title: "运行时指引"
       expose: true
       blocks:
-        - pi-guidance-body:
+        - runtime-guidance-body:
             kind: markdown
             text: |-
               按已锁定路线、当前 Hook 及实际宿主状态判断当前模块。外部建议仅在确有可用且适用的能力时采用，随后按当前规则复核。

@@ -104,15 +104,15 @@ blocks:
                   kind: markdown
                   text: |-
                     Root 在使用结果前核验当前事实版本/指纹、当前会话关系、候选身份、权限、能力、已放行范围和最新可用性。工具结果仅提供建议，不派发任务。无论执行主体是谁，Root 均保留最终语义判断和验收职责。
-  - pi-guidance:
+  - runtime-guidance:
       kind: section
-      title: "Pi Coding Agent 优化指令"
+      title: "运行时指引"
       expose: true
       blocks:
-        - pi-guidance-body:
+        - runtime-guidance-body:
             kind: markdown
             text: |-
-              只将实际工具证据确认的可用任务/会话列为候选。一次性已完成任务不能作为现有空闲 Session。扩展支持的一次性新任务仍须通过职责、预算和 Slice 创建门禁；建议 API 身份契约不适用 Pi 时回到直接 owner 判断。
+              只将实际工具证据确认的可用任务/会话列为候选。一次性已完成任务不能作为现有空闲 Session。扩展支持的一次性新任务仍须通过职责、预算和 Slice 创建门禁；建议 API 的身份契约不适用当前宿主时回到直接 owner 判断。
   - related:
       kind: section
       title: "相关概念"

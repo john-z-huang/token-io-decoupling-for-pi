@@ -18,7 +18,7 @@ from local_skill import DEFAULT_NAME, MARKER, update_local_skill
 
 
 class LocalSkillTests(unittest.TestCase):
-    def test_update_command_installs_self_contained_pi_skill(self):
+    def test_update_command_installs_same_self_contained_skill_for_both_hosts(self):
         compiler = SCRIPTS / "compile-reference-dsl.py"
         with TemporaryDirectory() as directory:
             home = Path(directory).resolve()
@@ -34,6 +34,17 @@ class LocalSkillTests(unittest.TestCase):
             self.assertFalse((target / "_project").exists())
             manifest = json.loads((target / MARKER).read_text(encoding="utf-8"))
             self.assertEqual(manifest["name"], DEFAULT_NAME)
+            project = home / "project"
+            project.mkdir()
+            (project / ".git").mkdir()
+            with patch.object(Path, "home", return_value=home), patch.object(
+                sys, "argv", [str(compiler), "--update-skill", "--host", "codex",
+                              "--project-root", str(project)]
+            ):
+                self.assertEqual(main(), 0)
+            codex = project / ".agents" / "skills" / DEFAULT_NAME
+            self.assertEqual((codex / MARKER).read_bytes(), (target / MARKER).read_bytes())
+            self.assertFalse((home / ".agents").exists())
             for path in target.rglob("*.md"):
                 for _, _, href in links_in_markdown(path.read_text(encoding="utf-8")):
                     url = urlsplit(href)
@@ -74,3 +85,17 @@ class LocalSkillTests(unittest.TestCase):
                     update_local_skill(outputs)
             self.assertEqual(entry.read_text(encoding="utf-8"), "本地修改")
             self.assertEqual(shared_entry.read_bytes(), b"shared")
+
+    def test_codex_requires_explicit_non_global_project_root(self):
+        with TemporaryDirectory() as directory:
+            home = Path(directory).resolve()
+            project = home / "project"
+            project.mkdir()
+            alias = home / "project-alias"
+            alias.symlink_to(project, target_is_directory=True)
+            with patch.object(Path, "home", return_value=home):
+                for project_root in (None, Path("relative"), home, alias):
+                    with self.subTest(project_root=project_root), self.assertRaises(ValueError):
+                        update_local_skill({}, host="codex", project_root=project_root)
+            self.assertFalse((home / ".agents").exists())
+            self.assertFalse((project / ".agents").exists())

@@ -80,8 +80,8 @@ blocks:
                     1. Evidence-on-Demand 定向请求路径、事实摘录或已存在的证据引用，不为同步而重新生成/读取整份原始状态。每个新最终状态 epoch 均重新评估，旧结论只能作上下文。
                     2. 使用 stable prefix + small delta、事件驱动有界等待；只有稳定历史妨碍理解时才压缩或重建。不保证未实测的缓存命中、额度、延迟、价格或质量。
                     3. 按当前操作和证据要求选择实际可用且获准的工具。通过当前环境的发现方式核对说明、参数 Schema 和权限，隐藏或拒绝访问的能力不得绕过。独立调用才并行；有身份、基线或效果依赖的调用保持顺序，逐项检查错误、状态和缺失证据。
-                    4. Pi 会话模型、子任务模型和外部服务的 API 模型分开核验；不按职责强制改模型或参数，不读取无关配置或凭据。普通测试使用离线 Mock；真实出站独立核验授权和服务契约要求的调用时配置。
-                    5. 不输出/持久化凭据、原始 transcript、私有思维链或无关敏感数据。Skill 更新不等于当前会话已加载；由用户 `/reload` 或新会话生效，不从 Shell 模拟交互命令。
+                    4. 当前宿主的会话模型、子任务模型和外部服务的 API 模型分开核验；不按职责强制改模型或参数，不读取无关配置或凭据。普通测试使用离线 Mock；真实出站独立核验授权和服务契约要求的调用时配置。
+                    5. 不输出/持久化凭据、原始 transcript、私有思维链或无关敏感数据。Skill 更新不等于当前会话已加载；按当前宿主适配核验加载版本，不从 Shell 模拟交互命令。
   - exit:
       kind: section
       title: 退出与阻断
@@ -111,6 +111,6 @@ blocks:
               | --- | --- |
               | [Skill入口](../SKILL.yaml) | Coding范围、硬约束、完成和MCP边界 |
               | [共享调度协议](../references/share/shared-protocols.yaml) | Contract、父级通道、Dispatch、反馈、按需证据与稳定性 |
-              | [Pi运行时与能力](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml) | 工具发现、三类模型、真实能力与加载更新 |
+              | [运行时与能力](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml) | 工具发现、三类模型、真实能力与加载更新 |
               | [Multimodal参考](../references/multimodal/multimodal-flow.yaml) | 仅参考，不建立可执行路线 |
               | [Multimodal API参考](../references/multimodal/multimodal-openai-profile.yaml) | 仅参考，不改变Coding/API授权 |

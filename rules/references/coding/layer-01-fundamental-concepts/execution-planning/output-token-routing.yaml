@@ -79,12 +79,12 @@ blocks:
                   kind: markdown
                   text: |-
                     使用建议前，Root 将其事实、上下文和政策哈希与当前证据比对，并核验当前模式。得到 `yes` 后，Root 还须独立核验所选子代理的当前身份、适任性、权限和空闲状态，之后才可派发。忙碌子代理尚未准备好接受派发。没有合适的空闲子代理时，保留等待/挂起状态；不得为满足此输出路由而新建子代理。建议不得改变明确用户执行指令。
-  - pi-guidance:
+  - runtime-guidance:
       kind: section
-      title: "Pi Coding Agent 优化指令"
+      title: "运行时指引"
       expose: true
       blocks:
-        - pi-guidance-body:
+        - runtime-guidance-body:
             kind: markdown
             text: |-
               先判断真正的预期输出，而不是工具原始返回体积。当前环境支持汇总时，可汇总独立调用的结果，只输出有界证据。一次性任务完成不等于空闲且可续接的子代理；扩展不支持复用时如实处理拓扑限制，不虚构候选。

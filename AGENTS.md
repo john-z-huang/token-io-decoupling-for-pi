@@ -2,15 +2,15 @@
 
 ## 项目范围与权威资料
 
-- 本仓库维护面向 Pi Coding Agent 的 Hooks Skill，以及编译、验证和本地更新所需的配套脚本。项目入口为 [README.md](README.md)。
+- 本仓库维护供 Codex 和 Pi Coding Agent 使用的 Hooks Skill，以及编译、验证和本地更新脚本。项目入口为 [README.md](README.md)。
 - Skill 指令维护在 `rules/`，配套脚本在 `scripts/`。编译生成的 `skill/` 目录由 Git 忽略。修改入口、Hook、工作流或策略时，先定位对应的源文件。
 - 文档维护规范见 [`docs/DOCUMENTATION_STANDARDS.md`](docs/DOCUMENTATION_STANDARDS.md)，本地更新见 [`INSTALL.md`](INSTALL.md)。
 - `archive/` 中的资料仅供查阅，默认构建、安装和验证均跳过该目录。
 
 ## Skill 安装
 
-- 本项目的 Skill 专供 Pi Coding Agent 使用。安装或更新前核对命令的实际目标，只允许写入 `~/.pi/agent/skills/` 下的对应目录。
-- 禁止将本项目的 Skill 安装、复制或链接到 `~/.agents/skills/` 或其他 Code Agent 的全局 Skill 目录，避免被其他 Code Agent 自动加载。
+- 安装或更新前核对宿主和实际目标。Pi 使用 `~/.pi/agent/skills/`。Codex 使用明确指定的项目根下 `.agents/skills/`，不得从本项目的安装命令写入全局 Codex Skill 目录。
+- 两个宿主共用同一规则产物。宿主事实与设置维护在 `rules/references/hosts/`，实际写入和配置修改须各有授权。
 
 ## Coding 工作流方向
 

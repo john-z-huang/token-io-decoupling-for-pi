@@ -31,7 +31,7 @@ blocks:
         - section-02-body:
             kind: markdown
             text: |-
-              三份[官方模型卡与通用选型参考](../coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml#subagent-models)说明能力、支持档位和provider/API限制。一般多步工作medium、简单确定任务low、复杂/高风险任务可high；xhigh/max须具体必要性，Root可按当前任务调整而非强制阶梯。Sol支持low/medium/high/xhigh/max；Terra/Luna另有none；Pi用实际支持的thinking（关闭意图为off），不使用minimal，不静默钳制/换模型。
+              [通用选型要求](../coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml#subagent-models)适用于当前宿主。结合实际模型卡核对能力、支持档位及 provider/API 限制。一般多步工作medium、简单确定任务low、复杂/高风险任务可high；xhigh/max须具体必要性，Root可按当前任务调整而非强制阶梯。Sol支持low/medium/high/xhigh/max；Terra/Luna另有none；推理设置按所选宿主适配与实际工具契约核验，不静默钳制或换模型。
 
               模型卡支持不等于宿主支持：三者为文本/图像输入、文本输出；不能由此推断原生视频/音频能力。视频帧必须由获准工具准备，图像输入、工具API、数据出站与格式都须核验。**本Skill禁止Computer Use**；卡片提到该能力不授权GUI截图定位、点击或Shell/MCP包装的同类操作。
 

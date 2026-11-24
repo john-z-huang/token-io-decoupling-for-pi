@@ -25,7 +25,7 @@ from ruamel.yaml.tokens import AliasToken, AnchorToken
 import document_rules as COMPLIANCE
 from coding_dsl_templates import DOCUMENT_TYPES, document_type, load_templates, validate_coding_document
 from hook_dsl_templates import HOOK_TYPES, hook_type, load_hook_templates, validate_hook_document
-from local_skill import DEFAULT_NAME, update_local_skill
+from local_skill import DEFAULT_NAME, HOSTS, update_local_skill
 from workflow_checkpoint_lookup import NUMBERED_BLOCKS, check_flowchart_references, locate_checkpoint
 from workflow_module_contracts import ROUTE_MODULES, WORKFLOW_PATH, WORKFLOW_SELECTOR
 
@@ -376,9 +376,11 @@ def main() -> int:
     parser.add_argument("--from", dest="origin", metavar="文档ID", help="在指定流程图中定位节点")
     parser.add_argument("--show", action="store_true", help="定位时同时输出对应的 YAML 块内容")
     parser.add_argument("--name", help="指定受管理的 Skill 名称，默认 token-io-decoupling-skill")
+    parser.add_argument("--host", choices=HOSTS, help="指定安装宿主，默认 pi")
+    parser.add_argument("--project-root", type=Path, help="Codex 安装的项目绝对目录")
     args = parser.parse_args()
-    if args.name is not None and not args.update_skill:
-        parser.error("--name 仅用于 --update-skill")
+    if any(value is not None for value in (args.name, args.host, args.project_root)) and not args.update_skill:
+        parser.error("--name、--host 和 --project-root 仅用于 --update-skill")
     if args.locate_checkpoint is None and (args.origin or args.show):
         parser.error("--from 和 --show 须与 --locate-checkpoint 一起使用")
     if args.origin and "#" in args.locate_checkpoint:
@@ -420,6 +422,8 @@ def main() -> int:
             installed = update_local_skill(
                 {path.relative_to(SKILL): body for path, body in outputs.items()},
                 name=args.name if args.name is not None else DEFAULT_NAME,
+                host=args.host or "pi",
+                project_root=args.project_root,
             )
             print(f"Skill 已更新：{installed}")
             return 0

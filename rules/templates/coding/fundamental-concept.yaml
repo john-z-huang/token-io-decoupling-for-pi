@@ -1,5 +1,5 @@
 layouts:
-  - [overview, rules, pi-guidance, related]
+  - [overview, rules, runtime-guidance, related]
 block_rules:
   overview:
     kind: markdown
@@ -7,7 +7,7 @@ block_rules:
   rules:
     kind: section
     expose: true
-  pi-guidance:
+  runtime-guidance:
     kind: section
     expose: true
   related:
@@ -37,12 +37,12 @@ document:
                 - scope-body:
                     kind: markdown
                     text: 说明何时启用规则、所需事实与不可跨越的边界。
-    - pi-guidance:
+    - runtime-guidance:
         kind: section
-        title: Pi Coding Agent 优化指令
+        title: 运行时指引
         expose: true
         blocks:
-          - pi-guidance-body:
+          - runtime-guidance-body:
               kind: markdown
               text: 说明 Pi 应如何使用或读取该规则。
     - related:

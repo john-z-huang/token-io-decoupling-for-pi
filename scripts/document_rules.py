@@ -314,7 +314,7 @@ def top_level_sections(content: str) -> list[tuple[int, str, int]]:
 
 
 def layer01_section_issues(path: str, content: str) -> list[str]:
-    expected = ("通用规范", "Pi Coding Agent 优化指令", "相关概念")
+    expected = ("通用规范", "运行时指引", "相关概念")
     sections = top_level_sections(content)
     errors: list[str] = []
     found = [heading for _line, heading, _offset in sections]

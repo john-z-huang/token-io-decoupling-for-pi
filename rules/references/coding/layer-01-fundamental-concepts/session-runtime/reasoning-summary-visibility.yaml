@@ -63,15 +63,15 @@ blocks:
                   kind: markdown
                   text: |-
                     摘要不能替代 Decision Brief、声明的阶段边界所需的 Progress Signal、验证证据或消息正文证据。推理回合结束与阶段边界重合时，将两者所需信息合并为一个简洁可见摘要，避免重复。Worker 已在自身会话完整可见的最终结果就是出站副本，不重复打印。Root 仍须完整读取实际返回正文后再依赖；Root 的可见副本遵循配置的消息预设。必需证据不可用时，报告限制并阻塞依赖动作。
-  - pi-guidance:
+  - runtime-guidance:
       kind: section
-      title: "Pi Coding Agent 优化指令"
+      title: "运行时指引"
       expose: true
       blocks:
-        - pi-guidance-body:
+        - runtime-guidance-body:
             kind: markdown
             text: |-
-              Pi 的 thinking 展示或隐藏不改变安全摘要规则。使用正常会话输出展示简明结果摘要，工具调用中无需逐步重复；不得读取或输出内部推理来满足审计。
+              宿主推理显示设置不改变安全摘要规则。使用正常会话输出展示简明结果摘要，工具调用中无需逐步重复；不得读取或输出内部推理来满足审计。
   - related:
       kind: section
       title: "相关概念"

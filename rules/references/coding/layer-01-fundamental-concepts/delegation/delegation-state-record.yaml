@@ -75,12 +75,12 @@ blocks:
                     初始 `mode_source: default` 决定使用 Multi-Agent 和预算 1。此决定只锁定容量。收到明确的增容批准后更新来源及数量。记录的已占用名额不得超过已锁定预算。当前会话中的每项职责和已绑定子代理身份都唯一；即使子代理已完成、失败、中断、取消或不可用也一样，生命周期变化不会释放职责。Native 导入或恢复必须拒绝重复职责或子代理身份。Fork 只有在重新通过模式/数量门禁后才能创建新记录，不得把来源 Session 的子代理身份导入为当前 allocation。实际子代理创建仍受输出类型和 Slice 门禁约束。
 
                     `session_audit` 遵循[会话审计可见性](../session-runtime/session-audit-visibility.yaml)定义的字段。仅根父级写入生效偏好及各字段来源。启动时只在已确认使用默认预设后为缺少的字段填入默认值。Worker 日志证据仅在首次需要或出现新的实际能力/访问证据或失败时更新，不逐消息更新。此状态不得改变 `mode`、`child_count`、授权、allocation 或 Slice 放行。不得将完整 Root 审计记录复制到策略文件或 Worker 可控状态中。
-  - pi-guidance:
+  - runtime-guidance:
       kind: section
-      title: "Pi Coding Agent 优化指令"
+      title: "运行时指引"
       expose: true
       blocks:
-        - pi-guidance-body:
+        - runtime-guidance-body:
             kind: markdown
             text: |-
               从权威父级对话回读本页规范记录，核对模式、数量、allocation、Slice、审计及未决效果。身份、能力及实际结果须另用真实宿主元数据和调用证据核验，不把父级记录当作宿主证明。调度记录只用于父级协调；一次性任务的逻辑 allocation 通过真实调用定位，不证明持久身份。

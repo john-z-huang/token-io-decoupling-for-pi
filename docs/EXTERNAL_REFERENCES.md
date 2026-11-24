@@ -4,7 +4,8 @@
 
 | 来源 | URL | 对应文档 | 开发用途与边界 |
 | --- | --- | --- | --- |
-| Pi 官方文档 | https://github.com/earendil-works/pi | [Pi 运行时与能力边界](../rules/references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml) | 核对 Skill 发现、按需加载及宿主提供的能力。 |
+| Pi 官方文档 | https://github.com/earendil-works/pi | [Pi 宿主适配](../rules/references/hosts/pi.yaml) | 核对 Skill 发现、按需加载及宿主提供的能力。 |
+| Codex 官方文档 | https://learn.chatgpt.com/docs/build-skills | [Codex 宿主适配](../rules/references/hosts/codex.yaml) | 核对项目 Scope 的 Skill 安装与发现。 |
 | Serena Memory 发现与读取 | https://raw.githubusercontent.com/oraios/serena/main/docs/02-usage/045_memories.md | [Serena 工具](../rules/references/coding/layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.yaml)、[任务计划生命周期](../rules/references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.yaml) | 核对按名称发现和读取 Memory，以及回读所需的内容。 |
 | Serena Memory 维护门槛 | https://raw.githubusercontent.com/oraios/serena/main/src/serena/resources/memory_maintenance.md | [Serena 工具](../rules/references/coding/layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.yaml)、[任务计划生命周期](../rules/references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.yaml) | 区分可复用项目知识、任务计划和 Worker 记录的维护要求。 |
 | Git canonical 共同目录 | https://git-scm.com/docs/git-rev-parse | [任务计划生命周期](../rules/references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.yaml) | 核对 checkout、共同目录解析和本机仓库身份。 |

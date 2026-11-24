@@ -33,12 +33,12 @@ blocks:
                     应用仅限精确授权的路径和操作。重新检查当前文件状态，保留外部变更，并在部分或不确定结果后检查收据和实际文件。同一候选内容的重放不得覆盖用户后续变更。协作锁无法防止无关写入者并发修改；多文件批次可能只应用一部分，也不保证全局回滚。状态不确定或权限已变化时，应依据当前证据先解决问题，再准备新候选内容。
 
                     此能力是可选的。能力不可用时，可在自身授权路线允许的范围内继续 Native 输出工作。不得把不可用当作成功，也不得弱化相关角色、权限或验证 owner。
-  - pi-guidance:
+  - runtime-guidance:
       kind: section
-      title: "Pi Coding Agent 优化指令"
+      title: "运行时指引"
       expose: true
       blocks:
-        - pi-guidance-body:
+        - runtime-guidance-body:
             kind: markdown
             text: |-
               使用独立物化能力前，须核实当前可信 Worker 绑定、匹配的任务分配与独立操作许可。尚未选用物化路径时，可按独立授权使用直接 edit/write；已选路径被拒绝时按实际结果处置。

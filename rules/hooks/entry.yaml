@@ -60,10 +60,10 @@ blocks:
                   kind: markdown
                   text: |-
                     1. 先读当前系统、开发者和应用明确的运行元数据，再以实际工具清单、工作区根、权限、沙箱及任务元数据佐证。Shell、模型名、某个工具或 worktree 的存在都不能唯一认证运行时。
-                    2. 当前目标为 Pi，不再让用户填写已取消的多产品环境问卷；不要用浏览器、GUI、截图或视觉页面识别环境。仅检查当前任务授权且非敏感的本地元数据，不输出/持久化令牌。
+                    2. 按 Skill 入口选中的宿主适配核实当前环境。只检查当前任务授权且非敏感的宿主元数据，不输出或持久化令牌，不用浏览器、GUI、截图或视觉页面识别宿主。
                     3. 能力清单逐项记录模型/参数控制、Session拓扑、文件系统与沙箱、工具/连接器、认证和委派返回路径；区分已暴露、未知、必需缺失与可选缺失，记录 `unavailable_capabilities` 及影响。
                     4. 对每项受保护动作分别记录实际 Session/角色、所需能力/权限检查和来源范围。公共规则接口、请求 scope 或自报身份不是认证，不证明该操作已获准。
-                    5. 只有任务明确要求特定模型/参数时才核验其实际生效；未要求时不增加无关门禁。必需控制未知时暂停依赖工作，不静默替换模型、thinking、工具、权限或 mode/count。
+                    5. 只有任务明确要求特定模型/参数时才核验其实际生效；未要求时不增加无关门禁。必需控制未知时暂停依赖工作，不静默替换模型、推理设置、工具、权限或 mode/count。
                     6. 核对准确项目/worktree、文件权限和可用工具；路径存在不证明可写。对可选导航逐项决定：无需/未适配时记录有依据的 `Not applicable` 并直接读取必需 owner；选用导航时只消费当前有界证据，不能把它当作权限、状态或完成回执。
                     7. 必需 owner 无法读取、必需环境事实矛盾或能力缺失时只阻断依赖分支；只向用户问当前阻塞的具体缺口，不重新询问已明确选择。
         - execution-04:
@@ -145,7 +145,7 @@ blocks:
               | [Contract](../references/coding/layer-02-workflow-concepts/entry-and-context/contract.yaml) | 目标、约束、事实与输出资格 |
               | [Environment](../references/coding/layer-02-workflow-concepts/entry-and-context/environment.yaml) | 明确运行时、禁止GUI探测及冲突 |
               | [能力清单](../references/coding/layer-02-workflow-concepts/entry-and-context/environment-capability-inventory.yaml) | 必需/未知/可选能力与依赖阻断 |
-              | [Pi运行时](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml) | 真实工具、模型与宿主边界 |
+              | [运行时与能力](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml) | 真实工具、模型与宿主边界 |
               | [模块入口解析](../references/coding/layer-03-workflow-checkpoints/module-entry-resolution.yaml) | 模块声明、缺前置与恢复 |
               | [路线入口](../references/coding/layer-03-workflow-checkpoints/route-entry.yaml) | 只消费已选路线 |
               | [Mode](../references/coding/layer-02-workflow-concepts/entry-and-context/mode.yaml) | 已释放拓扑证据 |

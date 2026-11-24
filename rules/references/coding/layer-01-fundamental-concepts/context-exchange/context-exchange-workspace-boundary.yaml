@@ -31,12 +31,12 @@ blocks:
                     代码与权威仓库文件访问仍受各自单独批准的文件系统/工具边界约束。Memory capsule 可保存精简事实、准确权威来源指针、hash、新鲜度和范围；不得把来源全文作为权威副本存入 Memory。父级实时 mode/count/allocation/epoch 状态仍归其原 owner，不写入这些 Memory。秘密、完整 transcript 和私有推理仍禁止。
 
                     必需的项目 Memory 能力不可用时，报告限制并阻塞依赖读取或写入该上下文记录的工作。不得回退为文件副本。独立工作可以继续。
-  - pi-guidance:
+  - runtime-guidance:
       kind: section
-      title: "Pi Coding Agent 优化指令"
+      title: "运行时指引"
       expose: true
       blocks:
-        - pi-guidance-body:
+        - runtime-guidance-body:
             kind: markdown
             text: |-
               需要 Memory 时，按当前环境选择实际可用且获准的项目 Memory 能力，核对后端项目绑定、操作说明、参数、权限和结果。普通文档访问不得代替必需的 Memory 操作；能力缺失仅阻塞依赖项。不得绕过隐藏、拒绝或访问限制，也不得伪造旧身份上下文。

@@ -52,15 +52,15 @@ blocks:
                     维持一个 Primary Execution Session：Single-Agent 模式下为当前 Session；Multi-Agent 模式下为已经创建且分配了 `Primary Output` 的子代理（如果存在）。在该子代理创建前，当前根 Session 仍是活跃决策上下文，但这不隐含创建 Primary 子代理。扩展支持持久身份与续接时，相关探索、实现、诊断、测试、修复和局部执行优先复用已分配的 Primary Session；一次性扩展不保证该能力。Session 应保持 sticky but not immortal；生命周期变化遵循当前工作流的已记录状态。
 
                     Session 隔离与 Git worktree 隔离不同。工作区和文件系统隔离条件由[上下文工作区边界](../context-exchange/context-exchange-workspace-boundary.yaml)定义；不得仅因复用 Session 就声称命中缓存或获得其他运行时收益。
-  - pi-guidance:
+  - runtime-guidance:
       kind: section
-      title: "Pi Coding Agent 优化指令"
+      title: "运行时指引"
       expose: true
       blocks:
-        - pi-guidance-body:
+        - runtime-guidance-body:
             kind: markdown
             text: |-
-              Pi 主会话与扩展子任务不是必然一对一的持久 Session。一次性执行以逻辑 allocation 和真实工具证据定位，不虚构可恢复 ID。只有扩展实际支持稳定身份/继续执行时才应用 Primary Session affinity；不支持时报告复用限制，不阻塞不依赖复用的一次性工作。新根会话与树导航/恢复的区别按真实宿主事实判断，工作目录不等于 worktree 隔离。
+              依据选中的宿主适配分别核实主会话、子任务与持久 Session。一次性执行以逻辑 allocation 和真实工具证据定位，不虚构可恢复 ID。只有宿主实际支持稳定身份/继续执行时才应用 Primary Session affinity；不支持时报告复用限制，不阻塞不依赖复用的一次性工作。新根会话与树导航/恢复的区别按真实宿主事实判断，工作目录不等于 worktree 隔离。
   - related:
       kind: section
       title: "相关概念"

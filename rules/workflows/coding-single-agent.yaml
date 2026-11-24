@@ -8,7 +8,7 @@ blocks:
   - overview:
       kind: markdown
       text: |-
-        本路线只绑定七个主阶段的 Hook。Pi Coding Agent 根据当前任务、真实工具结果和已核实的证据，在相关动作发生时应用 [Hook 合同](../hooks/README.yaml)。阶段之间传递当前证据，附加 Hook 随条件触发。
+        本路线只绑定七个主阶段的 Hook。Agent 根据当前任务、真实工具结果和已核实的证据，在相关动作发生时应用 [Hook 合同](../hooks/README.yaml)。阶段之间传递当前证据，附加 Hook 随条件触发。
   - flowchart:
       kind: section
       title: 工作流路线图

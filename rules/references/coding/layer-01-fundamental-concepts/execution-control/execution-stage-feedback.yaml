@@ -45,15 +45,15 @@ blocks:
                   kind: markdown
                   text: |-
                     反馈使用共享计划证据时，应用[任务计划 Memory 生命周期](../execution-planning/task-plan-memory-lifecycle.yaml)：在该 owner 规定的阶段、交接、暂停或完成边界，通过获准的当前记录者或已释放贡献路径记录实质进展和带来源事实。普通进度汇报及阶段内的检查或修复，不单独触发持久化或全文读回。影响授权、范围、验收、方向或依赖动作的事实，仍须在受影响动作前记录并分析。反馈携带准确计划身份、持久化确认及 owner 要求的核验证据，不重复全文或改变释放权。缺少必需访问、持久化失败或必需核验失败时，暂停受影响边界；仅已记录的持久化限制可使用该 owner 的例外。
-  - pi-guidance:
+  - runtime-guidance:
       kind: section
-      title: "Pi Coding Agent 优化指令"
+      title: "运行时指引"
       expose: true
       blocks:
-        - pi-guidance-body:
+        - runtime-guidance-body:
             kind: markdown
             text: |-
-              Pi 没有内置 Plan、subagent 或持久子代理消息机制；不得将工具/会话行为描述成这些能力。按通用 Slice、阶段反馈及授权边界执行；使用当前实际可用的工具结果作为证据，不以 Hook 或宿主特性替代语义判断。
+              按所选宿主适配核对真实规划、委派与持久消息能力。按通用 Slice、阶段反馈及授权边界执行；使用当前实际可用的工具结果作为证据，不以 Hook 或宿主特性替代语义判断。
   - related:
       kind: section
       title: "相关概念"

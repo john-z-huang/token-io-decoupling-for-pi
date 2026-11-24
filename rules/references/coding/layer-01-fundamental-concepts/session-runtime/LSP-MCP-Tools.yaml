@@ -53,12 +53,12 @@ blocks:
                     只有实际后端报告项目知识初始化尚未完成时，才考虑执行该初始化。先取得用户授权，再遵循后端返回的指引；未获授权时继续其他独立工作。写入初始化笔记前，读取后端指定的有效维护记录。只有用户明确要求时才写入跨项目 Memory，即使维护记录本身来自全局范围。只检查生成持久笔记所需的项目材料，并通过获准的 Memory 能力写入。
 
                     Memory 保存可复用的 Agent 上下文，不能替代权威仓库文档。不得把 README、规范性规范或其他事实来源文档迁入 Memory 作为替代品。不得在 Memory 中保存秘密、完整 transcript、私有推理或父级实时 mode/count/allocation/epoch 状态。Worker execution memo、Context Exchange capsule/index/handoff 等 Agent-facing 记录按 [Worker Content Memo](../context-exchange/content-memo.yaml)、[Coding Context Exchange](../context-exchange/context-exchange.yaml)、[Coding Context Exchange Workspace Boundary](../context-exchange/context-exchange-workspace-boundary.yaml)、[Coding Context Exchange Handoff](../context-exchange/context-exchange-handoff.yaml) 及在授权持久化上下文记录时的 [Session Context Firewall](session-context-firewall.yaml) owner 规则持久化为项目 Memory。Memory 名称仅表达逻辑归属。Worker 级访问隔离、只读 ACL 和 OS/RW/RO/DENY 边界须有实际技术证据。源码和权威仓库文件仍遵守其单独批准的访问边界。
-  - pi-guidance:
+  - runtime-guidance:
       kind: section
-      title: "Pi Coding Agent 优化指令"
+      title: "运行时指引"
       expose: true
       blocks:
-        - pi-guidance-body:
+        - runtime-guidance-body:
             kind: markdown
             text: |-
               按当前环境实际提供的能力选择代码结构查询和 Memory 操作。使用前核对工具说明、参数、项目绑定、权限及所需后端。独立只读查询可批处理，逐项检查错误、状态和必要证据。

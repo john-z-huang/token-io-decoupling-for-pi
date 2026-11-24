@@ -44,12 +44,12 @@ blocks:
                   kind: markdown
                   text: |-
                     建议功能默认关闭。启用必须来自可信运行时配置并具有明确的出站数据授权；普通请求参数本身不能启用功能。普通/默认语义建议测试使用 Mock 且不发送网络请求。明确选择加入的真实测试仍须取得出站数据授权，并遵守适用运行时章节规定的同一调用时本地配置前置条件。任何真实请求路径都必须在实际调用时读取本地配置的凭据和端点值，并要求两者均存在且非空白；任一缺失或空白时，不得创建 client 或发送请求。供应商专属名称和 SDK 处理仅写在适用的运行时章节。不得打印或持久化配置值；合成值仅用于离线 Mock。
-  - pi-guidance:
+  - runtime-guidance:
       kind: section
-      title: "Pi Coding Agent 优化指令"
+      title: "运行时指引"
       expose: true
       blocks:
-        - pi-guidance-body:
+        - runtime-guidance-body:
             kind: markdown
             text: |-
               Root 直接依据 owner 判断。若使用独立建议服务，先核对实际 Schema、适用范围及出站数据授权。服务采用本项目 OpenAI API 配置约定时，核验调用时非空的 `OPENAI_API_KEY` 与 `OPENAI_BASE_URL`，模型固定为 `gpt-6-luna`。

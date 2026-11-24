@@ -38,7 +38,7 @@ Coding DSL 用 `document_type` 声明用途。类型由 `rules/` 下的路径和
 | 类型 | 用途 | 标准块顺序 | 模板 |
 | --- | --- | --- | --- |
 | `directory-guide` | `README.yaml`，说明目录职责和阅读入口 | 参考目录按范围与边界或概览 → 入口 → 分类或所有者排列。路线目录按概览 → 入口 → 路线 → 分阶段 Hooks 排列 | [目录说明](../rules/templates/coding/directory-guide.yaml) |
-| `fundamental-concept` | Layer-01，定义可跨工作流复用的通用规范 | 概览 → 通用规范 → Pi 优化指令 → 相关概念 | [基础概念](../rules/templates/coding/fundamental-concept.yaml) |
+| `fundamental-concept` | Layer-01，定义可跨工作流复用的通用规范 | 概览 → 通用规范 → 运行时指引 → 相关概念 | [基础概念](../rules/templates/coding/fundamental-concept.yaml) |
 | `workflow-concept` | Layer-02，描述工作流动作、通过条件和边界 | 概览 → 动作 → 通过条件 → 边界 → 相关概念 | [工作流概念](../rules/templates/coding/workflow-concept.yaml) |
 | `workflow-checkpoint` | Layer-03，定义具名检查点的输入、决策和返回 | 概览 → 触发与输入 → 决策与结果 → 失败边界 → 相关概念 | [检查点](../rules/templates/coding/workflow-checkpoint.yaml) |
 | `workflow-route` | `workflows/`，绑定七个阶段的 Hook | 概览 → 路线图 → 顺序检查清单 → 前置补证与恢复 → Mode 边界 → 按条件触发的 Hooks | [工作流路线](../rules/templates/coding/workflow-route.yaml) |
@@ -46,8 +46,8 @@ Coding DSL 用 `document_type` 声明用途。类型由 `rules/` 下的路径和
 新建文档时，用相应类型替换下面的 `fundamental-concept`，将输出保存到相应目录。填写文档 ID、标题、`markdown_path` 和正文，并按文件所在目录调整首行 Schema 路径和相对链接。保留模板中标识章节用途的顶层块 ID，为新增子块填写稳定 ID。模板的首种布局适合作为新文档的起点，其他布局保留已有文档的结构。
 
 ```sh
-/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --template fundamental-concept'
-/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --check-structure'
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --template fundamental-concept' _
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --check-structure' _
 ```
 
 结构检查会验证类型声明、章节顺序、块类型、必须发布的片段、路线阶段顺序和现有路线、模块的检查点 ID。正常导出和 `--check` 也执行这组检查，并继续核对引用和生成结果。
@@ -59,10 +59,10 @@ Coding DSL 用 `document_type` 声明用途。类型由 `rules/` 下的路径和
 从仓库根目录运行以下命令。查询读取当前 YAML 源文件。将输出的 `relative_path` 和 `name_path` 分别传给 Serena `find_symbol` 的 `relative_path` 和 `name_path_pattern`，并将 `include_body` 设为 `true`，即可通过 YAML 后端读取对应节点。输出的 `line` 是编辑器中从 1 开始的行号，`--show` 可直接输出该块内容。
 
 ```sh
-/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint VR04'
-/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint SM04'
-/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint VR_HANDOFF --from hook-verification'
-/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint route-entry#failure-boundary --show'
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint VR04' _
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint SM04' _
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint VR_HANDOFF --from hook-verification' _
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --locate-checkpoint route-entry#failure-boundary --show' _
 ```
 
 查询编号步骤时，脚本定位到定义它的 Hook 检查清单。路线步骤还返回 `hook_entry`，供继续查看当前阶段的触发条件。流程图中的跨文件别名由该文档的 `flowchart_references` 声明，值为相对 `.yaml#块ID`。例如 [验证 Hook](../rules/hooks/verification.yaml) 将 `VR_HANDOFF` 指向交接规则的 `actions`，查询时用 `--from hook-verification` 指定图。编译器校验图节点、目标文件和块。仅表示分支或结果的图节点会提示没有独立定义。
@@ -78,9 +78,9 @@ Coding DSL 用 `document_type` 声明用途。类型由 `rules/` 下的路径和
 - 修改合同的来源表时，先手动同步 [YAML 来源对照](../rules/hooks/SOURCE_COVERAGE.yaml) 中的逐篇来源及归属，再用编译器生成 [Markdown 来源对照](../skill/hooks/SOURCE_COVERAGE.md)。阶段绑定见[路线目录](../rules/workflows/README.yaml)的「分阶段 Hooks」。
 
 ```sh
-/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --template hook-contract'
-/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --template hook-directory'
-/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --check-structure'
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --template hook-contract' _
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --template hook-directory' _
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --check-structure' _
 ```
 
 ## 验证
@@ -88,15 +88,15 @@ Coding DSL 用 `document_type` 声明用途。类型由 `rules/` 下的路径和
 运行以下文档检查，并按修改范围运行对应测试：
 
 ```sh
-/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py'
-/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --check'
-/bin/bash -c 'uv run --no-project -- python scripts/check-doc-layer-links.py'
-/bin/bash -c 'uv run --no-project -- python scripts/check-layer-01-sections.py'
-/bin/bash -c 'uv run --no-project -- python scripts/check-layer-02-04-provider-neutrality.py'
-/bin/bash -c 'uv run --no-project -- python scripts/check-layer-04-workflow-maps.py'
-/bin/bash -c 'uv run --no-project -- python scripts/check-workflow-checkpoints.py'
-/bin/bash -c 'uv run --no-project --with jsonschema==4.26.0 --with ruamel.yaml==0.19.1 -- python -m unittest discover -s tests'
-/bin/bash -c 'git diff --check'
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py' _
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --check' _
+/bin/bash -c 'uv run --no-project -- python scripts/check-doc-layer-links.py' _
+/bin/bash -c 'uv run --no-project -- python scripts/check-layer-01-sections.py' _
+/bin/bash -c 'uv run --no-project -- python scripts/check-layer-02-04-provider-neutrality.py' _
+/bin/bash -c 'uv run --no-project -- python scripts/check-layer-04-workflow-maps.py' _
+/bin/bash -c 'uv run --no-project -- python scripts/check-workflow-checkpoints.py' _
+/bin/bash -c 'uv run --no-project --with jsonschema==4.26.0 --with ruamel.yaml==0.19.1 -- python -m unittest discover -s tests' _
+/bin/bash -c 'git diff --check' _
 ```
 
 文档层级、所有权、模块顺序、必要证据和工作流返回边界仍须保留。

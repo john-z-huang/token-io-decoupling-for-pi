@@ -61,12 +61,12 @@ blocks:
                   kind: markdown
                   text: |-
                     被分配时，只执行明确放行的非简单 Git slice。它不得修改产品行为、测试或语义决策；如果冲突需要新的内容或含义，必须返回父级。普通非 Skill 文档/注释（包括伴随代码修改的文档）由根父级编写，绝不触发或消耗预留的 Primary Output 名额。本 Skill 指令/参考文档的编写编辑在所有放行门禁完成后可交由 Primary Output 子代理，并由父级在 Documentation 和 Acceptance 阶段审阅。Git 工作保持为独立执行范围。
-  - pi-guidance:
+  - runtime-guidance:
       kind: section
-      title: "Pi Coding Agent 优化指令"
+      title: "运行时指引"
       expose: true
       blocks:
-        - pi-guidance-body:
+        - runtime-guidance-body:
             kind: markdown
             text: |-
               Root 保留语义决策与验收；扩展配置的 agent 名称不授予 Skill 职责。分别放行互不冲突的任务后才可并行，结果包含实际路径、检查与失败证据。验证者必须未参与被审实现；同一上下文切换名称不是独立验证。

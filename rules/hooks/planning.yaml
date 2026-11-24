@@ -179,7 +179,7 @@ blocks:
             text: |-
               | 来源 | 本合同落点 |
               | --- | --- |
-              | [execution-planning](../references/coding/layer-01-fundamental-concepts/execution-planning/execution-planning.yaml) | 两级计划、侦察先于实现放行、Pi 规划边界 |
+              | [execution-planning](../references/coding/layer-01-fundamental-concepts/execution-planning/execution-planning.yaml) | 两级计划、侦察先于实现放行、宿主规划边界 |
               | [execution-decision-gate](../references/coding/layer-01-fundamental-concepts/execution-planning/execution-decision-gate.yaml) | Decision Brief、阻塞门禁、方向确认与实现放行 |
               | [task-plan-memory-lifecycle](../references/coding/layer-01-fundamental-concepts/execution-planning/task-plan-memory-lifecycle.yaml) | namespace/key、保全、单写者、例外、更新/归档完整生命周期 |
               | [task-assignment](../references/coding/layer-01-fundamental-concepts/execution-planning/task-assignment.yaml) | 执行者/候选证据字段、资格、分支与 Root 复核 |

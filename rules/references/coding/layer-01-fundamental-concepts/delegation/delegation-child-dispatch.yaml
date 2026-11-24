@@ -36,12 +36,12 @@ blocks:
                   kind: markdown
                   text: |-
                     按[上下文工作区边界](../context-exchange/context-exchange-workspace-boundary.yaml)检查已放行任务授权的 Memory 名称及逻辑归属；源码和代码路径访问仍遵守单独批准的边界。通过[执行控制](../execution-control/execution-control.yaml)消费获准的 Interaction Slice，一次只派发一个 Slice，除非明确允许相互独立且不冲突的并行工作。本模块不重新定义 Memory 名称或 Slice 字段。
-  - pi-guidance:
+  - runtime-guidance:
       kind: section
-      title: "Pi Coding Agent 优化指令"
+      title: "运行时指引"
       expose: true
       blocks:
-        - pi-guidance-body:
+        - runtime-guidance-body:
             kind: markdown
             text: |-
               一次性扩展将已审阅的完整 bundle 直接作为任务输入；只有工具确实支持绑定已有子代理时才发送 follow-up。parallel 仅用于已分别放行且路径不冲突的任务；chain 的每一步仍需满足授权和职责预算，链不是复用同一 Session 的证据。

@@ -31,12 +31,12 @@ blocks:
                     分别将结果解释为 pass、fail、unknown 或 not applicable。将 unknown、失败、因限制未返回的检查以及过期基线视为未解决。修正原因或补齐证据后，应针对当前候选内容重新运行。成功预检只覆盖该覆盖层与读取器观察实际返回的检查。
 
                     预检不会扫描未变更文档中的反向入站链接、证明中文正文的语义正确性、执行仓库代码、运行所有项目检查、授权应用文件，也不替代当前状态 Verification 和 Acceptance。变更应用后仍须完成适用的权威检查。
-  - pi-guidance:
+  - runtime-guidance:
       kind: section
-      title: "Pi Coding Agent 优化指令"
+      title: "运行时指引"
       expose: true
       blocks:
-        - pi-guidance-body:
+        - runtime-guidance-body:
             kind: markdown
             text: |-
               可按授权用现有只读检查能力核对候选内容、直接链接和可信基线。可选预检未选用时按已授权路径检查实际文档；选用后须处理失败或未知，再推进依赖该结果的动作。

@@ -60,7 +60,7 @@ blocks:
                   text: |-
                     在当前上下文记录由 Root 执行还是委派，并保留决定依据。执行者或派发前提变化时，按本合同重核影响，保留已占名额和已发生的效果。实际派发时核对工具 Schema、职责、预算、当前 Slice 及写入范围。
 
-                    Pi 不内置代理。先核验真实工具/扩展 Schema、可用能力和允许字段，只传真实接受的字段；未知接口或额外必需字段在预留前拒绝。扩展配置名称不是职责或权限证明。不存在兼容能力时只阻断依赖委派的分支；不得假设隐藏工具、Pi 原生代理、持久 Session、稳定 ID、消息、等待、续接、取消或异步句柄，也不得模拟 Session 或将 Root 改名为子代理。没有可选模型/effort 控制时沿用扩展默认值并记录限制；明确必需设置无法满足才阻断。调度与推理设置仅使用实际支持的能力，不伪造回执。
+                    按入口选中的宿主适配，先核验真实委派工具 Schema、可用能力和允许字段，只传真实接受的字段；未知接口或额外必需字段在预留前拒绝。扩展配置名称不是职责或权限证明。不存在兼容能力时只阻断依赖委派的分支；不得假设隐藏工具、持久 Session、稳定 ID、消息、等待、续接、取消或异步句柄，也不得模拟 Session 或将 Root 改名为子代理。没有可选模型/effort 控制时沿用扩展默认值并记录限制；明确必需设置无法满足才阻断。调度与推理设置仅使用实际支持的能力，不伪造回执。
 
                     创建前再次核实 Multi-Agent 已释放、正数预算、唯一未绑定 allocation 与职责、合格输出类型、已释放 Slice、权限、上下文、来源/路径及返回条件。Worker bundle 必须清晰限定单一职责，禁止递归创建/派发、fork、自行选择handoff目标、peer协调或联系其他Session；按父级具名授权编写handoff记录不等于自行管理会话；禁止未授权网络、Git、Memory 或扩容。按实际需要提供任务计划/Memory 的准确名称和最小访问方式；Root 协调唯一计划写者，贡献不授权修改源码或扩大 Contract。按 memo owner 在实际派发中明确 `write_content_memo: true|false`。按实际 Schema 传递该值；没有对应字段时，在获准的任务正文中写明，并核验其实际传给 Worker。只有 true 且 Memory 能力、目标及授权均已核实时才处理 memo。共享计划的要求继续适用。
 
@@ -74,15 +74,9 @@ blocks:
               - execution-04-body:
                   kind: markdown
                   text: |-
-                    创建前先执行[子代理端点跟随 Root](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml#subagent-endpoint)：Root 亲自确认当前有效 provider、模型 ID、可见 API/端点路由及来源；`openai-codex` 跟随 `openai-codex`，`openai` API 跟随同一 `openai` API 路由。先锁定同端点，再按任务选择该端点实际可用的模型/档位，核验真实 Schema 和配置覆盖优先级。启动环境元数据仅在仍反映当前值时有效，不以模型名、角色配置或外部服务的 API 配置猜端点；不读取凭据。元数据缺失/冲突、模型不可用或工具不能保证同端点时阻断创建，禁止静默跨 provider/端点回退；可选设置缺失的默认值规则不能豁免本条件。已创建身份不因此重建/重放，不要求 Worker 自报模型。
+                    创建前先执行[子代理端点跟随 Root](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml#subagent-endpoint)：Root 亲自确认当前有效 provider、模型 ID、可见 API/端点路由及来源。按当前宿主适配确认父子使用同一 provider 与端点。先锁定同端点，再按任务选择该端点实际可用的模型/档位，核验真实 Schema 和配置覆盖优先级。启动环境元数据仅在仍反映当前值时有效，不以模型名、角色配置或外部服务的 API 配置猜端点；不读取凭据。元数据缺失/冲突、模型不可用或工具不能保证同端点时阻断创建，禁止静默跨 provider/端点回退；可选设置缺失的默认值规则不能豁免本条件。已创建身份不因此重建/重放，不要求 Worker 自报模型。
 
-                    职责和模型独立。Root 依据输入类型、任务复杂度、依赖、不确定性、风险、验证充分性、输入量与延迟成本，从当前端点已核验可用的模型中选择，并给出简短依据。可参考以下三张模型卡：
-                    - Sol：模型卡面向复杂编码/专业工作，复杂实现、修复、独立反例检查可优先考虑medium/high。
-                    - Terra：模型卡面向视觉推理与清晰写作，获准静态图像/图纸证据或Skill文档可考虑low/medium；不是Computer Use授权。
-                    - Luna：模型卡面向聚焦高吞吐，有界事实提取、机械改动、规则明确的实现/检查可考虑low/medium。
-                    这些仅是参考起点，任何职责均不强制某一模型；普通文档仍由Root。一般多步任务medium，简单确定任务low，复杂/高风险任务可high；xhigh/max须有具体必要性，不是固定升级阶梯。卡片支持Sol的low/medium/high/xhigh/max，Terra/Luna另有none；Pi使用off而非none，三者不选minimal，且须核对真实provider映射。更大推理量不弥补缺失授权/证据，独立性也不由不同模型证明。
-
-                    按实际 Schema 传递已核验的精确模型和推理档位，在父级记录选型依据，并核对实际设置的覆盖优先级。按对应层级核验实际model/thinking字段及档位，全部job均须在预留/执行前通过，不能默默忽略。未显式选型时沿用插件默认值或实际继承行为。任务要求的选型无法落实时阻断。不要改父级模型、全局默认或外部服务的 API 模型来代替子任务设置。创建前核验即可，不要求Worker自查/自报；已创建身份不因换模型而重建、替换或回收。详见[模型卡事实、档位与路由参考](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml#subagent-models)。
+                    由 Root 依据任务目标、输入、复杂度、依赖、风险、验证要求和资源约束选择已核验的模型与推理强度，并记录依据。按所选宿主适配与实际 Schema 核验模型、档位和配置覆盖顺序。缺少可选设置时使用已核验的默认或继承行为；明确必需设置不可用时阻断。不要改父级模型、全局默认或外部服务模型来代替子任务设置。创建前核验即可。按[共用模型选型规则](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml#subagent-models)核对限制。
         - execution-05:
             kind: section
             title: 5. 结果、生命周期与未知效果
@@ -194,7 +188,7 @@ blocks:
               | [delegation-child-lifecycle.md](../references/coding/layer-01-fundamental-concepts/delegation/delegation-child-lifecycle.yaml) | 生命周期证据、错误中断及终态不回收 |
               | [delegation-child-dispatch.md](../references/coding/layer-01-fundamental-concepts/delegation/delegation-child-dispatch.yaml) | Slice、Dispatch Preview/Worker 边界和单一父级返回 |
               | [delegation-mode-confirmation.md](../references/coding/layer-01-fundamental-concepts/delegation/delegation-mode-confirmation.yaml) | 初始模式菜单、默认值及 Single-Agent 限制 |
-              | [delegation-child-creation.md](../references/coding/layer-01-fundamental-concepts/delegation/delegation-child-creation.yaml) | Pi 能力核对、创建前置和一次性调用适配 |
+              | [delegation-child-creation.md](../references/coding/layer-01-fundamental-concepts/delegation/delegation-child-creation.yaml) | 委派能力核对、创建前置和一次性调用 |
               | [delegation-worker-boundary.md](../references/coding/layer-01-fundamental-concepts/delegation/delegation-worker-boundary.yaml) | Worker 读取、贡献、边界及 Root 记录权威 |
               | [runtime-provider-support.md](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml) | Root按模型卡自主选择三模型/推理档位、真实参数能力与API边界 |
               | [session-role-ownership.md](../references/coding/layer-01-fundamental-concepts/session-runtime/session-role-ownership.yaml) | Root 前置职责、四类角色与职责界限 |
