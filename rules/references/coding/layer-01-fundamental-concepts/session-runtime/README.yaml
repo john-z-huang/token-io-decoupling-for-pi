@@ -33,7 +33,8 @@ blocks:
         - owners-body:
             kind: markdown
             text: |-
-              - [项目 Memory 与代码结构能力](LSP-MCP-Tools.yaml)
+              - [语言服务器与代码结构查询](lsp-code-navigation.yaml)
+              - [项目 Memory](project-memory.yaml)
               - [runtime-provider-support](runtime-provider-support.yaml)
               - [session-model](session-model.yaml)
               - [session-role-ownership](session-role-ownership.yaml)

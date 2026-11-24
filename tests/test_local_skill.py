@@ -18,6 +18,24 @@ from local_skill import DEFAULT_NAME, MARKER, update_local_skill
 
 
 class LocalSkillTests(unittest.TestCase):
+    def test_compiler_recognizes_generated_reference_replaced_by_split_rules(self):
+        compiler = runpy.run_path(str(SCRIPTS / "compile-reference-dsl.py"))
+        is_split_lsp_reference = compiler["is_split_lsp_reference"]
+        with TemporaryDirectory() as temporary:
+            skill = Path(temporary).resolve() / "skill"
+            directory = skill / "references/coding/layer-01-fundamental-concepts/session-runtime"
+            directory.mkdir(parents=True)
+            legacy = directory / "LSP-MCP-Tools.md"
+            original = compiler["SOURCE"] / legacy.relative_to(skill).with_suffix(".yaml")
+            legacy.write_text(compiler["source_notice"](original) + "\n", encoding="utf-8")
+            lsp = directory / "lsp-code-navigation.md"
+            memory = directory / "project-memory.md"
+            with patch.dict(is_split_lsp_reference.__globals__, {"SKILL": skill}):
+                self.assertFalse(is_split_lsp_reference(legacy, {lsp: ""}))
+                self.assertTrue(is_split_lsp_reference(legacy, {lsp: "", memory: ""}))
+                legacy.write_text("本地记录\n", encoding="utf-8")
+                self.assertFalse(is_split_lsp_reference(legacy, {lsp: "", memory: ""}))
+
     def test_update_command_installs_same_self_contained_skill_for_both_hosts(self):
         compiler = SCRIPTS / "compile-reference-dsl.py"
         with TemporaryDirectory() as directory:

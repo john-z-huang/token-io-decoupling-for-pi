@@ -154,9 +154,13 @@ rows:
     kind: rule
     hooks: ["navigation","advisory"]
     explicit: true
-  - source: "../references/coding/layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.yaml"
+  - source: "../references/coding/layer-01-fundamental-concepts/session-runtime/lsp-code-navigation.yaml"
     kind: rule
-    hooks: ["context","documentation"]
+    hooks: ["context","planning","execution","delegation"]
+    explicit: true
+  - source: "../references/coding/layer-01-fundamental-concepts/session-runtime/project-memory.yaml"
+    kind: rule
+    hooks: ["context","planning","documentation"]
     explicit: true
   - source: "../references/coding/layer-01-fundamental-concepts/session-runtime/README.yaml"
     kind: navigation

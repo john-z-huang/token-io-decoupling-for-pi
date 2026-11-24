@@ -94,4 +94,5 @@ blocks:
               - [模式确认](../delegation/delegation-mode-confirmation.yaml) — 模式选择与授权门禁。
               - [子代理创建](../delegation/delegation-child-creation.yaml) — 创建前的通用条件。
               - [子代理复用与替代](../delegation/delegation-child-reuse-replacement.yaml) — 核验复用能力与后继边界。
-              - [项目 Memory 与代码结构能力](LSP-MCP-Tools.yaml) — 项目绑定与知识操作。
+              - [语言服务器与代码结构查询](lsp-code-navigation.yaml) — 语言服务绑定与代码结构证据。
+              - [项目 Memory](project-memory.yaml) — 存储绑定与知识操作。

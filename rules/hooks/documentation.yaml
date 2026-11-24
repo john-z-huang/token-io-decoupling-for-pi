@@ -121,7 +121,7 @@ blocks:
             applicability: optional
             title: 仅持久化已授权项目 Memory。
             text: |-
-              用户要求可复用 Agent 项目知识，或 owner 定义的触发条件适用时，按适用情况应用[项目 Memory 与代码结构能力](../references/coding/layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.yaml)、[Content Memo](../references/coding/layer-01-fundamental-concepts/context-exchange/content-memo.yaml)及[Content Memo Lifecycle](../references/coding/layer-01-fundamental-concepts/context-exchange/content-memo-lifecycle.yaml)：保留获准名称/路径，通过暴露的 Memory 能力写入并确认操作成功。仅当适用 owner 要求时核验存储内容；有匹配核验凭据时使用该凭据，否则进行必要的内容比较。普通成功写入不会触发立即全文读回。派发字段 `write_content_memo: false` 不代表项目 Memory 不适用。未请求且未触发项目 Memory 输出时记录带原因的 `not_applicable`。必需能力、写入或 owner 要求的核验不可用/失败时，保持请求输出未完成；不得以文件替代。
+              用户要求可复用 Agent 项目知识，或 owner 定义的触发条件适用时，按适用情况应用[项目 Memory](../references/coding/layer-01-fundamental-concepts/session-runtime/project-memory.yaml)、[Content Memo](../references/coding/layer-01-fundamental-concepts/context-exchange/content-memo.yaml)及[Content Memo Lifecycle](../references/coding/layer-01-fundamental-concepts/context-exchange/content-memo-lifecycle.yaml)：保留获准名称/路径，通过暴露的 Memory 能力写入并确认操作成功。仅当适用 owner 要求时核验存储内容；有匹配核验凭据时使用该凭据，否则进行必要的内容比较。普通成功写入不会触发立即全文读回。派发字段 `write_content_memo: false` 不代表项目 Memory 不适用。未请求且未触发项目 Memory 输出时记录带原因的 `not_applicable`。必需能力、写入或 owner 要求的核验不可用/失败时，保持请求输出未完成；不得以文件替代。
         - DOC04:
             kind: checkpoint
             title: 分类写后影响。
@@ -167,7 +167,7 @@ blocks:
               | [Documentation](../references/coding/layer-02-workflow-concepts/completion-and-effects/documentation.yaml) | 文档输出、当前来源、职责与写后检查 |
               | [Documentation Impact](../references/coding/layer-03-workflow-checkpoints/documentation-impact.yaml) | 写后分类、指纹和维度复用 |
               | [Session职责归属](../references/coding/layer-01-fundamental-concepts/session-runtime/session-role-ownership.yaml) | Root、Primary与Git职责分界 |
-              | [LSP与项目知识](../references/coding/layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.yaml) | Memory命名、稳定知识、维护和按需核验 |
+              | [项目 Memory](../references/coding/layer-01-fundamental-concepts/session-runtime/project-memory.yaml) | Memory命名、稳定知识、维护和按需核验 |
               | [Content Memo](../references/coding/layer-01-fundamental-concepts/context-exchange/content-memo.yaml) | Worker内容及禁止材料 |
               | [Memo生命周期](../references/coding/layer-01-fundamental-concepts/context-exchange/content-memo-lifecycle.yaml) | 开关、写入触发和登记 |
               | [候选合规](../references/coding/layer-01-fundamental-concepts/execution-planning/candidate-compliance.yaml) | 可选/已选分支与预检限度 |

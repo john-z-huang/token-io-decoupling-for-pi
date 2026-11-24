@@ -51,7 +51,7 @@ class RuntimeSupportTests(unittest.TestCase):
     def test_all_owners_share_runtime_structure(self):
         directory = (ROOT / OWNER).parent.parent
         owners = CHECKER["discover_owner_documents"](directory)
-        self.assertEqual(len(owners), 41)
+        self.assertEqual(len(owners), 42)
         for owner in owners:
             with self.subTest(owner=owner):
                 self.assertEqual(CHECKER["check_document"](owner, ROOT), [])

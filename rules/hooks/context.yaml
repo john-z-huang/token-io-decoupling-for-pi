@@ -62,8 +62,8 @@ blocks:
               - execution-04-body:
                   kind: markdown
                   text: |-
-                    1. 代码结构查询前，确认所选语言服务绑定准确项目根且目标语言后端可用。Worktree 或独立子项目使用各自的绑定。陌生文件先获取符号概览，再按已知文件或目录缩小符号正文、声明、引用与实现查询的范围。文本搜索只定位候选。语言后端不可用时报告限制，按需定向读取并按实际来源报告证据。
-                    2. 可复用项目知识优先使用已知且获准名称；仅发现未知名称时列相关topic，内容已有效在上下文时不重复read。只保存稳定、不显而易见、对后续任务有帮助的事实及明确请求的跨会话笔记，不把同一发现无触发地复制成多份记录。
+                    1. 需要代码结构证据时，应用[语言服务器与代码结构查询](../references/coding/layer-01-fundamental-concepts/session-runtime/lsp-code-navigation.yaml)，确认所选语言服务绑定准确项目根且目标语言后端可用。Worktree 或独立子项目使用各自的绑定。陌生文件先获取符号概览，再按已知文件或目录缩小符号正文、声明、引用与实现查询的范围。文本搜索只定位候选。语言后端不可用时报告限制，按需定向读取并按实际来源报告证据。
+                    2. 需要复用或保存知识时，应用[项目 Memory](../references/coding/layer-01-fundamental-concepts/session-runtime/project-memory.yaml)，优先使用已知且获准名称；仅发现未知名称时列相关topic，内容已有效在上下文时不重复read。只保存稳定、不显而易见、对后续任务有帮助的事实及明确请求的跨会话笔记，不把同一发现无触发地复制成多份记录。
                     3. 读取后端实际提供的有效 Memory 维护指引，遵守忽略、只读及访问限制，不得用文件访问绕过。后端报告项目知识尚未初始化时，先获用户授权再初始化；未获授权仍可继续其他独立工作。代码结构查询按语言服务自身的前置条件执行。读取全局维护说明不授权写入全局 Memory。
                     4. 一般项目 Memory 按实际配置的根和名称映射存储，逻辑名按斜杠分主题。只有明确跨项目要求才写入 `global/`。计划专用的共享仓库 scope 不扩展一般 Memory 授权。具名授权和 Worker 级技术访问控制须分别核实。
                     5. 保留名称布局：`context-exchange/INDEX`、`context-exchange/workers/<worker-context-id>/INDEX`与`content-memo`，以及`context-exchange/context-bootstrap/MANIFEST`、`project-context`、`policy-context`；不另建本地文件索引或文件副本。实际存储位置由获准后端配置决定。
@@ -113,6 +113,7 @@ blocks:
               | [task-assignment.md](../references/coding/layer-01-fundamental-concepts/execution-planning/task-assignment.yaml) | 任务状态与调度边界 |
               | [context-source-selection.md](../references/coding/layer-03-workflow-checkpoints/context-source-selection.yaml) | 上下文来源选择 |
               | [bootstrap-selection.md](../references/coding/layer-03-workflow-checkpoints/bootstrap-selection.yaml) | 启动上下文选择 |
-              | [项目 Memory 与代码结构能力](../references/coding/layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.yaml) | 项目激活、结构查询、长期知识、维护与按需读回 |
+              | [语言服务器与代码结构查询](../references/coding/layer-01-fundamental-concepts/session-runtime/lsp-code-navigation.yaml) | 项目绑定、语言后端及结构证据 |
+              | [项目 Memory](../references/coding/layer-01-fundamental-concepts/session-runtime/project-memory.yaml) | 长期知识、维护与按需读回 |
               | [context.md](../references/coding/layer-02-workflow-concepts/entry-and-context/context.yaml) | 当前问题、有界事实及Context通过条件 |
               | [session-audit-resolution.md](../references/coding/layer-03-workflow-checkpoints/session-audit-resolution.yaml) | 会话审计状态应用 |

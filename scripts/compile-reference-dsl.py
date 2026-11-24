@@ -261,6 +261,17 @@ def is_moved_route(path: Path) -> bool:
     return source_notice(old_source) in path.read_text(encoding="utf-8").splitlines()[:4]
 
 
+def is_split_lsp_reference(path: Path, outputs: dict[Path, str]) -> bool:
+    directory = SKILL / "references/coding/layer-01-fundamental-concepts/session-runtime"
+    if path != directory / "LSP-MCP-Tools.md" or path.resolve() != path:
+        return False
+    replacements = {directory / "lsp-code-navigation.md", directory / "project-memory.md"}
+    if not replacements.issubset(outputs):
+        return False
+    old_source = SOURCE / path.relative_to(SKILL).with_suffix(".yaml")
+    return source_notice(old_source) in path.read_text(encoding="utf-8").splitlines()[:4]
+
+
 def read_coverage() -> dict:
     schema = json.loads((SOURCE / "hook-coverage.schema.json").read_text(encoding="utf-8"))
     path = (SOURCE / HOOK_COVERAGE).with_suffix(".yaml")
@@ -433,7 +444,8 @@ def main() -> int:
         outdated = [path for path, body in outputs.items() if not path.is_file() or path.read_bytes() != body.encode("utf-8")]
         unexpected = set(SKILL.rglob("*.md")) - outputs.keys()
         retired = set() if args.check else {
-            path for path in unexpected if is_retired_index(path, outputs) or is_moved_route(path)
+            path for path in unexpected
+            if is_retired_index(path, outputs) or is_moved_route(path) or is_split_lsp_reference(path, outputs)
         }
         unexpected -= retired
         if unexpected or (args.check and outdated):
