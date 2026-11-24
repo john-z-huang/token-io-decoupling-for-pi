@@ -9,7 +9,7 @@
 
 ## Skill 安装
 
-- 安装或更新前核对宿主和实际目标。Pi 使用 `~/.pi/agent/skills/`。Codex 使用明确指定的项目根下 `.agents/skills/`，不得从本项目的安装命令写入全局 Codex Skill 目录。
+- 安装或更新前核对实际目标。默认使用 `~/.agents/skills/`，可显式选择 `~/.pi/agent/skills/`、用户指定的 Skill 根目录或 Codex 项目目录。安装器在根目录下按 Skill 名称发布。
 - 两个宿主共用同一规则产物。宿主事实与设置维护在 `rules/references/hosts/`，实际写入和配置修改须各有授权。
 
 ## Coding 工作流方向

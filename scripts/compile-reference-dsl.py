@@ -25,7 +25,7 @@ from ruamel.yaml.tokens import AliasToken, AnchorToken
 import document_rules as COMPLIANCE
 from coding_dsl_templates import DOCUMENT_TYPES, document_type, load_templates, validate_coding_document
 from hook_dsl_templates import HOOK_TYPES, hook_type, load_hook_templates, validate_hook_document
-from local_skill import DEFAULT_NAME, HOSTS, update_local_skill
+from local_skill import DEFAULT_HOST, DEFAULT_NAME, HOSTS, update_local_skill
 from workflow_checkpoint_lookup import NUMBERED_BLOCKS, check_flowchart_references, locate_checkpoint
 from workflow_module_contracts import ROUTE_MODULES, WORKFLOW_PATH, WORKFLOW_SELECTOR
 
@@ -381,17 +381,23 @@ def main() -> int:
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--check", action="store_true", help="只检查已生成的文件是否与 DSL 一致")
     mode.add_argument("--check-structure", action="store_true", help="按模板检查 Coding 与 Hook DSL 结构")
+    mode.add_argument("--install-skill", action="store_true", help="编译并首次安装本地 Skill")
     mode.add_argument("--update-skill", action="store_true", help="编译并安装或更新本地 Skill")
     mode.add_argument("--template", choices=(*DOCUMENT_TYPES, *HOOK_TYPES), help="输出指定类型的 YAML 示例")
     mode.add_argument("--locate-checkpoint", metavar="ID", help="定位检查点 ID 或文档ID#块ID")
     parser.add_argument("--from", dest="origin", metavar="文档ID", help="在指定流程图中定位节点")
     parser.add_argument("--show", action="store_true", help="定位时同时输出对应的 YAML 块内容")
     parser.add_argument("--name", help="指定受管理的 Skill 名称，默认 token-io-decoupling-skill")
-    parser.add_argument("--host", choices=HOSTS, help="指定安装宿主，默认 pi")
-    parser.add_argument("--project-root", type=Path, help="Codex 安装的项目绝对目录")
+    parser.add_argument("--host", choices=HOSTS, help=f"选择默认 Skill 根目录，默认 {DEFAULT_HOST}")
+    destination = parser.add_mutually_exclusive_group()
+    destination.add_argument("--skills-dir", type=Path, help="自定义 Skill 根目录，在其下使用 --name 作为子目录")
+    destination.add_argument("--project-root", type=Path, help="Codex 项目绝对目录，使用其 .agents/skills")
     args = parser.parse_args()
-    if any(value is not None for value in (args.name, args.host, args.project_root)) and not args.update_skill:
-        parser.error("--name、--host 和 --project-root 仅用于 --update-skill")
+    publishing = args.install_skill or args.update_skill
+    if not publishing and any(
+        value is not None for value in (args.name, args.host, args.skills_dir, args.project_root)
+    ):
+        parser.error("--name、--host、--skills-dir 和 --project-root 仅用于安装或更新 Skill")
     if args.locate_checkpoint is None and (args.origin or args.show):
         parser.error("--from 和 --show 须与 --locate-checkpoint 一起使用")
     if args.origin and "#" in args.locate_checkpoint:
@@ -429,14 +435,17 @@ def main() -> int:
             print(f"DSL 结构校验通过，共 {len(coding)} 份 Coding 文档、{len(hooks)} 份 Hook 源文档和 1 份来源对照。")
             return 0
         outputs = compile_rules()
-        if args.update_skill:
+        if publishing:
             installed = update_local_skill(
                 {path.relative_to(SKILL): body for path, body in outputs.items()},
                 name=args.name if args.name is not None else DEFAULT_NAME,
-                host=args.host or "pi",
+                host=args.host or DEFAULT_HOST,
                 project_root=args.project_root,
+                skills_dir=args.skills_dir,
+                install_only=args.install_skill,
             )
-            print(f"Skill 已更新：{installed}")
+            action = "安装" if args.install_skill else "更新"
+            print(f"Skill 已{action}：{installed}")
             return 0
         for path in outputs:
             if path.resolve() != path:

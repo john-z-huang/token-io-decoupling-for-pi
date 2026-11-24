@@ -1,36 +1,35 @@
 # 安装与更新 Skill
 
-准备 `uv` 和 Python 3.11 或更高版本。从本仓库根目录运行对应宿主的安装或更新命令。
+准备 `uv` 和 Python 3.11 或更高版本，从本仓库根目录运行命令。
 
-## Pi Coding Agent
+## 首次安装与更新
 
 ```bash
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --install-skill' _
 /bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --update-skill' _
 ```
 
-首次安装和后续更新都使用 Pi 专用目录 `~/.pi/agent/skills/token-io-decoupling-skill/`。可在 Bash 命令的引号内追加 `--name <名称>`，在同一 Pi Skill 根目录下指定安装名称。名称使用小写字母、数字和连字符。
+安装和更新默认使用 `~/.agents/skills/`。`--install-skill` 用于首次安装，目标已存在时拒绝覆盖。`--update-skill` 更新受管理的安装，目标不存在时也可首次安装。更新时使用与首次安装相同的目录和名称。之前安装在 `~/.pi/agent/skills/` 的 Skill 用 `--update-skill --host pi` 更新。
 
-在现有 Pi 会话中执行 `/reload`，或新开会话读取更新后的内容。
+## 选择安装目录
 
-## Codex
+| 参数 | 安装根目录 |
+| --- | --- |
+| `--host codex`（默认） | `~/.agents/skills` |
+| `--host pi` | `~/.pi/agent/skills` |
+| `--skills-dir <目录>` | 指定的目录，优先于 `--host` 的默认值。支持绝对路径、相对路径和 `~`。 |
+| `--host codex --project-root <绝对目录>` | 现有项目下的 `.agents/skills`。与 `--skills-dir` 只能选一个。 |
 
-将路径换成目标项目现有的绝对目录。安装器写入该项目的 `.agents/skills/token-io-decoupling-skill/`。
+最终路径为 `<安装根目录>/<名称>`。默认名称是 `token-io-decoupling-skill`，可用 `--name` 指定小写字母、数字和连字符组成的名称。相对路径以运行命令时的工作目录为准。
 
 ```bash
-/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --update-skill --host codex --project-root "$1"' _ /absolute/path/to/project
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --install-skill --host pi' _
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --install-skill --skills-dir "$1"' _ '/absolute/path/to/my skills'
+/bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --update-skill --skills-dir "$1"' _ '/absolute/path/to/my skills'
 ```
 
-从目标项目新开 Codex 会话，可用 `$token-io-decoupling-skill` 显式调用。Pi 也可发现项目的 `.agents/skills/`。在同时使用两个宿主的项目中，可共用该项目安装；若还保留同名 Pi 用户级安装，核对 Pi 实际选中的 Skill 路径和版本。
+Codex 从目标项目新开会话后，可用 `$token-io-decoupling-skill` 显式调用。Pi 可执行 `/reload` 或新开会话。选用自定义目录时，宿主需要能够发现或显式加载该路径。
 
 ## 安装保护
 
-更新前校验安装标记及文件指纹。安装器保护未知目录、本地修改、符号链接及作为安装目标的 Git checkout。发布失败且无法自动恢复时，命令会报告保留原安装的备份路径。
-
-两种安装均包含同一份 `SKILL.md`、Hooks、路线和宿主适配。安装命令只发布 Skill。MCP、宿主配置和 Memory 后端由当前宿主另行管理，使用前按适配说明核对已获准的能力。
-
-## 项目 Memory 接入
-
-- **Pi** 使用已获准的 Pi MCP 或扩展。先确认服务绑定当前项目，且宿主能按需发现并调用工具。仅有服务名称时继续核对实际暴露能力。
-- **Codex** 使用已获准的 Codex Memory 后端。采用 Serena 时，可由宿主将服务绑定到目标项目，并用其 `--agent-interface tools` 选项暴露专用操作。只读场景可在 Codex MCP 配置中用 `enabled_tools` 限定项目绑定和读取能力。若通用接口需要额外审批，按实际审批处理。
-
-两个宿主可以接入同一个获准的后端。共享计划的仓库身份、逻辑名称、读写授权和归档验证使用同一份规则；只读连接只覆盖读取及其证据。
+安装内容包括 `SKILL.md`、Hooks、路线和宿主适配。更新前校验安装标记及文件指纹，保护未知目录、本地修改、符号链接、Git 元数据和作为安装目标的 Git checkout。发布失败且无法自动恢复时，命令会报告原安装的备份路径。

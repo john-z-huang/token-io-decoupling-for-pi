@@ -5,6 +5,7 @@ import json
 import runpy
 import sys
 import unittest
+from os.path import relpath
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
@@ -36,22 +37,33 @@ class LocalSkillTests(unittest.TestCase):
                 legacy.write_text("本地记录\n", encoding="utf-8")
                 self.assertFalse(is_split_lsp_reference(legacy, {lsp: "", memory: ""}))
 
-    def test_update_command_installs_same_self_contained_skill_for_both_hosts(self):
+    def test_installer_publishes_same_skill_to_both_preset_directories(self):
         compiler = SCRIPTS / "compile-reference-dsl.py"
         with TemporaryDirectory() as directory:
             home = Path(directory).resolve()
             main = runpy.run_path(str(compiler))["main"]
             with patch.object(Path, "home", return_value=home), patch.object(
-                sys, "argv", [str(compiler), "--update-skill"]
+                sys, "argv", [str(compiler), "--install-skill"]
             ):
                 self.assertEqual(main(), 0)
-            target = home / ".pi" / "agent" / "skills" / DEFAULT_NAME
-            self.assertFalse((home / ".agents").exists())
+            target = home / ".agents" / "skills" / DEFAULT_NAME
+            self.assertFalse((home / ".pi").exists())
             self.assertTrue((target / "SKILL.md").is_file())
             self.assertTrue((target / "hooks" / "README.md").is_file())
             self.assertFalse((target / "_project").exists())
             manifest = json.loads((target / MARKER).read_text(encoding="utf-8"))
             self.assertEqual(manifest["name"], DEFAULT_NAME)
+            with patch.object(Path, "home", return_value=home), patch.object(
+                sys, "argv", [str(compiler), "--install-skill", "--host", "pi"]
+            ):
+                self.assertEqual(main(), 0)
+            pi = home / ".pi" / "agent" / "skills" / DEFAULT_NAME
+            self.assertEqual((pi / MARKER).read_bytes(), (target / MARKER).read_bytes())
+            with patch.object(Path, "home", return_value=home):
+                self.assertEqual(update_local_skill({Path("SKILL.md"): "旧版本\n"}), target)
+                with patch.object(sys, "argv", [str(compiler), "--update-skill"]):
+                    self.assertEqual(main(), 0)
+            self.assertEqual((target / MARKER).read_bytes(), (pi / MARKER).read_bytes())
             project = home / "project"
             project.mkdir()
             (project / ".git").mkdir()
@@ -62,7 +74,6 @@ class LocalSkillTests(unittest.TestCase):
                 self.assertEqual(main(), 0)
             codex = project / ".agents" / "skills" / DEFAULT_NAME
             self.assertEqual((codex / MARKER).read_bytes(), (target / MARKER).read_bytes())
-            self.assertFalse((home / ".agents").exists())
             for path in target.rglob("*.md"):
                 for _, _, href in links_in_markdown(path.read_text(encoding="utf-8")):
                     url = urlsplit(href)
@@ -72,6 +83,37 @@ class LocalSkillTests(unittest.TestCase):
                     with self.subTest(path=path.relative_to(target), href=href):
                         self.assertTrue(destination.is_relative_to(target))
                         self.assertTrue(destination.exists())
+
+    def test_cli_installs_and_updates_named_skill_in_custom_directory(self):
+        compiler = SCRIPTS / "compile-reference-dsl.py"
+        main = runpy.run_path(str(compiler))["main"]
+        with TemporaryDirectory() as directory:
+            home = Path(directory).resolve()
+            skills_dir = home / "custom skills"
+            name = "custom-skill"
+            target = skills_dir / name
+            entry = target / "SKILL.md"
+            install = [
+                str(compiler), "--install-skill", "--host", "codex",
+                "--skills-dir", relpath(skills_dir), "--name", name,
+            ]
+            with patch.object(Path, "home", return_value=home):
+                with patch.object(sys, "argv", install):
+                    self.assertEqual(main(), 0)
+                installed_text = entry.read_text(encoding="utf-8")
+                self.assertIn(f"name: {name}\n", installed_text)
+                update_local_skill({Path("SKILL.md"): "旧版本\n"}, name, skills_dir=skills_dir)
+                with patch.object(sys, "argv", install), patch.object(sys, "stderr"):
+                    self.assertEqual(main(), 1)
+                self.assertEqual(entry.read_text(encoding="utf-8"), "旧版本\n")
+                update = [
+                    str(compiler), "--update-skill", "--skills-dir", str(skills_dir), "--name", name,
+                ]
+                with patch.object(sys, "argv", update):
+                    self.assertEqual(main(), 0)
+                self.assertEqual(entry.read_text(encoding="utf-8"), installed_text)
+            self.assertFalse((home / ".agents").exists())
+            self.assertFalse((home / ".pi").exists())
 
     def test_updates_pi_installation_and_preserves_local_edits(self):
         with TemporaryDirectory() as directory:
@@ -96,15 +138,15 @@ class LocalSkillTests(unittest.TestCase):
             )
             outputs = {Path("SKILL.md"): "新指令\n"}
             with patch.object(Path, "home", return_value=home):
-                self.assertEqual(update_local_skill(outputs), target)
+                self.assertEqual(update_local_skill(outputs, host="pi"), target)
                 self.assertEqual(entry.read_text(encoding="utf-8"), "新指令\n")
                 entry.write_text("本地修改", encoding="utf-8")
                 with self.assertRaisesRegex(ValueError, "本地修改"):
-                    update_local_skill(outputs)
+                    update_local_skill(outputs, host="pi")
             self.assertEqual(entry.read_text(encoding="utf-8"), "本地修改")
             self.assertEqual(shared_entry.read_bytes(), b"shared")
 
-    def test_codex_requires_explicit_non_global_project_root(self):
+    def test_installer_rejects_unsafe_directory_overrides(self):
         with TemporaryDirectory() as directory:
             home = Path(directory).resolve()
             project = home / "project"
@@ -112,8 +154,11 @@ class LocalSkillTests(unittest.TestCase):
             alias = home / "project-alias"
             alias.symlink_to(project, target_is_directory=True)
             with patch.object(Path, "home", return_value=home):
-                for project_root in (None, Path("relative"), home, alias):
+                for project_root in (Path("relative"), home, alias):
                     with self.subTest(project_root=project_root), self.assertRaises(ValueError):
                         update_local_skill({}, host="codex", project_root=project_root)
+                for skills_dir in (alias, project / ".git" / "skills"):
+                    with self.subTest(skills_dir=skills_dir), self.assertRaises(ValueError):
+                        update_local_skill({}, skills_dir=skills_dir)
             self.assertFalse((home / ".agents").exists())
             self.assertFalse((project / ".agents").exists())

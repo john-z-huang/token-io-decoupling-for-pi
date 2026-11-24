@@ -11,23 +11,46 @@ from pathlib import Path
 from tempfile import mkdtemp
 
 DEFAULT_NAME = "token-io-decoupling-skill"
+DEFAULT_HOST = "codex"
 MARKER = ".token-io-skill.json"
-HOSTS = ("pi", "codex")
+HOST_SKILLS_DIRS = {"pi": Path(".pi/agent/skills"), "codex": Path(".agents/skills")}
+HOSTS = tuple(HOST_SKILLS_DIRS)
 
 
 def _present(path: Path) -> bool:
     return path.is_symlink() or path.exists()
 
 
-def _target(root: Path, name: str, host: str) -> Path:
+def _destination(
+    name: str, host: str, project_root: Path | None, skills_dir: Path | None,
+) -> tuple[Path, Path]:
     if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name) or name == "token-io-decoupling":
         raise ValueError("请选择合法的 Skill 名称，旧项目名称受保护")
-    if host == "pi":
-        return root / ".pi" / "agent" / "skills" / name
-    return root / ".agents" / "skills" / name
+    if host not in HOST_SKILLS_DIRS:
+        raise ValueError(f"未知宿主：{host}")
+    if skills_dir is not None:
+        if project_root is not None:
+            raise ValueError("--skills-dir 和 --project-root 只能指定一项")
+        requested = skills_dir.expanduser()
+        root = Path(os.path.abspath(requested))
+        if requested.resolve() != root:
+            raise ValueError(f"Skill 根目录不能经过符号链接：{requested}")
+        return root, root / name
+    home = Path.home().resolve()
+    if project_root is None:
+        return home, home / HOST_SKILLS_DIRS[host] / name
+    if host != "codex":
+        raise ValueError("--project-root 仅用于 Codex 项目级安装")
+    if not project_root.is_absolute() or not project_root.is_dir() or project_root == home:
+        raise ValueError("Codex 项目级安装需要已存在的项目绝对目录")
+    return project_root, project_root / HOST_SKILLS_DIRS[host] / name
 
 
 def _check_destination(root: Path, target: Path) -> None:
+    if any(part.casefold() == ".git" for part in root.parts):
+        raise ValueError(f"拒绝写入 Git 元数据：{root}")
+    if root.resolve() != root or (root.exists() and not root.is_dir()):
+        raise ValueError(f"Skill 根目录必须是普通目录：{root}")
     cursor = root
     for part in target.relative_to(root).parts:
         cursor /= part
@@ -68,22 +91,11 @@ def _snapshot(target: Path, name: str) -> dict | None:
 
 def update_local_skill(
     outputs: dict[Path, str], name: str = DEFAULT_NAME, *,
-    host: str = "pi", project_root: Path | None = None,
+    host: str = DEFAULT_HOST, project_root: Path | None = None, skills_dir: Path | None = None,
+    install_only: bool = False,
 ) -> Path:
-    """在所选宿主的发现目录发布受管理的 Skill。"""
-    if host not in HOSTS:
-        raise ValueError(f"未知宿主：{host}")
-    if host == "pi":
-        if project_root is not None:
-            raise ValueError("Pi 安装使用用户级 Skill 目录")
-        root = Path.home().resolve()
-    else:
-        if (project_root is None or not project_root.is_absolute()
-                or project_root.resolve() != project_root or not project_root.is_dir()
-                or project_root == Path.home().resolve() or ".git" in project_root.parts):
-            raise ValueError("Codex 安装需要明确的项目绝对目录，且不得指向用户主目录、符号链接或 Git 元数据")
-        root = project_root
-    target = _target(root, name, host)
+    """向选定的本地目录发布受管理的 Skill。"""
+    root, target = _destination(name, host, project_root, skills_dir)
     _check_destination(root, target)
     target.parent.mkdir(parents=True, exist_ok=True)
     lock = target.parent / f".{name}.lock"
@@ -95,6 +107,8 @@ def update_local_skill(
     try:
         _check_destination(root, target)
         before = _snapshot(target, name)
+        if install_only and before is not None:
+            raise ValueError(f"Skill 已安装，请使用 --update-skill：{target}")
         work = Path(mkdtemp(prefix=f".{name}-", dir=target.parent))
         backup = work / "previous"
         keep_backup = False
