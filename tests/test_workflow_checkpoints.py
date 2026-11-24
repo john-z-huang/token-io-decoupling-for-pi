@@ -24,15 +24,15 @@ class WorkflowCheckpointConsumptionTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
-        shutil.copytree(REPO / "docs", self.root / "docs")
-        self.original = checker.ROOT, checker.L3, checker.MODULES
+        shutil.copytree(REPO / "skill", self.root / "skill")
+        self.original = checker.ROOT, checker.L3, checker.HOOKS
         checker.ROOT = self.root
-        checker.L3 = self.root / "docs/skill/references/coding/layer-03-workflow-checkpoints"
-        checker.MODULES = self.root / "docs/skill/references/coding/layer-04-workflows/modules"
+        checker.L3 = self.root / "skill/references/coding/layer-03-workflow-checkpoints"
+        checker.HOOKS = self.root / "skill/hooks"
         self.addCleanup(self.restore)
 
     def restore(self):
-        checker.ROOT, checker.L3, checker.MODULES = self.original
+        checker.ROOT, checker.L3, checker.HOOKS = self.original
 
     def run_check(self):
         with contextlib.redirect_stderr(io.StringIO()), contextlib.redirect_stdout(io.StringIO()):
@@ -74,14 +74,14 @@ class WorkflowCheckpointConsumptionTests(unittest.TestCase):
             path.write_text(original)
 
     def test_owner_only_in_related_section_is_not_consumed(self):
-        path = checker.MODULES / "documentation.md"
-        target = "../../layer-03-workflow-checkpoints/documentation-impact.md"
+        path = checker.HOOKS / "documentation.md"
+        target = "../references/coding/layer-03-workflow-checkpoints/documentation-impact.md"
         text = path.read_text()
         path.write_text(text.replace(target, "missing.md") + f"\n[参考]({target})\n")
         self.assertEqual(self.run_check(), 1)
 
     def test_selector_requires_operational_route_entry_link(self):
-        path = self.root / "docs/skill/workflows/coding.md"
+        path = self.root / "skill/workflows/coding.md"
         path.write_text(path.read_text().replace("route-entry.md", "removed.md"))
         self.assertEqual(self.run_check(), 1)
 

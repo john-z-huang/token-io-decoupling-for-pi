@@ -7,11 +7,13 @@ import argparse
 import re
 from pathlib import Path
 
+from workflow_module_contracts import ROUTES_DIR, WORKFLOW_SELECTOR
+
 
 LAYERS = (
-    Path("docs/skill/references/coding/layer-02-workflow-concepts"),
-    Path("docs/skill/references/coding/layer-03-workflow-checkpoints"),
-    Path("docs/skill/references/coding/layer-04-workflows"),
+    Path("skill/references/coding/layer-02-workflow-concepts"),
+    Path("skill/references/coding/layer-03-workflow-checkpoints"),
+    ROUTES_DIR,
 )
 FORBIDDEN = {
     "厂商或 Agent 产品": re.compile(r"\b(?:Codex|ChatGPT|OpenAI|Claude|Anthropic)\b", re.IGNORECASE),
@@ -42,7 +44,8 @@ def main() -> int:
         if not directory.is_dir():
             errors.append(f"缺少文档目录: {directory}")
             continue
-        documents = sorted(directory.rglob("*.md"))
+        selector = root / "skill" / WORKFLOW_SELECTOR.with_suffix(".md")
+        documents = sorted(path for path in directory.rglob("*.md") if path != selector)
         if not documents:
             errors.append(f"文档目录为空: {directory}")
         for path in documents:

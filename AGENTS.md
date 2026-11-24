@@ -2,15 +2,26 @@
 
 ## 项目范围与权威资料
 
-- 本仓库维护面向 Pi Coding Agent 的 Extension、Skill 指令和通用 MCP 工具。以根目录 `README.md` 为项目入口；不要把 MCP 服务误当作宿主工作流引擎。
-- `docs/skill/` 是 Skill 指令源。修改工作流或策略时，先定位对应 owner，保持其职责边界；不要在入口或路线文档另造一份策略。
-- 文档维护规范见 [`docs/project/DOCUMENTATION_STANDARDS.md`](docs/project/DOCUMENTATION_STANDARDS.md)。MCP 专属约束见 [`mcp/AGENTS.md`](mcp/AGENTS.md)；MCP 构建、测试和工具契约见 [`docs/project/mcp/DEVELOPMENT.md`](docs/project/mcp/DEVELOPMENT.md)。
+- 本仓库维护供 Codex 和 Pi Coding Agent 使用的 Hooks Skill，以及编译、验证和本地更新脚本。项目入口为 [README.md](README.md)。
+- Skill 指令维护在 `rules/`，配套脚本在 `scripts/`。编译生成的 `skill/` 目录由 Git 忽略。修改入口、Hook、工作流或策略时，先定位对应的源文件。
+- 文档维护规范见 [`docs/DOCUMENTATION_STANDARDS.md`](docs/DOCUMENTATION_STANDARDS.md)，本地更新见 [`INSTALL.md`](INSTALL.md)。
+- `archive/` 中的资料仅供查阅，默认构建、安装和验证均跳过该目录。
+
+## Skill 安装
+
+- 安装或更新前核对实际目标。默认使用 `~/.agents/skills/`，可显式选择 `~/.pi/agent/skills/`、用户指定的 Skill 根目录或 Codex 项目目录。安装器在根目录下按 Skill 名称发布。
+- 两个宿主共用同一规则产物。宿主事实与设置维护在 `rules/references/hosts/`，实际写入和配置修改须各有授权。
+
+## Coding 工作流方向
+
+- [单代理路线](rules/workflows/coding-single-agent.yaml)和[多代理路线](rules/workflows/coding-multi-agent.yaml)定义阶段顺序，[Hook 合同](rules/hooks/README.yaml)说明触发条件、所需证据和通过条件。
+- Agent 根据指令和已核实的事实选择适用的 Hook、工具和分支，并按当前证据判断何时推进、复核或停下。操作须符合适用的 Hook 条件和用户授权。
 
 ## 修改与验证
 
 - 维护中的文档使用简体中文和现有文件名；不新增英文副本或旧式语言后缀镜像。本地 Markdown 链接须指向存在的当前文件，移动或重命名时同步更新引用。
-- 修改按需验证，不把结构检查当作语义验收。Extension 有关改动使用 `package.json` 中适用的 `npm test` 和检查脚本；文档变更按文档规范运行对应检查。
-- MCP 普通测试不应调用真实模型或 API。MCP 的测试、lint 和构建命令以 MCP 开发指南为准；真实 API 测试仅在明确需要且具备相应授权时运行。
+- 按文档规范选择验证，分别报告结构检查和语义验收的实际结果。
+- 用隔离的临时安装验证 Skill 更新。实际用户目录或宿主配置仅按对应授权修改。
 
 ## 安全与 Git
 

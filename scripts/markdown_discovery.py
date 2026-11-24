@@ -27,20 +27,15 @@ _PRUNED_DIRECTORY_NAMES = frozenset(
         "venv",
     }
 )
-_PRUNED_RELATIVE_DIRECTORIES = frozenset(
-    {
-        "mcp/rule_sources",
-        "mcp/src/token_io_mcp/_resources",
-    }
-)
+_PRUNED_RELATIVE_DIRECTORIES = frozenset({"archive", "mcp"})
 
 
 def discover_markdown(root: Path) -> list[Path]:
     """Return sorted authored Markdown paths, pruning generated and symlink trees.
 
     The returned paths are absolute when ``root`` is absolute and are never
-    followed through directory or file symlinks. The repository's authored
-    Markdown remains in scope, including its MCP developer documentation.
+    followed through directory or file symlinks. Retired source trees are
+    outside the maintained document set.
     """
     root = root.absolute()
     if not root.is_dir():

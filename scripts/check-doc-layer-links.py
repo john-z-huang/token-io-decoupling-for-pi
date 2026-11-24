@@ -7,10 +7,8 @@ import re
 import sys
 from pathlib import Path, PurePosixPath
 
+import document_rules as _COMPLIANCE_CORE
 from markdown_discovery import discover_markdown
-from compliance_core_loader import load_compliance_core
-
-_COMPLIANCE_CORE = load_compliance_core()
 
 ROOT = Path(__file__).resolve().parents[1]
 LINK_RE = _COMPLIANCE_CORE._LINK_RE
@@ -19,7 +17,6 @@ ROUTE_COORDINATE_RE = re.compile(
     r"(?<![A-Za-z0-9_])(?:SM|MM|ER|SR|WD|SE|DE|VR|DOC|DA|S|M)[0-9]{2}(?![A-Za-z0-9_])"
 )
 LANGUAGE_SWITCH_LABELS = _COMPLIANCE_CORE._LANGUAGE_SWITCH_LABELS
-NAVIGATION_MODULES = set(_COMPLIANCE_CORE._MODULES)
 
 
 def layer(path: PurePosixPath) -> str:

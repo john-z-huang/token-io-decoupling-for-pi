@@ -1,8 +1,0 @@
-theme: jekyll-theme-minimal
-
-title: Token I/O Decoupling
-description: 用于分离语义决策、状态消费和输出执行的 Agent 调度 Skill。
-url: https://john-z-huang.github.io
-baseurl: /token-io-decoupling
-logo: /assets/favicon.svg
-show_downloads: false
