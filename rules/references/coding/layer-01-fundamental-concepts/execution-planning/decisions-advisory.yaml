@@ -52,7 +52,7 @@ blocks:
         - pi-guidance-body:
             kind: markdown
             text: |-
-              Root 直接依据 owner 判断。若使用独立建议服务，先核对实际 Schema、适用范围及出站数据授权。使用 `dev-workflow-standards` 的 OpenAI 工具时，按其服务契约核验实际调用，要求非空的 `OPENAI_API_KEY` 与 `OPENAI_BASE_URL`，模型固定为 `gpt-6-luna`。
+              Root 直接依据 owner 判断。若使用独立建议服务，先核对实际 Schema、适用范围及出站数据授权。服务采用本项目 OpenAI API 配置约定时，核验调用时非空的 `OPENAI_API_KEY` 与 `OPENAI_BASE_URL`，模型固定为 `gpt-6-luna`。
   - related:
       kind: section
       title: "相关概念"

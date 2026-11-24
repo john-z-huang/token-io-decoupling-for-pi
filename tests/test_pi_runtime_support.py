@@ -104,7 +104,7 @@ class PiRuntimeSupportTests(unittest.TestCase):
         creation = (directory / "delegation/delegation-child-creation.md").read_text(encoding="utf-8")
         self.assertIn("一次性", creation)
         self.assertIn("不伪造宿主 ID", creation)
-        self.assertIn("workflow_select_child_effort", creation)
+        self.assertIn("模型和推理设置按委派能力实际支持的控制处理", creation)
         advisory = (directory / "execution-planning/decisions-advisory.md").read_text(encoding="utf-8")
         for fact in ("OPENAI_API_KEY", "OPENAI_BASE_URL", "gpt-6-luna", "Mock"):
             self.assertIn(fact, advisory)
@@ -120,14 +120,14 @@ class PiRuntimeSupportTests(unittest.TestCase):
     def test_model_and_extension_boundaries_remain_explicit(self):
         for fact in (
             "Pi 不默认提供内置子代理或 Plan mode",
-            "workflow_select_child_effort",
+            "模型和推理设置只通过已核验且支持该配置的委派能力应用",
             "Not applicable",
             "OPENAI_API_KEY",
             "OPENAI_BASE_URL",
             "gpt-6-luna",
             "三个独立边界",
-            "hidden",
-            "isError",
+            "隐藏或拒绝访问的工具不得换入口绕过",
+            "按实际接口逐项检查错误、状态和缺失证据",
         ):
             self.assertIn(fact, self.text)
 

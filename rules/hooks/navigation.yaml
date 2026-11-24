@@ -39,7 +39,7 @@ blocks:
               - execution-02-body:
                   kind: markdown
                   text: |-
-                    1. Pi 环境中仅依据实际暴露能力及 schema 行动；需要探测 MCP 时使用 codemode 的 `searchTools`、`describeTool`、`describeNamespace`，核对适用性和调用参数，检查调用返回的 `isError`。`hidden` 不得绕过，不得猜工具名/Schema，也不得把宿主内建能力当成项目 Server 能力。
+                    1. 按当前环境的发现方式核对可用的导航或检查能力，读取工具与服务说明，核对实际参数和权限，并检查返回的错误、状态和证据。隐藏或拒绝访问的能力不得绕过；工具名称或宿主能力不能证明某项服务可用。
                     2. 直接读取必需的 YAML owner 或其当前阅读版，按适用合同和实际证据推进。受保护操作按自身可信绑定和授权要求核验。
                     3. 已完成 Contract、Environment、能力清单、Mode 后才使用 Route Entry；它只返回 Mode 授权的唯一路线，前置缺失/矛盾时回对应 owner 并停止依赖路线工作，不重释 Mode、不选后备路线。Single-Agent 使用当前 Session 内七模块顺序：SM01 入口就绪 → SM02 Session 就绪 → SM03 工作定义 → SM04 Single-Agent 执行 → SM05 验证与修复 → SM06 文档 → SM07 交付与验收。Multi-Agent 使用锁定正数 child count 的七模块顺序：MM01 入口就绪 → MM02 Session 就绪 → MM03 工作定义 → MM04 委派执行 → MM05 验证与修复 → MM06 文档 → MM07 交付与验收。不得跨序、跳过、重启整条路线或凭数量创建/派发 Agent；只调用对应模块 owner。
                     4. 每个模块的入口预检只解析其声明前置、证据、新鲜度、epoch、能力和暂停位置。`ready` 不是模块完成或路线完成；模块自身仍需返回其规定结果。已释放 Mode 是消费证据，不是再次提问或改路线的理由。保留原调用方模块/子步骤及已完成效果；前置缺失时返回语义 owner，完成后读回并重核相关证据/epoch/effect，再恢复原暂停位置，不重放效果。首次直接进入可以没有历史；但依赖历史的位置、效果不能确认时阻断。

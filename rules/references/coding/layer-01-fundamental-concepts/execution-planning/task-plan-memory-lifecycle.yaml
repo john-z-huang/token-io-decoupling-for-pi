@@ -39,7 +39,7 @@ blocks:
 
                     本存储映射的仓库 key 为 `git-v1-` 加上 `b"token-io-decoupling:git-common-dir:v1\0" + os.fsencode(str(canonical_git_common_dir))` 的十六进制 SHA-256，其中 `\0` 表示一个 NUL 字节。通过可信本地仓库事实解析实际 checkout 根目录和 canonical absolute Git common directory。主工作区和 linked worktrees 共享该目录及 key；独立仓库和独立 clone 使用不同 key，即使名称或 remote 相同。共同目录搬迁会改变 key：应停止并核对旧映射，不得静默丢弃或迁移其规划。缺少或无法确定仓库身份时，阻塞全局路径。这是本机仓库身份，不是跨机器可移植标识。复用旧共同目录路径会复用其 key；在该路径接受新建仓库前，须确认归属并核对已有历史。
 
-                    明确保留项目本地后端时，使用 `plans/PLAN-[short-english-summary]` 和 `archive-plans/PLAN-[short-english-summary]`；默认物理根为 `<project-root>/.serena/memories/`。该兼容模式不提供跨 worktree 共享。遵从实际配置的 Memory 根和映射，包括获准的数据目录覆盖；不得另建存储或虚构全局根。选定共享全局存储后，身份、根目录、映射或权限不可用时阻塞该路径，不得静默回退项目本地存储。用户自定名称的对应归档映射须在既有授权内明确。已有规划/归档保留原映射，除非另行获准的迁移确认归属、检查碰撞、保留全部字节并核验结果；不得自动收编其他项目未分层的数据或改写已有归档。
+                    明确保留项目本地后端时，使用 `plans/PLAN-[short-english-summary]` 和 `archive-plans/PLAN-[short-english-summary]`。核对后端实际配置的项目 Memory 根和映射，包括获准的数据目录覆盖。该兼容模式限当前 worktree；不得另建存储或虚构全局根。选定共享全局存储后，身份、根目录、映射或权限不可用时阻塞该路径，不得静默回退项目本地存储。用户自定名称的对应归档映射须在既有授权内明确。已有规划/归档保留原映射，除非另行获准的迁移确认归属、检查碰撞、保留全部字节并核验结果；不得自动收编其他项目未分层的数据或改写已有归档。
 
                     确认准确项目/worktree 绑定、存储 scope、全局模式的仓库 key 和有效的记忆维护说明。复用已授权任务已提供或当前上下文已有的计划名称；只有需要发现名称时，才列出所选仓库的规划 topic。仅在需要且当前上下文没有有效内容时读取已存在的匹配计划。全局列表可能暴露其他仓库；可见不构成读取或修改它们的授权。仅复用同一进行中任务的计划；保留无关计划，碰撞时选择不同名称。写入前审阅具体计划，并在依赖工作前确认持久化操作成功。只有为解决信息缺口、上下文过期或失效、写者变化、疑似并发变化、冲突、结果不明或明确内容验证要求时，才刷新存储全文。必需 Memory 能力缺失、必需内容不可访问、持久化失败或必需核验失败时，阻塞依赖工作；报告准确操作并保留最后确认的计划。
         - section-03:
@@ -119,7 +119,7 @@ blocks:
         - pi-guidance-body:
             kind: markdown
             text: |-
-              计划依赖实际获准的 Memory 后端。若 Pi 暴露 `dev-workflow-standards` 的 `serena_memory_tail_read` 或 `serena_memory_write_check`，须先核对服务启动项目。两者只读该项目的本地 Memory；后者仅检查所选尾部的文本存在性。创建、更新和归档须另有可用且获授权的 Memory 能力，并核验 scope、仓库 key、准确名称及实际结果。遵守内容保全、单写者和归档要求；禁止用 bash 或普通文件写入绕过必需的 Memory 能力。
+              按实际获准的 Memory 后端选择能力，先核对工具绑定的项目、存储 scope、仓库 key 和准确名称。只读能力仅覆盖其实际能访问的范围；尾部读取或局部文本存在性检查只证明对应片段。创建、更新和归档须分别使用支持且获准的 Memory 能力，并核实实际结果。遵守内容保全、单写者和归档要求；不得通过命令执行或普通文件写入绕过必需的 Memory 能力。
   - related:
       kind: section
       title: "相关概念"
@@ -130,6 +130,6 @@ blocks:
             kind: markdown
             text: |-
               - [执行规划](execution-planning.yaml) — 规划方法与侦察顺序。
-              - [Serena LSP 与 MCP 工具](../session-runtime/LSP-MCP-Tools.yaml) — 项目绑定与 Memory 能力。
+              - [项目 Memory 与代码结构能力](../session-runtime/LSP-MCP-Tools.yaml) — 项目绑定与 Memory 能力。
               - [Session Context Firewall](../session-runtime/session-context-firewall.yaml) — 有界上下文进入。
               - [委派 Worker 边界](../delegation/delegation-worker-boundary.yaml) — 已释放子级范围。

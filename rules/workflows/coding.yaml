@@ -14,7 +14,7 @@ blocks:
         从 Skill 读取路线指令及适用 Hook，不加载归档扩展或依赖其状态机。详细 owner 仍为权威；原有模式默认值和门禁保持不变。
 
         1. 在路线选择前完成 Contract 检查点。
-        2. 识别真实运行环境，完成运行环境检查点，并建立或加载[运行环境能力清单](../references/coding/layer-02-workflow-concepts/entry-and-context/environment-capability-inventory.yaml)进行能力检查。
+        2. 识别真实运行环境，完成运行环境检查点，并建立或加载[运行环境能力清单](../references/coding/layer-02-workflow-concepts/entry-and-context/environment-capability-inventory.yaml)。各阶段按适用 Hook 所需的操作和证据，从当前环境中选择可用且获准的工具。
         3. 通过消费已建立的运行环境能力清单的模式检查点，组合根指令模式门禁所需的委派 references。
         4. 使用当前证据调用[路线入口](../references/coding/layer-03-workflow-checkpoints/route-entry.yaml)，确认 Contract、运行环境、能力清单和 Mode 均已通过。只选择其授权的完整路线，并将已释放的 mode/count 证据交给首个模块检查点 SM01/MM01。每条路线依次组合[入口就绪](../hooks/entry.yaml)、[Session 就绪](../hooks/session.yaml)、[工作定义](../hooks/planning.yaml)、对应模式的执行模块、[验证与修复](../hooks/verification.yaml)、[文档](../hooks/documentation.yaml)和[交付与验收](../hooks/delivery.yaml)。按已选路线和当前阶段读取相应 Hook 的触发条件及检查点。
 

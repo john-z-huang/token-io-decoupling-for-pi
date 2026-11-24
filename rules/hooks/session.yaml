@@ -50,7 +50,7 @@ blocks:
               - execution-03-body:
                   kind: markdown
                   text: |-
-                    以当前会话明确宿主元数据和实际暴露能力为准，不从模型名、工具名或 Shell 推断。工具可用不等于授权；模式获批不等于扩展存在。若当前有 codemode，先 `searchTools`/`describeTool` 核对实际工具 Schema，再按需读取 namespace 服务指令；hidden 不绕过。只有真实暴露且授权的子代理能力才可使用，按 Schema 核验范围、目录、权限、返回/取消、持久身份续接支持；仅传真实接受字段。不伪造 ID、调用结果、effort、消息或能力。Pi 不默认提供内置子代理或 Plan mode，不从 Shell 启动另一个 Pi 来补造。一次性任务以真实调用证据绑定逻辑 allocation，不声称可恢复；缺持久身份仅限制依赖复用的分支。Session 隔离不等于 worktree 隔离。禁止 Computer Use 及经 Shell/MCP/子代理包装的同类操作。
+                    以当前会话明确宿主元数据和实际暴露能力为准，不从模型名、工具名或 Shell 推断。工具可用不等于授权；模式获批不等于扩展存在。按当前环境的发现方式核对实际能力、工具说明、参数 Schema 及服务指令；不得绕过隐藏或拒绝访问的能力。只有真实暴露且授权的子代理能力才可使用，按 Schema 核验范围、目录、权限、返回/取消、持久身份续接支持；仅传真实接受字段。不伪造 ID、调用结果、effort、消息或能力。Pi 不默认提供内置子代理或 Plan mode，不从 Shell 启动另一个 Pi 来补造。一次性任务以真实调用证据绑定逻辑 allocation，不声称可恢复；缺持久身份仅限制依赖复用的分支。Session 隔离不等于 worktree 隔离。禁止 Computer Use 及经 Shell/MCP/子代理包装的同类操作。
 
                     输入输出：输入是当前身份、用户选择、规范记录和扩展能力证据；输出是已读回的规范记录、锁定路线/容量、逐项证据与未满足前置。Session readiness 可返回 complete、needs_prerequisite、blocked；审计及容量核验不授权子代理工作。
   - checkpoints:

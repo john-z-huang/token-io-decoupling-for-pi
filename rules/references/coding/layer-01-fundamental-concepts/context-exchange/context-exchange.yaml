@@ -10,7 +10,7 @@ blocks:
       title: "概览"
       expose: true
       text: |-
-        本文档定义已分配 Coding Worker 的 Serena 项目 Memory 上下文 capsule 内容与新鲜度规则，不定义 Memory 命名/授权、handoff 记录、任务含义、Agent 拓扑或验收。
+        本文档定义已分配 Coding Worker 在项目 Memory 中的 上下文 capsule 内容与新鲜度规则，不定义 Memory 命名/授权、handoff 记录、任务含义、Agent 拓扑或验收。
   - rules:
       kind: section
       title: "通用规范"
@@ -37,7 +37,7 @@ blocks:
         - pi-guidance-body:
             kind: markdown
             text: |-
-              Serena 是可选外部 MCP。需要 Memory 时，通过 Pi codemode 的 `searchTools`、`describeTool`、`describeNamespace` 核实实际工具与 schema，调用时检查 `isError`；hidden 工具不得绕过。确认真实项目绑定及 Memory Schema。Memory 名称、内容、持久化及禁止回退文件、授权隔离和边界均按通用规范；能力缺失只阻塞依赖项。Pi 的 `read`、`edit`、`write`、`bash` 可按授权直接访问文档，不代表 Serena Memory 能力。旧身份上下文不可伪造。
+              需要 Memory 时，按当前环境选择实际可用且获准的项目 Memory 能力，核对后端项目绑定、操作说明、参数、权限和结果。普通文档访问不得代替必需的 Memory 操作；能力缺失仅阻塞依赖项。不得绕过隐藏、拒绝或访问限制，也不得伪造旧身份上下文。
   - related:
       kind: section
       title: "相关概念"

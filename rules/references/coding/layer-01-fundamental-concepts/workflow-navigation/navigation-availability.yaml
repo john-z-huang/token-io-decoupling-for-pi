@@ -32,7 +32,7 @@ blocks:
         - pi-guidance-body:
             kind: markdown
             text: |-
-              直接读取当前路线、Hook 和适用规则文档。使用独立 MCP 能力时，按实际工具发现结果核验 Schema；暴露 codemode 时可用 `searchTools`、`describeTool` 和 `describeNamespace`。只有缺少必需证据才暂停依赖工作。
+              直接读取当前路线、Hook 和适用规则文档。选用辅助导航或结构检查时，通过当前环境的发现方式核对能力、说明、参数和授权。只有缺少必需证据才暂停依赖工作。
   - related:
       kind: section
       title: "相关概念"

@@ -33,7 +33,7 @@ blocks:
         - owners-body:
             kind: markdown
             text: |-
-              - [LSP-MCP-Tools](LSP-MCP-Tools.yaml)
+              - [项目 Memory 与代码结构能力](LSP-MCP-Tools.yaml)
               - [runtime-provider-support](runtime-provider-support.yaml)
               - [session-model](session-model.yaml)
               - [session-role-ownership](session-role-ownership.yaml)

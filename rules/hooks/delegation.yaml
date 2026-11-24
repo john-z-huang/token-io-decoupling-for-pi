@@ -60,11 +60,11 @@ blocks:
                   text: |-
                     在当前上下文记录由 Root 执行还是委派，并保留决定依据。执行者或派发前提变化时，按本合同重核影响，保留已占名额和已发生的效果。实际派发时核对工具 Schema、职责、预算、当前 Slice 及写入范围。
 
-                    Pi 不内置代理。先核验真实工具/扩展 Schema、可用能力和允许字段，只传真实接受的字段；未知接口或额外必需字段在预留前拒绝。扩展配置名称不是职责或权限证明。不存在兼容能力时只阻断依赖委派的分支；不得假设隐藏工具、Pi 原生代理、持久 Session、稳定 ID、续接、消息、wait、resume、取消或异步句柄，也不得模拟 Session 或将 Root 改名为子代理。没有可选模型/effort 控制时沿用扩展默认值并记录限制；明确必需设置无法满足才阻断。已移除的 MCP 调度/effort 接口不调用、不伪造回执。
+                    Pi 不内置代理。先核验真实工具/扩展 Schema、可用能力和允许字段，只传真实接受的字段；未知接口或额外必需字段在预留前拒绝。扩展配置名称不是职责或权限证明。不存在兼容能力时只阻断依赖委派的分支；不得假设隐藏工具、Pi 原生代理、持久 Session、稳定 ID、消息、等待、续接、取消或异步句柄，也不得模拟 Session 或将 Root 改名为子代理。没有可选模型/effort 控制时沿用扩展默认值并记录限制；明确必需设置无法满足才阻断。调度与推理设置仅使用实际支持的能力，不伪造回执。
 
                     创建前再次核实 Multi-Agent 已释放、正数预算、唯一未绑定 allocation 与职责、合格输出类型、已释放 Slice、权限、上下文、来源/路径及返回条件。Worker bundle 必须清晰限定单一职责，禁止递归创建/派发、fork、自行选择handoff目标、peer协调或联系其他Session；按父级具名授权编写handoff记录不等于自行管理会话；禁止未授权网络、Git、Memory 或扩容。按实际需要提供任务计划/Memory 的准确名称和最小访问方式；Root 协调唯一计划写者，贡献不授权修改源码或扩大 Contract。按 memo owner 在实际派发中明确 `write_content_memo: true|false`。按实际 Schema 传递该值；没有对应字段时，在获准的任务正文中写明，并核验其实际传给 Worker。只有 true 且 Memory 能力、目标及授权均已核实时才处理 memo。共享计划的要求继续适用。
 
-                    DE05 核验真实能力及创建前置。同步一次性分支在 DE06 通过同一次实际工具调用创建、派发、执行并返回；父级用该调用证据将 allocation 绑定到逻辑身份和任务证据，不伪造持久 Session ID。只有宿主明确支持取得稳定身份及续接时，持久身份分支才按实际 Schema 绑定已有或已创建的身份，并在 DE06 向该身份派发。两种分支均在 DE07 审阅完整实际结果后才接续。仅在实际有专用受保护 Git 能力及授权时办理非简单 Git；仅在实际宿主能证明稳定身份及续接能力时复用；否则阻断相应分支。受保护 MCP 绑定和子代理模型选型分别按实际能力核验。合同不是隔离沙箱，不能保证外部进程或其他扩展行为受 Hooks 覆盖；若隔离为必要条件而实际能力缺失，阻断。
+                    DE05 核验真实能力及创建前置。同步一次性分支在 DE06 通过同一次实际工具调用创建、派发、执行并返回；父级用该调用证据将 allocation 绑定到逻辑身份和任务证据，不伪造持久 Session ID。只有宿主明确支持取得稳定身份及续接时，持久身份分支才按实际 Schema 绑定已有或已创建的身份，并在 DE06 向该身份派发。两种分支均在 DE07 审阅完整实际结果后才接续。仅在实际有专用受保护 Git 能力及授权时办理非简单 Git；仅在实际宿主能证明稳定身份及续接能力时复用；否则阻断相应分支。受保护操作的可信绑定和子代理模型选型分别按实际能力核验。合同不是隔离沙箱，不能保证外部进程或其他扩展行为受 Hooks 覆盖；若隔离为必要条件而实际能力缺失，阻断。
 
                     只在已分别放行、互不冲突的任务间并行；Chain 中每一步仍须各自满足授权、职责和范围，不能作为同一 Session 复用证据。已创建代理不能因不满意而替换；对获准修复优先复用同一稳定身份，仅当真实扩展支持续接才可 follow-up。一次性返回后身份不可继续派发。无法安全续接时报告阻塞并由 Root 判断合法路线，不静默创建同职责 successor；增加名额也不允许替换或重复职责。
         - execution-04:
@@ -74,7 +74,7 @@ blocks:
               - execution-04-body:
                   kind: markdown
                   text: |-
-                    创建前先执行[子代理端点跟随 Root](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml#subagent-endpoint)：Root 亲自确认当前有效 provider、模型 ID、可见 API/端点路由及来源；`openai-codex` 跟随 `openai-codex`，`openai` API 跟随同一 `openai` API 路由。先锁定同端点，再按任务选择该端点实际可用的模型/档位，核验真实 Schema 和配置覆盖优先级。启动环境元数据仅在仍反映当前值时有效，不以模型名、角色配置或 MCP API 配置猜端点；不读取凭据。元数据缺失/冲突、模型不可用或工具不能保证同端点时阻断创建，禁止静默跨 provider/端点回退；可选设置缺失的默认值规则不能豁免本条件。已创建身份不因此重建/重放，不要求 Worker 自报模型。
+                    创建前先执行[子代理端点跟随 Root](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml#subagent-endpoint)：Root 亲自确认当前有效 provider、模型 ID、可见 API/端点路由及来源；`openai-codex` 跟随 `openai-codex`，`openai` API 跟随同一 `openai` API 路由。先锁定同端点，再按任务选择该端点实际可用的模型/档位，核验真实 Schema 和配置覆盖优先级。启动环境元数据仅在仍反映当前值时有效，不以模型名、角色配置或外部服务的 API 配置猜端点；不读取凭据。元数据缺失/冲突、模型不可用或工具不能保证同端点时阻断创建，禁止静默跨 provider/端点回退；可选设置缺失的默认值规则不能豁免本条件。已创建身份不因此重建/重放，不要求 Worker 自报模型。
 
                     职责和模型独立。Root 依据输入类型、任务复杂度、依赖、不确定性、风险、验证充分性、输入量与延迟成本，从当前端点已核验可用的模型中选择，并给出简短依据。可参考以下三张模型卡：
                     - Sol：模型卡面向复杂编码/专业工作，复杂实现、修复、独立反例检查可优先考虑medium/high。
@@ -82,7 +82,7 @@ blocks:
                     - Luna：模型卡面向聚焦高吞吐，有界事实提取、机械改动、规则明确的实现/检查可考虑low/medium。
                     这些仅是参考起点，任何职责均不强制某一模型；普通文档仍由Root。一般多步任务medium，简单确定任务low，复杂/高风险任务可high；xhigh/max须有具体必要性，不是固定升级阶梯。卡片支持Sol的low/medium/high/xhigh/max，Terra/Luna另有none；Pi使用off而非none，三者不选minimal，且须核对真实provider映射。更大推理量不弥补缺失授权/证据，独立性也不由不同模型证明。
 
-                    按实际 Schema 传递已核验的精确模型和推理档位，在父级记录选型依据，并核对实际设置的覆盖优先级。按对应层级核验实际model/thinking字段及档位，全部job均须在预留/执行前通过，不能默默忽略。未显式选型时沿用插件默认值或实际继承行为。任务要求的选型无法落实时阻断。不要改父级模型、全局默认或MCP内部API模型来代替子任务设置。创建前核验即可，不要求Worker自查/自报；已创建身份不因换模型而重建、替换或回收。详见[模型卡事实、档位与路由参考](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml#subagent-models)。
+                    按实际 Schema 传递已核验的精确模型和推理档位，在父级记录选型依据，并核对实际设置的覆盖优先级。按对应层级核验实际model/thinking字段及档位，全部job均须在预留/执行前通过，不能默默忽略。未显式选型时沿用插件默认值或实际继承行为。任务要求的选型无法落实时阻断。不要改父级模型、全局默认或外部服务的 API 模型来代替子任务设置。创建前核验即可，不要求Worker自查/自报；已创建身份不因换模型而重建、替换或回收。详见[模型卡事实、档位与路由参考](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml#subagent-models)。
         - execution-05:
             kind: section
             title: 5. 结果、生命周期与未知效果
@@ -143,7 +143,7 @@ blocks:
             kind: checkpoint
             title: 执行实际任务并返回结果。
             text: |-
-              应用[实施](../references/coding/layer-02-workflow-concepts/decision-and-execution/implementation.yaml)。Root 执行时，作最小授权改动。子代理只实施已释放任务。异步执行确认派发后立即进入 DE07；同步一次性调用则在返回后进入本步收集和审阅实际结果，不重放任务；保留其实际正文/结果证据，结果待处理时不得声称完成，也不得依赖不完整消息。实际执行期间，仅当当前执行者、Slice、输出 class、capability、独立授权、固定 root、准确路径/操作和 baseline 符合[输出物料化](../references/coding/layer-01-fundamental-concepts/execution-planning/output-materialization.yaml)时，才按该 owner 处理候选输出。准备有界候选，保留其 manifest 身份/hash，并检查/审阅同一候选。应用前按[候选合规预检](../references/coding/layer-01-fundamental-concepts/execution-planning/candidate-compliance.yaml)在同一固定 root 和政策下进行新鲜 whole-batch 预检；然后重新核验授权、候选 artifact 完整性和 baseline，再应用准确候选。应用完成后，保留已准备候选 ID/hash、准确应用收据和实际当前状态证据。子代理结果待处理时，返回 `needs_prerequisite`，等待实际结果并从 DE07 的结果收集/审阅子步骤恢复，恢复时携带已保留的当前状态证据、适用的候选身份/hash 和应用收据；若未选择可选候选路径，则一并带入已记录的 `not_applicable` 处置及其理由。收集结果期间不得重启或重复准备、预检或应用。收到结果后，Root 将完整的子代理实际正文/结果与保留证据和当前文件一起审阅。子代理结果本身不授权应用。未选择可选路径时，记录有原因的 `not_applicable`，且仅在独立授权的直接路径下继续。已选路径缺少必需能力/守卫/预检，或返回失败、未知、遗漏、过期、不确定时，在依赖操作前返回 `needs_prerequisite` 或 `blocked`；不得静默回退。部分、冲突或不确定的应用必须先根据实际当前状态解决；不得覆盖已改变的内容进行重放。结果/状态冲突或不安全时阻塞。仅在需要代码结构证据且能力可用时应用[LSP MCP Tools](../references/coding/layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.yaml)。所需 LSP 语义不可用时，说明限制并回退到定向文本搜索和路径范围较小的读取；不得将这些发现称为 LSP 证据。只有不需要代码结构证据时才能记录 `not_applicable`。必需关系仍未知时阻塞。触发时应用[执行阶段反馈](../references/coding/layer-01-fundamental-concepts/execution-control/execution-stage-feedback.yaml)；否则记录有原因的 `not_applicable`。实际结果和当前状态当前有效并已审阅后，运行聚焦的初步检查并返回路径、效果、实际正文/结果证据、适用时的收据/当前状态证据、检查输出和未解决问题。预检、应用收据和初步检查都不是最终 Verification。Root、复用子代理及新建子代理路径都必须经过此步。
+              应用[实施](../references/coding/layer-02-workflow-concepts/decision-and-execution/implementation.yaml)。Root 执行时，作最小授权改动。子代理只实施已释放任务。异步执行确认派发后立即进入 DE07；同步一次性调用则在返回后进入本步收集和审阅实际结果，不重放任务；保留其实际正文/结果证据，结果待处理时不得声称完成，也不得依赖不完整消息。实际执行期间，仅当当前执行者、Slice、输出 class、capability、独立授权、固定 root、准确路径/操作和 baseline 符合[输出物料化](../references/coding/layer-01-fundamental-concepts/execution-planning/output-materialization.yaml)时，才按该 owner 处理候选输出。准备有界候选，保留其 manifest 身份/hash，并检查/审阅同一候选。应用前按[候选合规预检](../references/coding/layer-01-fundamental-concepts/execution-planning/candidate-compliance.yaml)在同一固定 root 和政策下进行新鲜 whole-batch 预检；然后重新核验授权、候选 artifact 完整性和 baseline，再应用准确候选。应用完成后，保留已准备候选 ID/hash、准确应用收据和实际当前状态证据。子代理结果待处理时，返回 `needs_prerequisite`，等待实际结果并从 DE07 的结果收集/审阅子步骤恢复，恢复时携带已保留的当前状态证据、适用的候选身份/hash 和应用收据；若未选择可选候选路径，则一并带入已记录的 `not_applicable` 处置及其理由。收集结果期间不得重启或重复准备、预检或应用。收到结果后，Root 将完整的子代理实际正文/结果与保留证据和当前文件一起审阅。子代理结果本身不授权应用。未选择可选路径时，记录有原因的 `not_applicable`，且仅在独立授权的直接路径下继续。已选路径缺少必需能力/守卫/预检，或返回失败、未知、遗漏、过期、不确定时，在依赖操作前返回 `needs_prerequisite` 或 `blocked`；不得静默回退。部分、冲突或不确定的应用必须先根据实际当前状态解决；不得覆盖已改变的内容进行重放。结果/状态冲突或不安全时阻塞。仅在需要代码结构证据且能力可用时应用[项目 Memory 与代码结构能力](../references/coding/layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.yaml)。所需 LSP 语义不可用时，说明限制并回退到定向文本搜索和路径范围较小的读取；不得将这些发现称为 LSP 证据。只有不需要代码结构证据时才能记录 `not_applicable`。必需关系仍未知时阻塞。触发时应用[执行阶段反馈](../references/coding/layer-01-fundamental-concepts/execution-control/execution-stage-feedback.yaml)；否则记录有原因的 `not_applicable`。实际结果和当前状态当前有效并已审阅后，运行聚焦的初步检查并返回路径、效果、实际正文/结果证据、适用时的收据/当前状态证据、检查输出和未解决问题。预检、应用收据和初步检查都不是最终 Verification。Root、复用子代理及新建子代理路径都必须经过此步。
         - DE08:
             kind: checkpoint
             title: 对所有执行者解决当前 Control。

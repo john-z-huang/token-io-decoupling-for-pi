@@ -52,7 +52,7 @@ blocks:
               - execution-03-body:
                   kind: markdown
                   text: |-
-                    每个已放行 bundle 必须显式登记 `write_content_memo: true|false`、准确 Memory 名称及任务范围，由父级负责设置，Worker 不自行推断默认值。false 仅关闭 content memo，不影响 plan 或其他 owner 记录。true 时仅在获准的 `context-exchange/workers/<worker-context-id>/content-memo` 写入。写前用 `list_memories` 检查具名条目；首次出现可复用状态，以及实质里程碑、阻塞、handoff、replacement、正常退出时，按需 `write_memory` 更新。登记实际名称及写入结果供后续授权消费；普通成功写后不为确认而全文回读。无变化不逐命令更新。父级派发前核实依赖的读写能力，并明确具名授权；这是业务层许可，不是技术 ACL。
+                    每个已放行 bundle 必须显式登记 `write_content_memo: true|false`、准确 Memory 名称及任务范围，由父级负责设置，Worker 不自行推断默认值。false 仅关闭 content memo，不影响 plan 或其他 owner 记录。true 时仅在获准的 `context-exchange/workers/<worker-context-id>/content-memo` 写入。写前通过实际 Memory 查询能力检查具名条目；首次出现可复用状态，以及实质里程碑、阻塞、handoff、replacement、正常退出时，使用获准的 Memory 写入能力更新。登记实际名称及写入结果供后续授权消费；普通成功写后不为确认而全文回读。无变化不逐命令更新。父级派发前核实依赖的读写能力，并明确具名授权；这是业务层许可，不是技术 ACL。
 
                     写入内容保持完整、事实化、可追溯，标注来源/时间、适用范围、已知不确定性、贡献者及对应任务；写后登记实际名称、版本/位置和结果供后续消费。不得把推理链、秘密、未证实推测或调度控制写入业务记录。共享计划按下列来源中的任务计划 Memory 生命周期协调单写者；memo/index/handoff按各自具名授权和生命周期维护。只在当前上下文缺失/过期、已知外部更新、写者交接、并发迹象、冲突、结果不明或明确内容检查要求时刷新基线；理论上可能变化、普通写成功或切换模块不触发重复全文读取。基线未知/冲突先协调合并，不盲目全文覆盖。不同workspace即使同名也不保证同步；跨worktree只在真实绑定与具名授权下消费共享记录，不能按basename推断同一存储。项目级模式、`.gitignore`、目录布局和worktree不是Worker级技术隔离。未知写效果先读回实际状态，不重复写入确认；归档仅在相应owner/授权允许时做，不把历史条目当当前事实。
         - execution-04:
@@ -62,11 +62,11 @@ blocks:
               - execution-04-body:
                   kind: markdown
                   text: |-
-                    1. 代码结构查询先激活准确Serena项目根并确认目标语言服务器；worktree/独立子项目需要自己的绑定，不能复用相邻checkout。未知文件先symbols overview，再按已知文件/目录限制符号正文、声明、引用与实现查询。文本搜索只定位候选，不能证明调用关系；语言后端不可用时报告限制后定向读取，不伪称LSP证据。
+                    1. 代码结构查询前，确认所选语言服务绑定准确项目根且目标语言后端可用。Worktree 或独立子项目使用各自的绑定。陌生文件先获取符号概览，再按已知文件或目录缩小符号正文、声明、引用与实现查询的范围。文本搜索只定位候选。语言后端不可用时报告限制，按需定向读取并按实际来源报告证据。
                     2. 可复用项目知识优先使用已知且获准名称；仅发现未知名称时列相关topic，内容已有效在上下文时不重复read。只保存稳定、不显而易见、对后续任务有帮助的事实及明确请求的跨会话笔记，不把同一发现无触发地复制成多份记录。
-                    3. 读取实际提供的有效memory-maintenance指引，遵守ignored、只读及访问限制；不能用文件工具绕过。Serena提示未onboarding时须先获用户授权，拒绝/未授权仍可继续其他工作，不把onboarding作为查询的前置。读取global维护说明不授权写global。
-                    4. 一般项目Memory按配置根存储，逻辑名斜杠分主题且由Serena补`.md`；只有明确跨项目要求才写`global/`。计划专用的共享仓库scope不扩展一般Memory授权。业务记录具名授权不是技术ACL；不能声称Serena提供Worker级RW/RO/DENY。
-                    5. 保留名称布局：`context-exchange/INDEX`、`context-exchange/workers/<worker-context-id>/INDEX`与`content-memo`，以及`context-exchange/context-bootstrap/MANIFEST`、`project-context`、`policy-context`；不另建本地文件索引或文件副本，默认`.serena/memories/`只是实际配置可覆盖的映射。
+                    3. 读取后端实际提供的有效 Memory 维护指引，遵守忽略、只读及访问限制，不得用文件访问绕过。后端报告项目知识尚未初始化时，先获用户授权再初始化；未获授权仍可继续其他独立工作。代码结构查询按语言服务自身的前置条件执行。读取全局维护说明不授权写入全局 Memory。
+                    4. 一般项目 Memory 按实际配置的根和名称映射存储，逻辑名按斜杠分主题。只有明确跨项目要求才写入 `global/`。计划专用的共享仓库 scope 不扩展一般 Memory 授权。具名授权和 Worker 级技术访问控制须分别核实。
+                    5. 保留名称布局：`context-exchange/INDEX`、`context-exchange/workers/<worker-context-id>/INDEX`与`content-memo`，以及`context-exchange/context-bootstrap/MANIFEST`、`project-context`、`policy-context`；不另建本地文件索引或文件副本。实际存储位置由获准后端配置决定。
         - execution-05:
             kind: section
             title: Handoff内容
@@ -113,6 +113,6 @@ blocks:
               | [task-assignment.md](../references/coding/layer-01-fundamental-concepts/execution-planning/task-assignment.yaml) | 任务状态与调度边界 |
               | [context-source-selection.md](../references/coding/layer-03-workflow-checkpoints/context-source-selection.yaml) | 上下文来源选择 |
               | [bootstrap-selection.md](../references/coding/layer-03-workflow-checkpoints/bootstrap-selection.yaml) | 启动上下文选择 |
-              | [LSP-MCP-Tools.md](../references/coding/layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.yaml) | 项目激活、结构查询、长期知识、维护与按需读回 |
+              | [项目 Memory 与代码结构能力](../references/coding/layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.yaml) | 项目激活、结构查询、长期知识、维护与按需读回 |
               | [context.md](../references/coding/layer-02-workflow-concepts/entry-and-context/context.yaml) | 当前问题、有界事实及Context通过条件 |
               | [session-audit-resolution.md](../references/coding/layer-03-workflow-checkpoints/session-audit-resolution.yaml) | 会话审计状态应用 |

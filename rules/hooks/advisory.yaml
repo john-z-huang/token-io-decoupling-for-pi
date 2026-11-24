@@ -48,10 +48,10 @@ blocks:
               - execution-02-body:
                   kind: markdown
                   text: |-
-                    1. 当前项目 MCP 不暴露五节点建议和决策上下文生成专用接口。只有另有真实匹配、已启用且获准的服务时，才适用下列调用协议；其他情况按直接 owner 判断。
+                    1. 五节点建议和决策上下文生成只使用当前环境中已核实匹配、启用且获准的服务；缺少可选服务时按直接 owner 判断。
                     2. 只发送当前问题所需的类型化事实、必要 owner 标题及表达固定选项所需最少指令；不发送全仓库、Session transcript、原始日志、完整diff、凭据或无关状态。
                     3. owner 上下文保留来源、语言、标题范围和当前 Hash。若必要正文无法在请求预算内完整容纳，退回直接 owner 判断，不能静默截断后声称完整。
-                    4. 默认/常规测试用离线 Mock。真实请求必须单独获准，实际调用时读取非空白 `OPENAI_API_KEY`、`OPENAI_BASE_URL`，固定 API 模型 `gpt-6-luna`；缺配置不创建 client/不发请求。不得打印/持久化配置值，合成配置仅用于Mock。
+                    4. 默认和常规测试用离线 Mock。真实请求必须单独获准，按服务的实际契约核对调用时凭据、端点和模型要求。缺少必需配置时不创建客户端或发送请求。不得打印或持久化配置值，合成配置仅用于 Mock。
                     5. Pi会话/子代理模型与该API独立；不从宿主会话偷取凭据，不因建议需要而改全局配置。只用当前真实工具Schema及支持的调用方契约，按各工具实际调用契约核验身份。
         - execution-03:
             kind: section
@@ -130,4 +130,4 @@ blocks:
               | [建议选择](../references/coding/layer-03-workflow-checkpoints/advisory-selection.yaml) | Root前置、阶段绑定与独立门禁 |
               | [决策上下文选择](../references/coding/layer-03-workflow-checkpoints/decision-context-selection.yaml) | 生成/N/A/直接判断与下游审阅 |
               | [规则上下文](../references/coding/layer-01-fundamental-concepts/workflow-navigation/rule-context.yaml) | 必需owner正文、来源和Hash |
-              | [Pi运行时](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml) | 真实工具及固定API边界 |
+              | [Pi运行时](../references/coding/layer-01-fundamental-concepts/session-runtime/runtime-provider-support.yaml) | 真实工具及外部 API 边界 |

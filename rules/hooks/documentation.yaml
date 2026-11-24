@@ -55,7 +55,7 @@ blocks:
                     3. 预检只给有限候选证据，不证明中文语义、真实写后状态或最终Verification；细节按 [候选与物化合同](materialization.yaml)。选定路径实际失败不得换入口绕过。
                     4. 只根据当前已验证来源编辑已批准Markdown/注释路径，保留技术含义。检查用户可见说明、行为/配置/API、安装/使用步骤、限制、安全/权限承诺、故障处理、示例、链接、目录和注释的一致性。
                     5. 本仓库维护唯一中文权威，不新增语言镜像。只执行当前项目适用检查；本任务明确不使用双语维护检查，不把它当作前置。
-                    6. 不以普通文件、capsule、任务计划或相邻路径替代缺失的权威文档/Memory输出；也不把权威README/规范迁入Memory作为替代品。正常直接文档用真实获准的read/edit/write等能力，不凭空要求物化专用适配器。
+                    6. 不以普通文件、capsule、任务计划或相邻路径替代缺失的权威文档/Memory输出；也不把权威README/规范迁入Memory作为替代品。常规文档操作使用真实获准的读取和编辑能力，不凭空要求物化专用适配器。
                     7. 没有输出差异须以前后指纹匹配证明。保留实际已写部分；恢复不重放DOC02。
         - execution-03:
             kind: section
@@ -66,7 +66,7 @@ blocks:
                   text: |-
                     1. 用户请求可复用项目知识或owner条件触发时，遵循 [上下文合同](context.yaml) 和对应知识/memo生命周期；优先已提供的精确名称，只有需发现时才列相关topic，不先浏览全部Memory。
                     2. 仅保存稳定、不显而易见、对后续任务有用且获准的项目知识/笔记，保留事实、范围、不确定性和准确权威指针；不复制来源全文、秘密、完整transcript、日志、私有推理或父级调度表。
-                    3. 核对实际Serena项目绑定、维护说明、具名读写授权及真实Schema。默认项目Memory与 `global/` 范围分开；跨项目写入须明确要求，计划专用共享scope另按计划合同，不据此扩展一般知识授权。
+                    3. 核对实际 Memory 后端的项目绑定、维护说明、具名读写授权及操作参数。默认项目Memory与 `global/` 范围分开；跨项目写入须明确要求，计划专用共享scope另按计划合同，不据此扩展一般知识授权。
                     4. 经真实Memory工具写入并确认操作成功，记录准确名称和结果。只有owner触发存储内容核验时才检查；有匹配核验凭据先用该凭据，否则作必要内容比较。普通成功write/edit不立即全文重读，不用理论上可能变化作为反复读回理由。
                     5. 未请求且未触发时记有原因的N/A。必需工具、持久化或要求的内容核验失败/不可用/未知，保持该请求输出未完成并阻断依赖；不回退普通文件。
                     6. `write_content_memo: false`只关闭该Worker memo，既不取消默认共享任务计划，也不能把用户请求的可复用项目知识改为N/A。
@@ -121,7 +121,7 @@ blocks:
             applicability: optional
             title: 仅持久化已授权项目 Memory。
             text: |-
-              用户要求可复用 Agent 项目知识，或 owner 定义的触发条件适用时，按适用情况应用[LSP MCP Tools](../references/coding/layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.yaml)、[Content Memo](../references/coding/layer-01-fundamental-concepts/context-exchange/content-memo.yaml)及[Content Memo Lifecycle](../references/coding/layer-01-fundamental-concepts/context-exchange/content-memo-lifecycle.yaml)：保留获准名称/路径，通过暴露的 Memory 能力写入并确认操作成功。仅当适用 owner 要求时核验存储内容；有匹配核验凭据时使用该凭据，否则进行必要的内容比较。普通成功写入不会触发立即全文读回。派发字段 `write_content_memo: false` 不代表项目 Memory 不适用。未请求且未触发项目 Memory 输出时记录带原因的 `not_applicable`。必需能力、写入或 owner 要求的核验不可用/失败时，保持请求输出未完成；不得以文件替代。
+              用户要求可复用 Agent 项目知识，或 owner 定义的触发条件适用时，按适用情况应用[项目 Memory 与代码结构能力](../references/coding/layer-01-fundamental-concepts/session-runtime/LSP-MCP-Tools.yaml)、[Content Memo](../references/coding/layer-01-fundamental-concepts/context-exchange/content-memo.yaml)及[Content Memo Lifecycle](../references/coding/layer-01-fundamental-concepts/context-exchange/content-memo-lifecycle.yaml)：保留获准名称/路径，通过暴露的 Memory 能力写入并确认操作成功。仅当适用 owner 要求时核验存储内容；有匹配核验凭据时使用该凭据，否则进行必要的内容比较。普通成功写入不会触发立即全文读回。派发字段 `write_content_memo: false` 不代表项目 Memory 不适用。未请求且未触发项目 Memory 输出时记录带原因的 `not_applicable`。必需能力、写入或 owner 要求的核验不可用/失败时，保持请求输出未完成；不得以文件替代。
         - DOC04:
             kind: checkpoint
             title: 分类写后影响。
