@@ -1,14 +1,18 @@
 .token-io-decoupling
-.serena
+# .serena
 
 # VS Code IDE Config files
 .vscode
 
 # Python Project Cache files
 __pycache__
+# Ruff
+.ruff_cache
 node_modules
 
 # 编译生成的 Skill 文档
 /skill/
 
 .DS_Store
+
+archive/pi-coding-workflow/extensions/coding-workflow/.serena
