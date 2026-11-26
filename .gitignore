@@ -10,9 +10,6 @@ __pycache__
 .ruff_cache
 node_modules
 
-# 编译生成的 Skill 文档
-/skill/
-
 .DS_Store
 
 archive/pi-coding-workflow/extensions/coding-workflow/.serena

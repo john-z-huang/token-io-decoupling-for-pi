@@ -3,7 +3,7 @@
 ## 项目范围与权威资料
 
 - 本仓库维护开发任务编排 Skill。Skill 根据用户指令组织主代理和子代理的执行、交接、恢复与验收。项目入口为 [README.md](README.md)。
-- 入口、工作流与 Hook 的源文件维护在 `rules/`，主代理与子代理的角色规则维护在 `rules/references/roles/`，配套脚本在 `scripts/`。编译产物位于 Git 忽略的 `skill/`。
+- `rules/` 中的 YAML DSL 是 Skill 指令的唯一维护来源，主代理与子代理的角色规则位于 `rules/references/roles/`，配套脚本位于 `scripts/`。`skill/` 中的 Markdown 是纳入 GitHub 仓库版本控制的生成产物。
 - 文档维护规范见 [`docs/DOCUMENTATION_STANDARDS.md`](docs/DOCUMENTATION_STANDARDS.md)，本地更新见 [`INSTALL.md`](INSTALL.md)。
 - `archive/` 保存历史资料，默认构建、安装和验证均跳过该目录。
 
@@ -18,6 +18,15 @@
 
 ## 修改与验证
 
+- 在开发过程中，Code Agent 从 `rules/` 读取和修改指令。避免打开、搜索或审阅 `skill/` 下的 Markdown 正文及内容差异。通过编译命令更新产物，通过命令退出状态和文件路径核对结果。
+- 修改 `rules/` 中的指令或影响生成结果的编译逻辑后，从仓库根目录依次运行生成和校验命令。
+
+  ```bash
+  /bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py'
+  /bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --check'
+  ```
+
+- 提交规则变更时，将对应的 `skill/` 产物新增、更新和删除放在同一提交。GitHub Actions 在推送和拉取请求时校验提交中的产物与 DSL 一致，合并前须通过 `Check generated Skill`。规则移动或删除时，按[文档维护规范](docs/DOCUMENTATION_STANDARDS.md#修改与验证)通过编译器处理退役产物。
 - 维护中的文档使用简体中文和现有文件名；不新增英文副本或旧式语言后缀镜像。本地 Markdown 链接须指向存在的当前文件，移动或重命名时同步更新引用。
 - 按文档规范选择验证，分别报告结构检查和语义验收的实际结果。
 - 用隔离的临时安装验证 Skill 更新。实际用户目录或宿主配置仅按对应授权修改。
