@@ -203,8 +203,7 @@ def compile_hooks(
             raise ValueError(f"Hook 文档包含 NUL：{path.name}")
         heading = f"# {document['title']}"
         gap = "\n" * document.get("blank_lines_after_title", 2)
-        provenance = source_notice(path)
-        markdown[target] = f"{heading}\n\n{provenance}{gap}{body}\n"
+        markdown[target] = f"{heading}{gap}{body}\n"
         targets[target] = anchors
         if f"hook-{document['id']}" in fragment_ids:
             raise ValueError(f"Hook 与参考规则的文档 ID 重复：{document['id']}")
@@ -228,10 +227,6 @@ def compile_hooks(
                 raise ValueError(f"Hook 引用缺少 DSL 片段：{path} -> {document}#{fragment}")
             if COMPLIANCE.is_reverse_dependency("hook", reference_layers[document]):
                 raise ValueError(f"Hook 执行引用存在反向依赖：{path} -> {document}#{fragment}")
-
-
-def source_notice(path: Path) -> str:
-    return f"<!-- 由 {path.relative_to(ROOT).as_posix()} 生成。请在 DSL 中维护正文。 -->"
 
 
 def is_retired_output(path: Path, fingerprints: dict[str, str | list[str]]) -> bool:
@@ -302,9 +297,8 @@ def compile_rules() -> dict[Path, str]:
         body = render_blocks(document["blocks"], 2, set(), fragments, heading_counts)
         if "<!-- rule:" in body:
             raise ValueError(f"DSL 规则正文不包含 Hook 执行引用：{source_path.relative_to(ROOT)}")
-        provenance = source_notice(source_path)
         title_gap = "\n" * document.get("blank_lines_after_title", 2)
-        markdown = f"# {document['title']}\n\n{provenance}\n{title_gap}{body}\n"
+        markdown = f"# {document['title']}{title_gap}{body}\n"
         if "front_matter" in document:
             metadata = document["front_matter"]
             description = json.dumps(metadata["description"], ensure_ascii=False)

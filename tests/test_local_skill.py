@@ -83,12 +83,6 @@ class LocalSkillTests(unittest.TestCase):
                     "documentation-comments-git-operations",
                 )
             }
-            for role in roles:
-                with self.subTest(role=role):
-                    self.assertIn(
-                        f"由 rules/{role.with_suffix('.yaml').as_posix()} 生成",
-                        (target / role).read_text(encoding="utf-8"),
-                    )
             self.assertFalse((target / "agents").exists())
             self.assertFalse((target / "_project").exists())
             manifest = json.loads((target / MARKER).read_text(encoding="utf-8"))
@@ -127,7 +121,10 @@ class LocalSkillTests(unittest.TestCase):
             self.assertEqual((project_target / MARKER).read_bytes(), (target / MARKER).read_bytes())
             linked_paths = set()
             for path in target.rglob("*.md"):
-                for _, _, href in links_in_markdown(path.read_text(encoding="utf-8")):
+                markdown = path.read_text(encoding="utf-8")
+                with self.subTest(path=path.relative_to(target)):
+                    self.assertNotIn("请在 DSL 中维护正文。", markdown)
+                for _, _, href in links_in_markdown(markdown):
                     url = urlsplit(href)
                     if url.scheme or url.netloc or not url.path:
                         continue
