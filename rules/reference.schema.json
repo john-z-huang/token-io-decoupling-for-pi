@@ -8,10 +8,7 @@
     "schema_version": { "const": 1 },
     "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
     "document_type": {
-      "enum": [
-        "directory-guide", "fundamental-concept", "workflow-concept",
-        "workflow-checkpoint", "workflow-route", "hook-contract", "hook-directory"
-      ]
+      "enum": ["directory-guide", "workflow-route", "hook-contract", "hook-directory"]
     },
     "markdown_path": { "type": "string", "pattern": "^(?:SKILL|references/README|(?:references/(?:[A-Za-z0-9_-]+/)+|hooks/|workflows/)[A-Za-z0-9_-]+)\\.md$" },
     "front_matter": {
@@ -46,7 +43,7 @@
   "if": {
     "properties": {
       "markdown_path": {
-        "pattern": "^(?:references/coding/(?:layer-01-fundamental-concepts|layer-02-workflow-concepts|layer-03-workflow-checkpoints)|workflows)/",
+        "pattern": "^workflows/",
         "not": { "const": "workflows/coding.md" }
       }
     }
@@ -65,8 +62,6 @@
     "if": { "properties": { "markdown_path": { "const": "SKILL.md" } } },
     "then": { "required": ["front_matter"] },
     "else": { "not": { "required": ["front_matter"] } }
-  }, {
-    "properties": { "markdown_path": { "not": { "pattern": "^(?:references/.*/|workflows/)INDEX\\.md$" } } }
   }],
   "dependentSchemas": {
     "activate_on": {
@@ -135,7 +130,6 @@
           "required": ["kind", "title", "text"],
           "properties": {
             "kind": { "const": "checkpoint" },
-            "applicability": { "enum": ["optional", "sub_agent"] },
             "title": { "$ref": "#/$defs/title" },
             "text": { "$ref": "#/$defs/text" }
           }

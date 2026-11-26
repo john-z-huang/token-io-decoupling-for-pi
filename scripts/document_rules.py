@@ -1,4 +1,4 @@
-"""Skill 文档的离线链接、依赖层级及章节检查。"""
+"""核对 Skill 文档的离线链接和依赖方向。"""
 
 from __future__ import annotations
 
@@ -39,7 +39,6 @@ def _advance_fence(line: str, fence_char: str = "", fence_width: int = 0) -> tup
 
 
 _SKILL_LAYERS = {
-    ("agents",): "roles",
     ("references",): "references",
     ("hooks",): "hook",
     ("workflows",): "workflows",
@@ -48,22 +47,22 @@ _LAYER_RANK = {layer: index for index, layer in enumerate(_SKILL_LAYERS.values()
 _SHARED_ROUTE_HOOKS = {"README", "recovery"}
 
 
-class ComplianceInputError(ValueError):
-    """Raised when a caller-supplied candidate envelope exceeds its contract."""
+class LinkPathError(ValueError):
+    """本地链接路径不符合仓库相对 POSIX 路径要求。"""
 
 
 def validate_relative_posix_path(value: Any) -> str:
     """Return a canonical repo-relative POSIX path or reject it without OS resolution."""
     if not isinstance(value, str) or not value or len(value) > MAX_PATH_CHARS:
-        raise ComplianceInputError("candidate_path_invalid_length")
+        raise LinkPathError("link_path_invalid_length")
     if "\\" in value or "\x00" in value or value.startswith("/"):
-        raise ComplianceInputError("candidate_path_not_relative_posix")
+        raise LinkPathError("link_path_not_relative_posix")
     parts = value.split("/")
     if any(part in {"", ".", ".."} for part in parts):
-        raise ComplianceInputError("candidate_path_not_canonical")
+        raise LinkPathError("link_path_not_canonical")
     path = PurePosixPath(value)
     if path.is_absolute() or path.as_posix() != value:
-        raise ComplianceInputError("candidate_path_not_canonical")
+        raise LinkPathError("link_path_not_canonical")
     return value
 
 
@@ -129,7 +128,7 @@ def normalize_markdown_target(source: PurePosixPath, raw: str) -> str | None:
         return ""
     try:
         return validate_relative_posix_path(normalized)
-    except ComplianceInputError:
+    except LinkPathError:
         return ""
 
 

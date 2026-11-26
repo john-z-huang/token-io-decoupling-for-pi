@@ -23,7 +23,7 @@ YAML 使用[规则 Schema](../rules/reference.schema.json)。`markdown_path` 指
 
 ## 修改与验证
 
-从仓库根目录运行。新增规则可先用 `--template` 查看模板。查询结果包含源文件位置和块 ID。
+从仓库根目录运行。用 `--template` 查看工作流目录、路线、Hook 目录和合同的模板。用 `--locate-checkpoint` 查询源文件位置和块 ID。新增专题参考规则时，可参考对应目录中的现有文件，例如[任务约定](../rules/references/planning/contract.yaml)或[证据时效](../rules/references/verification/verification-epoch.yaml)。
 
 ```bash
 /bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --template workflow-route'

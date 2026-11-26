@@ -24,9 +24,7 @@ from ruamel.yaml import YAML, YAMLError
 from ruamel.yaml.tokens import AliasToken, AnchorToken
 
 import document_rules as COMPLIANCE
-from coding_dsl_templates import (
-    DOCUMENT_TYPES, REFERENCE_LAYER_TYPES, document_type, load_templates, validate_coding_document,
-)
+from coding_dsl_templates import DOCUMENT_TYPES, document_type, load_templates, validate_coding_document
 from hook_dsl_templates import HOOK_TYPES, hook_type, load_hook_templates, validate_hook_document
 from local_skill import DEFAULT_NAME, update_local_skill
 from workflow_checkpoint_lookup import NUMBERED_BLOCKS, check_flowchart_references, locate_checkpoint
@@ -35,7 +33,6 @@ from workflow_module_contracts import ROUTE_HOOKS, WORKFLOW_PATH, WORKFLOW_SELEC
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "rules"
 REFERENCES = SOURCE / "references"
-CODING = REFERENCES / "coding"
 ROUTES = SOURCE / WORKFLOW_PATH
 TEMPLATES = SOURCE / "templates/coding"
 HOOK_SOURCE = SOURCE / "hooks"
@@ -266,17 +263,15 @@ def read_hook_documents() -> Iterator[tuple[Path, dict]]:
 def read_rules(paths: Iterable[Path]) -> Iterator[tuple[Path, dict]]:
     validator = rule_validator()
     templates = load_templates(TEMPLATES, validator)
-    ids = {"current-route"}
+    ids: set[str] = set()
     for path in sorted(paths):
         source = source_bytes(path)
         document = read_rule(path, source.decode("utf-8"), validator)
         if document["id"] in ids:
-            raise ValueError(f"重复或保留的文档 ID：{path.relative_to(ROOT)}#{document['id']}")
+            raise ValueError(f"重复的文档 ID：{path.relative_to(ROOT)}#{document['id']}")
         ids.add(document["id"])
         relative = path.relative_to(SOURCE)
-        legacy_reference = path.is_relative_to(CODING) and relative.parts[2] in REFERENCE_LAYER_TYPES
-        workflow = path.is_relative_to(ROUTES) and relative != WORKFLOW_SELECTOR
-        if legacy_reference or workflow:
+        if path.is_relative_to(ROUTES) and relative != WORKFLOW_SELECTOR:
             validate_coding_document(relative, document, templates[document_type(relative)])
         yield path, document
 
