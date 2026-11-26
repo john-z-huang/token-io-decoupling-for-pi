@@ -13,7 +13,7 @@
 | [主代理职责](../rules/references/roles/main-agent.yaml) | 决策与授权边界、任务组织和最终验收 |
 | [子代理角色目录](../rules/references/delegation/delegation-policy.yaml) | 四类角色的职责、派发条件和交接证据 |
 
-`scripts/compile-reference-dsl.py` 从 `rules/` 下的 YAML 源文件生成 `skill/` 中的 Skill 入口和规则阅读版。其中主代理与四类子代理的角色规则由 `rules/references/roles/` 生成到 `skill/references/roles/`。生成目录由 Git 忽略。发布到本地管理目录见[安装与更新](../INSTALL.md)。
+`scripts/compile-reference-dsl.py` 从 `rules/` 下的 YAML 源文件生成 `skill/` 中的 Skill 入口和规则阅读版。其中主代理与四类子代理的角色规则由 `rules/references/roles/` 生成到 `skill/references/roles/`。生成的 Markdown 纳入版本控制，与对应的规则变更一并提交。发布到本地管理目录见[安装与更新](../INSTALL.md)。
 
 YAML 使用[规则 Schema](../rules/reference.schema.json)。`markdown_path` 指定输出位置，`blocks` 中的稳定 ID 用于引用和检查点查找。源规则使用相对 `.yaml` 路径和可选的 `#块ID`。编译器核对目标文档及片段，并生成相对的 Markdown 链接和标题锚点。
 
@@ -24,6 +24,8 @@ YAML 使用[规则 Schema](../rules/reference.schema.json)。`markdown_path` 指
 每张图用 `START(["开始"])` 和 `END(["结束"])` 标出本轮流程的边界。所有适用的入口从「开始」分出，完成、受阻、跳过及转交等出口统一连到「结束」。新的触发事件从「开始」进入重新核验。结构校验要求每个节点从「开始」可达，且可汇入「结束」。
 
 ## 修改与验证
+
+按 [AGENTS.md](../AGENTS.md#修改与验证) 在 DSL 中审阅和修改指令，并通过命令生成和校验 Markdown。删除规则或变更 `markdown_path` 导致旧产物退役时，先用 `--check` 确认修改前的产物与 DSL 一致，再用 `shasum -a 256` 获取旧产物指纹。将相对 `skill/` 的旧路径和指纹登记到[退役产物清单](../scripts/retired-skill-sha256.json)，编译器在生成时移除指纹匹配的旧产物。
 
 从仓库根目录运行。用 `--template` 查看工作流目录、路线、Hook 目录和合同的模板。用 `--locate-checkpoint` 查询源文件位置和块 ID。新增专题参考规则时，可参考对应目录中的现有文件，例如[任务约定](../rules/references/planning/contract.yaml)或[证据时效](../rules/references/verification/verification-epoch.yaml)。
 
