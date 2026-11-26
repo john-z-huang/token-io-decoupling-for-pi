@@ -8,12 +8,9 @@
     "schema_version": { "const": 1 },
     "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
     "document_type": {
-      "enum": [
-        "directory-guide", "fundamental-concept", "workflow-concept",
-        "workflow-checkpoint", "workflow-route", "hook-contract", "hook-directory"
-      ]
+      "enum": ["directory-guide", "workflow-route", "hook-contract", "hook-directory"]
     },
-    "markdown_path": { "type": "string", "pattern": "^(?:SKILL|(?:references/(?:[A-Za-z0-9_-]+/)+|hooks/|workflows/)[A-Za-z0-9_-]+)\\.md$" },
+    "markdown_path": { "type": "string", "pattern": "^(?:SKILL|references/README|(?:references/(?:[A-Za-z0-9_-]+/)+|hooks/|workflows/)[A-Za-z0-9_-]+)\\.md$" },
     "front_matter": {
       "type": "object",
       "additionalProperties": false,
@@ -43,7 +40,14 @@
     },
     "blocks": { "$ref": "#/$defs/blocks" }
   },
-  "if": { "properties": { "markdown_path": { "pattern": "^(?:references/coding|workflows)/", "not": { "const": "workflows/coding.md" } } } },
+  "if": {
+    "properties": {
+      "markdown_path": {
+        "pattern": "^workflows/",
+        "not": { "const": "workflows/coding.md" }
+      }
+    }
+  },
   "then": { "required": ["document_type"] },
   "allOf": [{
     "if": { "properties": { "markdown_path": { "pattern": "^hooks/" } } },
@@ -58,8 +62,6 @@
     "if": { "properties": { "markdown_path": { "const": "SKILL.md" } } },
     "then": { "required": ["front_matter"] },
     "else": { "not": { "required": ["front_matter"] } }
-  }, {
-    "properties": { "markdown_path": { "not": { "pattern": "^(?:references/.*/|workflows/)INDEX\\.md$" } } }
   }],
   "dependentSchemas": {
     "activate_on": {
@@ -128,7 +130,6 @@
           "required": ["kind", "title", "text"],
           "properties": {
             "kind": { "const": "checkpoint" },
-            "applicability": { "enum": ["optional", "sub_agent"] },
             "title": { "$ref": "#/$defs/title" },
             "text": { "$ref": "#/$defs/text" }
           }
@@ -140,7 +141,7 @@
           "properties": {
             "kind": { "const": "route_step" },
             "title": { "$ref": "#/$defs/title" },
-            "phase": { "enum": ["entry", "session", "definition", "execution", "verification", "documentation", "delivery"] },
+            "phase": { "enum": ["entry", "definition", "execution", "verification", "delivery"] },
             "hook": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
             "text": { "$ref": "#/$defs/text" }
           }

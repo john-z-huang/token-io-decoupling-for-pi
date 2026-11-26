@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from collections.abc import Iterator
 from itertools import groupby
 from pathlib import Path
@@ -9,24 +10,15 @@ from pathlib import Path
 from jsonschema import Draft202012Validator
 from ruamel.yaml import YAML
 
-from workflow_module_contracts import MODULE_HOOKS, ROUTE_MODULES, TOP_PREFIXES, WORKFLOW_PATH
+from workflow_module_contracts import PHASES, ROUTE_HOOKS, TOP_PREFIXES, WORKFLOW_PATH
 
-LAYER_TYPES = {
-    "layer-01-fundamental-concepts": "fundamental-concept",
-    "layer-02-workflow-concepts": "workflow-concept",
-    "layer-03-workflow-checkpoints": "workflow-checkpoint",
-    WORKFLOW_PATH.as_posix(): "workflow-route",
-}
-DOCUMENT_TYPES = ("directory-guide", *LAYER_TYPES.values())
+DOCUMENT_TYPES = ("directory-guide", "workflow-route")
 
 
 def document_type(path: Path) -> str:
-    if path.stem == "README":
-        return "directory-guide"
-    layer = path.parts[2] if path.parts[:2] == ("references", "coding") else path.parts[0]
-    if layer not in LAYER_TYPES:
-        raise ValueError(f"{path} 所在目录没有对应的 Coding DSL 类型")
-    return LAYER_TYPES[layer]
+    if path.parent != WORKFLOW_PATH:
+        raise ValueError(f"{path} 所在目录没有对应的工作流模板")
+    return "directory-guide" if path.stem == "README" else "workflow-route"
 
 
 def block_entries(blocks: list[dict]) -> Iterator[tuple[str, dict]]:
@@ -57,9 +49,6 @@ def validate_coding_document(path: Path, document: dict, template: dict) -> None
     if len(order) != len(document["blocks"]):
         raise ValueError(f"{path} 的顶层块 ID 有重复")
     layouts = template["layouts"]
-    if expected_type == "directory-guide":
-        endings = {"classification", "owners"} if path.parts[0] == "references" else {"section-01"}
-        layouts = [layout for layout in layouts if layout[-1] in endings]
     if order not in layouts:
         options = " 或 ".join(" → ".join(layout) for layout in layouts)
         raise ValueError(f"{path} 的 {expected_type} 块顺序应为 {options}")
@@ -72,18 +61,27 @@ def validate_coding_document(path: Path, document: dict, template: dict) -> None
             validate_children(block["blocks"], path, block_id, rule.get("child_kinds"))
 
     if expected_type == "workflow-route":
-        phases = template["phase_order"]
         steps = list(block_entries(blocks["checkpoints"]["blocks"]))
         actual = [block["phase"] for _, block in steps if block["kind"] == "route_step"]
-        if steps[0][0] != "preconditions" or actual != phases or len(steps) != len(phases) + 1:
-            raise ValueError(f"{path}#checkpoints 应先声明 preconditions，再依次列出 {' → '.join(phases)}")
-        if path.stem in ROUTE_MODULES:
+        if steps[0][0] != "preconditions" or actual != list(PHASES) or len(steps) != len(PHASES) + 1:
+            raise ValueError(f"{path}#checkpoints 应先声明 preconditions，再依次列出 {' → '.join(PHASES)}")
+        if path.stem in ROUTE_HOOKS:
             expected = tuple(
-                (f"{TOP_PREFIXES[path.stem]}{index:02d}", MODULE_HOOKS[module])
-                for index, module in enumerate(ROUTE_MODULES[path.stem], 1)
+                (f"{TOP_PREFIXES[path.stem]}{index:02d}", hook)
+                for index, hook in enumerate(ROUTE_HOOKS[path.stem], 1)
             )
             if tuple((block_id, block["hook"]) for block_id, block in steps[1:]) != expected:
                 raise ValueError(f"{path}#checkpoints 的路线步骤 ID 或 Hook 顺序与工作流合同不一致")
+        validate_route_diagram(path, blocks["flowchart"]["blocks"], [name for name, _ in steps[1:]])
+
+
+def validate_route_diagram(path: Path, blocks: list[dict], ids: list[str]) -> None:
+    text = "\n".join(block["text"] for _, block in block_entries(blocks))
+    nodes = re.findall(r"(?m)^\s*([A-Z][A-Z0-9_]*)\s*\[", text)
+    edges = re.findall(r"(?m)^\s*([A-Z][A-Z0-9_]*)\s*-->\s*([A-Z][A-Z0-9_]*)\b", text)
+    sequence = [*ids, "DONE"]
+    if nodes != sequence or edges != list(zip(sequence, sequence[1:])):
+        raise ValueError(f"{path}#flowchart 须按路线顺序声明并连接阶段与 DONE")
 
 
 def load_templates(directory: Path, validator: Draft202012Validator) -> dict[str, dict]:

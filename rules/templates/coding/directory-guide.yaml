@@ -1,23 +1,11 @@
 layouts:
-  - [scope-and-boundary, entry, classification]
-  - [scope-and-boundary, entry, owners]
-  - [overview, entry, owners]
   - [overview, entry, routes, section-01]
 block_rules:
-  scope-and-boundary:
-    kind: section
-    expose: true
   entry:
     kind: section
     expose: true
   overview:
     kind: markdown
-    expose: true
-  classification:
-    kind: section
-    expose: true
-  owners:
-    kind: section
     expose: true
   routes:
     kind: section
@@ -29,17 +17,14 @@ document:
   schema_version: 1
   document_type: directory-guide
   id: example-directory-guide
-  markdown_path: references/coding/layer-01-fundamental-concepts/example/README.md
-  title: 目录说明示例
+  markdown_path: workflows/README.md
+  title: 工作流目录示例
   blocks:
-    - scope-and-boundary:
-        kind: section
-        title: 范围与边界
+    - overview:
+        kind: markdown
+        title: 概览
         expose: true
-        blocks:
-          - scope-and-boundary-body:
-              kind: markdown
-              text: 说明目录负责的主题、适用条件与职责边界。
+        text: 说明路线覆盖的任务和适用条件。
     - entry:
         kind: section
         title: 入口
@@ -47,12 +32,20 @@ document:
         blocks:
           - entry-body:
               kind: markdown
-              text: 按下方列表查找所需的规则所有者。
-    - owners:
+              text: 从[路线选择器](coding.yaml)开始。
+    - routes:
         kind: section
-        title: 所有者
+        title: 路线
         expose: true
         blocks:
-          - owners-body:
+          - routes-body:
               kind: markdown
-              text: '- [示例概念](example-fundamental-concept.yaml) — 说明何时读取该规则。'
+              text: 说明单代理和多代理路线分别适用于哪些任务。
+    - section-01:
+        kind: section
+        title: 分阶段 Hooks
+        expose: true
+        blocks:
+          - section-01-body:
+              kind: markdown
+              text: 根据[Hook 目录](../hooks/README.yaml)查找当前阶段的执行合同。

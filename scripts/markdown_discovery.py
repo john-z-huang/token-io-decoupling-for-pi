@@ -27,15 +27,14 @@ _PRUNED_DIRECTORY_NAMES = frozenset(
         "venv",
     }
 )
-_PRUNED_RELATIVE_DIRECTORIES = frozenset({"archive", "mcp"})
 
 
 def discover_markdown(root: Path) -> list[Path]:
-    """Return sorted authored Markdown paths, pruning generated and symlink trees.
+    """Return sorted maintained Markdown paths, including the compiled Skill.
 
     The returned paths are absolute when ``root`` is absolute and are never
-    followed through directory or file symlinks. Retired source trees are
-    outside the maintained document set.
+    followed through directory or file symlinks. Retired source trees, build
+    caches, and dependency directories are outside the maintained document set.
     """
     root = root.absolute()
     if not root.is_dir():
@@ -54,8 +53,7 @@ def discover_markdown(root: Path) -> list[Path]:
             for name in child_directories
             if name not in _PRUNED_DIRECTORY_NAMES
             and not (current / name).is_symlink()
-            and (f"{relative}/{name}" if relative != "." else name)
-            not in _PRUNED_RELATIVE_DIRECTORIES
+            and (relative != "." or name != "archive")
         )
         for filename in filenames:
             if not filename.endswith(".md") or "_NOT_USE_" in filename:

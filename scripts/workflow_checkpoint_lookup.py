@@ -75,8 +75,8 @@ def locate_checkpoint(root: Path, references: Path, hooks: Path, selector: str, 
     # 保留 YAML 中的键位置，与 LSP 的列表索引对齐。
     yaml = YAML(typ="rt")
     routes = references.parent / WORKFLOW_PATH
-    sources = [*(references / "coding").rglob("*.yaml"), *routes.rglob("*.yaml"), *hooks.glob("*.yaml")]
-    documents = {path: yaml.load(path) for path in sorted(sources) if path.name != "SOURCE_COVERAGE.yaml"}
+    sources = [*references.rglob("*.yaml"), *routes.rglob("*.yaml"), *hooks.glob("*.yaml")]
+    documents = {path: yaml.load(path) for path in sorted(sources)}
     def document_id(path: Path) -> str:
         name = documents[path]["id"]
         return f"hook-{name}" if path.parent == hooks else name
@@ -114,8 +114,6 @@ def locate_checkpoint(root: Path, references: Path, hooks: Path, selector: str, 
         path = by_id.get(wanted)
         if path is None:
             raise ValueError(f"找不到 Coding DSL 文档 {wanted}")
-        if not separator and documents[path].get("document_type") == "workflow-checkpoint":
-            block_id = "decision-and-result"
         if not block_id:
             raise ValueError(f"请用 {wanted}#块ID 指定 YAML 块")
         return result(path, find_block(documents[path], block_id))

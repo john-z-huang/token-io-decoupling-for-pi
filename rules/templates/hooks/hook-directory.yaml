@@ -6,7 +6,7 @@ layout:
       title: 合同与明确触发
   - host-events:
       kind: section
-      title: 真正的宿主回调
+      title: 宿主能力与触发
   - references:
       kind: section
       title: 来源整合与链接基准
@@ -34,12 +34,12 @@ document:
                 列出各合同的入口和触发条件。
     - host-events:
         kind: section
-        title: 真正的宿主回调
+        title: 宿主能力与触发
         blocks:
           - host-events-body:
               kind: markdown
               text: |-
-                列出事件与实际宿主行为。
+                说明 Agent 如何依据当前动作和已核实的宿主能力读取合同。
     - references:
         kind: section
         title: 来源整合与链接基准

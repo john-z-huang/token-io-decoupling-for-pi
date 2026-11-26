@@ -2,20 +2,19 @@
 
 ## 项目范围与权威资料
 
-- 本仓库维护供 Codex 和 Pi Coding Agent 使用的 Hooks Skill，以及编译、验证和本地更新脚本。项目入口为 [README.md](README.md)。
-- Skill 指令维护在 `rules/`，配套脚本在 `scripts/`。编译生成的 `skill/` 目录由 Git 忽略。修改入口、Hook、工作流或策略时，先定位对应的源文件。
+- 本仓库维护开发任务编排 Skill。Skill 根据用户指令组织主代理和子代理的执行、交接、恢复与验收。项目入口为 [README.md](README.md)。
+- 入口、工作流与 Hook 的源文件维护在 `rules/`，主代理与子代理的角色规则维护在 `rules/references/roles/`，配套脚本在 `scripts/`。编译产物位于 Git 忽略的 `skill/`。
 - 文档维护规范见 [`docs/DOCUMENTATION_STANDARDS.md`](docs/DOCUMENTATION_STANDARDS.md)，本地更新见 [`INSTALL.md`](INSTALL.md)。
-- `archive/` 中的资料仅供查阅，默认构建、安装和验证均跳过该目录。
+- `archive/` 保存历史资料，默认构建、安装和验证均跳过该目录。
 
 ## Skill 安装
 
-- 安装或更新前核对实际目标。默认使用 `~/.agents/skills/`，可显式选择 `~/.pi/agent/skills/`、用户指定的 Skill 根目录或 Codex 项目目录。安装器在根目录下按 Skill 名称发布。
-- 两个宿主共用同一规则产物。宿主事实与设置维护在 `rules/references/hosts/`，实际写入和配置修改须各有授权。
+- 安装或更新前核对实际目标。默认使用 `~/.agents/skills/`，也可指定 Skill 根目录或项目目录。安装器在根目录下按 Skill 名称发布。
 
-## Coding 工作流方向
+## 工作流
 
-- [单代理路线](rules/workflows/coding-single-agent.yaml)和[多代理路线](rules/workflows/coding-multi-agent.yaml)定义阶段顺序，[Hook 合同](rules/hooks/README.yaml)说明触发条件、所需证据和通过条件。
-- Agent 根据指令和已核实的事实选择适用的 Hook、工具和分支，并按当前证据判断何时推进、复核或停下。操作须符合适用的 Hook 条件和用户授权。
+- [单代理路线](rules/workflows/coding-single-agent.yaml)和[多代理路线](rules/workflows/coding-multi-agent.yaml)说明阶段与交接，[Hook 合同](rules/hooks/README.yaml)说明触发条件、所需证据和通过条件。
+- 主代理根据用户指令和任务需求选择路线、按需安排角色并核对结果。操作须符合适用的 Hook 条件和用户授权。
 
 ## 修改与验证
 

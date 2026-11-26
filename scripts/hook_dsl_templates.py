@@ -9,7 +9,6 @@ from jsonschema import Draft202012Validator
 from ruamel.yaml import YAML
 
 from coding_dsl_templates import block_entries
-from workflow_module_contracts import MODULE_CHECKPOINTS, MODULE_HOOKS
 
 HOOK_TYPES = ("hook-contract", "hook-directory")
 HOOK_NAME = re.compile(r"[a-z][a-z0-9-]*")
@@ -24,7 +23,7 @@ def hook_type(path: Path) -> str:
 
 
 def validate_hook_block(
-    path: Path, name: str, block: dict, allow_include: bool, contract: bool, checkpoint: bool = False,
+    path: Path, name: str, block: dict, allow_include: bool, contract: bool,
 ) -> None:
     kind = block["kind"]
     if block.get("expose"):
@@ -32,7 +31,7 @@ def validate_hook_block(
     if kind == "section":
         for child_name, child in block_entries(block["blocks"]):
             validate_hook_block(path, child_name, child, allow_include, contract)
-    elif kind == "markdown" or (kind == "checkpoint" and checkpoint):
+    elif kind == "markdown":
         if contract and "<!-- rule:" in block["text"]:
             raise ValueError(f"{path.name}#{name} 的执行引用须使用 rule_include 块")
     elif kind != "rule_include" or not allow_include:
@@ -53,24 +52,10 @@ def validate_hook_document(path: Path, document: dict, template: dict) -> None:
         order = " → ".join(name for name, _ in expected)
         raise ValueError(f"{path.name} 的 Hook 章节顺序应为 {order}")
     contract = expected_type == "hook-contract"
-    module = next((module for module, hook in MODULE_HOOKS.items() if hook == document["id"]), None)
-    if module and "checkpoints" not in names:
-        raise ValueError(f"{path.name} 缺少阶段检查点")
-    if not module and names & {"flowchart", "checkpoints"}:
-        raise ValueError(f"{path.name} 没有绑定工作流阶段")
     for (name, block), (_, rule) in zip(blocks, expected):
         if block["kind"] != rule["kind"] or ("title" in rule and block.get("title") != rule["title"]):
             raise ValueError(f"{path.name}#{name} 的块类型或标题不符合 Hook 模板")
-        if name == "checkpoints":
-            steps = list(block_entries(block["blocks"]))
-            if tuple(step_id for step_id, _ in steps) != MODULE_CHECKPOINTS[module]:
-                raise ValueError(f"{path.name} 的检查点 ID 或顺序与工作流合同不一致")
-            for step_id, step in steps:
-                if step["kind"] != "checkpoint":
-                    raise ValueError(f"{path.name}#{step_id} 应为 checkpoint")
-                validate_hook_block(path, step_id, step, False, True, checkpoint=True)
-        else:
-            validate_hook_block(path, name, block, contract and name == "execution", contract)
+        validate_hook_block(path, name, block, contract and name == "execution", contract)
 
 
 def load_hook_templates(directory: Path, validator: Draft202012Validator) -> dict[str, dict]:

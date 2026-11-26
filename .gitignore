@@ -1,22 +1,18 @@
 .token-io-decoupling
-.serena
+# .serena
 
 # VS Code IDE Config files
 .vscode
 
-# 旧 MCP 的本机缓存
-mcp/.venv/
-mcp/.cache/
-mcp/dist/
-mcp/.pytest_cache/
-mcp/.ruff_cache/
-mcp/.ty_cache/
-
 # Python Project Cache files
 __pycache__
+# Ruff
+.ruff_cache
 node_modules
 
 # 编译生成的 Skill 文档
 /skill/
 
 .DS_Store
+
+archive/pi-coding-workflow/extensions/coding-workflow/.serena

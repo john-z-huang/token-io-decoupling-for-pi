@@ -20,7 +20,6 @@ block_rules:
     expose: true
   related:
     kind: section
-phase_order: [entry, session, definition, execution, verification, documentation, delivery]
 document:
   schema_version: 1
   document_type: workflow-route
@@ -42,20 +41,16 @@ document:
                 ```mermaid
                 flowchart TD
                     EX01[入口就绪]
-                    EX02[Session 就绪]
-                    EX03[工作定义]
-                    EX04[执行]
-                    EX05[验证]
-                    EX06[文档]
-                    EX07[交付与验收]
+                    EX02[任务规划]
+                    EX03[执行]
+                    EX04[验证]
+                    EX05[交付]
                     DONE[complete]
                     EX01 --> EX02
                     EX02 --> EX03
                     EX03 --> EX04
                     EX04 --> EX05
-                    EX05 --> EX06
-                    EX06 --> EX07
-                    EX07 --> DONE
+                    EX05 --> DONE
                 ```
     - checkpoints:
         kind: section
@@ -74,40 +69,26 @@ document:
                 调用[阶段 Hook](../hooks/entry.yaml)。
           - EX02:
               kind: route_step
-              title: Session 就绪
-              phase: session
-              hook: session
-              text: |-
-                调用[阶段 Hook](../hooks/session.yaml)。
-          - EX03:
-              kind: route_step
-              title: 工作定义
+              title: 任务规划
               phase: definition
               hook: planning
               text: |-
                 调用[阶段 Hook](../hooks/planning.yaml)。
-          - EX04:
+          - EX03:
               kind: route_step
               title: 执行
               phase: execution
               hook: execution
               text: |-
                 调用[阶段 Hook](../hooks/execution.yaml)。
-          - EX05:
+          - EX04:
               kind: route_step
               title: 验证与修复
               phase: verification
               hook: verification
               text: |-
                 调用[阶段 Hook](../hooks/verification.yaml)。
-          - EX06:
-              kind: route_step
-              title: 文档
-              phase: documentation
-              hook: documentation
-              text: |-
-                调用[阶段 Hook](../hooks/documentation.yaml)。
-          - EX07:
+          - EX05:
               kind: route_step
               title: 交付与验收
               phase: delivery

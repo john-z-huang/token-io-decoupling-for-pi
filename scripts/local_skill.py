@@ -11,10 +11,8 @@ from pathlib import Path
 from tempfile import mkdtemp
 
 DEFAULT_NAME = "token-io-decoupling"
-DEFAULT_HOST = "codex"
 MARKER = ".token-io-skill.json"
-HOST_SKILLS_DIRS = {"pi": Path(".pi/agent/skills"), "codex": Path(".agents/skills")}
-HOSTS = tuple(HOST_SKILLS_DIRS)
+SKILLS_DIRECTORY = Path(".agents/skills")
 
 
 def _present(path: Path) -> bool:
@@ -22,12 +20,10 @@ def _present(path: Path) -> bool:
 
 
 def _destination(
-    name: str, host: str, project_root: Path | None, skills_dir: Path | None,
+    name: str, project_root: Path | None, skills_dir: Path | None,
 ) -> tuple[Path, Path]:
     if not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", name):
         raise ValueError("Skill 名称须由小写字母、数字和单个分隔连字符组成")
-    if host not in HOST_SKILLS_DIRS:
-        raise ValueError(f"未知宿主：{host}")
     if skills_dir is not None:
         if project_root is not None:
             raise ValueError("--skills-dir 和 --project-root 只能指定一项")
@@ -38,12 +34,10 @@ def _destination(
         return root, root / name
     home = Path.home().resolve()
     if project_root is None:
-        return home, home / HOST_SKILLS_DIRS[host] / name
-    if host != "codex":
-        raise ValueError("--project-root 仅用于 Codex 项目级安装")
+        return home, home / SKILLS_DIRECTORY / name
     if not project_root.is_absolute() or not project_root.is_dir() or project_root == home:
-        raise ValueError("Codex 项目级安装需要已存在的项目绝对目录")
-    return project_root, project_root / HOST_SKILLS_DIRS[host] / name
+        raise ValueError("项目级安装需要已存在的项目绝对目录")
+    return project_root, project_root / SKILLS_DIRECTORY / name
 
 
 def _check_destination(root: Path, target: Path) -> None:
@@ -91,11 +85,11 @@ def _snapshot(target: Path, name: str) -> dict | None:
 
 def update_local_skill(
     outputs: dict[Path, str], name: str = DEFAULT_NAME, *,
-    host: str = DEFAULT_HOST, project_root: Path | None = None, skills_dir: Path | None = None,
+    project_root: Path | None = None, skills_dir: Path | None = None,
     install_only: bool = False,
 ) -> Path:
     """向选定的本地目录发布受管理的 Skill。"""
-    root, target = _destination(name, host, project_root, skills_dir)
+    root, target = _destination(name, project_root, skills_dir)
     _check_destination(root, target)
     target.parent.mkdir(parents=True, exist_ok=True)
     lock = target.parent / f".{name}.lock"
