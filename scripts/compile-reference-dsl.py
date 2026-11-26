@@ -14,6 +14,7 @@ import re
 import sys
 import unicodedata
 from collections.abc import Callable, Iterable, Iterator
+from hashlib import sha256
 from pathlib import Path, PurePosixPath
 from tempfile import NamedTemporaryFile
 from urllib.parse import unquote
@@ -25,9 +26,9 @@ from ruamel.yaml.tokens import AliasToken, AnchorToken
 import document_rules as COMPLIANCE
 from coding_dsl_templates import DOCUMENT_TYPES, document_type, load_templates, validate_coding_document
 from hook_dsl_templates import HOOK_TYPES, hook_type, load_hook_templates, validate_hook_document
-from local_skill import DEFAULT_HOST, DEFAULT_NAME, HOSTS, update_local_skill
+from local_skill import DEFAULT_NAME, update_local_skill
 from workflow_checkpoint_lookup import NUMBERED_BLOCKS, check_flowchart_references, locate_checkpoint
-from workflow_module_contracts import ROUTE_MODULES, WORKFLOW_PATH, WORKFLOW_SELECTOR
+from workflow_module_contracts import ROUTE_HOOKS, WORKFLOW_PATH, WORKFLOW_SELECTOR
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / "rules"
@@ -39,6 +40,8 @@ HOOK_SOURCE = SOURCE / "hooks"
 HOOK_TEMPLATES = SOURCE / "templates/hooks"
 HOOK_COVERAGE = "hooks/SOURCE_COVERAGE.md"
 SKILL = ROOT / "skill"
+ROLE_NAMES = ("planner", "scout", "worker", "reviewer", "git-operator")
+RETIRED_FINGERPRINTS = Path(__file__).with_name("retired-skill-sha256.json")
 RULE_INCLUDE = re.compile(r"^<!-- rule:([a-z][a-z0-9-]*)#([A-Za-z][A-Za-z0-9-]*) -->$")
 FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})")
 INLINE_LINK = re.compile(r"(`+)[^\n]*?\1|(!?\[[^\]\n]*\]\()(<[^>\n]+>|[^\s)]+)(?=[ \t]*(?:\)|[\"']))")
@@ -235,41 +238,16 @@ def source_notice(path: Path) -> str:
     return f"<!-- 由 {path.relative_to(ROOT).as_posix()} 生成。请在 DSL 中维护正文。 -->"
 
 
-def is_retired_index(path: Path, outputs: dict[Path, str]) -> bool:
-    navigation_directory = (
-        path.is_relative_to(SKILL / "references") or path.parent == SKILL / WORKFLOW_PATH
+def is_retired_output(path: Path, fingerprints: dict[str, str | list[str]]) -> bool:
+    expected = fingerprints.get(path.relative_to(SKILL).as_posix())
+    if isinstance(expected, str):
+        expected = [expected]
+    return (
+        expected is not None
+        and path.resolve() == path
+        and path.is_file()
+        and sha256(path.read_bytes()).hexdigest() in expected
     )
-    if (path.name != "INDEX.md" or not navigation_directory
-            or path.resolve() != path or path.with_name("README.md") not in outputs):
-        return False
-    source = (SOURCE / path.relative_to(SKILL)).with_suffix(".yaml")
-    try:
-        return source_notice(source) in path.read_text(encoding="utf-8").splitlines()[:4]
-    except FileNotFoundError:
-        return True
-
-
-def is_moved_route(path: Path) -> bool:
-    old_directory = SKILL / "coding-workflows"
-    if (
-        path.parent != old_directory
-        or path.stem not in {"README", *ROUTE_MODULES}
-        or path.resolve() != path
-    ):
-        return False
-    old_source = SOURCE / path.relative_to(SKILL).with_suffix(".yaml")
-    return source_notice(old_source) in path.read_text(encoding="utf-8").splitlines()[:4]
-
-
-def is_split_lsp_reference(path: Path, outputs: dict[Path, str]) -> bool:
-    directory = SKILL / "references/coding/layer-01-fundamental-concepts/session-runtime"
-    if path != directory / "LSP-MCP-Tools.md" or path.resolve() != path:
-        return False
-    replacements = {directory / "lsp-code-navigation.md", directory / "project-memory.md"}
-    if not replacements.issubset(outputs):
-        return False
-    old_source = SOURCE / path.relative_to(SKILL).with_suffix(".yaml")
-    return source_notice(old_source) in path.read_text(encoding="utf-8").splitlines()[:4]
 
 
 def read_coverage() -> dict:
@@ -296,6 +274,9 @@ def render_coverage(outputs: dict[Path, str]) -> str:
         relative = posixpath.normpath(posixpath.join("hooks", source)).removesuffix(".yaml") + ".md"
         if not source.endswith(".yaml") or SKILL / relative not in outputs:
             raise ValueError(f"Hook 来源没有可导出的 YAML 文档：{source}")
+        for hook in row["hooks"]:
+            if SKILL / "hooks" / f"{hook}.md" not in outputs:
+                raise ValueError(f"Hook 来源对照引用缺失的合同：{hook}")
         label = "仅参考：" if row["kind"] == "reference" else "仅导航：" if not row["explicit"] else ""
         hooks = "、".join(f"[{hook}]({hook}.md#执行要求)" for hook in row["hooks"])
         lines.append(f"| [{relative}](../{relative}) | {row['kind']} | {label}{hooks} |")
@@ -336,13 +317,22 @@ def read_rules(paths: Iterable[Path]) -> Iterator[tuple[Path, dict]]:
         yield path, document
 
 
+def workflow_sources() -> list[Path]:
+    sources = sorted(ROUTES.glob("*.yaml"))
+    required = {"README", WORKFLOW_SELECTOR.stem, *ROUTE_HOOKS}
+    missing = required - {path.stem for path in sources}
+    if missing:
+        raise ValueError(f"缺少工作流文件：{'、'.join(sorted(missing))}")
+    return sources
+
+
 def compile_rules() -> dict[Path, str]:
     outputs: dict[Path, str] = {}
     targets: dict[str, dict[str, str]] = {}
     reference_layers: dict[str, str | None] = {}
     source_documents = {}
     fragment_ids: dict[str, set[str]] = {}
-    sources = (*REFERENCES.rglob("*.yaml"), *ROUTES.rglob("*.yaml"), SOURCE / "SKILL.yaml")
+    sources = (*REFERENCES.rglob("*.yaml"), *workflow_sources(), SOURCE / "SKILL.yaml")
     for source_path, document in read_rules(sources):
         source_documents[source_path] = document
         document_id = document["id"]
@@ -372,7 +362,15 @@ def compile_rules() -> dict[Path, str]:
         target = SKILL / path
         outputs[target] = render_dsl_links(path, outputs[target], targets)
     outputs[SKILL / HOOK_COVERAGE] = render_coverage(outputs)
-    outputs[SKILL / "agents/openai.yaml"] = source_bytes(SOURCE / "agents/openai.yaml").decode("utf-8")
+    for name in ROLE_NAMES:
+        relative = Path("agents") / f"{name}.md"
+        outputs[SKILL / relative] = source_bytes(ROOT / relative).decode("utf-8")
+    link_issues = COMPLIANCE.document_link_issues({
+        path.relative_to(SKILL).as_posix(): content
+        for path, content in outputs.items() if path.suffix == ".md"
+    })
+    if link_issues:
+        raise ValueError("\n".join(link_issues))
     return outputs
 
 
@@ -388,16 +386,15 @@ def main() -> int:
     parser.add_argument("--from", dest="origin", metavar="文档ID", help="在指定流程图中定位节点")
     parser.add_argument("--show", action="store_true", help="定位时同时输出对应的 YAML 块内容")
     parser.add_argument("--name", help=f"指定受管理的 Skill 名称，默认 {DEFAULT_NAME}")
-    parser.add_argument("--host", choices=HOSTS, help=f"选择默认 Skill 根目录，默认 {DEFAULT_HOST}")
     destination = parser.add_mutually_exclusive_group()
     destination.add_argument("--skills-dir", type=Path, help="自定义 Skill 根目录，在其下使用 --name 作为子目录")
-    destination.add_argument("--project-root", type=Path, help="Codex 项目绝对目录，使用其 .agents/skills")
+    destination.add_argument("--project-root", type=Path, help="项目绝对目录，使用其 .agents/skills")
     args = parser.parse_args()
     publishing = args.install_skill or args.update_skill
     if not publishing and any(
-        value is not None for value in (args.name, args.host, args.skills_dir, args.project_root)
+        value is not None for value in (args.name, args.skills_dir, args.project_root)
     ):
-        parser.error("--name、--host、--skills-dir 和 --project-root 仅用于安装或更新 Skill")
+        parser.error("--name、--skills-dir 和 --project-root 仅用于安装或更新 Skill")
     if args.locate_checkpoint is None and (args.origin or args.show):
         parser.error("--from 和 --show 须与 --locate-checkpoint 一起使用")
     if args.origin and "#" in args.locate_checkpoint:
@@ -422,24 +419,23 @@ def main() -> int:
             yaml.dump(sample, sys.stdout)
             return 0
         if args.check_structure:
-            sources = (*CODING.rglob("*.yaml"), *ROUTES.rglob("*.yaml"))
-            coding = dict(read_rules(sources))
+            sources = (*REFERENCES.rglob("*.yaml"), *workflow_sources())
+            rules = dict(read_rules(sources))
             hooks = dict(read_hook_documents())
-            if not coding or not hooks:
-                raise ValueError("没有可校验的 Coding 或 Hook DSL")
-            for document in (*coding.values(), *hooks.values()):
+            if not rules or not hooks:
+                raise ValueError("没有可校验的规则或 Hook DSL")
+            for document in (*rules.values(), *hooks.values()):
                 markdown = render_blocks(document["blocks"], 2, set(), {}, {})
                 check_dsl_dependencies(document["markdown_path"], markdown)
-            check_flowchart_references(coding | hooks)
+            check_flowchart_references(rules | hooks)
             read_coverage()
-            print(f"DSL 结构校验通过，共 {len(coding)} 份 Coding 文档、{len(hooks)} 份 Hook 源文档和 1 份来源对照。")
+            print(f"DSL 结构校验通过，共 {len(rules)} 份规则文档、{len(hooks)} 份 Hook 源文档和 1 份来源对照。")
             return 0
         outputs = compile_rules()
         if publishing:
             installed = update_local_skill(
                 {path.relative_to(SKILL): body for path, body in outputs.items()},
                 name=args.name if args.name is not None else DEFAULT_NAME,
-                host=args.host or DEFAULT_HOST,
                 project_root=args.project_root,
                 skills_dir=args.skills_dir,
                 install_only=args.install_skill,
@@ -451,11 +447,9 @@ def main() -> int:
             if path.resolve() != path:
                 raise ValueError(f"生成目标不允许符号链接：{path.relative_to(ROOT)}")
         outdated = [path for path, body in outputs.items() if not path.is_file() or path.read_bytes() != body.encode("utf-8")]
-        unexpected = set(SKILL.rglob("*.md")) - outputs.keys()
-        retired = set() if args.check else {
-            path for path in unexpected
-            if is_retired_index(path, outputs) or is_moved_route(path) or is_split_lsp_reference(path, outputs)
-        }
+        unexpected = {path for path in SKILL.rglob("*") if not path.is_dir() or path.is_symlink()} - outputs.keys()
+        fingerprints = json.loads(RETIRED_FINGERPRINTS.read_text(encoding="utf-8")) if unexpected and not args.check else {}
+        retired = {path for path in unexpected if is_retired_output(path, fingerprints)}
         unexpected -= retired
         if unexpected or (args.check and outdated):
             for path in sorted(unexpected):
@@ -476,6 +470,8 @@ def main() -> int:
                 finally:
                     temporary.unlink(missing_ok=True)
         for path in retired:
+            if not is_retired_output(path, fingerprints):
+                raise ValueError(f"待退役的 Skill 文档已变化：{path.relative_to(ROOT)}")
             path.unlink(missing_ok=True)
     except (OSError, ValidationError, YAMLError, ValueError) as error:
         print(error, file=sys.stderr)

@@ -1,9 +1,11 @@
 # Token I/O Decoupling
 
-Token I/O Decoupling 是一个通用的 Skills，与目标 Code Agent无关，通过指令描述的方式，它让不同宿主共用一套开发规则，让 Agent 按任务读取所需指令，减少无关内容占用上下文。
+Token I/O Decoupling 是用于开发任务的编排 Skill。主代理依据用户指令、任务依赖和当前会话的可用能力选择工作流，按需读取 Hook，负责推进任务和最终验收。
 
-## 主要作用
+## 工作流
 
-- 为代码理解、修改和验证提供单代理与多代理工作流。
-- 通过 Hook 合同明确各阶段的触发条件、所需证据、授权边界和验收标准。
-- 让 Agent 根据宿主实际提供的能力选择工具。缺少必需能力时，只暂停依赖该能力的步骤。
+- 用户明确要求不创建子代理，或主代理判断任务无需委派时，按[单代理路线](rules/workflows/coding-single-agent.yaml)执行。
+- 用户明确要求委派或任务适合委派时，按[多代理路线](rules/workflows/coding-multi-agent.yaml)确定分工，依据子任务依赖和[角色职责](agents/)动态选择角色、数量、模型和推理强度。优先复用同一角色的可用实例，仅在上下文过长、故障无法修复或运行状态异常时按需替换。新建子代理禁止使用 Ultra 推理强度。
+- 主代理按当前动作从 [Hook 目录](rules/hooks/README.yaml)读取触发条件、交接、恢复和验收要求。
+
+参见[安装与更新](INSTALL.md)及[文档维护规范](docs/DOCUMENTATION_STANDARDS.md)。调整前的规则、角色、工具和维护文档保存在[历史快照](archive/pre-orchestration/)。

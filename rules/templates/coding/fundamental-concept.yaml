@@ -44,7 +44,7 @@ document:
         blocks:
           - runtime-guidance-body:
               kind: markdown
-              text: 说明 Pi 应如何使用或读取该规则。
+              text: 说明代理在当前环境中如何应用该规则。
     - related:
         kind: section
         title: 相关概念

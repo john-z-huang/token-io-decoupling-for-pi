@@ -140,7 +140,7 @@
           "properties": {
             "kind": { "const": "route_step" },
             "title": { "$ref": "#/$defs/title" },
-            "phase": { "enum": ["entry", "session", "definition", "execution", "verification", "documentation", "delivery"] },
+            "phase": { "enum": ["entry", "definition", "execution", "verification", "delivery"] },
             "hook": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
             "text": { "$ref": "#/$defs/text" }
           }

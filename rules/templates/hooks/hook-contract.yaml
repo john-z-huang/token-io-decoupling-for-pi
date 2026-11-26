@@ -12,13 +12,6 @@ layout:
   - execution:
       kind: section
       title: 执行要求
-  - flowchart:
-      kind: section
-      optional: true
-  - checkpoints:
-      kind: section
-      title: 有序模块清单
-      optional: true
   - outputs:
       kind: section
       title: 输出与落点
@@ -68,10 +61,10 @@ document:
               kind: markdown
               text: |-
                 按当前任务范围执行动作。需要读取规则片段时，使用结构化引用块。
-          - include-verification-epoch:
+          - include-delegation-policy:
               kind: rule_include
-              document: verification-epoch
-              fragment: actions
+              document: delegation-policy
+              fragment: assignment
     - outputs:
         kind: section
         title: 输出与落点
@@ -105,4 +98,4 @@ document:
               text: |-
                 | 来源 | 本合同落点 |
                 | --- | --- |
-                | [验证 Epoch](../references/coding/layer-02-workflow-concepts/verification-and-repair/verification-epoch.yaml#actions) | 当前证据与重验条件。 |
+                | [委派规则](../references/orchestration/delegation-policy.yaml) | 任务与角色匹配。 |
