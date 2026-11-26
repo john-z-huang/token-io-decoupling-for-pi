@@ -1,5 +1,7 @@
 # Token I/O Decoupling
 
+> 本项目的代码已合并到 `john-z-huang/token-io-decoupling`。本仓库作为历史归档保留，不再更新。后续开发和维护在迁入仓库进行。 [迁入仓库](https://github.com/john-z-huang/token-io-decoupling) · [迁移 PR #237](https://github.com/john-z-huang/token-io-decoupling/pull/237)
+
 Token I/O Decoupling 是用于开发任务的编排 Skill。主代理依据用户指令、任务依赖和当前会话的可用能力选择工作流，按需读取 Hook，负责推进任务和最终验收。
 
 ## 工作流
