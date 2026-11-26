@@ -29,7 +29,7 @@ blocks:
         - execution-body:
             kind: markdown
             text: |-
-              1. 提取用户目标、期望交付物、验收条件、可变更范围和不可更改约束。保留用户指令之间仍然适用的要求。
+              1. 按[任务约定](../references/planning/contract.yaml)确认用户目标、交付物、验收条件和授权范围。保留用户指令之间仍然适用的要求。
               2. 判断用户是否明确限制创建或使用子代理。此限制适用于本任务全部步骤。其余任务经路线选择器根据实际分工价值判断。
               3. 区分已确认、未知和需要进一步检查的事实。受影响的范围或宿主能力待核实时，继续不依赖它的获准工作。
   - outputs:
@@ -63,4 +63,4 @@ blocks:
         - sources-body:
             kind: markdown
             text: |-
-              涉及委派时，按[委派能力](../references/orchestration/delegation-policy.yaml#capabilities)核对当前可用的操作。
+              按[选路规则](../references/planning/task-planning.yaml#route-selection)判断用户要求。涉及委派时，核对[委派能力](../references/delegation/delegation-policy.yaml#capabilities)。

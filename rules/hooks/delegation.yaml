@@ -29,10 +29,10 @@ blocks:
         - execution-body:
             kind: markdown
             text: |-
-              1. 按任务需要选择已维护的角色。可选角色为[事实调查](../agents/scout.md)、[方案分析](../agents/planner.md)、[任务实施](../agents/worker.md)、[审查验证](../agents/reviewer.md)与 [Git 操作](../agents/git-operator.md)。以各角色定义的职责和返回证据判断适配性。
-              2. 查看该角色在本任务中现有的实例。已有健康实例时，优先向相同标识派发后续任务。需要替换时，必须核实实例上下文过长、不可修复的运行问题或无法可靠续接的异常状态之一。普通结束、等待或并行需求按复用规则处理。
-              3. 确定确需首次创建或符合条件替换时，依据任务需要与实际支持的配置自动选择模型和推理强度。Ultra 禁止用于任何创建路径，含默认、继承与替换。无法核实有效档位时暂停该次创建。
-              4. 将当前子任务、必要约束和证据、工作边界、返回条件交给选定角色。保留实际调用返回的身份与结果，主代理负责跟进进度、处理交接并按依赖整合结果。
+              1. 按[任务和角色匹配](../references/delegation/delegation-policy.yaml#assignment)选择职责。读取对应定义的职责边界、执行要求和回传证据，确认适合当前任务。
+              2. 核对该角色的实例、在途工作及派发记录。按[同角色复用与替换](../references/delegation/delegation-policy.yaml#reuse)判断是否续接、排队、首次创建或替换。
+              3. 确定确需创建时，按[模型与推理强度](../references/delegation/delegation-policy.yaml#model-effort)确认实际配置。任何创建路径均禁止 Ultra。
+              4. 按[派发与回执](../references/delegation/delegation-child-dispatch.yaml)和[上下文交接](../references/delegation/context-exchange-handoff.yaml)传递必要材料。按[委派交接规则](../references/delegation/delegation-policy.yaml#handoff)核对旧实例的未决效果，再按依赖整合已核实结果。
   - outputs:
       kind: section
       title: 输出与落点
@@ -64,4 +64,4 @@ blocks:
         - sources-body:
             kind: markdown
             text: |-
-              查看[委派能力](../references/orchestration/delegation-policy.yaml#capabilities)、[任务和角色匹配](../references/orchestration/delegation-policy.yaml#assignment)、[同角色复用与替换](../references/orchestration/delegation-policy.yaml#reuse)及[模型与推理强度](../references/orchestration/delegation-policy.yaml#model-effort)。
+              [委派规则](../references/delegation/delegation-policy.yaml)定义能力核验、角色匹配、同角色复用与替换、交接和模型选择。

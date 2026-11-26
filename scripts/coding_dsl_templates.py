@@ -12,10 +12,13 @@ from ruamel.yaml import YAML
 
 from workflow_module_contracts import PHASES, ROUTE_HOOKS, TOP_PREFIXES, WORKFLOW_PATH
 
-LAYER_TYPES = {
+REFERENCE_LAYER_TYPES = {
     "layer-01-fundamental-concepts": "fundamental-concept",
     "layer-02-workflow-concepts": "workflow-concept",
     "layer-03-workflow-checkpoints": "workflow-checkpoint",
+}
+LAYER_TYPES = {
+    **REFERENCE_LAYER_TYPES,
     WORKFLOW_PATH.as_posix(): "workflow-route",
 }
 DOCUMENT_TYPES = ("directory-guide", *LAYER_TYPES.values())

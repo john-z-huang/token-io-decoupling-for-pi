@@ -7,14 +7,8 @@ blocks:
   - body:
       kind: markdown
       text: |-
-        主代理从用户当前指令提取目标、限制、交付物和验收条件。先完成[入口 Hook](../hooks/entry.yaml)，再按工作依赖、可独立交付的任务和协调成本选路线。
+        先通过[入口 Hook](../hooks/entry.yaml)确认用户目标、限制、交付物和验收条件。按[选路规则](../references/planning/task-planning.yaml#route-selection)在[单代理路线](coding-single-agent.yaml)和[多代理路线](coding-multi-agent.yaml)之间选择。
 
-        1. 用户明确要求不创建或不使用子代理时，进入[单代理路线](coding-single-agent.yaml)，全部工作留在主代理。
-        2. 用户明确要求委派时，进入[多代理路线](coding-multi-agent.yaml)，以满足该要求所需的分工为准。
-        3. 其余任务由主代理判断是否有目的明确、可独立交付、能提高效率或质量的分工。有此分工时进入[多代理路线](coding-multi-agent.yaml)，否则进入[单代理路线](coding-single-agent.yaml)。
-
-        多代理路线依据[规划 Hook](../hooks/planning.yaml)和[委派 Hook](../hooks/delegation.yaml)从现有角色中选择需要的角色，按当前任务动态决定何时派发。子代理数量由实际分工产生。必要能力缺失或未核实时，按[恢复 Hook](../hooks/recovery.yaml)处理依赖委派的事项，继续可独立完成的工作。
-
-        用户补充指令、任务依赖或必要能力发生变化时，回到受影响的判断，并继续沿用仍有效的结果。用户的单代理约束持续适用，直到用户改变该约束。新约束影响在途委派时，先按[恢复 Hook](../hooks/recovery.yaml)处理。
+        多代理路线依据[规划 Hook](../hooks/planning.yaml)与[委派 Hook](../hooks/delegation.yaml)安排角色和派发时间。必要能力缺失或新约束影响在途委派时，按[恢复 Hook](../hooks/recovery.yaml)处理。用户指令、任务依赖或可用能力变化时，按[计划调整规则](../references/planning/task-planning.yaml#plan-updates)重查受影响的判断。
 
         [完整路线目录](README.yaml) · [Hook 触发目录](../hooks/README.yaml)

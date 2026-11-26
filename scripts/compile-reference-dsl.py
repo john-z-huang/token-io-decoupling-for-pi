@@ -24,7 +24,9 @@ from ruamel.yaml import YAML, YAMLError
 from ruamel.yaml.tokens import AliasToken, AnchorToken
 
 import document_rules as COMPLIANCE
-from coding_dsl_templates import DOCUMENT_TYPES, document_type, load_templates, validate_coding_document
+from coding_dsl_templates import (
+    DOCUMENT_TYPES, REFERENCE_LAYER_TYPES, document_type, load_templates, validate_coding_document,
+)
 from hook_dsl_templates import HOOK_TYPES, hook_type, load_hook_templates, validate_hook_document
 from local_skill import DEFAULT_NAME, update_local_skill
 from workflow_checkpoint_lookup import NUMBERED_BLOCKS, check_flowchart_references, locate_checkpoint
@@ -38,9 +40,7 @@ ROUTES = SOURCE / WORKFLOW_PATH
 TEMPLATES = SOURCE / "templates/coding"
 HOOK_SOURCE = SOURCE / "hooks"
 HOOK_TEMPLATES = SOURCE / "templates/hooks"
-HOOK_COVERAGE = "hooks/SOURCE_COVERAGE.md"
 SKILL = ROOT / "skill"
-ROLE_NAMES = ("planner", "scout", "worker", "reviewer", "git-operator")
 RETIRED_FINGERPRINTS = Path(__file__).with_name("retired-skill-sha256.json")
 RULE_INCLUDE = re.compile(r"^<!-- rule:([a-z][a-z0-9-]*)#([A-Za-z][A-Za-z0-9-]*) -->$")
 FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})")
@@ -195,7 +195,6 @@ def compile_hooks(
 ) -> None:
     markdown = {}
     bodies = {}
-    targets[HOOK_COVERAGE] = {}
     for path, document in read_hook_documents():
         source_documents[path] = document
         target = document["markdown_path"]
@@ -250,39 +249,6 @@ def is_retired_output(path: Path, fingerprints: dict[str, str | list[str]]) -> b
     )
 
 
-def read_coverage() -> dict:
-    schema = json.loads((SOURCE / "hook-coverage.schema.json").read_text(encoding="utf-8"))
-    path = (SOURCE / HOOK_COVERAGE).with_suffix(".yaml")
-    report = read_rule(path, source_bytes(path).decode("utf-8"), Draft202012Validator(schema))
-    for row in report["rows"]:
-        if COMPLIANCE.reverse_dependency_target(PurePosixPath(path.relative_to(ROOT)), row["source"]):
-            raise ValueError(f"Hook 来源对照存在反向依赖：{row['source']}")
-    return report
-
-
-def render_coverage(outputs: dict[Path, str]) -> str:
-    report = read_coverage()
-    lines = [
-        f"# {report['title']}", "",
-        source_notice((SOURCE / HOOK_COVERAGE).with_suffix(".yaml")), "",
-        "本表列出 Hook 消费的规则和导航。实质文章逐篇指向引用它的合同，各合同末尾列明主题落点。路线的阶段绑定由路线索引与静态检查核对。", "",
-        "表中列出的路径和显式归属供审阅时定位条款。语义等价、授权和验收仍需逐条对照权威规则与当前证据。", "",
-        "| 源文档（相对 Skill） | 类型 | 合同落点或导航归属 |", "| --- | --- | --- |",
-    ]
-    for row in report["rows"]:
-        source = row["source"]
-        relative = posixpath.normpath(posixpath.join("hooks", source)).removesuffix(".yaml") + ".md"
-        if not source.endswith(".yaml") or SKILL / relative not in outputs:
-            raise ValueError(f"Hook 来源没有可导出的 YAML 文档：{source}")
-        for hook in row["hooks"]:
-            if SKILL / "hooks" / f"{hook}.md" not in outputs:
-                raise ValueError(f"Hook 来源对照引用缺失的合同：{hook}")
-        label = "仅参考：" if row["kind"] == "reference" else "仅导航：" if not row["explicit"] else ""
-        hooks = "、".join(f"[{hook}]({hook}.md#执行要求)" for hook in row["hooks"])
-        lines.append(f"| [{relative}](../{relative}) | {row['kind']} | {label}{hooks} |")
-    return "\n".join(lines) + "\n"
-
-
 def rule_validator() -> Draft202012Validator:
     schema = json.loads((SOURCE / "reference.schema.json").read_text(encoding="utf-8"))
     return Draft202012Validator(schema)
@@ -292,8 +258,6 @@ def read_hook_documents() -> Iterator[tuple[Path, dict]]:
     validator = rule_validator()
     templates = load_hook_templates(HOOK_TEMPLATES, validator)
     for path in sorted(HOOK_SOURCE.glob("*.yaml")):
-        if path.name == "SOURCE_COVERAGE.yaml":
-            continue
         document = read_rule(path, source_bytes(path).decode("utf-8"), validator)
         validate_hook_document(path, document, templates[hook_type(path)])
         yield path, document
@@ -310,9 +274,9 @@ def read_rules(paths: Iterable[Path]) -> Iterator[tuple[Path, dict]]:
             raise ValueError(f"重复或保留的文档 ID：{path.relative_to(ROOT)}#{document['id']}")
         ids.add(document["id"])
         relative = path.relative_to(SOURCE)
-        if path.is_relative_to(CODING) or (
-            path.is_relative_to(ROUTES) and relative != WORKFLOW_SELECTOR
-        ):
+        legacy_reference = path.is_relative_to(CODING) and relative.parts[2] in REFERENCE_LAYER_TYPES
+        workflow = path.is_relative_to(ROUTES) and relative != WORKFLOW_SELECTOR
+        if legacy_reference or workflow:
             validate_coding_document(relative, document, templates[document_type(relative)])
         yield path, document
 
@@ -361,10 +325,6 @@ def compile_rules() -> dict[Path, str]:
     for path in references:
         target = SKILL / path
         outputs[target] = render_dsl_links(path, outputs[target], targets)
-    outputs[SKILL / HOOK_COVERAGE] = render_coverage(outputs)
-    for name in ROLE_NAMES:
-        relative = Path("agents") / f"{name}.md"
-        outputs[SKILL / relative] = source_bytes(ROOT / relative).decode("utf-8")
     link_issues = COMPLIANCE.document_link_issues({
         path.relative_to(SKILL).as_posix(): content
         for path, content in outputs.items() if path.suffix == ".md"
@@ -428,8 +388,7 @@ def main() -> int:
                 markdown = render_blocks(document["blocks"], 2, set(), {}, {})
                 check_dsl_dependencies(document["markdown_path"], markdown)
             check_flowchart_references(rules | hooks)
-            read_coverage()
-            print(f"DSL 结构校验通过，共 {len(rules)} 份规则文档、{len(hooks)} 份 Hook 源文档和 1 份来源对照。")
+            print(f"DSL 结构校验通过，共 {len(rules)} 份规则文档和 {len(hooks)} 份 Hook 源文档。")
             return 0
         outputs = compile_rules()
         if publishing:

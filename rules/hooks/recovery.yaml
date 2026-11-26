@@ -29,10 +29,10 @@ blocks:
         - execution-body:
             kind: markdown
             text: |-
-              1. 先检查真实状态和已发生的效果，确定剩余工作。效果不明的操作不得盲目重放。
-              2. 优先修复可恢复的问题并续接原执行者。子代理可能异常时，读取实际状态与可续接性，按同角色复用与替换规则处理。
+              1. 先检查真实状态和已发生的效果，按[执行边界](../references/execution/execution-control.yaml#disposition)判断能否恢复。效果不明的操作不得盲目重放。
+              2. 按[修复范围](../references/execution/repair-scope-gate.yaml)处理可恢复的问题，并优先续接原执行者。子代理可能异常时，读取实际状态与可续接性，按同角色复用与替换规则处理。
               3. 用户收窄范围或禁止子代理时，停止按旧范围派发。使用宿主实际提供的能力暂停或取消受影响的在途工作，并核对已发生的效果。无法停止或核实的事项按未决处理。
-              4. 继续推进无影响的工作，按需要更新任务依赖或执行者。影响用户约束、授权或验收时回到相关判断。
+              4. 按[主代理职责](../references/roles/main-agent.yaml#execution)继续推进无影响的工作，按需要更新任务依赖或执行者。影响用户约束、授权或验收时回到相关判断。
   - outputs:
       kind: section
       title: 输出与落点
@@ -64,4 +64,4 @@ blocks:
         - sources-body:
             kind: markdown
             text: |-
-              同角色实例的恢复和替换边界见[同角色复用与替换](../references/orchestration/delegation-policy.yaml#reuse)。
+              查阅[同角色复用与替换](../references/delegation/delegation-policy.yaml#reuse)和[交接](../references/delegation/delegation-policy.yaml#handoff)。恢复期间的分工调整按[计划调整规则](../references/planning/task-planning.yaml#plan-updates)执行。

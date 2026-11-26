@@ -29,9 +29,9 @@ blocks:
         - execution-body:
             kind: markdown
             text: |-
-              1. 按可交付结果拆解任务，标明工作依赖、工作区或路径范围、执行者和返回证据。任务简单时使用简短计划。
-              2. 单代理路线由主代理承担全部工作。多代理路线按实际需要，将能满足委派要求、提高效率或改善质量的可交付工作匹配到现有角色。主代理负责关键取舍、协调、集成及最终验收。
-              3. 并行执行无阻塞依赖和写入冲突的任务。收集到新证据后更新后续顺序、分工和验收，复用仍有效的结果。子代理数量由当前任务产生，随工作需要动态调整。
+              1. 按[任务边界与依赖](../references/planning/task-planning.yaml#task-boundaries)拆解工作，明确前置输入、执行者、影响范围及返回证据。
+              2. 按[执行者与依赖规则](../references/planning/task-assignment.yaml)确定分工与交接。按[决策与执行条件](../references/planning/execution-decision-gate.yaml)核对拟执行工作是否就绪。
+              3. 按[计划调整规则](../references/planning/task-planning.yaml#plan-updates)根据新证据调整分工、顺序和验收，保留仍适用的结果和派发记录。目标、授权或验收变化时重查[任务约定](../references/planning/contract.yaml)。
   - outputs:
       kind: section
       title: 输出与落点
@@ -63,4 +63,4 @@ blocks:
         - sources-body:
             kind: markdown
             text: |-
-              任务与角色匹配见[分配与复用规则](../references/orchestration/delegation-policy.yaml#assignment)。
+              [任务规划](../references/planning/task-planning.yaml)定义分工与依赖，[角色匹配](../references/delegation/delegation-policy.yaml#assignment)定义派发前的实例核对。

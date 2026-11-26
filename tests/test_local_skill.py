@@ -72,22 +72,50 @@ class LocalSkillTests(unittest.TestCase):
             target = home / ".agents" / "skills" / "token-io-decoupling"
             self.assertIn("\nname: token-io-decoupling\n", (target / "SKILL.md").read_text(encoding="utf-8"))
             self.assertTrue((target / "hooks" / "README.md").is_file())
-            repository_agents = SCRIPTS.parent / "agents"
-            roles = {role.name: role.read_bytes() for role in repository_agents.glob("*.md")}
-            self.assertTrue(roles)
-            self.assertEqual(roles, {
-                role.name: role.read_bytes() for role in (target / "agents").glob("*.md")
-            })
+            self.assertTrue((target / "references" / "README.md").is_file())
+            old_reference_directory = Path("references/coding")
+            self.assertFalse((target / old_reference_directory).exists())
+            role_directory = Path("references/roles")
+            roles = {
+                role_directory / f"{name}.md"
+                for name in (
+                    "main-agent", "primary-output", "change-verification", "context-bootstrap-refresh",
+                    "documentation-comments-git-operations",
+                )
+            }
+            for role in roles:
+                with self.subTest(role=role):
+                    self.assertIn(
+                        f"由 rules/{role.with_suffix('.yaml').as_posix()} 生成",
+                        (target / role).read_text(encoding="utf-8"),
+                    )
+            self.assertFalse((target / "agents").exists())
             self.assertFalse((target / "_project").exists())
             manifest = json.loads((target / MARKER).read_text(encoding="utf-8"))
             self.assertEqual(manifest["name"], "token-io-decoupling")
             self.assertTrue(all(path.endswith(".md") for path in manifest["files"]))
+            self.assertTrue({role.as_posix() for role in roles}.issubset(manifest["files"]))
             expected_manifest = (target / MARKER).read_bytes()
+            old_roles = {
+                directory / role.name
+                for directory in (old_reference_directory, old_reference_directory / "roles")
+                for role in roles
+            }
             with patch.object(Path, "home", return_value=home):
-                self.assertEqual(update_local_skill({Path("SKILL.md"): "旧版本\n"}), target)
+                old_outputs = {
+                    Path("SKILL.md"): "旧版本\n",
+                    Path("agents/worker.md"): "旧角色说明\n",
+                    **{
+                        role: f"<!-- 由 rules/{role.with_suffix('.yaml').as_posix()} 生成。请在 DSL 中维护正文。 -->\n"
+                        for role in old_roles
+                    },
+                }
+                self.assertEqual(update_local_skill(old_outputs), target)
                 with patch.object(sys, "argv", [str(compiler), "--update-skill"]):
                     self.assertEqual(main(), 0)
             self.assertEqual((target / MARKER).read_bytes(), expected_manifest)
+            self.assertFalse((target / "agents").exists())
+            self.assertFalse((target / old_reference_directory).exists())
             project = home / "project"
             project.mkdir()
             (project / ".git").mkdir()
@@ -97,6 +125,7 @@ class LocalSkillTests(unittest.TestCase):
                 self.assertEqual(main(), 0)
             project_target = project / ".agents" / "skills" / DEFAULT_NAME
             self.assertEqual((project_target / MARKER).read_bytes(), (target / MARKER).read_bytes())
+            linked_paths = set()
             for path in target.rglob("*.md"):
                 for _, _, href in links_in_markdown(path.read_text(encoding="utf-8")):
                     url = urlsplit(href)
@@ -106,6 +135,8 @@ class LocalSkillTests(unittest.TestCase):
                     with self.subTest(path=path.relative_to(target), href=href):
                         self.assertTrue(destination.is_relative_to(target))
                         self.assertTrue(destination.exists())
+                        linked_paths.add(destination.relative_to(target))
+            self.assertTrue(roles.issubset(linked_paths))
 
     def test_cli_installs_and_updates_named_skill_in_custom_directory(self):
         compiler = SCRIPTS / "compile-reference-dsl.py"

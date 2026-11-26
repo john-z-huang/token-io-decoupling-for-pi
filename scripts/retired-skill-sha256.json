@@ -1,7 +1,32 @@
 {
+  "agents/git-operator.md": [
+    "76b2db83d5cc774cda1a8afc69c6cd07620d00dd438f8cafd5a5d90b8e8288ab",
+    "8488bfd52de7d6e596092090109c807ac19c359f4d43cb7f648b89f657ac4009"
+  ],
   "agents/openai.yaml": [
     "6b6106134e9a36ac71478a834e759ccf5e0cb0ea45c1287d693894b22b79bf80",
     "8c4071c5977a91c801beba02dadc68c90494b091c396b8f4bfa0ed217f491e94"
+  ],
+  "agents/planner.md": [
+    "24213d4685b37f6dce620859182b2594cd9286a86e30a0cb95a7692c7424b211",
+    "c0937a5ac4358a3ee18b8fd468f1a2b475f8f03595452cadb4e174e9ceecb6b5"
+  ],
+  "agents/reviewer.md": [
+    "44d0974a1e2cb9cc756d5e59278cbff152f8dbb262180ba24411a2ce31c907f7",
+    "8ddcbaa5028a0f70bbc9eb948ba7ef04a021ba78054972821b7b347553721773"
+  ],
+  "agents/scout.md": [
+    "1a3a00942aecf22f7344c5a1b2f5186e85f96f8f751994a77d4c1e7372ae7210",
+    "bc025adeb226fafaef6a0faf819358453ba823ffd41733e1d22b344569016f79"
+  ],
+  "agents/worker.md": [
+    "907b4a3861fd5aa9a8b51af81201c6a995b5ef07c44a8e690bc4c0a136968b80",
+    "c2f36aba0b6435a372556957d794117b3f2e5dcfbe8204c2e4cf7597c3078827"
+  ],
+  "hooks/SOURCE_COVERAGE.md": [
+    "35cfec343b1c33e7d61202b4dafad90a750f8c5363d7f200bab4a3a11b40cba0",
+    "a735ea2ee05b668bba45c74a4c7afc9b876bad8c0f85f60721c713bfadb22c02",
+    "b38ccfddcc1d9bd7e8e5d72e7b4228a711c7e8c7411750b00c11d5cdd75cafae"
   ],
   "hooks/advisory.md": "1645a20e274821d10b2ec526032d6be13f0439ebf602f0ead09ed4cbe72f3a47",
   "hooks/audit.md": "7c88d3cdf17a17d9011a30360fc0d26257aa122dda2c3de8054f796c9220457c",
@@ -12,6 +37,16 @@
   "hooks/navigation.md": "375398932fb5e5d9c6ba5596bfdfa71a05e07c6bd1ca94e31cbafb4ac93a3e75",
   "hooks/repair.md": "9131465730a9fc6de5a685ba004df28f70dc06185d245095f56bb3ca7fb6695d",
   "hooks/session.md": "70605dbb857b5c48f4a210de75142e8472a5cbe30d5e5f5bbaac0d1fa3d7e027",
+  "references/coding/README.md": "a3552ac08c9881533602992e94ee71c1fe5bec531a59613550d3d18ef0e8a8ce",
+  "references/coding/change-verification.md": "7571407681921452abb00d518ee977b751fdbbdd0156367026bfc6460c021ac1",
+  "references/coding/context-bootstrap-refresh.md": "16257fdb2fe0cb9e1e4879d5f4d0bce6e1e46827486022befb2e5084433f3846",
+  "references/coding/delegation-policy.md": "2e7a667bed4154b00e341a1c05092eb0ed018eef46e5d269e934f084feb196d7",
+  "references/coding/delegation/context-exchange-handoff.md": "1af1768292b519ff743d9fbfa2b0817c60f31b57e26facc2f9ef3628f2b6a62b",
+  "references/coding/delegation/delegation-child-dispatch.md": "8836c0c23220bdd8e54ad3921d5bd9e00d1128a776a206f0a943015a99b542e3",
+  "references/coding/documentation-comments-git-operations.md": "65aa84421ad40ca6a15ce8d6a4f9cb8aa3bcede645c26954ad2db94e616f39dd",
+  "references/coding/execution/execution-control.md": "08a537ec9e262ea5ac6ee7bbfe6fdaea878475325c67ce41b321f34041216e3d",
+  "references/coding/execution/execution-stage-feedback.md": "eca4fbf314a85117ff6ec6caad74ef5ebe7a60d747c10c091df67b039cf805c5",
+  "references/coding/execution/repair-scope-gate.md": "038828570f679a169b4e2584c236bd007e23be7a5667a9acdbbef32759c4e71a",
   "references/coding/layer-01-fundamental-concepts/README.md": "b43b229c8613ed474fe4df32e62996fd9132b9ab0f8f0aa186edd5433a1cf76c",
   "references/coding/layer-01-fundamental-concepts/context-exchange/README.md": "681eff99afd4548df5fab8f77c083ac51cf9e9fc8c07cefe3fe2250efeb3380d",
   "references/coding/layer-01-fundamental-concepts/context-exchange/content-memo-dispatch.md": "cd92a0f278beaa889a444a6053f815bed9097c753a5403d42bfc79f033b85540",
@@ -101,6 +136,21 @@
   "references/coding/layer-03-workflow-checkpoints/session-audit-resolution.md": "14c910f14d7c18f62b9f81d9a0d250c96c56ef2c72cb89a71bd20eaebf45ab82",
   "references/coding/layer-03-workflow-checkpoints/session-state-resolution.md": "1aac6c2c98a74130748e4eb17148a1d7f68caf83d2ac82c71f25ef0d89d8f1c6",
   "references/coding/layer-03-workflow-checkpoints/workflow-navigation-selection.md": "5dbe8aec94a114727e4b1d9ab6f729c8677c9d8795070c1f8252ee788b954a6f",
+  "references/coding/main-agent.md": "64638eb800ddaaf875cada223c8435179a5ef9c315550303f0374c82fee3f3df",
+  "references/coding/planning/contract.md": "1f461a980fb9f1763861b3b7d0e3b791ce10a60dbddccd999d7c89addbe0c5b6",
+  "references/coding/planning/execution-decision-gate.md": "c9a7a9c9d3e15fd3cfbfa1746485a595cef656bb9cddca40e7e80b8b0ae5ac1d",
+  "references/coding/planning/task-assignment.md": "406525988a7310e17e070c81643e10848ad70cc46c4f8ddbb459968edde01938",
+  "references/coding/primary-output.md": "423edc4de2dbc15d6c74690c4e92f34c450a413224ade8ce55c096edd9d7238c",
+  "references/coding/roles/change-verification.md": "bcd9d3f6a4f56aa2f2e678aa1dbaf816904ad36901981923581a2b86342008de",
+  "references/coding/roles/context-bootstrap-refresh.md": "1f6e3d2c94f6b0cc6b3281ca4700c2b0428254a233e29a7df86f4bf69fdfda8c",
+  "references/coding/roles/documentation-comments-git-operations.md": "bc7c4d4387e4ab814382f3e0707c3029cf45d2d43a2fea83bd5bc4b62d059c21",
+  "references/coding/roles/main-agent.md": "f3e910448438182643969367856f01e3bc887edfdfc438c636c965b7dcdbbbbb",
+  "references/coding/roles/primary-output.md": "09a928a568bf081fca5680222b1d07a283a7fd0c7ea147170e6993e2416987f4",
+  "references/coding/task-planning.md": "609aa8cf6aa8e0158d6b33d5bff78131ddc6cb518780c4967c53cbac4602421b",
+  "references/coding/verification/repair-verification-handoff.md": "f46585d253090ae7e2e534914e1a16810e7e5a2a409f89a84d1ebd8ee9db62ad",
+  "references/coding/verification/verification-epoch.md": "499d87e6882e6e182bc8b8ca5ce7a2b3d3e87b07225af0208cf62471c8b5ef19",
+  "references/coding/verification/verification-independence.md": "bcb7a787bcff3ffdd6c0c1ad0c3f6f7f9364f08244f2cdf22e5cdf7ee9f9500e",
+  "references/coding/verification/verification-reporting.md": "7758d69e51bdc9d6869e1b51ef7314a5599336a1accc8b46cc810b0d85ca2f63",
   "references/hosts/codex.md": [
     "55b29d2291c078e427ef3916bb2a3575aaeaa5eba46654fbfc0faa242ca02414",
     "8778f87e23b9131a83dd0e4c3c1a2de9f34a756508667c2d33dd6d0b8fd90814"
@@ -111,5 +161,6 @@
   ],
   "references/multimodal/multimodal-flow.md": "be9e4b7f8e49abb9e4de25543531077e9e6282359bd95f58548fc396e8cacef0",
   "references/multimodal/multimodal-openai-profile.md": "d31af36cf083e1bd9a7316acafd014e5d1a33b6c9cc97ede64d0c634a47d7f5b",
+  "references/orchestration/delegation-policy.md": "256e009a5b93cbab9379b44d31818aec47a80b28a333a0189681f6e5547da5f6",
   "references/share/shared-protocols.md": "987a3424b83a5ab02c394d766db7b3c2181850b481f3decc48688d7c96e41a8b"
 }

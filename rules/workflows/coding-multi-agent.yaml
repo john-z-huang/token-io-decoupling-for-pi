@@ -90,7 +90,7 @@ blocks:
         - mode-boundary-body:
             kind: markdown
             text: |-
-              任务数量、角色、开始时机、模型和推理强度随计划演进。后续工作优先派给同角色已有实例；替换仅按[委派合同](../hooks/delegation.yaml)核实的例外办理。主代理同步推进独立工作，汇总实际证据并验收。
+              任务数量、角色、开始时机、模型和推理强度随计划演进。后续工作优先派给同角色已有实例。替换仅按[委派合同](../hooks/delegation.yaml)核实的例外办理。主代理按[自身职责](../references/roles/main-agent.yaml#execution)推进工作，汇总实际证据并验收。
   - related:
       kind: section
       title: 按条件触发的 Hooks

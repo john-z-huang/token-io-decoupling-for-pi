@@ -40,7 +40,7 @@ blocks:
         - references-body:
             kind: markdown
             text: |-
-              各合同的「规则来源」连接适用的编排参考。维护时可从[来源对照](SOURCE_COVERAGE.yaml)定位参考规则与使用方。
+              各合同在执行要求或「规则来源」中链接适用的编排参考。也可从[编排参考目录](../references/README.yaml)按主题查阅。
   - maintenance:
       kind: section
       title: 维护与验收

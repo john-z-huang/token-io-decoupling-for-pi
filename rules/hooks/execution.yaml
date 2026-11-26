@@ -29,9 +29,9 @@ blocks:
         - execution-body:
             kind: markdown
             text: |-
-              1. 核实工作依赖和当前获准范围，使用宿主实际支持的工具推进任务。
-              2. 记录实际结果、失败和影响后续任务的新证据。变更超出原范围时交回规划；失败或结果未知时查明当前实际效果，再决定恢复。
-              3. 依赖就绪后推进下一项工作。多代理路线中，主代理等待委派结果期间可推进独立工作。
+              1. 按[执行边界](../references/execution/execution-control.yaml#work-boundary)核实依赖、当前授权和结束条件。
+              2. 按[阶段反馈规则](../references/execution/execution-stage-feedback.yaml)记录实际结果、失败和新证据。需要调整或恢复时，先按[继续、调整或暂停条件](../references/execution/execution-control.yaml#disposition)判断。
+              3. 依赖就绪后推进下一项工作。多代理路线中的命令执行按[主代理职责](../references/roles/main-agent.yaml#execution)约束。
   - outputs:
       kind: section
       title: 输出与落点
@@ -63,4 +63,4 @@ blocks:
         - sources-body:
             kind: markdown
             text: |-
-              并行任务边界见[任务和角色匹配](../references/orchestration/delegation-policy.yaml#assignment)。
+              并行和串行条件见[任务边界与依赖](../references/planning/task-planning.yaml#task-boundaries)。

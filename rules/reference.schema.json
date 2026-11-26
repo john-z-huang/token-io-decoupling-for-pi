@@ -13,7 +13,7 @@
         "workflow-checkpoint", "workflow-route", "hook-contract", "hook-directory"
       ]
     },
-    "markdown_path": { "type": "string", "pattern": "^(?:SKILL|(?:references/(?:[A-Za-z0-9_-]+/)+|hooks/|workflows/)[A-Za-z0-9_-]+)\\.md$" },
+    "markdown_path": { "type": "string", "pattern": "^(?:SKILL|references/README|(?:references/(?:[A-Za-z0-9_-]+/)+|hooks/|workflows/)[A-Za-z0-9_-]+)\\.md$" },
     "front_matter": {
       "type": "object",
       "additionalProperties": false,
@@ -43,7 +43,14 @@
     },
     "blocks": { "$ref": "#/$defs/blocks" }
   },
-  "if": { "properties": { "markdown_path": { "pattern": "^(?:references/coding|workflows)/", "not": { "const": "workflows/coding.md" } } } },
+  "if": {
+    "properties": {
+      "markdown_path": {
+        "pattern": "^(?:references/coding/(?:layer-01-fundamental-concepts|layer-02-workflow-concepts|layer-03-workflow-checkpoints)|workflows)/",
+        "not": { "const": "workflows/coding.md" }
+      }
+    }
+  },
   "then": { "required": ["document_type"] },
   "allOf": [{
     "if": { "properties": { "markdown_path": { "pattern": "^hooks/" } } },

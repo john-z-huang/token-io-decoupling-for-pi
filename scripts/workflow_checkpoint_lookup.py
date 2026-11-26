@@ -76,7 +76,7 @@ def locate_checkpoint(root: Path, references: Path, hooks: Path, selector: str, 
     yaml = YAML(typ="rt")
     routes = references.parent / WORKFLOW_PATH
     sources = [*references.rglob("*.yaml"), *routes.rglob("*.yaml"), *hooks.glob("*.yaml")]
-    documents = {path: yaml.load(path) for path in sorted(sources) if path.name != "SOURCE_COVERAGE.yaml"}
+    documents = {path: yaml.load(path) for path in sorted(sources)}
     def document_id(path: Path) -> str:
         name = documents[path]["id"]
         return f"hook-{name}" if path.parent == hooks else name

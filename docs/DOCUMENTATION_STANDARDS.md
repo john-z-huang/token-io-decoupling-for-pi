@@ -9,12 +9,15 @@
 | [Skill 入口](../rules/SKILL.yaml) | 任务编排范围、选路和按需阅读入口 |
 | [工作流目录](../rules/workflows/README.yaml) | 单代理与多代理路线、各阶段的 Hook |
 | [Hook 目录](../rules/hooks/README.yaml) | 触发条件、输入与证据、执行和交接要求 |
-| [编排参考](../rules/references/) | 子代理规划、复用、替换和能力核验 |
-| [子代理角色](../agents/) | 角色职责、派发条件和预期结果 |
+| [开发任务编排参考](../rules/references/README.yaml) | 角色与通用规则，以及规划、委派、执行和验证的专题索引 |
+| [主代理职责](../rules/references/roles/main-agent.yaml) | 决策与授权边界、任务组织和最终验收 |
+| [子代理角色目录](../rules/references/delegation/delegation-policy.yaml) | 四类角色的职责、派发条件和交接证据 |
 
-`scripts/compile-reference-dsl.py` 从源文件生成 `skill/` 中的 Skill 入口和规则阅读版，并把角色描述一并发布。修改入口、路线和 Hook 时编辑 YAML，修改角色时编辑 `agents/` 下的 Markdown。生成目录由 Git 忽略。发布到本地管理目录见[安装与更新](../INSTALL.md)。
+`scripts/compile-reference-dsl.py` 从 `rules/` 下的 YAML 源文件生成 `skill/` 中的 Skill 入口和规则阅读版。其中主代理与四类子代理的角色规则由 `rules/references/roles/` 生成到 `skill/references/roles/`。生成目录由 Git 忽略。发布到本地管理目录见[安装与更新](../INSTALL.md)。
 
 YAML 使用[规则 Schema](../rules/reference.schema.json)。`markdown_path` 指定输出位置，`blocks` 中的稳定 ID 用于引用和检查点查找。源规则使用相对 `.yaml` 路径和可选的 `#块ID`。编译器核对目标文档及片段，并生成相对的 Markdown 链接和标题锚点。
+
+阶段规则分别维护在 `rules/references/` 下的 `planning/`、`delegation/`、`execution/` 和 `verification/`，由相关 Hook 按需引用。
 
 路线描述入场、规划、执行、验证和交付的顺序，以及必要的返回位置。Hook 描述适用动作的触发条件、所需证据、执行要求、交接与重新核验条件。跨文档的流程图节点与执行片段继续使用具名引用。
 

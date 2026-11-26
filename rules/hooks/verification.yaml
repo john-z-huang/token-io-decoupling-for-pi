@@ -29,9 +29,9 @@ blocks:
         - execution-body:
             kind: markdown
             text: |-
-              1. 主代理逐项核对用户要求和当前产物。根据任务风险与变化选择验证方法，并保留实际结果。
-              2. 多代理路线在有收益或存在独立性要求时，可以按委派规则使用审查验证角色。明确该角色可用的证据和所需的独立性，主代理核对返回内容后完成最终验收。
-              3. 发现缺陷时按原获准范围修复并重查受影响事项。需要改变范围、角色分工或验证标准时回到规划。分别记录通过、失败、跳过与阻断。
+              1. 根据任务风险与实际变化选择适用检查。主代理按[证据时效规则](../references/verification/verification-epoch.yaml)逐项核对用户要求、实际产物与检查结果。
+              2. 需要独立验证时，按[独立性规则](../references/verification/verification-independence.yaml)核实执行者和证据。多代理路线可按委派规则使用 [Change Verification](../references/roles/change-verification.yaml)，由主代理核对返回证据并验收。
+              3. 发现缺陷时先核对[修复范围](../references/execution/repair-scope-gate.yaml)，按[修复与复验交接](../references/verification/repair-verification-handoff.yaml)重查受影响事项。按[结果报告规则](../references/verification/verification-reporting.yaml)分别记录通过、失败、跳过与受阻。
   - outputs:
       kind: section
       title: 输出与落点
@@ -63,4 +63,4 @@ blocks:
         - sources-body:
             kind: markdown
             text: |-
-              具体验证角色参阅[审查验证](../agents/reviewer.md)及[分配与复用规则](../references/orchestration/delegation-policy.yaml)。
+              验证分工见 [Change Verification](../references/roles/change-verification.yaml)，核对返回证据见[派发与结果交接](../references/delegation/delegation-policy.yaml#handoff)。

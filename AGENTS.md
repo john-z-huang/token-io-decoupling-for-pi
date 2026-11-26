@@ -3,7 +3,7 @@
 ## 项目范围与权威资料
 
 - 本仓库维护开发任务编排 Skill。Skill 根据用户指令组织主代理和子代理的执行、交接、恢复与验收。项目入口为 [README.md](README.md)。
-- 入口、工作流与 Hook 的源文件维护在 `rules/`，子代理角色描述维护在 `agents/`，配套脚本在 `scripts/`。编译产物位于 Git 忽略的 `skill/`。
+- 入口、工作流与 Hook 的源文件维护在 `rules/`，主代理与子代理的角色规则维护在 `rules/references/roles/`，配套脚本在 `scripts/`。编译产物位于 Git 忽略的 `skill/`。
 - 文档维护规范见 [`docs/DOCUMENTATION_STANDARDS.md`](docs/DOCUMENTATION_STANDARDS.md)，本地更新见 [`INSTALL.md`](INSTALL.md)。
 - `archive/` 保存历史资料，默认构建、安装和验证均跳过该目录。
 

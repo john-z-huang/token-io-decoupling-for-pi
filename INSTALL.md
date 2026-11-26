@@ -26,7 +26,7 @@
 /bin/bash -c 'uv run --locked --script scripts/compile-reference-dsl.py --install-skill --project-root "$1"' _ '/absolute/path/to/project'
 ```
 
-安装内容包括 `SKILL.md`、Hooks、工作流、编排参考和子代理角色描述。选择当前运行环境能够发现或显式加载的目录。主代理在当前会话核验可用的子代理能力，再按角色描述规划和派发任务。
+安装内容包括 `SKILL.md`、Hooks、工作流及 `references/` 下的任务编排规则。主代理与子代理的角色规则位于 `references/roles/`。选择当前运行环境能够发现或显式加载的目录。主代理在当前会话核验可用的子代理能力，再按角色职责规划和派发任务。
 
 ## 安装保护
 

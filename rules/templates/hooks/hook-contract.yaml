@@ -98,4 +98,4 @@ document:
               text: |-
                 | 来源 | 本合同落点 |
                 | --- | --- |
-                | [委派规则](../references/orchestration/delegation-policy.yaml) | 任务与角色匹配。 |
+                | [委派规则](../references/delegation/delegation-policy.yaml) | 任务与角色匹配。 |
