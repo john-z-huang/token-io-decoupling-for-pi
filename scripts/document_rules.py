@@ -44,7 +44,7 @@ _SKILL_LAYERS = {
     ("workflows",): "workflows",
 }
 _LAYER_RANK = {layer: index for index, layer in enumerate(_SKILL_LAYERS.values())}
-_SHARED_ROUTE_HOOKS = {"README", "recovery"}
+_SHARED_ROUTE_HOOKS = {"README", "delegation", "execution", "recovery"}
 
 
 class LinkPathError(ValueError):

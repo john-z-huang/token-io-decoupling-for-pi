@@ -27,7 +27,8 @@ import document_rules as COMPLIANCE
 from coding_dsl_templates import DOCUMENT_TYPES, document_type, load_templates, validate_coding_document
 from hook_dsl_templates import HOOK_TYPES, hook_type, load_hook_templates, validate_hook_document
 from local_skill import DEFAULT_NAME, update_local_skill
-from workflow_checkpoint_lookup import NUMBERED_BLOCKS, check_flowchart_references, locate_checkpoint
+from workflow_checkpoint_lookup import NUMBERED_BLOCKS, check_flowchart_references, find_block, locate_checkpoint
+from workflow_flowcharts import route_blocks, validate_hook_flowcharts
 from workflow_module_contracts import ROUTE_HOOKS, WORKFLOW_PATH, WORKFLOW_SELECTOR
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -284,17 +285,17 @@ def compile_rules() -> dict[Path, str]:
     outputs: dict[Path, str] = {}
     targets: dict[str, dict[str, str]] = {}
     reference_layers: dict[str, str | None] = {}
-    source_documents = {}
     fragment_ids: dict[str, set[str]] = {}
     sources = (*REFERENCES.rglob("*.yaml"), *workflow_sources(), SOURCE / "SKILL.yaml")
-    for source_path, document in read_rules(sources):
-        source_documents[source_path] = document
+    source_documents = dict(read_rules(sources))
+    _, flowcharts, _ = find_block(source_documents[ROUTES / "README.yaml"], "hook-flowcharts")
+    for document in source_documents.values():
         document_id = document["id"]
         markdown_path = SKILL / document["markdown_path"]
         fragments: dict[str, str | None] = {}
         heading_counts: dict[str, int] = {}
         heading_anchor(document["title"], heading_counts)
-        body = render_blocks(document["blocks"], 2, set(), fragments, heading_counts)
+        body = render_blocks(route_blocks(document, flowcharts), 2, set(), fragments, heading_counts)
         if "<!-- rule:" in body:
             raise ValueError(f"DSL 规则正文不包含 Hook 执行引用：{source_path.relative_to(ROOT)}")
         title_gap = "\n" * document.get("blank_lines_after_title", 2)
@@ -310,6 +311,7 @@ def compile_rules() -> dict[Path, str]:
         reference_layers[document_id] = COMPLIANCE.path_layer(PurePosixPath(path))
     references = tuple(targets)
     compile_hooks(fragment_ids, targets, outputs, reference_layers, source_documents)
+    validate_hook_flowcharts(flowcharts, source_documents.values())
     check_flowchart_references(source_documents)
     for path in references:
         target = SKILL / path
@@ -373,8 +375,10 @@ def main() -> int:
             hooks = dict(read_hook_documents())
             if not rules or not hooks:
                 raise ValueError("没有可校验的规则或 Hook DSL")
+            _, flowcharts, _ = find_block(rules[ROUTES / "README.yaml"], "hook-flowcharts")
+            validate_hook_flowcharts(flowcharts, hooks.values())
             for document in (*rules.values(), *hooks.values()):
-                markdown = render_blocks(document["blocks"], 2, set(), {}, {})
+                markdown = render_blocks(route_blocks(document, flowcharts), 2, set(), {}, {})
                 check_dsl_dependencies(document["markdown_path"], markdown)
             check_flowchart_references(rules | hooks)
             print(f"DSL 结构校验通过，共 {len(rules)} 份规则文档和 {len(hooks)} 份 Hook 源文档。")

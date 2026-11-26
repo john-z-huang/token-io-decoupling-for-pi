@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import re
 from collections.abc import Iterator
 from itertools import groupby
 from pathlib import Path
@@ -10,9 +9,11 @@ from pathlib import Path
 from jsonschema import Draft202012Validator
 from ruamel.yaml import YAML
 
+from workflow_flowcharts import parse_flowchart
 from workflow_module_contracts import PHASES, ROUTE_HOOKS, TOP_PREFIXES, WORKFLOW_PATH
 
 DOCUMENT_TYPES = ("directory-guide", "workflow-route")
+HOOK_FLOWCHARTS = {"kind": "rule_include", "document": "coding-workflow-directory", "fragment": "hook-flowcharts"}
 
 
 def document_type(path: Path) -> str:
@@ -61,6 +62,9 @@ def validate_coding_document(path: Path, document: dict, template: dict) -> None
             validate_children(block["blocks"], path, block_id, rule.get("child_kinds"))
 
     if expected_type == "workflow-route":
+        flowchart = blocks["flowchart"]["blocks"]
+        if flowchart[-1].get("hook-details") != HOOK_FLOWCHARTS:
+            raise ValueError(f"{path}#flowchart 须包含共用 Hook 子流程图")
         steps = list(block_entries(blocks["checkpoints"]["blocks"]))
         actual = [block["phase"] for _, block in steps if block["kind"] == "route_step"]
         if steps[0][0] != "preconditions" or actual != list(PHASES) or len(steps) != len(PHASES) + 1:
@@ -72,16 +76,21 @@ def validate_coding_document(path: Path, document: dict, template: dict) -> None
             )
             if tuple((block_id, block["hook"]) for block_id, block in steps[1:]) != expected:
                 raise ValueError(f"{path}#checkpoints 的路线步骤 ID 或 Hook 顺序与工作流合同不一致")
-        validate_route_diagram(path, blocks["flowchart"]["blocks"], [name for name, _ in steps[1:]])
+        validate_route_diagram(path, flowchart, [name for name, _ in steps[1:]])
 
 
 def validate_route_diagram(path: Path, blocks: list[dict], ids: list[str]) -> None:
-    text = "\n".join(block["text"] for _, block in block_entries(blocks))
-    nodes = re.findall(r"(?m)^\s*([A-Z][A-Z0-9_]*)\s*\[", text)
-    edges = re.findall(r"(?m)^\s*([A-Z][A-Z0-9_]*)\s*-->\s*([A-Z][A-Z0-9_]*)\b", text)
-    sequence = [*ids, "DONE"]
-    if nodes != sequence or edges != list(zip(sequence, sequence[1:])):
-        raise ValueError(f"{path}#flowchart 须按路线顺序声明并连接阶段与 DONE")
+    text = dict(block_entries(blocks))["flowchart-body"]["text"]
+    nodes, edges = parse_flowchart(f"{path}#flowchart", text)
+    sequence = ["START", *ids, "DONE", "END"]
+    default_edges = [
+        (start, end) for start, end, conditional in edges
+        if not conditional and (end != "END" or start in sequence)
+    ]
+    if [node for node in nodes if node in sequence] != sequence or default_edges != list(zip(sequence, sequence[1:])):
+        raise ValueError(f"{path}#flowchart 须按默认路线用实线从开始经各阶段和完成节点连至结束")
+    if any(conditional and "DONE" in (start, end) for start, end, conditional in edges):
+        raise ValueError(f"{path}#flowchart 的完成节点只能由交付阶段通过验收后进入")
 
 
 def load_templates(directory: Path, validator: Draft202012Validator) -> dict[str, dict]:
